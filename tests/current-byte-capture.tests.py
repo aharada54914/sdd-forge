@@ -106,6 +106,39 @@ class CurrentCaptureTests(unittest.TestCase):
         self.fixture = alias
         self.test_real_f1_and_f2_fixture_cwd_and_marker_reach_current_generator()
 
+    def test_only_the_shipped_guardrails_example_reaches_the_fixture_sdd_directory(self):
+        source = CAPTURE.indexed_source(self.product)
+        example = 'sdd/guardrails.example.yaml'
+        self.assertEqual({example}, {name for name in source if name.lower().startswith('sdd/')})
+        self.assertEqual((self.product / example).read_bytes(), CAPTURE.files_only_payload(source)[example])
+
+    def test_git_index_aliases_cannot_populate_the_fixture_sdd_directory(self):
+        aliases = ('SDD/local-config.yaml', 'sDd/guardrails.example.yaml', 'sdd/GUARDRAILS.example.yaml')
+        for number, alias in enumerate(aliases):
+            with self.subTest(alias=alias):
+                repo = self.work / f'alias-{number}'
+                path = repo / alias
+                path.parent.mkdir(parents=True)
+                path.write_bytes(b'project data')
+                subprocess.run(['git', 'init', '-q', str(repo)], check=True)
+                subprocess.run(['git', '-C', str(repo), 'add', '-f', '--', alias], check=True)
+                indexed = subprocess.check_output(['git', '-C', str(repo), 'ls-files', '-z'])
+                self.assertEqual(alias.encode() + b'\0', indexed)
+                source = CAPTURE.indexed_source(repo)
+                self.assertEqual({}, source)
+                with self.assertRaisesRegex(ValueError, 'source is missing the declared'):
+                    CAPTURE.files_only_payload({**source, 'install-payload.txt': b'sdd/guardrails.example.yaml\n'})
+
+    def test_files_only_payload_checks_project_entries_before_matching_source_files(self):
+        source = CAPTURE.indexed_source(self.product)
+        manifest = source['install-payload.txt']
+        for entry in ('sdd/project-context.yaml', 'sdd/not-in-the-checkout.yaml', 'sdd/'):
+            with self.subTest(entry=entry):
+                self.assertNotIn(entry, source)
+                changed = {**source, 'install-payload.txt': manifest + b'\n' + entry.encode() + b'\n'}
+                with self.assertRaisesRegex(ValueError, 'public install-payload.txt must list only'):
+                    CAPTURE.files_only_payload(changed)
+
     def test_product_project_metadata_cannot_populate_absent_context_fixture(self):
         names = ('sdd/project-context.yaml', 'sdd/approver-registry.yaml')
         originals = {name: (self.product / name).read_bytes() if (self.product / name).exists() else None for name in names}
@@ -141,17 +174,23 @@ class CurrentCaptureTests(unittest.TestCase):
         self.edit(GENERATOR, 'print("CURRENT_PRODUCT_REGRESSION")\nraise SystemExit(42)\n')
         self.assertTrue({'exit-code', 'stdout-stderr', 'deterministic-script-output'} <= self.capture())
 
+    def validator_result(self):
+        def run(command):
+            return subprocess.run(command, cwd=self.fixture, capture_output=True)
+        return CAPTURE.schema_validator_result(self.product, self.work, CAPTURE.powershell_for(RUNTIME), run)
+
     def test_current_validator_must_reject_invalid_contract(self):
         extension = '.ps1' if RUNTIME == 'powershell' else '.sh'
         self.edit('plugins/sdd-domain/scripts/validate-domain-contract' + extension, 'exit 0\n')
         with self.assertRaisesRegex(ValueError, 'did not reject invalid contract'):
-            self.capture()
+            self.validator_result()
 
     def test_current_validator_must_accept_valid_contract(self):
+        self.assertEqual((CANONICAL / 'targets/schema-validator-result.txt').read_bytes(), self.validator_result())
         extension = '.ps1' if RUNTIME == 'powershell' else '.sh'
         code = '[Console]::Error.WriteLine("rejected"); exit 1\n' if RUNTIME == 'powershell' else 'echo rejected >&2\nexit 1\n'
         self.edit('plugins/sdd-domain/scripts/validate-domain-contract' + extension, code)
-        self.assertIn('schema-validator-result', self.capture())
+        self.assertEqual(b'1\n', self.validator_result())
 
     def test_installer_missing_extra_and_corrupt_payload_are_detected(self):
         name = 'install.ps1' if RUNTIME == 'powershell' else 'install.sh'

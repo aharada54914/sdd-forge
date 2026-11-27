@@ -1,0 +1,2484 @@
+{
+  "candidate": "4618dd504154aaff3cf0eed0ac74f4bdeba1e976",
+  "protocol_sha256": "699299dd28dc9e2aab2067020e70d486fab0086f3974fd5ce823bd6cf6911b89",
+  "public_cli_sha256": "3d29aeb024834791fe63dcaa599cfc3e70a24960236129deef3d9fa95a211204",
+  "security_runner_sha256": "9061d23d72f60d2ab33c228a3e0cbe82246deb6738999f43c3fa4d69dd3dd16a",
+  "method": "Same ordered first-parent PR ranges as strict-lint-70-pr-repair.json. Pinned candidate CLI --security-gate --base on each clean detached historical checkout with no project commands, drift and sensors skipped. Static inspection only, default two built-in adapters. Manifest list contains existing changed regular package.json files. Secret source dedup uses Git blame origin commit/path/original line plus rule. Source classification is only asserted for a literal match to a provenance-identified published example. No finding content, match or source location is retained.",
+  "totals": {
+    "registered": 70,
+    "complete": 69,
+    "incomplete": 1,
+    "security_statuses": {
+      "PASS": 58,
+      "FAIL": 11
+    },
+    "umbrella_exits": {
+      "1": 29,
+      "0": 40
+    },
+    "changed_path_observations": 3926,
+    "scannable_present_file_observations": 3381,
+    "manifest_prs": 12,
+    "manifest_observations": 19,
+    "manifest_coverage": {
+      "mcp/sdd-forge-mcp/package.json": 9,
+      "mcp/ci-mcp/package.json": 2,
+      "mcp/local-env-mcp/package.json": 2,
+      "plugins/sdd-ship/session-hub/package.json": 1,
+      "reports/verification/sql-development-flow/behavior/positive/final-project/package.json": 1,
+      "reports/verification/sql-development-flow/behavior/positive/input-project/package.json": 1,
+      "reports/verification/sql-development-flow/behavior/positive/prior/input-project/package.json": 1,
+      "plugins/sdd-aws-cloud/examples/private-ec2/package.json": 1,
+      "tests/fixtures/cloud-orchestration/aws-bundle/unit/package.json": 1
+    },
+    "findings": {
+      "builtin-secret-pattern": 51,
+      "builtin-slopsquatting": 0
+    },
+    "distinct_source_lines": 33,
+    "distinct_samples": 6,
+    "observation_classification": {
+      "exact_public_AWS_documentation_example": 17,
+      "observed_benign_test_specimen": 34
+    },
+    "sample_classification": {
+      "exact_public_AWS_documentation_example": 1,
+      "observed_benign_test_specimen": 5
+    },
+    "overall_umbrella_exits_all_attempts": {
+      "1": 30,
+      "0": 40
+    },
+    "confirmed_live_credentials": null
+  },
+  "rows": [
+    {
+      "pr": 980,
+      "base": "275f0f9151ff50c1f69aa667b74765fa2f19e4e6",
+      "head": "2db182ad22706c86734b85a00e4263f23fda03f0",
+      "changed_paths": 50,
+      "scannable_present_files": 50,
+      "changed_manifest_paths": [
+        "mcp/sdd-forge-mcp/package.json"
+      ],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 979,
+      "base": "34f777f4e332957ba93e19bf8918d10cd6ed8510",
+      "head": "275f0f9151ff50c1f69aa667b74765fa2f19e4e6",
+      "changed_paths": 6,
+      "scannable_present_files": 6,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 1,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "3b0d852716a5fe6336125ed53c81002a5c86a77e1f96760828827dd8671d50f9"
+      ],
+      "sample_ids": [
+        1
+      ]
+    },
+    {
+      "pr": 978,
+      "base": "fa60bc51104e0c396a02846e9e78088e8fea724b",
+      "head": "34f777f4e332957ba93e19bf8918d10cd6ed8510",
+      "changed_paths": 8,
+      "scannable_present_files": 8,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 977,
+      "base": "3497bb17997499c440b5461e3b7709d6dbc00909",
+      "head": "fa60bc51104e0c396a02846e9e78088e8fea724b",
+      "changed_paths": 53,
+      "scannable_present_files": 53,
+      "changed_manifest_paths": [
+        "mcp/sdd-forge-mcp/package.json"
+      ],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 975,
+      "base": "8052dbfc87b67c1707bea2c92fcb0954b88a29a4",
+      "head": "3497bb17997499c440b5461e3b7709d6dbc00909",
+      "changed_paths": 21,
+      "scannable_present_files": 21,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 1,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "3b0d852716a5fe6336125ed53c81002a5c86a77e1f96760828827dd8671d50f9"
+      ],
+      "sample_ids": [
+        1
+      ]
+    },
+    {
+      "pr": 974,
+      "base": "484cbe7aef828488ee49fa5d92569917e74c5891",
+      "head": "8052dbfc87b67c1707bea2c92fcb0954b88a29a4",
+      "changed_paths": 105,
+      "scannable_present_files": 104,
+      "changed_manifest_paths": [
+        "mcp/sdd-forge-mcp/package.json"
+      ],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 1,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "3b0d852716a5fe6336125ed53c81002a5c86a77e1f96760828827dd8671d50f9"
+      ],
+      "sample_ids": [
+        1
+      ]
+    },
+    {
+      "pr": 973,
+      "base": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2",
+      "head": "484cbe7aef828488ee49fa5d92569917e74c5891",
+      "changed_paths": 50,
+      "scannable_present_files": 50,
+      "changed_manifest_paths": [
+        "mcp/sdd-forge-mcp/package.json"
+      ],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 972,
+      "base": "520469d7496bc8f31668f626ddbf2cf5263b5420",
+      "head": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2",
+      "changed_paths": 34,
+      "scannable_present_files": 34,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 1,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "3b0d852716a5fe6336125ed53c81002a5c86a77e1f96760828827dd8671d50f9"
+      ],
+      "sample_ids": [
+        1
+      ]
+    },
+    {
+      "pr": 971,
+      "base": "e848b3217785ebe00af43dda51f361b50f1d6cf2",
+      "head": "520469d7496bc8f31668f626ddbf2cf5263b5420",
+      "changed_paths": 50,
+      "scannable_present_files": 50,
+      "changed_manifest_paths": [
+        "mcp/sdd-forge-mcp/package.json"
+      ],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 970,
+      "base": "067aaf76f75385816036118a159f9f019dc66c81",
+      "head": "e848b3217785ebe00af43dda51f361b50f1d6cf2",
+      "changed_paths": 32,
+      "scannable_present_files": 32,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 1,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "3b0d852716a5fe6336125ed53c81002a5c86a77e1f96760828827dd8671d50f9"
+      ],
+      "sample_ids": [
+        1
+      ]
+    },
+    {
+      "pr": 969,
+      "base": "ad19ec42dbe2c4455db526b3ce22dd8eafb8616d",
+      "head": "067aaf76f75385816036118a159f9f019dc66c81",
+      "changed_paths": 32,
+      "scannable_present_files": 29,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 968,
+      "base": "c037db8b08d0e8e001a9538f10dd1197d716b5e9",
+      "head": "ad19ec42dbe2c4455db526b3ce22dd8eafb8616d",
+      "changed_paths": 49,
+      "scannable_present_files": 49,
+      "changed_manifest_paths": [
+        "mcp/sdd-forge-mcp/package.json"
+      ],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 967,
+      "base": "aafd1848431cd7d89cec7fa7fb25cbc340df837b",
+      "head": "c037db8b08d0e8e001a9538f10dd1197d716b5e9",
+      "changed_paths": 19,
+      "scannable_present_files": 19,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 1,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "3b0d852716a5fe6336125ed53c81002a5c86a77e1f96760828827dd8671d50f9"
+      ],
+      "sample_ids": [
+        1
+      ]
+    },
+    {
+      "pr": 966,
+      "base": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+      "head": "aafd1848431cd7d89cec7fa7fb25cbc340df837b",
+      "changed_paths": 34,
+      "scannable_present_files": 34,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 800,
+      "base": "e416492a572b3475f7aa538df249b50063c8aba0",
+      "head": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+      "changed_paths": 144,
+      "scannable_present_files": 144,
+      "changed_manifest_paths": [
+        "mcp/ci-mcp/package.json",
+        "mcp/local-env-mcp/package.json",
+        "mcp/sdd-forge-mcp/package.json"
+      ],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 794,
+      "base": "7076410e4447bde0d1f1efcce04912b9ba6a1c3e",
+      "head": "e416492a572b3475f7aa538df249b50063c8aba0",
+      "changed_paths": 96,
+      "scannable_present_files": 87,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 793,
+      "base": "84d034687c42d2de6a07b3bbebcdeb227d7face9",
+      "head": "7076410e4447bde0d1f1efcce04912b9ba6a1c3e",
+      "changed_paths": 37,
+      "scannable_present_files": 37,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 792,
+      "base": "e219bc594379208189f5504739dcf6df7d315a42",
+      "head": "84d034687c42d2de6a07b3bbebcdeb227d7face9",
+      "changed_paths": 21,
+      "scannable_present_files": 20,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 1,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "3b0d852716a5fe6336125ed53c81002a5c86a77e1f96760828827dd8671d50f9"
+      ],
+      "sample_ids": [
+        1
+      ]
+    },
+    {
+      "pr": 784,
+      "base": "0ed0dc7ff422fe225104a78ed5915a46c3226c9a",
+      "head": "e219bc594379208189f5504739dcf6df7d315a42",
+      "changed_paths": 245,
+      "scannable_present_files": 65,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 789,
+      "base": "b193c75be2a6f2e6c7074bb65401f514268a65fb",
+      "head": "0ed0dc7ff422fe225104a78ed5915a46c3226c9a",
+      "changed_paths": 10,
+      "scannable_present_files": 8,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 783,
+      "base": "5e9970c25e1c2f54002ca4102fb8a4dea7282917",
+      "head": "b193c75be2a6f2e6c7074bb65401f514268a65fb",
+      "changed_paths": 121,
+      "scannable_present_files": 112,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 782,
+      "base": "519c581dfa460f3f7ad40becc8be4a475ba6cd39",
+      "head": "5e9970c25e1c2f54002ca4102fb8a4dea7282917",
+      "changed_paths": 94,
+      "scannable_present_files": 87,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 781,
+      "base": "989e514ab3acff701783b3c350e79dd1355207e8",
+      "head": "519c581dfa460f3f7ad40becc8be4a475ba6cd39",
+      "changed_paths": 62,
+      "scannable_present_files": 55,
+      "changed_manifest_paths": [
+        "plugins/sdd-ship/session-hub/package.json"
+      ],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 779,
+      "base": "0a327bc0f0a72de5377765b364801224e517a65f",
+      "head": "989e514ab3acff701783b3c350e79dd1355207e8",
+      "changed_paths": 30,
+      "scannable_present_files": 30,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 777,
+      "base": "fd25c1e5f7b94dc5e50addb995d4313da0dda65a",
+      "head": "0a327bc0f0a72de5377765b364801224e517a65f",
+      "changed_paths": 22,
+      "scannable_present_files": 22,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 774,
+      "base": "08e56b843203ad5dc86b25ec4481d0d7497591b8",
+      "head": "fd25c1e5f7b94dc5e50addb995d4313da0dda65a",
+      "changed_paths": 126,
+      "scannable_present_files": 116,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 8,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "a8968f9e40ab744644861e24f820c810af5c9fae01d400c676eb28e3bea6ee1e",
+        "da8bd0f28fe735dade9274013ccce4565bb983df789b7e7eaf4e64a95135a28e",
+        "e19fcba8e421fdd17089b0bb55026f295dfc27ae9cfe5f6b649f1c45b677085b",
+        "68f71b6f194f79fff7fc1665085c5d69d53d7c8d1bb05801cdf7396042ef753e",
+        "7662c74756e435eae1b96ab0b6c30965c254bde03531427e9c58abc74d6971b3",
+        "34d7dcaa3f60b9df7c7e9c7d1530e51d131a3da5f0656289e578c9b5663d99c7",
+        "01ccabe9b310a4545f1280ec79abdc97e2d3a8c6b740d83907b72b288b9d0f04",
+        "c7c21f6e22e59d6e75ba75f87480a0e925930d1b9a8d7e1e17cc8ff3320dba17"
+      ],
+      "sample_ids": [
+        2,
+        1,
+        3,
+        1,
+        2,
+        1,
+        3,
+        1
+      ]
+    },
+    {
+      "pr": 756,
+      "base": "0f4e3268b5403855008ae089d3c1611430a41987",
+      "head": "08e56b843203ad5dc86b25ec4481d0d7497591b8",
+      "changed_paths": 159,
+      "scannable_present_files": 149,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 8,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "a8968f9e40ab744644861e24f820c810af5c9fae01d400c676eb28e3bea6ee1e",
+        "da8bd0f28fe735dade9274013ccce4565bb983df789b7e7eaf4e64a95135a28e",
+        "e19fcba8e421fdd17089b0bb55026f295dfc27ae9cfe5f6b649f1c45b677085b",
+        "68f71b6f194f79fff7fc1665085c5d69d53d7c8d1bb05801cdf7396042ef753e",
+        "7662c74756e435eae1b96ab0b6c30965c254bde03531427e9c58abc74d6971b3",
+        "34d7dcaa3f60b9df7c7e9c7d1530e51d131a3da5f0656289e578c9b5663d99c7",
+        "01ccabe9b310a4545f1280ec79abdc97e2d3a8c6b740d83907b72b288b9d0f04",
+        "c7c21f6e22e59d6e75ba75f87480a0e925930d1b9a8d7e1e17cc8ff3320dba17"
+      ],
+      "sample_ids": [
+        2,
+        1,
+        3,
+        1,
+        2,
+        1,
+        3,
+        1
+      ]
+    },
+    {
+      "pr": 720,
+      "base": "08398f03d964dcf9790d32dd020150727d5f8207",
+      "head": "0f4e3268b5403855008ae089d3c1611430a41987",
+      "changed_paths": 331,
+      "scannable_present_files": 253,
+      "changed_manifest_paths": [
+        "reports/verification/sql-development-flow/behavior/positive/final-project/package.json",
+        "reports/verification/sql-development-flow/behavior/positive/input-project/package.json",
+        "reports/verification/sql-development-flow/behavior/positive/prior/input-project/package.json"
+      ],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 723,
+      "base": "e768ee091b07fd70fa3b9212b2f132245560a63c",
+      "head": "08398f03d964dcf9790d32dd020150727d5f8207",
+      "changed_paths": 48,
+      "scannable_present_files": 36,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 721,
+      "base": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+      "head": "e768ee091b07fd70fa3b9212b2f132245560a63c",
+      "changed_paths": 68,
+      "scannable_present_files": 65,
+      "changed_manifest_paths": [
+        "mcp/ci-mcp/package.json",
+        "mcp/local-env-mcp/package.json",
+        "mcp/sdd-forge-mcp/package.json"
+      ],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 719,
+      "base": "0289c089131eebdb4620d98dc8fd1bde088fe3aa",
+      "head": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+      "changed_paths": 61,
+      "scannable_present_files": 59,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 718,
+      "base": "782d081e4d34d91745d2dcb97be0eac952af0ecd",
+      "head": "0289c089131eebdb4620d98dc8fd1bde088fe3aa",
+      "changed_paths": 2,
+      "scannable_present_files": 2,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 717,
+      "base": "1309af62260273f76b88ce50ae935ff137af53e1",
+      "head": "782d081e4d34d91745d2dcb97be0eac952af0ecd",
+      "changed_paths": 2,
+      "scannable_present_files": 2,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 716,
+      "base": "041302bb6baaf7a96a7f8337b4b8750d3ddf7aac",
+      "head": "1309af62260273f76b88ce50ae935ff137af53e1",
+      "changed_paths": 1,
+      "scannable_present_files": 1,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 713,
+      "base": "257c238330e6b280abf4e473511a456e5ea032d3",
+      "head": "041302bb6baaf7a96a7f8337b4b8750d3ddf7aac",
+      "changed_paths": 52,
+      "scannable_present_files": 52,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 715,
+      "base": "54441b21f5af450dafab374d7dff603e68cff634",
+      "head": "257c238330e6b280abf4e473511a456e5ea032d3",
+      "changed_paths": 14,
+      "scannable_present_files": 12,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 714,
+      "base": "047673af0c347e02dc64ad4086d7840eda3c0856",
+      "head": "54441b21f5af450dafab374d7dff603e68cff634",
+      "changed_paths": 12,
+      "scannable_present_files": 10,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 711,
+      "base": "50699a31e043a6ff16e8340419cdaf2f1354d44d",
+      "head": "047673af0c347e02dc64ad4086d7840eda3c0856",
+      "changed_paths": 13,
+      "scannable_present_files": 13,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 710,
+      "base": "c5e55ae2851d064fcfd52eda01f15cf672a1f872",
+      "head": "50699a31e043a6ff16e8340419cdaf2f1354d44d",
+      "changed_paths": 98,
+      "scannable_present_files": 98,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 709,
+      "base": "e38705080761eb7ba36656a2da31e66ae279aaae",
+      "head": "c5e55ae2851d064fcfd52eda01f15cf672a1f872",
+      "changed_paths": 13,
+      "scannable_present_files": 12,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 708,
+      "base": "006c0840693b821f6cab7627e4779445b49e74a0",
+      "head": "e38705080761eb7ba36656a2da31e66ae279aaae",
+      "changed_paths": 240,
+      "scannable_present_files": 226,
+      "changed_manifest_paths": [
+        "plugins/sdd-aws-cloud/examples/private-ec2/package.json",
+        "tests/fixtures/cloud-orchestration/aws-bundle/unit/package.json"
+      ],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 707,
+      "base": "fa9f4dd98189ec27d2d836f00888d8d36dddd33f",
+      "head": "006c0840693b821f6cab7627e4779445b49e74a0",
+      "changed_paths": 22,
+      "scannable_present_files": 20,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 4,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "a8968f9e40ab744644861e24f820c810af5c9fae01d400c676eb28e3bea6ee1e",
+        "da8bd0f28fe735dade9274013ccce4565bb983df789b7e7eaf4e64a95135a28e",
+        "e19fcba8e421fdd17089b0bb55026f295dfc27ae9cfe5f6b649f1c45b677085b",
+        "68f71b6f194f79fff7fc1665085c5d69d53d7c8d1bb05801cdf7396042ef753e"
+      ],
+      "sample_ids": [
+        2,
+        1,
+        3,
+        1
+      ]
+    },
+    {
+      "pr": 706,
+      "base": "f6067d91301b2fe3abff231201cd36d15e6bd44a",
+      "head": "fa9f4dd98189ec27d2d836f00888d8d36dddd33f",
+      "changed_paths": 28,
+      "scannable_present_files": 28,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 697,
+      "base": "c4dd626432b1040ac5c47034d3686f5eac4cfe9c",
+      "head": "f6067d91301b2fe3abff231201cd36d15e6bd44a",
+      "changed_paths": 641,
+      "scannable_present_files": 496,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 2,
+      "security_status": "TOOL_ERROR",
+      "adapters_run": [
+        "builtin-secret-pattern"
+      ],
+      "error_codes": [
+        "UNREADABLE_SCAN_INPUT"
+      ],
+      "warnings": 0,
+      "complete": false,
+      "finding_counts": {
+        "builtin-secret-pattern": 39,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "900f6ae27b24d155b1d674d0a72b982e3099e533e7825acdda524a54fcfe3612",
+        "900f6ae27b24d155b1d674d0a72b982e3099e533e7825acdda524a54fcfe3612",
+        "1cf018660c104b88d40b3c71044fe0344bc0e2da37cf512232013cbaacd8efd7",
+        "1cf018660c104b88d40b3c71044fe0344bc0e2da37cf512232013cbaacd8efd7",
+        "1cf018660c104b88d40b3c71044fe0344bc0e2da37cf512232013cbaacd8efd7",
+        "1cf018660c104b88d40b3c71044fe0344bc0e2da37cf512232013cbaacd8efd7",
+        "992ff8e0ee5349d670140152a39263774b0f87a45374de6b03fe5594b3e7c91b",
+        "72b988dadd0407c9057233d92145e7554ed33ba3fb559e51a4bdca0e3fcebf70",
+        "7433c9515c61ccf954ba3e0df8392d6e9e9d8c27d158fc9e6cf6dcab7bb059d8",
+        "4d1b38320b281e3159bd822706287bae63e644c5b9c857c5cbe8aed4d2fd364f",
+        "151e90b9e562fe50d4056adceaf5a3d59c26cf9603c04aac1a60cadd605d41ac",
+        "6ad518fc076ac32cd45d81e9a340455fd0b77052c5e77ee313a09d337fc7fb60",
+        "3417f3f0359cef5448f38492d4c873790faf55bd4482fb2004fdf85fbad9699b",
+        "130d4108b88cf0ce89a3213f350c1e01900b0dbacad20142440b62de045fbadc",
+        "fdbcdc2f2bd52232e6961bc4178826c435b62e69d96cc6e0b29fe443ba1ed8c6",
+        "dec8cdcb51bcb0e8b4c24b72de09278387530c1d208c7b7632beeb7aeaf34c5e",
+        "9429d11e0bea7390a916a5ca728d6ef60594f2b9b826494792864f6694dee125",
+        "01d920e80e980fcd56a2ecbe74f5b26977f0f1377717414e66cf81e29a07faad",
+        "8c6b0d1c6e92eabed6ef9427a7c6835ddc97e96c6954778ec9bef18af3a04651",
+        "0c9be5a29114b3831a8ffae7c1ee7a80e41369afabea27b1e0075d09c0ef0de8",
+        "5e9b983c6e3c0c7c598bc1aedbfde4d6eb647ce12df7f349dcf9ef6f55fee42e",
+        "2135d0f7d98dd5294499d632317b47fbb20d40216ed238d3660065fd324d4781",
+        "fa28dfe2480d8e62b1d516c18eba8aae996e430db65c963c3014cc129c422cdf",
+        "a27b809b1f4f25c9e98d87f3eb878ad1e549bb0b033152aace6594ec73a1f23a",
+        "3492fcafcf27519c042732705209bf6ebbb2b6648ffeeda330056756bb33cef3",
+        "2639fe8f4557bdeb8996421dfb3225ef1add2b8bc7aa51a29e56008bd8c69607",
+        "7997e2530f46da43a1ab4edc22be788acf2e573b7f1a019f4290946800254bc9",
+        "3ba23130c789c83bc366e15d89d8eeee00db4dfd1ee305b80c3898a4c6ed5480",
+        "0d66679880f935edeb67ce83510250039874293c8deac0871ea95a9d9271e4c5",
+        "b4af81033e57ee4b372556a050070fd33354d90d8b41f52025c55be0855c5498",
+        "76765eb469b91442e73902eccdfca6baa77e87a9d8901d14c466ed55b11618fa",
+        "a8968f9e40ab744644861e24f820c810af5c9fae01d400c676eb28e3bea6ee1e",
+        "da8bd0f28fe735dade9274013ccce4565bb983df789b7e7eaf4e64a95135a28e",
+        "e19fcba8e421fdd17089b0bb55026f295dfc27ae9cfe5f6b649f1c45b677085b",
+        "68f71b6f194f79fff7fc1665085c5d69d53d7c8d1bb05801cdf7396042ef753e",
+        "7662c74756e435eae1b96ab0b6c30965c254bde03531427e9c58abc74d6971b3",
+        "34d7dcaa3f60b9df7c7e9c7d1530e51d131a3da5f0656289e578c9b5663d99c7",
+        "01ccabe9b310a4545f1280ec79abdc97e2d3a8c6b740d83907b72b288b9d0f04",
+        "c7c21f6e22e59d6e75ba75f87480a0e925930d1b9a8d7e1e17cc8ff3320dba17"
+      ],
+      "sample_ids": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        4,
+        6,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        4,
+        6,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        2,
+        1,
+        3,
+        1,
+        2,
+        1,
+        3,
+        1
+      ],
+      "read_error_diagnosis": {
+        "existing_unreadable_regular_file_count": 1,
+        "observed_size_bytes": 8675817,
+        "reader_max_bytes": 8388608,
+        "deleted_scannable_paths": 0,
+        "diagnostic": "Exact historical checkout, candidate createFsReadonlyIo.readText returned null for the single changed regular input over the reader size limit. Dependency adapter did not start."
+      }
+    },
+    {
+      "pr": 705,
+      "base": "f6fba8b66a49a3821d3dd2d5aa5ace5e4aaae9ac",
+      "head": "c4dd626432b1040ac5c47034d3686f5eac4cfe9c",
+      "changed_paths": 8,
+      "scannable_present_files": 7,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 698,
+      "base": "1b71731b4e2403040faffcfdc05f8dff7c648928",
+      "head": "f6fba8b66a49a3821d3dd2d5aa5ace5e4aaae9ac",
+      "changed_paths": 3,
+      "scannable_present_files": 3,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 703,
+      "base": "8b8f713cd149dad82ae966c19e7f5d55f176c215",
+      "head": "1b71731b4e2403040faffcfdc05f8dff7c648928",
+      "changed_paths": 5,
+      "scannable_present_files": 5,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 702,
+      "base": "5fea9d6b856f5bf76e95fbbf05f97119fbcc8363",
+      "head": "8b8f713cd149dad82ae966c19e7f5d55f176c215",
+      "changed_paths": 4,
+      "scannable_present_files": 4,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 701,
+      "base": "cb417507e007d1fb0c3534d774ba0688d7132ff9",
+      "head": "5fea9d6b856f5bf76e95fbbf05f97119fbcc8363",
+      "changed_paths": 5,
+      "scannable_present_files": 5,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 700,
+      "base": "ffbe0c4f3d83bccd76b6a7050d8934e312165dd5",
+      "head": "cb417507e007d1fb0c3534d774ba0688d7132ff9",
+      "changed_paths": 3,
+      "scannable_present_files": 3,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 699,
+      "base": "82b536954626e73b36853711b264cbf5df400d22",
+      "head": "ffbe0c4f3d83bccd76b6a7050d8934e312165dd5",
+      "changed_paths": 3,
+      "scannable_present_files": 3,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 695,
+      "base": "546e985ec09daa87dffc4606c8763c61603d9160",
+      "head": "82b536954626e73b36853711b264cbf5df400d22",
+      "changed_paths": 94,
+      "scannable_present_files": 70,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 696,
+      "base": "1da0248d184c7eb07c8d2e63ccae9524bfececed",
+      "head": "546e985ec09daa87dffc4606c8763c61603d9160",
+      "changed_paths": 28,
+      "scannable_present_files": 28,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 693,
+      "base": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+      "head": "1da0248d184c7eb07c8d2e63ccae9524bfececed",
+      "changed_paths": 50,
+      "scannable_present_files": 45,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 683,
+      "base": "2cea5aec8cdf77ae624ebd7d09b099a9b68940f0",
+      "head": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+      "changed_paths": 89,
+      "scannable_present_files": 48,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 681,
+      "base": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+      "head": "2cea5aec8cdf77ae624ebd7d09b099a9b68940f0",
+      "changed_paths": 10,
+      "scannable_present_files": 6,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 680,
+      "base": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+      "head": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+      "changed_paths": 92,
+      "scannable_present_files": 70,
+      "changed_manifest_paths": [
+        "mcp/sdd-forge-mcp/package.json"
+      ],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 679,
+      "base": "b9d3062ebd3fd172053dd9bf5e9df8b08d413eed",
+      "head": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+      "changed_paths": 86,
+      "scannable_present_files": 71,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 677,
+      "base": "8ce4d9e3c7694c65c3360226ed9ff0774cf64b6e",
+      "head": "b9d3062ebd3fd172053dd9bf5e9df8b08d413eed",
+      "changed_paths": 3,
+      "scannable_present_files": 3,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 676,
+      "base": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+      "head": "8ce4d9e3c7694c65c3360226ed9ff0774cf64b6e",
+      "changed_paths": 417,
+      "scannable_present_files": 352,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 657,
+      "base": "db22681231caf6b8b16d5bd3cb80fab81416b3d8",
+      "head": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+      "changed_paths": 6,
+      "scannable_present_files": 6,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 656,
+      "base": "45c203f0aff9e4481845649a34530a0c04ccc52f",
+      "head": "db22681231caf6b8b16d5bd3cb80fab81416b3d8",
+      "changed_paths": 2,
+      "scannable_present_files": 2,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 655,
+      "base": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "head": "45c203f0aff9e4481845649a34530a0c04ccc52f",
+      "changed_paths": 6,
+      "scannable_present_files": 6,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 592,
+      "base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "head": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "changed_paths": 1,
+      "scannable_present_files": 1,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 591,
+      "base": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+      "head": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "changed_paths": 114,
+      "scannable_present_files": 112,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 1,
+      "security_status": "FAIL",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 24,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [
+        "992ff8e0ee5349d670140152a39263774b0f87a45374de6b03fe5594b3e7c91b",
+        "72b988dadd0407c9057233d92145e7554ed33ba3fb559e51a4bdca0e3fcebf70",
+        "7433c9515c61ccf954ba3e0df8392d6e9e9d8c27d158fc9e6cf6dcab7bb059d8",
+        "4d1b38320b281e3159bd822706287bae63e644c5b9c857c5cbe8aed4d2fd364f",
+        "151e90b9e562fe50d4056adceaf5a3d59c26cf9603c04aac1a60cadd605d41ac",
+        "6ad518fc076ac32cd45d81e9a340455fd0b77052c5e77ee313a09d337fc7fb60",
+        "3417f3f0359cef5448f38492d4c873790faf55bd4482fb2004fdf85fbad9699b",
+        "130d4108b88cf0ce89a3213f350c1e01900b0dbacad20142440b62de045fbadc",
+        "fdbcdc2f2bd52232e6961bc4178826c435b62e69d96cc6e0b29fe443ba1ed8c6",
+        "dec8cdcb51bcb0e8b4c24b72de09278387530c1d208c7b7632beeb7aeaf34c5e",
+        "9429d11e0bea7390a916a5ca728d6ef60594f2b9b826494792864f6694dee125",
+        "01d920e80e980fcd56a2ecbe74f5b26977f0f1377717414e66cf81e29a07faad",
+        "8c6b0d1c6e92eabed6ef9427a7c6835ddc97e96c6954778ec9bef18af3a04651",
+        "0c9be5a29114b3831a8ffae7c1ee7a80e41369afabea27b1e0075d09c0ef0de8",
+        "5e9b983c6e3c0c7c598bc1aedbfde4d6eb647ce12df7f349dcf9ef6f55fee42e",
+        "2135d0f7d98dd5294499d632317b47fbb20d40216ed238d3660065fd324d4781",
+        "fa28dfe2480d8e62b1d516c18eba8aae996e430db65c963c3014cc129c422cdf",
+        "a27b809b1f4f25c9e98d87f3eb878ad1e549bb0b033152aace6594ec73a1f23a",
+        "3492fcafcf27519c042732705209bf6ebbb2b6648ffeeda330056756bb33cef3",
+        "2639fe8f4557bdeb8996421dfb3225ef1add2b8bc7aa51a29e56008bd8c69607",
+        "7997e2530f46da43a1ab4edc22be788acf2e573b7f1a019f4290946800254bc9",
+        "3ba23130c789c83bc366e15d89d8eeee00db4dfd1ee305b80c3898a4c6ed5480",
+        "0d66679880f935edeb67ce83510250039874293c8deac0871ea95a9d9271e4c5",
+        "b4af81033e57ee4b372556a050070fd33354d90d8b41f52025c55be0855c5498"
+      ],
+      "sample_ids": [
+        4,
+        4,
+        4,
+        4,
+        5,
+        4,
+        6,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        4,
+        6,
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    {
+      "pr": 590,
+      "base": "465019f772e932ee30f55ebf85f9eaa295f1a1a9",
+      "head": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+      "changed_paths": 39,
+      "scannable_present_files": 38,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 1,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 580,
+      "base": "532f64de9dc700426abde5a5b23966e851eb6a96",
+      "head": "465019f772e932ee30f55ebf85f9eaa295f1a1a9",
+      "changed_paths": 50,
+      "scannable_present_files": 48,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 579,
+      "base": "c9bee62802fbb96adc4ab504681564f329560cf5",
+      "head": "532f64de9dc700426abde5a5b23966e851eb6a96",
+      "changed_paths": 10,
+      "scannable_present_files": 8,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 578,
+      "base": "79f28350d2d1ace19879be6201b5473822e24b72",
+      "head": "c9bee62802fbb96adc4ab504681564f329560cf5",
+      "changed_paths": 39,
+      "scannable_present_files": 36,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    },
+    {
+      "pr": 577,
+      "base": "d1bd02086167bb8914abdaa962f2e4e2877ea78e",
+      "head": "79f28350d2d1ace19879be6201b5473822e24b72",
+      "changed_paths": 44,
+      "scannable_present_files": 41,
+      "changed_manifest_paths": [],
+      "umbrella_exit": 0,
+      "security_exit": 0,
+      "security_status": "PASS",
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "error_codes": [],
+      "warnings": 0,
+      "complete": true,
+      "finding_counts": {
+        "builtin-secret-pattern": 0,
+        "builtin-slopsquatting": 0
+      },
+      "source_ids": [],
+      "sample_ids": []
+    }
+  ],
+  "sources": {
+    "3b0d852716a5fe6336125ed53c81002a5c86a77e1f96760828827dd8671d50f9": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        1
+      ],
+      "prs": [
+        979,
+        975,
+        974,
+        972,
+        970,
+        967,
+        792
+      ]
+    },
+    "a8968f9e40ab744644861e24f820c810af5c9fae01d400c676eb28e3bea6ee1e": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "generic-sk-token",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        2
+      ],
+      "prs": [
+        774,
+        756,
+        707,
+        697
+      ]
+    },
+    "da8bd0f28fe735dade9274013ccce4565bb983df789b7e7eaf4e64a95135a28e": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        1
+      ],
+      "prs": [
+        774,
+        756,
+        707,
+        697
+      ]
+    },
+    "e19fcba8e421fdd17089b0bb55026f295dfc27ae9cfe5f6b649f1c45b677085b": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "github-pat",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        3
+      ],
+      "prs": [
+        774,
+        756,
+        707,
+        697
+      ]
+    },
+    "68f71b6f194f79fff7fc1665085c5d69d53d7c8d1bb05801cdf7396042ef753e": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        1
+      ],
+      "prs": [
+        774,
+        756,
+        707,
+        697
+      ]
+    },
+    "7662c74756e435eae1b96ab0b6c30965c254bde03531427e9c58abc74d6971b3": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "generic-sk-token",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        2
+      ],
+      "prs": [
+        774,
+        756,
+        697
+      ]
+    },
+    "34d7dcaa3f60b9df7c7e9c7d1530e51d131a3da5f0656289e578c9b5663d99c7": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        1
+      ],
+      "prs": [
+        774,
+        756,
+        697
+      ]
+    },
+    "01ccabe9b310a4545f1280ec79abdc97e2d3a8c6b740d83907b72b288b9d0f04": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "github-pat",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        3
+      ],
+      "prs": [
+        774,
+        756,
+        697
+      ]
+    },
+    "c7c21f6e22e59d6e75ba75f87480a0e925930d1b9a8d7e1e17cc8ff3320dba17": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        1
+      ],
+      "prs": [
+        774,
+        756,
+        697
+      ]
+    },
+    "900f6ae27b24d155b1d674d0a72b982e3099e533e7825acdda524a54fcfe3612": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "documentation",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697
+      ]
+    },
+    "1cf018660c104b88d40b3c71044fe0344bc0e2da37cf512232013cbaacd8efd7": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "documentation",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697
+      ]
+    },
+    "992ff8e0ee5349d670140152a39263774b0f87a45374de6b03fe5594b3e7c91b": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "72b988dadd0407c9057233d92145e7554ed33ba3fb559e51a4bdca0e3fcebf70": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "7433c9515c61ccf954ba3e0df8392d6e9e9d8c27d158fc9e6cf6dcab7bb059d8": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "4d1b38320b281e3159bd822706287bae63e644c5b9c857c5cbe8aed4d2fd364f": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "151e90b9e562fe50d4056adceaf5a3d59c26cf9603c04aac1a60cadd605d41ac": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "private-key-pem",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        5
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "6ad518fc076ac32cd45d81e9a340455fd0b77052c5e77ee313a09d337fc7fb60": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "3417f3f0359cef5448f38492d4c873790faf55bd4482fb2004fdf85fbad9699b": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "slack-token",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        6
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "130d4108b88cf0ce89a3213f350c1e01900b0dbacad20142440b62de045fbadc": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "fdbcdc2f2bd52232e6961bc4178826c435b62e69d96cc6e0b29fe443ba1ed8c6": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "dec8cdcb51bcb0e8b4c24b72de09278387530c1d208c7b7632beeb7aeaf34c5e": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "9429d11e0bea7390a916a5ca728d6ef60594f2b9b826494792864f6694dee125": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "01d920e80e980fcd56a2ecbe74f5b26977f0f1377717414e66cf81e29a07faad": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "8c6b0d1c6e92eabed6ef9427a7c6835ddc97e96c6954778ec9bef18af3a04651": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "0c9be5a29114b3831a8ffae7c1ee7a80e41369afabea27b1e0075d09c0ef0de8": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "5e9b983c6e3c0c7c598bc1aedbfde4d6eb647ce12df7f349dcf9ef6f55fee42e": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "2135d0f7d98dd5294499d632317b47fbb20d40216ed238d3660065fd324d4781": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "fa28dfe2480d8e62b1d516c18eba8aae996e430db65c963c3014cc129c422cdf": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "private-key-pem",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        5
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "a27b809b1f4f25c9e98d87f3eb878ad1e549bb0b033152aace6594ec73a1f23a": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "3492fcafcf27519c042732705209bf6ebbb2b6648ffeeda330056756bb33cef3": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "slack-token",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        6
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "2639fe8f4557bdeb8996421dfb3225ef1add2b8bc7aa51a29e56008bd8c69607": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "7997e2530f46da43a1ab4edc22be788acf2e573b7f1a019f4290946800254bc9": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "3ba23130c789c83bc366e15d89d8eeee00db4dfd1ee305b80c3898a4c6ed5480": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "0d66679880f935edeb67ce83510250039874293c8deac0871ea95a9d9271e4c5": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "b4af81033e57ee4b372556a050070fd33354d90d8b41f52025c55be0855c5498": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697,
+        591
+      ]
+    },
+    "76765eb469b91442e73902eccdfca6baa77e87a9d8901d14c466ed55b11618fa": {
+      "adapter": "builtin-secret-pattern",
+      "rule": "aws-access-key",
+      "source_kind": "test_or_fixture",
+      "sample_ids": [
+        4
+      ],
+      "prs": [
+        697
+      ]
+    }
+  },
+  "sample_provenance": {
+    "1": {
+      "rule": "aws-access-key",
+      "classification": "exact_public_AWS_documentation_example",
+      "source_kinds": [
+        "test_or_fixture"
+      ],
+      "evidence": "Exact match to the publicly identified AWS IAM documentation example."
+    },
+    "2": {
+      "rule": "generic-sk-token",
+      "classification": "observed_benign_test_specimen",
+      "source_kinds": [
+        "test_or_fixture"
+      ],
+      "evidence": "Test input marked as an example. All 48 payload characters are accounted for by two ordered alphabet and digit sequences."
+    },
+    "3": {
+      "rule": "github-pat",
+      "classification": "observed_benign_test_specimen",
+      "source_kinds": [
+        "test_or_fixture"
+      ],
+      "evidence": "Test input marked as an example; the entire identifier suffix repeats a single placeholder character."
+    },
+    "4": {
+      "rule": "aws-access-key",
+      "classification": "observed_benign_test_specimen",
+      "source_kinds": [
+        "documentation",
+        "test_or_fixture"
+      ],
+      "evidence": "The same sample occurs in test inputs; the full identifier suffix consists of consecutive alphabet letters."
+    },
+    "5": {
+      "rule": "private-key-pem",
+      "classification": "observed_benign_test_specimen",
+      "source_kinds": [
+        "test_or_fixture"
+      ],
+      "evidence": "An isolated quoted PEM header in a test assertion. The test file contains no corresponding key terminator."
+    },
+    "6": {
+      "rule": "slack-token",
+      "classification": "observed_benign_test_specimen",
+      "source_kinds": [
+        "test_or_fixture"
+      ],
+      "evidence": "A quoted test assertion uses consecutive digit and alphabet sequences covering both payload segments."
+    }
+  },
+  "source_references": [
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/access-keys-admin-managed.html"
+  ],
+  "interpretation": "The scanner correctly matched the patterns. All six distinct sample strings observed in this bounded cohort have affirmative public-example or constructed test-input provenance. No authentication was performed. Existing changed package manifests were read and parsed but the sample yielded no dependency findings, so dependency detection precision is undefined. 51 findings and 33 blame-origin source rows count only the 69 completed ranges; the 39 partial findings at #697 are separate; the six distinct sample strings also cover the partial run. Whole-file change scope includes historical fixture copies. This is a local retrospective in one repository, and no error rate for production secrets is inferred.",
+  "source_identity": "Opaque source IDs hash Git-blame origin commit, original line number, origin filename and rule; multiple matches in a line can share one source ID. Sample IDs denote exact byte equality in process. Finding text, matched values, and finding locations are omitted."
+}

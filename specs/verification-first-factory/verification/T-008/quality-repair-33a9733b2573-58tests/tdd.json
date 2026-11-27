@@ -1,0 +1,22 @@
+{
+  "red_product": "fc166bd1a8b8303531c0445ff78965897ea59c61",
+  "green_product": "5006c3747efc8f959ebcb37387d4c0d072dbce97",
+  "fixture_revision": "5006c3747efc8f959ebcb37387d4c0d072dbce97",
+  "fixture": "tests/v2-wave3-integration.test.mjs",
+  "fixture_sha256": "4e64edab22db218a653f94dc5793b14942e80c565a19c1c6c4c84349c79233ea",
+  "command": "node --test tests/v2-wave3-integration.test.mjs",
+  "red": {
+    "exit": 1,
+    "tests": 10,
+    "fail": 8,
+    "skipped": 0,
+    "product_change": "Only the test file from the green revision was overlaid in the isolated red checkout."
+  },
+  "green": {
+    "exit": 0,
+    "tests": 10,
+    "fail": 0,
+    "skipped": 0
+  },
+  "chronology": "Replayed after implementation. The independent, previously archived author logs record original red 5/7 failed and green 41/41 passed without a commit id."
+}

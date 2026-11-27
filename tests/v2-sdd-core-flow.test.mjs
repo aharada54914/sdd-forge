@@ -327,6 +327,119 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
       defects.map((text, i) => ({ file, line: firstLine + i, text: '// ' + text, inTaskScope: false })));
   });
 
+  it('scans text and unified patch additions while excluding binary assets and removed lines', t => {
+    const repo = setupCoreRepo();
+    t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+    const baseline = spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo]);
+    assert.equal(baseline.status, 0, baseline.stderr.toString());
+    const scan = (files, status) => {
+      const result = spawnSync(process.execPath, [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001',
+        '--root', repo, '--changed-files', files.join(',')], { encoding: 'utf8' });
+      const report = JSON.parse(result.stdout);
+      const check = report.checks.placeholders;
+      assert.equal(result.status, status, JSON.stringify(check.findings));
+      assert.equal(report.verdict, status === 0 ? 'PASS' : 'FAIL');
+      assert.equal(check.passed, status === 0);
+      return check;
+    };
+    const asset = 'plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz';
+    const patch = 'scripts/vendor-shell-parser/zsh-loops.patch';
+    for (const file of [asset, patch]) {
+      fs.mkdirSync(path.dirname(path.join(repo, file)), { recursive: true });
+      fs.copyFileSync(path.join(REPO_ROOT, file), path.join(repo, file));
+    }
+    const clean = scan([asset, patch], 0);
+    assert.deepEqual(clean.scannedFiles, [patch]);
+    assert.deepEqual(clean.findings, []);
+
+    const marker = ['TO', 'DO'].join('');
+    const source = 'src/refund.js';
+    const diff = 'src/changes.diff';
+    const malformed = 'src/truncated.patch';
+    const textAsset = 'src/plain.gz';
+    const sourceLine = '// ' + marker;
+    fs.writeFileSync(path.join(repo, source), sourceLine + '\n');
+    fs.writeFileSync(path.join(repo, textAsset), sourceLine);
+    const diffLines = [
+      'diff --git a/one b/one', '--- a/one', '+++ b/one', '@@ -1,2 +1,2 @@',
+      ' ' + marker, '-' + marker, '+first change', '\\ No newline at end of file',
+      '--- a/two', '+++ b/two', '@@ -0,0 +1 @@',
+      '+++ ' + marker, '@@ -1 +2 @@', '-' + marker, '+' + sourceLine,
+    ];
+    fs.writeFileSync(path.join(repo, diff), diffLines.join('\r\n') + '\r\n');
+    fs.writeFileSync(path.join(repo, malformed), ['--- a/one', '+++ b/one',
+      '@@ -1,2 +1 @@', '-' + marker, '+replacement'].join('\n'));
+    const dirty = scan([source, diff, malformed, textAsset], 1);
+    assert.deepEqual(dirty.findings, [
+      { file: source, line: 1, text: sourceLine, inTaskScope: true },
+      { file: diff, line: 12, text: diffLines[11], inTaskScope: false },
+      { file: diff, line: 15, text: diffLines[14], inTaskScope: false },
+      { file: malformed, line: 4, text: '-' + marker, inTaskScope: false },
+      { file: textAsset, line: 1, text: sourceLine, inTaskScope: false },
+    ]);
+  });
+
+  for (const variant of ['binary patch', 'binary summary', 'binary damaged', 'unprefixed blank context', 'malformed tail']) {
+    it(`scans Git-generated text additions with ${variant}`, t => {
+      const repo = setupCoreRepo();
+      t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+      const baseline = spawnSync(process.execPath, [RECORD_SCRIPT, '--feature', 'payments', '--root', repo]);
+      assert.equal(baseline.status, 0, baseline.stderr.toString());
+      const producer = path.join(repo, 'producer');
+      fs.mkdirSync(producer);
+      const git = (...args) => {
+        const result = spawnSync('git', args, { cwd: producer, encoding: 'utf8' });
+        assert.equal(result.status, 0, result.stderr);
+        return result.stdout;
+      };
+      git('init', '--quiet');
+      const marker = ['TO', 'DO'].join('');
+      const source = path.join(producer, 'a.js');
+      const binaryName = variant === 'binary summary' ? '0-' + marker + '.bin' : 'z.bin';
+      const binary = path.join(producer, binaryName);
+      fs.writeFileSync(source, `unchanged\n\n// ${marker} removed\nend\n`);
+      fs.writeFileSync(binary, Buffer.from([0, 1, 2, 3]));
+      git('add', 'a.js', binaryName);
+      if (variant.startsWith('binary')) fs.writeFileSync(binary, Buffer.from([0, 4, 5]));
+      const patch = 'src/change.patch';
+      const gateArgs = [GATE_SCRIPT, '--feature', 'payments', '--task', 'T-001', '--root', repo, '--changed-files', patch];
+      for (const addition of ['implemented', `// ${marker} added`]) {
+        fs.writeFileSync(source, `unchanged\n\n${addition}\nend\n`);
+        const suppressBlank = variant === 'unprefixed blank context';
+        let diff = git('-c', `diff.suppressBlankEmpty=${suppressBlank}`, 'diff', '--no-color', '--no-ext-diff',
+          '--no-textconv', ...(['binary patch', 'binary damaged'].includes(variant) ? ['--binary'] : []));
+        assert.ok(diff.includes(`-// ${marker} removed\n`));
+        if (variant === 'binary patch') assert.match(diff, /\nGIT binary patch\nliteral /);
+        if (variant === 'binary summary') assert.match(diff, /\nBinary files .* differ\n/);
+        if (suppressBlank) assert.match(diff, /\n unchanged\n\n-/);
+        const expected = new Set(['+' + addition].filter(line => line.includes(marker)));
+        if (variant === 'binary damaged') {
+          const broken = marker + ' in invalid encoded data';
+          assert.match(diff, /\nliteral \d+\n[^\n]+/);
+          diff = diff.replace(/(\nliteral \d+\n)[^\n]+/, '$1' + broken);
+          expected.add(broken);
+        }
+        if (variant === 'malformed tail') {
+          const broken = '-' + marker + ' inside truncated hunk';
+          const unknown = marker + ' in unrecognized text';
+          const extra = '-' + marker + ' inside overlong hunk';
+          diff += ['@@ -17,2 +18 @@', broken, '+one', unknown, '--- a/end', '+++ b/end',
+            '@@ -1 +1 @@', extra, '+one', '-excess', ''].join('\n');
+          expected.add(broken);
+          expected.add(unknown);
+          expected.add(extra);
+        }
+        fs.writeFileSync(path.join(repo, patch), diff);
+        const result = spawnSync(process.execPath, gateArgs, { encoding: 'utf8' });
+        const check = JSON.parse(result.stdout).checks.placeholders;
+        assert.deepEqual(check.findings, diff.split('\n').flatMap((text, i) => expected.has(text)
+          ? [{ file: patch, line: i + 1, text, inTaskScope: false }] : []));
+        assert.equal(check.passed, expected.size === 0);
+        assert.equal(result.status, expected.size === 0 ? 0 : 1, result.stdout + result.stderr);
+      }
+    });
+  }
+
   it('fails gate when changed production code contains placeholders or a verification command fails', () => {
     const repo = setupCoreRepo();
     assert.equal(
@@ -378,11 +491,10 @@ describe('run-sdd-gate.mjs (SDD Core unified deterministic gate)', () => {
   });
 });
 
-describe('#821 gate task lookup uses the exact task ID', () => {
-  it('never reads a sibling task whose ID shares a prefix, in either order', async () => {
-    const { parseTaskBlock } = await import(
-      pathToFileURL(path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs')).href
-    );
+describe('#821 gate task lookup uses the exact task ID', async () => {
+  const { parseTaskBlock } = await import(pathToFileURL(GATE_SCRIPT).href);
+
+  it('never reads a sibling task whose ID shares a prefix, in either order', () => {
     const sibling = ['## T-001.1 Sibling', 'Approval: Approved', 'Status: Done', 'Risk: high', ''].join('\n');
     const target = ['## T-001 Target', 'Approval: Draft', 'Status: Planned', 'Risk: low', ''].join('\n');
     const extra = ['## T-001-extra', 'Approval: Approved', 'Status: Done', ''].join('\n');
@@ -396,6 +508,35 @@ describe('#821 gate task lookup uses the exact task ID', () => {
     }
     assert.equal(parseTaskBlock(sibling, 'T-001'), null, 'a prefix-only heading must not satisfy the lookup');
     assert.equal(parseTaskBlock('## T-001\nApproval: Approved\n', 'T-001').approval, 'Approved');
+  });
+
+  for (const status of ['Implementation Complete', 'Done']) {
+    it(`reads ${status} from a task with inline Markdown fields`, () => {
+      const plan = [
+        '### T-002: Review totals',
+        '- **Status:** `' + status + '`',
+        '- **Approval:** `Approved`',
+        '- **Risk:** `high`',
+        '- **Scope:** `src/totals.js`（新規）, `tests/totals.test.js`',
+      ].join('\n');
+      assert.deepEqual(parseTaskBlock(plan, 'T-002'), {
+        taskId: 'T-002', approval: 'Approved', status, risk: 'high',
+        scopePaths: ['src/totals.js', 'tests/totals.test.js'],
+      });
+    });
+  }
+
+  it('reads the recorded status and scope of the verification-first-factory task', () => {
+    const plan = fs.readFileSync(path.join(REPO_ROOT, 'specs/verification-first-factory/tasks.md'), 'utf8');
+    const section = plan.split(/^(?=### T-)/m).find(text => text.startsWith('### T-002:'));
+    assert.ok(section, 'T-002 heading in the real plan');
+    const statusLine = /^- \*\*Status:\*\* `([^`\r\n]+)`$/m.exec(section);
+    assert.ok(statusLine, 'T-002 has a recorded status');
+    const task = parseTaskBlock(plan, 'T-002');
+    assert.equal(task.status, statusLine[1]);
+    assert.equal(task.approval, 'Approved');
+    assert.equal(task.risk, 'high');
+    assert.ok(task.scopePaths.includes('plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs'));
   });
 });
 
@@ -545,6 +686,39 @@ describe('Phase 2 SDD Core skill & template contracts', () => {
     assert.match(tsk, /Risk: standard/);
     assert.match(tsk, /## Spec Amendments/);
   });
+
+  it('links every shipped Core template requirement and acceptance criterion through a task', (t) => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-core-templates-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const templates = path.join(REPO_ROOT, 'plugins/sdd-bootstrap/skills/sdd-core-spec/templates');
+    const spec = path.join(root, 'specs', 'example');
+    fs.mkdirSync(spec, { recursive: true });
+    for (const name of ['requirements.md', 'design.md', 'tasks.md']) {
+      fs.copyFileSync(path.join(templates, name), path.join(spec, name));
+    }
+
+    function trace(expectedStatus) {
+      const script = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs');
+      const result = spawnSync(process.execPath, [script, '--root', root, '--feature', 'example', '--strict'], { encoding: 'utf8' });
+      assert.equal(result.status, expectedStatus, result.stderr || result.stdout);
+      return JSON.parse(result.stdout);
+    }
+
+    assert.equal(trace(0).complete, true);
+    const requirements = path.join(spec, 'requirements.md');
+    const original = fs.readFileSync(requirements, 'utf8');
+    fs.writeFileSync(requirements, original.replace(/(\*\*AC-002\*\*\s*\()REQ-002\)/, '$1REQ-001)'));
+    const orphan = trace(1).gaps;
+    assert.deepEqual(orphan.orphanReqs, ['REQ-002']);
+    assert.deepEqual(orphan.unassignedAcs, []);
+
+    fs.copyFileSync(path.join(templates, 'requirements.md'), requirements);
+    const tasks = path.join(spec, 'tasks.md');
+    fs.writeFileSync(tasks, fs.readFileSync(tasks, 'utf8').replace(/\bAC-002\b/g, ''));
+    const unassigned = trace(1).gaps;
+    assert.deepEqual(unassigned.unassignedAcs, ['AC-002']);
+    assert.deepEqual(unassigned.orphanReqs, []);
+  });
 });
 
 describe('#827 re-verifying a fixed review ticket reaches the gate for exactly that task', () => {
@@ -622,6 +796,80 @@ describe('human concept-test decisions at the public gate', () => {
     fs.unlinkSync(mirror);
     fs.writeFileSync(path.join(feature, 'concept-test.decision.json'), '{}');
     expectBlock();
+  });
+
+  it('reserves v1 migration guidance for unambiguous proposals in the working tree and index', (t) => {
+    const { repo, feature, git, run } = setup(t);
+    git('init', '-q');
+    const proposal = path.join(feature, 'concept-test.json');
+    const ambiguous = String.raw`{"schema":"concept-test/v2","\u0073chema":"concept-test/v1"}`;
+    const nested = '{"schema":"concept-test/v1","data":[{"id":1,"id":2}]}';
+    const legacy = JSON.stringify({ schema: 'concept-test/v1', data: [{ id: '":{}' }, { id: 2 }] });
+    const invalidUtf8 = Buffer.concat([Buffer.from('{"schema":"concept-test/v1","name":"'), Buffer.from([0xff]), Buffer.from('"}')]);
+    const mirror = path.join(feature, 'concept-test.md');
+    for (const [contents, retired] of [[ambiguous, false], [nested, false], [invalidUtf8, false], [legacy, true]]) {
+      fs.writeFileSync(mirror, '```json\n' + legacy + '\n```\n');
+      fs.writeFileSync(proposal, contents);
+      git('add', 'specs');
+      for (const indexOnly of [false, true]) {
+        if (indexOnly) {
+          fs.unlinkSync(proposal);
+          fs.unlinkSync(mirror);
+        }
+        const { verdict, checks } = run();
+        assert.equal(verdict, 'FAIL');
+        assert.equal(checks.conceptTest.status, 'BLOCK');
+        assert.deepEqual(checks.commands, []);
+        assert.equal(fs.existsSync(path.join(repo, 'ran')), false);
+        assert.equal(checks.conceptTest.error.includes('v1 records are no longer supported'), retired);
+        if (!indexOnly && !retired && contents !== invalidUtf8) assert.match(checks.conceptTest.error, /duplicate JSON key/);
+      }
+    }
+
+    git('rm', '--cached', '--', 'specs/payments/concept-test.json', 'specs/payments/concept-test.md');
+    const receipt = path.join(feature, 'concept-test.decision.json');
+    fs.writeFileSync(receipt, legacy);
+    git('add', 'specs');
+    fs.unlinkSync(receipt);
+    const { verdict, checks } = run();
+    assert.equal(verdict, 'FAIL');
+    assert.equal(checks.conceptTest.status, 'BLOCK');
+    assert.deepEqual(checks.commands, []);
+    assert.doesNotMatch(checks.conceptTest.error, /v1 records are no longer supported/);
+  });
+
+  it('matches the validator’s JSON byte encodings and Markdown fence boundaries', (t) => {
+    const { feature, git, run } = setup(t);
+    git('init', '-q');
+    const legacy = '{"schema":"concept-test/v1"}';
+    const fence = '```json\r\n' + legacy + '\r\n```';
+    const utf16 = Buffer.from(legacy, 'utf16le');
+    const utf32 = Buffer.alloc(legacy.length * 4);
+    for (let i = 0; i < legacy.length; i++) utf32.writeUInt32LE(legacy.charCodeAt(i), i * 4);
+    const cases = [
+      ['json', Buffer.from('\ufeff' + legacy), true],
+      ...[[utf16, 'fffe'], [Buffer.from(utf16).swap16(), 'feff'],
+        [utf32, 'fffe0000'], [Buffer.from(utf32).swap32(), '0000feff']].flatMap(([bytes, bom]) => [
+        ['json', bytes, true], ['json', Buffer.concat([Buffer.from(bom, 'hex'), bytes]), true],
+      ]),
+      ['md', 'Notes\n' + fence + '\r\n', true],
+      ['md', 'Notes\r' + fence, false],
+      ['md', 'Notes\u2028' + fence, false],
+      ['md', fence + '\u2029trailing text', false],
+    ];
+    for (const [format, bytes, retired] of cases) {
+      const file = path.join(feature, 'concept-test.' + format);
+      fs.writeFileSync(file, bytes);
+      git('add', 'specs');
+      for (const indexOnly of [false, true]) {
+        if (indexOnly) fs.unlinkSync(file);
+        const { checks } = run();
+        assert.equal(checks.conceptTest.status, 'BLOCK');
+        assert.deepEqual(checks.commands, []);
+        assert.equal(checks.conceptTest.error.includes('v1 records are no longer supported'), retired);
+        assert.equal(checks.conceptTest.error.includes('Git index'), retired && indexOnly);
+      }
+    }
   });
 
   it('runs the packaged validator through a symlink for FITS and all three local decisions, and rejects stale inputs', (t) => {
@@ -757,6 +1005,15 @@ describe('human concept-test decisions at the public gate', () => {
     const enrolled = run(repo, { env, commands: [] });
     assert.equal(enrolled.verdict, 'FAIL');
     assert.equal(enrolled.checks.conceptTest.status, 'BLOCK');
+    const proposal = path.join(feature, 'concept-test.json');
+    const legacy = '{"schema":"concept-test/v1"}';
+    for (const [bytes, retired] of [[legacy, true], [Buffer.from(legacy, 'utf16le'), false]]) {
+      fs.writeFileSync(proposal, bytes);
+      const isolated = run(repo, { env, commands: [] });
+      assert.equal(isolated.checks.conceptTest.status, 'BLOCK');
+      assert.equal(isolated.checks.conceptTest.error.includes('v1 records are no longer supported'), retired);
+      assert.deepEqual(isolated.checks.commands, []);
+    }
   });
 
   it('detects an indexed proposal missing from the working tree in an unborn repository', (t) => {

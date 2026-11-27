@@ -1,0 +1,20 @@
+ticket_id: RT-20261126-016
+status: resolved
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "Root-level __tests__ directory is excluded from retirement approval lookup"
+problem: |
+  The classifier recognizes nested __tests__ directories but omits the same directory at the repository root. Deleting a test in that directory skips the required path and blob approval lookup.
+expected_fix:
+  - Apply the retirement approval contract to root and nested test directories, preserving ordinary source file classification.
+  - Confirm the public CLI requires the committed path and blob approval for those files.
+references:
+  - plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+owner_decision: "2026-11-26: RT-016 と RT-014 の両方を承認"
+resolution:
+  owner_decision: "2026-11-26: RT-016 と RT-014 の両方を承認"
+  commit: 936f182edd83a650458efccb032f111cd211c8c9
+  evidence: specs/verification-first-factory/verification/T-002/RT-20261126-014-016/public-cli-receipt.json

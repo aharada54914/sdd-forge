@@ -1,0 +1,411 @@
+{
+  "scan": {
+    "repository": "aharada54914/sdd-forge",
+    "population": "Newest 50 two-parent merge commits on first-parent main as of the fixed anchor, before examining scanner results. Each merge represents a separate historical integrated PR. This repository sample is consecutive by merge sequence, not by PR number or all commits. Oldest merge 2026-11-01T00:35:55+09:00, latest 2026-11-26T09:47:36+09:00.",
+    "anchor": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+    "earliest_merge": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+    "earliest_base": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+    "cohort": {
+      "local_pr_merge_replays": 50,
+      "hosted_pull_request_events": 0,
+      "hosted_push_events": 0,
+      "direct_push_cohort": "not sampled",
+      "unmerged_pr_976": "excluded by design"
+    },
+    "interpretation": "A local replay of merged history on Darwin with the pinned PR branch workflow scanners. Each range first-parent..merge emulates the integrated main change. Hosted PR candidate commits and push boundaries were not reconstructed. Cannot count ranges as hosted PR runs or as independent push observations. No credentials validated against any service.",
+    "workflow_tree": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+    "workflow_blob_sha256": "c5419932bd6e8ebc2568496fab2a3c314258e605dd5f2d5d18c7eba70693b64e",
+    "file_changes_over_ranges": 3439,
+    "commit_range_memberships_including_merges": 715,
+    "gitleaks": {
+      "version": "8.30.1",
+      "archive_sha256": "b40ab0ae55c505963e365f271a8d3846efbc170aa17f2607f13df610a9aeb6a5",
+      "successful_ranges": 50,
+      "findings": 22,
+      "affected_prs": [
+        781,
+        720,
+        713,
+        710,
+        697,
+        695
+      ],
+      "rules": {
+        "generic-api-key": 9,
+        "aws-access-token": 13
+      },
+      "distinct_line_locations": 18,
+      "distinct_column_locations": 22,
+      "triage": {
+        "unresolved": 17,
+        "repository commit hash (field and Git object verified)": 5
+      },
+      "artifact_counts": {
+        "verification evidence": 8,
+        "test source": 2,
+        "test context audit": 12
+      },
+      "confirmed_benign_only_prs": [
+        720,
+        713
+      ],
+      "median_seconds": 0.22,
+      "max_seconds": 2.279
+    },
+    "semgrep": {
+      "version": "1.187.0",
+      "security_rule_sha256": "7cdc8f6add9e2a20979b8f4ae40d5e3eec617604a0191011c09e628d21a2896f",
+      "successful_ranges": 50,
+      "prs_with_applicable_scanned_paths": 27,
+      "sum_per_pr_scanned_paths": 175,
+      "findings": 0,
+      "errors": 0,
+      "median_seconds": 1.212,
+      "max_seconds": 2.219
+    },
+    "decisions": "Gitleaks would have stopped 6/50 historical merged PRs, including 2/50 with only proven commit-hash false positives. Other findings are unresolved. Do not treat zero Semgrep findings as sensitivity evidence or 50 positive test cases. No allowlist, suppression, default or repository changes.",
+    "details_sha256": {
+      "gitleaks-report.json": "cd5185447613cb4ee0ced1a102c5aad9bc59d23466b516fdaa04d31a44f213d7",
+      "semgrep-report.json": "95d29a8c942c6576e19717b2dceb2f4a9b657a8ff1d151209ea662a2aebb8017"
+    }
+  },
+  "individual_review": {
+    "kind": "isolated retrospective decision simulation",
+    "scanner": "Gitleaks 8.30.1",
+    "anchor": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+    "sample": "Newest 50 first-parent PR integration merges; no hosted execution or new scan",
+    "input_report_sha256": "cd5185447613cb4ee0ced1a102c5aad9bc59d23466b516fdaa04d31a44f213d7",
+    "review_rule": "Only mark the five individually reviewed commit metadata matches, each attached to the inspected commit and location and checked against a repository commit object. Every other occurrence stays unresolved for this trial.",
+    "raw_findings": 22,
+    "retained_unresolved": 17,
+    "raw_candidate_blocks": 6,
+    "candidate_holds_after_context_review": 4,
+    "additional_holds_cleared_percent_of_all": 4,
+    "remaining_context_observations": [
+      {
+        "pr": 710,
+        "observations": 1,
+        "evidence": "A static fixture marker is passed into failure and notification tests and referenced by assertNoLeak. No independent disposition was applied."
+      },
+      {
+        "pr": 697,
+        "observations": 13,
+        "evidence": "One explicitly assigned value is written into a test input. The other twelve matches occur in a test-context audit. Their validity was not established from that provenance."
+      },
+      {
+        "pr": 695,
+        "observations": 1,
+        "evidence": "A field is labeled as a source API SHA-256, but its original API bytes were not independently recovered. Leave pending."
+      },
+      {
+        "pr": 781,
+        "observations": 2,
+        "evidence": "Verification/browser evidence; no independent data-flow proof for the matching values. Leave pending."
+      }
+    ],
+    "review_process": "For each candidate persist the scanner version, rule, reviewed head, finding fingerprint, reviewer, and the evidence for a disposition. Require independent corroboration before recording benign. Reopen the review when the candidate or finding changes. If any occurrence is unresolved, retain it for human disposition. No automatic exemptions, suppression or policy change were used.",
+    "per_pr_counts": [
+      {
+        "pr": 982,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 981,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 980,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 979,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 978,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 977,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 975,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 974,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 973,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 972,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 971,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 970,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 969,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 968,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 967,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 966,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 800,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 794,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 793,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 792,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 784,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 789,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 783,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 782,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 781,
+        "raw_findings": 2,
+        "reviewed_benign": 0,
+        "retained_unresolved": 2
+      },
+      {
+        "pr": 777,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 774,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 720,
+        "raw_findings": 1,
+        "reviewed_benign": 1,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 721,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 718,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 717,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 716,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 713,
+        "raw_findings": 4,
+        "reviewed_benign": 4,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 715,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 714,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 711,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 710,
+        "raw_findings": 1,
+        "reviewed_benign": 0,
+        "retained_unresolved": 1
+      },
+      {
+        "pr": 709,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 708,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 707,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 706,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 697,
+        "raw_findings": 13,
+        "reviewed_benign": 0,
+        "retained_unresolved": 13
+      },
+      {
+        "pr": 700,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 699,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 695,
+        "raw_findings": 1,
+        "reviewed_benign": 0,
+        "retained_unresolved": 1
+      },
+      {
+        "pr": 696,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 693,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 683,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 681,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      },
+      {
+        "pr": 680,
+        "raw_findings": 0,
+        "reviewed_benign": 0,
+        "retained_unresolved": 0
+      }
+    ],
+    "independently_confirmed_benign": 5
+  }
+}

@@ -306,17 +306,21 @@ fi
 if should_run TEST-041; then
   wiring_count=0
   run_all_sh="$REPO_ROOT/tests/run-all.sh"
-  run_all_ps1="$REPO_ROOT/tests/run-all.ps1"
   if registered_suites="$(bash "$run_all_sh" --list)" &&
     grep -Fx 'tests/ownership-digest.tests.sh' <<< "$registered_suites" >/dev/null; then
     wiring_count=$((wiring_count + 1))
   fi
   registered_ps1="$(python3 "$REPO_ROOT/tests/verification.py" --profile local-powershell --list)" &&
     grep -Fxq "tests/ownership-digest.tests.ps1" <<< "$registered_ps1" && wiring_count=$((wiring_count + 1))
-  grep -Fq 'bash ./tests/ownership-digest.tests.sh' "$REPO_ROOT/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))
-  grep -Fq './tests/ownership-digest.tests.ps1' "$REPO_ROOT/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))
+  workflow="$REPO_ROOT/.github/workflows/test.yml"
+  if is_mutated TEST-041; then
+    sed '/^[[:space:]]*run: bash \.\/tests\/ownership-digest\.tests\.sh$/d' "$workflow" > "$TMP/incomplete-workflow.yml"
+    workflow="$TMP/incomplete-workflow.yml"
+  fi
+  if node "$REPO_ROOT/tests/lib/ownership-ci-registration.cjs" "$REPO_ROOT" "$workflow"; then
+    wiring_count=$((wiring_count + 2))
+  fi
   grep -Fq '`tests/ownership-digest.tests.sh` / `.ps1`' "$REPO_ROOT/specs/epic-191-a3-path-ownership/design.md" && wiring_count=$((wiring_count + 1))
-  if is_mutated TEST-041; then wiring_count=4; printf 'MUTATION: TEST-041 removes one required registration from the observed inventory\n'; fi
   result=0; [ "$wiring_count" = 5 ] && result=1
   check TEST-041 'both suites are wired in run-all, live CI, and the design inventory' "$result"
 fi

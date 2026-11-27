@@ -13,11 +13,11 @@ UI アプリケーションの仕様段階デザイン反復ループ。Mermaid 
 
 ## 1. Ensure `design-system/`（ローカル契約を先に確保）
 
-プロバイダー有無にかかわらず、プロジェクトルートに `design-system/`（`design-tokens.json`, `design-system.md`, `ui-patterns.md`）が未整備なら先に作成し人間の承認を得る（有効な `schema: design-system-contract/v1` が既にあればスキップ）:
+プロジェクトルートの `design-system/` の `design-tokens.json` が契約（`schema: design-system-contract/v1` を含むメタデータ）を満たし、`design-system.md` と `ui-patterns.md` が揃っていれば、この手順をスキップする。未整備なら既存の承認済み値を保ち、次の順で不足分を作成して利用者の承認を得る。
 
-1. **`ui-ux-pro-max` 利用可能時**: 製品種別・業種を確認してシード生成し、承認済み値を `design-tokens.json` と同梱 `templates/{design-system,ui-patterns}.template.md` へ転記。
-2. **Figma DTCG JSON 提供時**: ローカルファイルから `design-tokens.json` へマッピング（Figma API 接続はしない）。
-3. **フォールバック（テンプレート対話）**: 同梱 `templates/{design-tokens.template.json,design-system.template.md,ui-patterns.template.md}` を使い、ブランドカラー・タイポグラフィ・余白スケールを人間へ確認して作成。
+1. **`ui-ux-pro-max` と Python 3 が利用可能な場合**、製品種別・業種を確認し、プロジェクトルートからインストール済みスキルの `scripts/search.py` を Python 3 で実行する。引数は `"<製品種別・業種>" --design-system --persist -p "<プロジェクト名>"`。表示された生成先の `MASTER.md` を利用者と確認し、ページ別の上書きがある場合はそれも確認し、承認された配色・タイポグラフィ・余白を `design-system/design-tokens.json` に転記する（`meta.generated_by` は `ui-ux-pro-max`）。同梱テンプレートから `design-system/design-system.md` と `design-system/ui-patterns.md` を作成する。以後の設計では、この3ファイルを正本として参照する。
+2. **Figma DTCG JSON の提供がある場合**、ローカルファイルの値を `design-tokens.json` にマッピングし、`meta.generated_by` を `figma-dtcg-import` にする。同梱テンプレートから作成したプロジェクト側の2つの Markdown ファイルに、承認済みの設計規約を記入する。
+3. **どちらも利用できない場合**、D6 のテンプレート対話でブランドカラー・タイポグラフィ・余白スケールを利用者に確認する。同梱の `templates/{design-tokens.template.json,design-system.template.md,ui-patterns.template.md}` から3ファイルを作り、`meta.generated_by` を `manual` にする。`Design-Source` に `ui-ux-pro-max unavailable — D6 template interview used` と記録する。
 
 ## 2. Capability Detection & Fallback
 
@@ -27,12 +27,49 @@ UI アプリケーションの仕様段階デザイン反復ループ。Mermaid 
 
 ## 3. Mockup & Egress Consent Loop（`DesignSync` 利用可能時）
 
-1. **Pull**: `list_projects` / `list_files` / `get_file` で対象プロジェクトのトークンと既存コンポーネント一覧を取得し、`Design-Source` へ記録。
-2. **Generate Mockups**: 各画面・状態（default / empty / loading / error、レスポンシブ）について、外部アセット無し・トークン準拠（生カラーコード禁止）の HTML モックアップを `specs/<feature>/mockups/` に生成。
+外部プロバイダーを使う前に、同梱の `../../scripts/resolve-design-sync.py` に `design-sync-request/v1` を標準入力で渡す。読み込みは `operation: pull`、書き込みは `operation: upload` とし、毎回、現在の設定、機能・セッション・送信先、既存の判断記録を使う。結果が `prompt` なら同意の回答を加えて再実行する。 `skip` と `manual` は送信しない。`pull` の許可をアップロードに流用しない。
+
+1. **Pull**: `list_projects` の一覧から利用者に対象プロジェクトを選んでもらい、`list_files` / `get_file` でそのトークンと既存コンポーネント一覧を取得し、`Design-Source` へ記録。
+2. **Generate Mockups**: 機能の要件（REQ-NNN）と受入条件（AC-NNN）に対応する各画面・状態（default / empty / loading / error、レスポンシブ）について、外部アセット無し・トークン準拠（生カラーコード禁止）の HTML モックアップを `specs/<feature>/mockups/` に生成。
 3. **Resolve Egress Consent**: 毎回 `AGENTS.md` の `ds_upload_consent`（`per-feature` [既定] / `standing` / `off`）を確認する:
+   判定用の `destination` は実サービスと対象 ID の組を一意に識別する文字列とし、同じ組には毎回同じ値を使う。過去の `records` も、記録時の実サービスと対象 ID から同じ表記に揃える。送信先を特定できない過去の同意は使わず、撤回や禁止が今回の送信先に適用されるか不明な場合は手動フォールバックとする。
    - `off`: アップロードせず手動フォールバック（`Egress-Consent: not-permitted`, `Ds-Upload-Consent-Setting: off`, `Egress-Consent-At: <ISO-8601>` を記録）。
    - `standing`: プロンプト不要で続行し、`(feature, destination)` 初回のみ `Egress-Consent: granted`, `Ds-Upload-Consent-Setting: standing`, `Egress-Consent-At` を記録。
-   - `per-feature`: 当該 `(feature, session)` で未同意なら、送信内容・送信先（`claude.ai/design`）・外部保持リスク・適用範囲を明示説明して人間の明示同意を得てから `push` する。拒否時はアップロードせず手動フォールバック。
+   - `per-feature`: 送信先ごとに判定する。当該 `(feature, session)` で未同意なら、送信内容・送信先（実際のサービス名とプロジェクト名）・外部保持リスク・適用範囲を明示説明して人間の明示同意を得てから `push` する。拒否時はアップロードせず手動フォールバック。
+     次の文面は、判定結果の `provider` が `claude-design` で、実際の送信先が `claude.ai/design` の場合に限る。
+     判定器が `prompt` を返したときだけ、〈機能名〉と〈プロジェクト名〉を実際の名前に置き換え、次の文面で利用者に同意を求める。
+     「〈機能名〉の要件、受入条件、デザイントークンを反映した HTML モックアップを送信します。モックアップには未公開の製品仕様、画面の文言、ブランド情報などの機密情報が含まれる場合があります。
+     送信先は外部サービス `claude.ai/design` の、手順1の Pull で選んだプロジェクト〈プロジェクト名〉です。
+     送信した内容はサービス側に保持される可能性があり、このリポジトリではその保持や削除を制御できません。
+     同意の範囲は、このセッション中に〈機能名〉のモックアップを〈プロジェクト名〉へ送ることです。今後この範囲で再生成するモックアップの送信も含みます。同意が有効な間、この範囲での2回目以降の送信時には改めて確認しません。
+     同意すると、この内容を外部へ送る権限がご自身にあると表明したことになります。このツールではその権限を検証しません。この範囲で送信してよいですか？」
+     機能・セッション・送信先がすべて同じで、前回の同意が有効なら、2回目以降のアップロードは再同意を求めず送信前検査に進む。
+     一度の辞退は今回限りで、継続的な禁止 `not-permitted` を記録せず、設定も `off` に変更しない。辞退後、他の送信条件を満たす次の同一範囲のアップロードは `prompt` となり、改めて同意を求める。
+     実際の送信先が `claude.ai/design` の `claude-design` に限り、手順1で選んだプロジェクトの ID を `Egress-Destination` として `Design-Source` に残す。
+     送信先を変えた場合、元のプロジェクトの同意は引き継がない。新しい送信先に有効な同意がなく、他の送信条件を満たす場合は、送信前に改めて同意を求める。
+     利用者はセッション中でも同意を撤回できる。撤回を受けたら、同じ機能・セッション・送信先の判断を `withdrawn` として `Design-Source` に追記し、次の判定では `records` の末尾に渡す。撤回後、他の送信条件を満たす次の同一範囲のアップロードは `prompt` となり、改めて同意を求める。
+   判断結果に `audit` がある場合は、`specs/<feature>/design.md` の `Design-Source` に判断・適用設定・送信先・範囲と、返された `party`（`Egress-Consent-Party`）、記録時の ISO-8601 時刻（`Egress-Consent-At`）を残す。
+
+   | 送信同意の記録欄 | 値 |
+   |---|---|
+   | `Egress-Consent` | 送信同意の判断（`granted`、`not-permitted`、`withdrawn`） |
+   | `Egress-Destination` | `claude-design` で実際に `claude.ai/design` を使う場合、手順1で選んだプロジェクトの ID |
+
+   アップロード直前とモックアップの再生成後は毎回、次の送信前検査を行う。手順3の送信同意を先に確認し、送信予定の `specs/<feature>/mockups/` のファイルだけを、送信時と同じ相対パス・内容で1つのディレクトリに用意する。
+   この検査の対象は送信する HTML 内の仮置き表現、機密情報・個人情報に似た文字列に限る。モックアップの品質、デザインの再現度、アクセシビリティ、デザインシステムへの適合性は評価しない。
+   `python3 <sdd-bootstrap>/scripts/design-sync-override.py sh <送信予定ディレクトリ>` を実行する。PowerShell では `sh` を `ps1` に替える。内部で同梱の `design-sync-scan.sh` または `design-sync-scan.ps1` が送信用コピーを検査する。標準入力の JSON に現在の `feature`、`session`、実サービス名 `service`、実際に選択したプロジェクトの `destination_id` を渡す。`latest_override` にはこの機能・セッションについて利用者が最後に示した検査例外の判断だけを渡す。記録がない、不明、または無効になった場合は `null` とし、以前の許可を探し直さない。送信同意の記録はここには使わない。
+   照合結果が終了1の `review` なら、`findings` を利用者に示して回答を待つ。この `identity` の上書きを利用者が明示的に承認するまで送信しない。沈黙・無回答・エージェント自身の判断を承認として扱わない。終了0の `reuse` は、有効な例外承認と、送信内容（全相対パスとバイト）・送信先（サービスと対象ID）・今回の所見がすべて一致した場合だけ返る。
+   監査記録の `<scan_at>` には、今回の結果が返したスキャン完了日時（UTC、ISO-8601）を転記する。
+
+   | 結果 | 記録する時点 | `Design-Source` に記録する項目 |
+   |---|---|---|
+   | `clean` | スキャン成功時 | `Egress-Scan: clean`、`Egress-Scan-At: <scan_at>` |
+   | `review` | この `identity` に対する明示的な上書き承認後 | `Egress-Scan: overridden`、`Egress-Scan-At: <scan_at>`、承認者と `identity` |
+   | `reuse` | 有効な例外承認との一致を確認した時 | `Egress-Scan: overridden`、`Egress-Scan-At: <scan_at>` |
+
+   `review` の承認を記録したら、`latest_override` に `{"decision":"granted","party":"<承認者>","identity":<承認したidentity>}` を渡して再検査し、その結果に従う。終了0の `clean` と `reuse` は、`upload_directory` が指す検査済みコピーだけを、その相対パス・内容のまま当該送信先へ送り、使用後にコピーを削除する。
+   - 辞退・撤回後は保持した許可を無効にし、次の検査に渡す最新判断はそれぞれ `{"decision":"declined"}`・`{"decision":"withdrawn"}` とする。終了2または異常終了は検査ツールの失敗として報告する。この場合は上書き承認を提示せず、入力またはツールを復旧して再検査するまで送信しない。
+   利用者が上書きを辞退したら送信を止め、`Design-Source` に `Egress-Scan: overridden` を記録しない。指摘されたモックアップを修正してから再検査する。この辞退は今回の検査結果だけに適用し、送信同意 `Egress-Consent` の辞退や撤回としては扱わない。
 4. **Iterate & Finalize**: フィードバックを反映して再生成・再確認し、確定した視覚方針を `specs/<feature>/design.md` と `requirements.md`（UX 受入条件）へ反映する。
 
 ## Boundaries

@@ -1,0 +1,36 @@
+{
+  "revision": "00543593b2ba57467dc5f99e29620d5d948403cd",
+  "task": "T-005",
+  "command": [
+    "node",
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+    "--root",
+    "/private/tmp/sdd-t005-cfg-continuations/collection/repo",
+    "--task",
+    "T-005",
+    "--feature",
+    "verification-first-factory",
+    "--changed-files",
+    "plugins/sdd-quality-loop/scripts/v2/discover-state-machines.mjs,plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs,plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs,plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs,tests/fixtures/project-skills/formal-review-reservation/mapping.json,tests/project-skill-formal.tests.py,tests/v2-formal-gate.test.mjs,tests/verify-review-reservation.py",
+    "--output",
+    "/private/tmp/sdd-t005-cfg-continuations/collection/T-005/execution.json",
+    "--cmd",
+    "formal=node --test tests/v2-formal-gate.test.mjs",
+    "--cmd",
+    "python=python3 tests/project-skill-formal.tests.py -v",
+    "--cmd",
+    "observed=python3 tests/verify-review-reservation.py --jar /private/tmp/sdd-formal-runtime/tla2tools.jar --output /private/tmp/sdd-t005-cfg-continuations/collection/T-005/capture"
+  ],
+  "java": "openjdk 21.0.13.1 2026-11-17 LTS",
+  "checker_sha256": {
+    "tlc": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+    "apalache": "f2d43f2e279a657be50b2ecec3a013ba2915266008a2562b38412c3269347dc9"
+  },
+  "coverage": {
+    "commandsRun": 3,
+    "specDriftChecked": true,
+    "sensorsChecked": true,
+    "complete": true
+  },
+  "machine_run": "33bdcbc6-ef4c-4a5d-8276-9740930a60e1"
+}

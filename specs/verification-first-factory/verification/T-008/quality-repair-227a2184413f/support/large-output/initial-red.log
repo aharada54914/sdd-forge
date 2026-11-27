@@ -1,0 +1,37 @@
+▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2
+  ✖ T-008 rebuild compares large binary streams and preserves command exit codes (287.526834ms)
+✖ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (287.926916ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 319.834833
+
+✖ failing tests:
+
+test at tests/v2-wave3-integration.test.mjs:111:3
+✖ T-008 rebuild compares large binary streams and preserves command exit codes (287.526834ms)
+  AssertionError [ERR_ASSERTION]: {"skipped":false,"baseline":{"exitCode":1,"durationMs":19.04162500000001,"p95Ms":19.04162500000001,"samples":1},"candidate":{"exitCode":1,"durationMs":20.156333000000004,"p95Ms":20.156333000000004,"samples":1},"differentialMatched":false,"nfrPassed":false,"nfrViolations":[],"passed":false,"immutablePaths":[]}
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///private/tmp/vff-eight-round.bCInWW/repair/tests/v2-wave3-integration.test.mjs:130:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at node:internal/test_runner/test:1516:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

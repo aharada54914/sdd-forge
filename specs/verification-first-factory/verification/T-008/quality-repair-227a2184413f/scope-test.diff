@@ -1,0 +1,67 @@
+diff --git a/reports/implementation/verification-first-factory/T-008.md b/reports/implementation/verification-first-factory/T-008.md
+index 0c3237ee8..6572d7f8c 100644
+--- a/reports/implementation/verification-first-factory/T-008.md
++++ b/reports/implementation/verification-first-factory/T-008.md
+@@ -105,3 +105,10 @@ Input manifest: `specs/verification-first-factory/verification/T-008/report-reva
+ ## 要件 ID 修正後の機械検証（2026-11-26）
+ 
+ 機械ゲートを `f755b33f3a68ee1ec6dd34087d32bdce274da544` の隔離 checkout で再実行した。実行 `99e75fb2-6764-44d8-8e5a-66284897d290` は PASS。新しく個別に検証した要件を含む ID 一覧と実測数は `specs/verification-first-factory/verification/T-008/evidence-id-refresh/current-verification.json` に収録した。MCP の sdd_gate_audit は specInputsCurrent=true、独立審査前の readyForDone=false を返した。先の実行 JSON は上の prior-execution.json に保存した。
++
++## 大出力比較の修正前チェック（2026-11-26、WFI-001）
++
++| 永続化するフィールド | 契約・照合先 | 修正前に実行する不一致テスト |
++|---|---|---|
++| `baseline.exitCode`、`candidate.exitCode`、`differentialMatched` | REQ-011 / AC-010。成功した二つのコマンドの stdout と stderr を別々にバイト単位で比較する | 各ストリームに2 MiB以上の同一バイトを出力し、終了値0と一致を要求。片方のストリームの末尾1バイトだけを変えたケースを個別に比較する。実際の終了7も検証する |
++| `samples`、`p95Ms`、`nfrPassed`、`passed`、ゲートの `verdict` | REQ-011 / AC-010。全20標本の完走と終了値、通常のNFR予算を照合する | 大出力一致時に20標本・正のp95・PASS、差分やコマンド失敗時に1標本・FAILを要求する |
+diff --git a/tests/v2-wave3-integration.test.mjs b/tests/v2-wave3-integration.test.mjs
+index 0727a2256..065cc7485 100644
+--- a/tests/v2-wave3-integration.test.mjs
++++ b/tests/v2-wave3-integration.test.mjs
+@@ -108,6 +108,47 @@ describe('ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock
+     fs.rmSync(dir, { recursive: true, force: true });
+   });
+ 
++  it('T-008 rebuild compares large binary streams and preserves command exit codes', (t) => {
++    const dir = setupGateProject();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    fs.writeFileSync(path.join(dir, 'emit.cjs'), [
++      "const fs = require('node:fs');",
++      "const bytes = Buffer.alloc(2 * 1024 * 1024, 0xff);",
++      "for (const fd of [1, 2]) {",
++      "  fs.writeFileSync(fd, bytes);",
++      "  fs.writeFileSync(fd, Buffer.from([String(fd) === process.argv[2] ? 1 : 0]));",
++      "}",
++      "if (process.argv[2] === 'error') process.exitCode = 7;",
++    ].join('\n'));
++    git(dir, 'add', 'emit.cjs');
++    git(dir, 'commit', '-qm', 'rebuild output fixture');
++
++    const run = (arg) => gate(dir, '--mode', 'rebuild', '--baseline-cmd', 'node emit.cjs',
++      '--candidate-cmd', `node emit.cjs ${arg}`);
++    const matching = run('same');
++    const measurement = matching.checks.rebuildDifferential;
++    assert.equal(matching.code, 0, JSON.stringify(measurement));
++    assert.equal(matching.report.verdict, 'PASS');
++    assert.equal(measurement.differentialMatched, true);
++    assert.equal(measurement.nfrPassed, true);
++    for (const side of [measurement.baseline, measurement.candidate]) {
++      assert.equal(side.exitCode, 0);
++      assert.equal(side.samples, 20);
++      assert.ok(side.p95Ms > 0);
++    }
++    for (const arg of ['1', '2', 'error']) {
++      const result = run(arg);
++      const measured = result.checks.rebuildDifferential;
++      assert.equal(result.code, 1);
++      assert.equal(result.report.verdict, 'FAIL');
++      assert.equal(measured.differentialMatched, false);
++      assert.equal(measured.nfrPassed, false);
++      assert.equal(measured.baseline.exitCode, 0);
++      assert.equal(measured.candidate.exitCode, arg === 'error' ? 7 : 0);
++      assert.equal(measured.candidate.samples, 1);
++    }
++  });
++
+   it('T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection', (t) => {
+     const dir = setupGateProject();
+     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));

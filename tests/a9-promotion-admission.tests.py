@@ -69,6 +69,8 @@ class Fixture:
             self.write(relative, (proof_fixture.root / relative).read_bytes())
         references = 'plugins/sdd-review-loop/references/'
         self.write(references + 'a8-expected-hook-config-digests.json', proof_fixture.manifest.read_bytes())
+        # This historical eleven-component fixture predates the retirement of lite.
+        self.write('plugins/sdd-lite/fixture.txt', b'historical package fixture\n')
         # The copied plugin tree includes both restored providers. Only the
         # disposable fixture signs this matching, otherwise unsigned candidate.
         baseline = CORE.PREFLIGHT.read_document(

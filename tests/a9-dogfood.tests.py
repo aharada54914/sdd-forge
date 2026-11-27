@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 import subprocess
 import tempfile
+import tarfile
 import unittest
 from unittest.mock import patch
 
@@ -27,20 +28,33 @@ OWNERSHIP = load("resolve-component-paths")
 RESOLVER = load("resolve-project-context")
 APPROVAL = load("validate-approval-sidecar")
 PREDICATE = load("evaluate-predicate")
-CLOUD_ROOTS = ("plugins/sdd-azure-cloud/", "plugins/sdd-aws-cloud/", "templates/cloud/")
-
-
 HUB_SHARED_PATHS = ('.agents/skills/verify-session-hub/SKILL.md', '.agents/skills/verify-session-hub/features/README.md', '.agents/skills/verify-session-hub/features/questions.md', '.agents/skills/verify-session-hub/features/away.md', '.agents/skills/verify-session-hub/features/verification.md', 'scripts/merge-readiness.py')
 
-def pre_hub_paths():
-    paths = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
-    return [path for path in paths if path not in HUB_SHARED_PATHS]
+# The archive stores exact `git ls-tree -rz --name-only <commit>` bytes for
+# each recorded candidate revision, including on shallow and offline checkouts.
+HISTORICAL_INVENTORIES = {
+    "original": ("1b7aa4ec006bae6022801612f9cfc5b37a194053", "712cba56668b0ba14df6c1a5af80862eea997087aceb17698f20850b1c36d41b"),
+    "formal-verification": ("a03584f965703566550441cdc416c0b2521cb5b6", "a836e164b1d0582835e12cc428f3cf96e60903a06255ee278f72b7cbf875d306"),
+    "restored-cloud": ("2e531b2bcf4bf9e0d561a2f05eba83c57521da0f", "e2dc0c7eb63ad988cf8574d468e7b60bf1ccca2b2c9bb858a7a5f38779239f49"),
+    "dashboard": ("1a0c987b42d2a84387acf4ddc2df48a145e7c589", "ce0251a947fc2d7508b20ed213782db66e4817175571c779ec7b575f7ed51f88"),
+    "session-hub": ("61abd0155c5c0bc80f79da0f0c5daa8671d0602d", "a153ced92ea8177db05d16c5dc3d2a733c302c7f4d77824d88fd6659258addd4"),
+}
 
 
-def historical_core_paths():
-    """The preserved nine-component candidate predates cloud, payload restoration, dashboard labels and the session hub."""
-    paths = pre_hub_paths()
-    return [path for path in paths if not path.startswith(CLOUD_ROOTS) and path not in ("install-payload.txt", "dashboard-labels.json")]
+def load_candidate_validator():
+    spec = importlib.util.spec_from_file_location("a9_candidate", ROOT / "scripts/validate-a9-candidate.py")
+    checker = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(checker)
+    return checker
+
+
+def historical_paths(candidate):
+    commit, digest = HISTORICAL_INVENTORIES[candidate]
+    with tarfile.open(ROOT / "tests/fixtures/a9-candidate/tracked-paths.tar.xz", "r:xz") as archive:
+        data = archive.extractfile(commit).read()
+    if hashlib.sha256(data).hexdigest() != digest:
+        raise ValueError("historical path inventory mismatch for " + commit)
+    return data.decode("utf-8").removesuffix("\0").split("\0")
 
 
 def context():
@@ -143,7 +157,9 @@ class CandidatePackTests(unittest.TestCase):
         spec = importlib.util.spec_from_file_location('a9_candidate_successor', ROOT / 'scripts/validate-a9-candidate.py')
         checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(checker)
-        tracked = historical_core_paths()
+        original_doc = OWNERSHIP.parse_minimal_yaml(original)
+        self.assertEqual(checker.validate(original_doc, historical_paths("original"))[0], [])
+        tracked = historical_paths("formal-verification")
         old_errors, _ = checker.validate(OWNERSHIP.parse_minimal_yaml(original), tracked)
         self.assertTrue(any('UNOWNED: .agents/skills/verify-review-reservation/SKILL.md' in e for e in old_errors))
         new_errors, _ = checker.validate(OWNERSHIP.parse_minimal_yaml(successor), tracked)
@@ -158,7 +174,7 @@ class CandidatePackTests(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("a9_dashboard_candidate", ROOT / "scripts/validate-a9-candidate.py")
         checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(checker)
-        tracked = pre_hub_paths()
+        tracked = historical_paths("dashboard")
         old = OWNERSHIP.parse_minimal_yaml(original)
         current = OWNERSHIP.parse_minimal_yaml(successor)
         self.assertIn("UNOWNED: dashboard-labels.json", checker.validate(old, tracked)[0])
@@ -193,7 +209,7 @@ class CandidatePackTests(unittest.TestCase):
         spec = importlib.util.spec_from_file_location('a9_hub_candidate', ROOT / 'scripts/validate-a9-candidate.py')
         checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(checker)
-        tracked = subprocess.check_output(['git', 'ls-files'], cwd=ROOT, text=True).splitlines()
+        tracked = historical_paths("session-hub")
         old = OWNERSHIP.parse_minimal_yaml(original)
         current = OWNERSHIP.parse_minimal_yaml(successor)
         self.assertEqual(checker.validate(current, tracked)[0], [])
@@ -208,19 +224,68 @@ class CandidatePackTests(unittest.TestCase):
         self.assertIn('UNOWNED: scripts/merge-readiness-other.py', checker.validate(current, tracked + ['scripts/merge-readiness-other.py'])[0])
 
     def test_candidate_has_complete_nonoverlapping_tracked_ownership(self):
-        candidate = ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-session-hub.yaml"
+        candidate = ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-core.yaml"
         doc = OWNERSHIP.parse_minimal_yaml(candidate.read_text())
         self.assertTrue(RESOLVER._project_context_valid(doc, ROOT))
-        self.assertEqual(len(doc["components"]), 11)
+        self.assertEqual(len(doc["components"]), 10)
         paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().split("\0")
         result = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(doc), [p for p in paths if p])
         self.assertFalse([r for r in result["records"] if r["classification"] in ("UNOWNED", "OVERLAP")])
 
+    def test_core_successor_preserves_hub_candidate_and_exact_owners(self):
+        checker = load_candidate_validator()
+        folder = ROOT / "specs/epic-197-a9-dogfood/candidate"
+        hub = checker.read_document(folder / "project-context-session-hub.yaml")
+        core = checker.read_document(folder / "project-context-core.yaml")
+        paths = {
+            **{"scripts/vendor-shell-parser/" + name: ["sdd-quality-loop"]
+               for name in ("build.py", "go.mod", "go.sum", "main.go", "zsh-loops.patch", "zsh_loops.go.in")},
+            "sdd/approved-test-retirements.json": [],
+            "sdd/guardrails.example.yaml": ["installer", "sdd-quality-loop"],
+        }
+        reconstructed = copy.deepcopy(hub)
+        reconstructed["components"] = [row for row in hub["components"] if row["id"] != "sdd-lite"]
+        for path, owners in paths.items():
+            fields = {"components": owners} if owners else {"classification": "cross-cutting"}
+            reconstructed["shared_paths"].append({"pattern": path, **fields})
+        self.assertEqual(core, reconstructed)
+        tracked = ["plugins/" + row["id"] + "/package" for row in core["components"]
+                   if row["id"].startswith("sdd-")] + ["mcp/server", "install.sh", *paths]
+        errors, ownership = checker.validate(core, tracked)
+        self.assertEqual(errors, [])
+        records = {row["raw_path"]: row for row in ownership["records"]}
+        for path, owners in paths.items():
+            with self.subTest(path=path):
+                record = records[path]
+                self.assertEqual(record["classification"], "SHARED_BOUNDED" if owners else "SHARED_CROSS_CUTTING")
+                self.assertEqual(record["owning_components"], owners)
+                changed = copy.deepcopy(core)
+                changed["shared_paths"] = [row for row in changed["shared_paths"] if row["pattern"] != path]
+                missing = checker.validate(changed, tracked)[0]
+                self.assertIn("UNOWNED: " + path, missing)
+                changed["shared_paths"].append({"pattern": path, "components": ["mcp"]})
+                self.assertIn("Core ownership rule mismatch: " + path, checker.validate(changed, tracked)[0])
+                self.assertIn("UNOWNED: " + path + ".other", checker.validate(core, tracked + [path + ".other"])[0])
+        broad = copy.deepcopy(core)
+        broad["shared_paths"].append({"pattern": "scripts/vendor-shell-parser/**", "components": ["sdd-quality-loop"]})
+        self.assertIn("unapproved broad shared rule: scripts/vendor-shell-parser/**", checker.validate(broad, tracked)[0])
+        # Keep the MCP dashboard and installer settings witnesses in the input.
+        # Neither shared match can stand in for a direct component path.
+        tracked.append("dashboard-labels.json")
+        for identity, direct in (("sdd-quality-loop", "plugins/sdd-quality-loop/package"),
+                                 ("installer", "install.sh"), ("mcp", "mcp/server")):
+            without_direct = [path for path in tracked if path != direct]
+            with self.subTest(missing_direct=identity):
+                self.assertIn("component has no tracked paths: " + identity,
+                              checker.validate(core, without_direct)[0])
+        self.assertTrue(any(error.startswith("candidate component inventory mismatch:")
+                            for error in checker.validate(hub, tracked)[0]))
+        self.assertTrue(any(error.startswith("candidate component inventory mismatch:")
+                            for error in checker.validate(core, historical_paths("session-hub"))[0]))
+
     def test_candidate_contract_rejects_inventory_classification_and_ownership_drift(self):
-        spec = importlib.util.spec_from_file_location("a9_candidate", ROOT / "scripts/validate-a9-candidate.py")
-        checker = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(checker)
-        doc = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-session-hub.yaml").read_text())
+        checker = load_candidate_validator()
+        doc = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-core.yaml").read_text())
         tracked = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
         for index in range(len(doc["components"])):
             changed = copy.deepcopy(doc)
@@ -249,17 +314,19 @@ class CandidatePackTests(unittest.TestCase):
         restored = OWNERSHIP.parse_minimal_yaml((folder / "project-context-restored-cloud.yaml").read_text())
         cloud_ids = {"sdd-azure-cloud", "sdd-aws-cloud"}
         reconstructed = copy.deepcopy(restored)
-        reconstructed["components"] = [item for item in restored["components"] if item["id"] not in cloud_ids]
-        reconstructed["shared_paths"] = [item for item in restored["shared_paths"] if item["pattern"] != "templates/cloud/**"]
+        reconstructed["components"] = [item for item in reconstructed["components"] if item["id"] not in cloud_ids]
+        reconstructed["shared_paths"] = [item for item in reconstructed["shared_paths"] if item["pattern"] != "templates/cloud/**"]
         installer = next(item for item in reconstructed["components"] if item["id"] == "installer")
         self.assertEqual(installer["paths"]["include"].count("install-payload.txt"), 1)
         installer["paths"]["include"].remove("install-payload.txt")
         self.assertEqual(reconstructed, core)
-        tracked = historical_core_paths() + ["plugins/sdd-azure-cloud/scripts/cloud.py",
-            "plugins/sdd-aws-cloud/scripts/cloud.py", "templates/cloud/github-azure.yml"]
+        tracked = historical_paths("restored-cloud")
+        cloud_examples = ["plugins/sdd-azure-cloud/scripts/cloud.py",
+                         "plugins/sdd-aws-cloud/scripts/cloud.py", "templates/cloud/github-azure.yml"]
+        self.assertTrue(set(cloud_examples) <= set(tracked))
         self.assertEqual(checker.validate(restored, tracked)[0], [])
         core_errors = checker.validate(core, tracked)[0]
-        for path in tracked[-3:]:
+        for path in cloud_examples:
             self.assertIn("UNOWNED: " + path, core_errors)
         for replacement in (None,
                 {"pattern": "templates/**", "components": sorted(cloud_ids)},
@@ -505,13 +572,17 @@ class PromotionPreflightTests(unittest.TestCase):
         self.baseline = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml").read_text())
         self.candidate = copy.deepcopy(self.baseline)
         self.candidate["workflow"].update(artifact_layout="facet-hybrid", capability_enforcement="required")
-        self.tracked = historical_core_paths()
+        self.tracked = historical_paths("formal-verification")
         folder = ROOT / "specs/epic-197-a9-dogfood/verification/advisory-observation-20261017"
         self.registry = json.loads((ROOT / "contracts/capability-registry.json").read_text())
         self.evidence = json.loads((folder / "resolver-evidence.yaml").read_text())
         self.manifest = json.loads((folder / "facet-manifest.yaml").read_text())
         ownership = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(self.baseline), self.tracked)
+        # Bind these synthetic in-memory records to the registry under test.
+        # The persisted 2026-10-17 observation remains bound to its own registry.
+        registry_digest = load("validate-resolver-evidence").whole_registry_digest(self.registry)
         for document in (self.evidence, self.manifest):
+            document["context_binding"]["registry_digest"] = registry_digest
             document["context_binding"]["full_context_revision"] = OWNERSHIP.canonical_digest(self.baseline)
             document["context_binding"]["ownership_digest"] = ownership["context_binding"]["ownership_digest"]
         self.head = self.pr_head
@@ -739,7 +810,12 @@ class PromotionGitBoundaryTests(unittest.TestCase):
             self.assertNotIn("Traceback", result.stderr)
         result = subprocess.run(command, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertFalse(json.loads(result.stdout)["promotion_authorized"])
+        output = json.loads(result.stdout)
+        self.assertTrue(output["candidate_valid"])
+        self.assertEqual(output["diagnostics"], [])
+        self.assertEqual(output["live_activation"], "not_attempted")
+        self.assertEqual(output["signed_approval"], "not_issued")
+        self.assertFalse(output["promotion_authorized"])
 
 
 if __name__ == "__main__":

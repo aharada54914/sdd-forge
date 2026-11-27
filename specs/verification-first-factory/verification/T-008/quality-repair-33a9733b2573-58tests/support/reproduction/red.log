@@ -1,0 +1,290 @@
+▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2
+  ✖ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (149.703542ms)
+  ✖ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (137.926625ms)
+  ✖ T-008 resolves the baseline command against the committed implementation (192.227209ms)
+  ✖ T-008 stops at the first failing verification command in fail-fast mode (163.621417ms)
+  ✖ T-008 rebuild measures default p95 and absolute budgets independently from exact output (245.280625ms)
+  ✖ T-008 rebuild rechecks immutable inputs after running the candidate (178.675709ms)
+  ✖ T-008 enforces implementer write scope through both public CLIs using the Git diff (167.057042ms)
+  ✖ T-008 resolves a nested project’s protected paths from its committed policy (176.767333ms)
+  ✔ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (173.959208ms)
+  ✔ T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor (311.945583ms)
+✖ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (1897.7745ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 2
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1931.285708
+
+✖ failing tests:
+
+test at tests/v2-wave3-integration.test.mjs:61:3
+✖ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (149.703542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  undefined !== 20
+  
+      at TestContext.<anonymous> (file:///private/tmp/vff-eight-round.bCInWW/repo/tests/v2-wave3-integration.test.mjs:87:14)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at node:internal/test_runner/test:1516:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 20,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-wave3-integration.test.mjs:111:3
+✖ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (137.926625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///private/tmp/vff-eight-round.bCInWW/repo/tests/v2-wave3-integration.test.mjs:118:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1518:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-wave3-integration.test.mjs:122:3
+✖ T-008 resolves the baseline command against the committed implementation (192.227209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///private/tmp/vff-eight-round.bCInWW/repo/tests/v2-wave3-integration.test.mjs:129:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-wave3-integration.test.mjs:133:3
+✖ T-008 stops at the first failing verification command in fail-fast mode (163.621417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'commands'
+  
+      at TestContext.<anonymous> (file:///private/tmp/vff-eight-round.bCInWW/repo/tests/v2-wave3-integration.test.mjs:139:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'commands',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-wave3-integration.test.mjs:144:3
+✖ T-008 rebuild measures default p95 and absolute budgets independently from exact output (245.280625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///private/tmp/vff-eight-round.bCInWW/repo/tests/v2-wave3-integration.test.mjs:151:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-wave3-integration.test.mjs:167:3
+✖ T-008 rebuild rechecks immutable inputs after running the candidate (178.675709ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///private/tmp/vff-eight-round.bCInWW/repo/tests/v2-wave3-integration.test.mjs:172:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-wave3-integration.test.mjs:176:3
+✖ T-008 enforces implementer write scope through both public CLIs using the Git diff (167.057042ms)
+  AssertionError [ERR_ASSERTION]: {
+    "schema": "sdd-traceability/v1",
+    "feature": "rebuild-demo",
+    "complete": false,
+    "requirements": [
+      {
+        "id": "REQ-001",
+        "acs": [
+          "AC-001"
+        ]
+      }
+    ],
+    "acceptanceCriteria": [
+      {
+        "id": "AC-001",
+        "reqs": [
+          "REQ-001"
+        ],
+        "tasks": []
+      }
+    ],
+    "tasks": [
+      {
+        "id": "T-001",
+        "title": "Rebuild engine",
+        "risk": "standard",
+        "approval": "Approved",
+        "status": "Implementation Complete",
+        "acRefs": [],
+        "blockers": [],
+        "selfBlocked": false,
+        "declaredBlockers": [],
+        "scopePaths": [
+          "src/app.mjs"
+        ],
+        "planScopes": [
+          "src/app.mjs"
+        ],
+        "domains": [
+          "Software"
+        ],
+        "codePaths": [
+          "src/app.mjs"
+        ],
+        "testPaths": [],
+        "missingScopePaths": []
+      }
+    ],
+    "gaps": {
+      "orphanReqs": [],
+      "unassignedAcs": [
+        "AC-001"
+      ],
+      "unlinkedAcs": [],
+      "brokenReqRefs": [],
+      "brokenAcRefs": []
+    },
+    "impact": {
+      "changedIds": [],
+      "changedFiles": [
+        "src/app.mjs"
+      ],
+      "directImpactedTasks": [
+        "T-001"
+      ],
+      "transitiveImpactedTasks": [],
+      "impactedTasks": [
+        "T-001"
+      ],
+      "reusableTasks": []
+    },
+    "executionPlan": {
+      "batches": [
+        [
+          "T-001"
+        ]
+      ],
+      "scopeConflicts": [],
+      "cyclicTasks": [],
+      "unknownBlockers": [],
+      "invalidBlockerTasks": []
+    },
+    "acCodeTestCoverage": [
+      {
+        "ac": "AC-001",
+        "tasks": [],
+        "hasCodeScope": false,
+        "hasTestScope": false,
+        "codePaths": [],
+        "testPaths": []
+      }
+    ]
+  }
+  
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///private/tmp/vff-eight-round.bCInWW/repo/tests/v2-wave3-integration.test.mjs:194:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-wave3-integration.test.mjs:203:3
+✖ T-008 resolves a nested project’s protected paths from its committed policy (176.767333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///private/tmp/vff-eight-round.bCInWW/repo/tests/v2-wave3-integration.test.mjs:216:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

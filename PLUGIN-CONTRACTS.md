@@ -520,22 +520,10 @@ the parity assertion is live rather than vacuously true.
 **Source**: `render-agent-frontmatter.sh`/`.ps1` (repository root)
 **Reads**: `contracts/agent-model-capabilities.v2.json`'s `role_defaults`
 (above)
-**Writes**: the six unprotected Claude `.md`/Codex `.toml` role-mapped
-agent files directly; the four R-10 protected review-loop reviewer `.md`
-files ONLY under `specs/epic-159-pillar-c/human-copy/<repository-relative
-path>` + a `MANIFEST.sha256` SHA-256 entry, never their real path
-**Consumers**: `tests/validate-repository.ps1` (`--check`, wired into the
-existing check sequence); `.github/workflows/test.yml` (this suite's own
-bash/pwsh CI steps, staged the same human-copy way as `.github/workflows/test.yml`
-itself is R-10 protected); `run-panelist-gpt`/Codex-startup argv assembly
-(a future task's cross-check against the rendered `# x-sdd-model:`/
-`# x-sdd-effort:` reference comments, AC-038)
-
-For each `role -> { kind: claude|codex, path, protected }` entry in the
-script's built-in `TARGETS` table (10 entries: `sdd-evaluator`/
-`sdd-investigator` each with one Claude `.md` + one Codex `.toml` target;
-`spec-reviewer` with two unprotected Claude `.md` targets; `impl-reviewer`/
-`task-reviewer` each with two PROTECTED Claude `.md` targets):
+**Writes**: Default render targets are the evaluator and investigator (one
+Claude file and one Codex file each) and the two Claude spec reviewers.
+Explicit target lists can also designate protected paths for staging.
+**Consumers**: `tests/validate-repository.ps1` invokes the default check.
 
 - **Claude `.md` targets**: rewrites ONLY the `model:` frontmatter line
   (using `claude_frontmatter` tier/effort when present, otherwise the base fields)
@@ -562,12 +550,12 @@ script's built-in `TARGETS` table (10 entries: `sdd-evaluator`/
   to the R-10 `sdd-hook-guard` enforcement.
 
 `--check` performs the identical read-and-compute step but never writes
-anywhere: it diffs computed content against on-disk content at every
-target's real path — including the four protected targets' real paths (a
-read, not a write) — and exits non-zero if any target has drifted. A
-non-zero exit against only the four protected targets means a human
-maintainer has not yet applied the staged `specs/epic-159-pillar-c/human-copy/`
-candidates, not that the script attempted an illegal write.
+anywhere. The default check reads the shipped Codex evaluator and
+investigator files without requiring legacy model or effort comments.
+An explicit `--targets-file` (`-TargetsFile` in PowerShell) checks those
+comments against the registry. Other targets, including protected targets
+in explicit lists, are compared with the file at its real path. A difference
+returns a nonzero exit status.
 
 ---
 

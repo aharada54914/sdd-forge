@@ -1,0 +1,187 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+index 79e159a10..eaf195d54 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+@@ -227,6 +227,54 @@ function countTestSkips(file, source) {
+ }
+ 
+ const LINT_DISABLE_RE = /sdd-lint-disable\b/i;
++
++// Match the directive at the start of a comment line. Quoted examples and
++// explanations can contain the same spelling without suppressing a check.
++const DIRECTIVE_START = /^\s*(?:\/\/|\/\*+|\*|#)?\s*sdd-lint-disable\b/i;
++const HASH_NON_CODE = /#[^\n]*|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g;
++const JS_NON_CODE = /\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`/g;
++const SOURCE_TOKENS = new Map();
++for (const [extensions, tokens] of [
++  ['js mjs cjs jsx ts mts cts tsx', JS_NON_CODE],
++  ['go c h cc cpp hpp cs java kt kts rs swift scala', GO_NON_CODE],
++  ['py pyw', PYTHON_NON_CODE],
++  ['sh bash zsh rb pl ps1', HASH_NON_CODE],
++]) {
++  for (const ext of extensions.split(' ')) SOURCE_TOKENS.set('.' + ext, tokens);
++}
++
++function addedLintDirectives(root, revision, file, status, source, tokens) {
++  if (!LINT_DISABLE_RE.test(source)) return [];
++  // Reading the entire post-image preserves comment and string context across
++  // diff hunk boundaries. Only comment lines added by this change are reported.
++  const added = [];
++  if (status === 'A') added.push([1, Infinity]);
++  else {
++    const patch = gitText(root, ['--literal-pathspecs', 'diff', '--no-color', '--no-ext-diff', '--no-textconv', '--unified=0', revision, '--', file]);
++    for (const hunk of patch.matchAll(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/gm)) {
++      const first = Number(hunk[1]);
++      added.push([first, first + Number(hunk[2] ?? 1) - 1]);
++    }
++  }
++  const directives = [];
++  let line = 1;
++  let offset = 0;
++  for (const token of source.matchAll(tokens)) {
++    line += source.slice(offset, token.index).split('\n').length - 1;
++    const lines = token[0].split('\n');
++    if (/^(?:#|\/\/|\/\*)/.test(token[0])) {
++      for (const [i, text] of lines.entries()) {
++        if (DIRECTIVE_START.test(text) && added.some(([start, end]) => start <= line + i && line + i <= end)) {
++          directives.push(text.trim());
++        }
++      }
++    }
++    offset = token.index + token[0].length;
++    line += lines.length - 1;
++  }
++  return directives;
++}
++
+ const TLA_DECLARATION = /^(?:={4,}|-{4,}|(?:LOCAL\s+)?\w+(?:\s*\([^)]*\))?[ \t]*==|(?:ASSUME|ASSUMPTION|AXIOM|CONSTANTS?|VARIABLES?|INSTANCE|THEOREM|LEMMA|RECURSIVE)\b)/;
+ 
+ function unconditionalTrueDefinitions(source) {
+@@ -396,7 +444,8 @@ export function readProtectedDiff(root, baseRef, additionalGlobs = []) {
+ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'repository' }) {
+   const root = resolveExplicitOrAutoRoot(projectRoot);
+   const testGlobs = ['tests/**', 'test/**', '**/tests/**', '**/__tests__/**', '*.test.*', '*.spec.*', '*_test.*', '*.tests.*'];
+-  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef, [...testGlobs, '*.tla']);
++  const sourceGlobs = Array.from(SOURCE_TOKENS.keys(), ext => ':(icase,glob)**/*' + ext);
++  const { effectiveBaseRef, revision, protectedRegexes, changedEntries } = readProtectedDiff(root, baseRef, [...testGlobs, '*.tla', ...sourceGlobs]);
+   const approvedRetirements = loadApprovedTestRetirements(root, revision);
+   const violations = [];
+ 
+@@ -427,9 +476,11 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
+     const isTest = isTestFileRelPath(currentFile);
+     const isTla = currentFile.toLowerCase().endsWith('.tla');
+     const absolute = path.join(root, currentFile);
+-    if ((isTest || isTla) && fs.lstatSync(absolute).isFile()) {
++    const sourceTokens = SOURCE_TOKENS.get(path.extname(currentFile).toLowerCase());
++    if ((!isTest && !isTla && !sourceTokens) || !fs.lstatSync(absolute).isFile()) continue;
++    const after = fs.readFileSync(absolute, 'utf8');
++    if (isTest || isTla) {
+       const before = status === 'A' ? '' : committedText(root, revision, currentFile) || '';
+-      const after = fs.readFileSync(absolute, 'utf8');
+       if (isTest) {
+         const previousCount = countTestSkips(currentFile, before);
+         const currentCount = countTestSkips(currentFile, after);
+@@ -446,17 +497,11 @@ export function checkAntiTampering({ projectRoot, baseRef = null, feature = 'rep
+         }
+       }
+     }
+-    const patch = gitText(root, ['--literal-pathspecs', 'diff', '--no-ext-diff', '--no-textconv', '--unified=0', revision, '--', currentFile]);
+-    let inHunk = false;
+-    for (const line of patch.split(/\r?\n/)) {
+-      if (line.startsWith('@@ ')) inHunk = true;
+-      if (!inHunk || !line.startsWith('+')) continue;
+-      const addedText = line.slice(1);
+-      if (LINT_DISABLE_RE.test(addedText)) {
++    if (sourceTokens) {
++      for (const directive of addedLintDirectives(root, revision, currentFile, status, after, sourceTokens)) {
+         violations.push({
+-          code: 'LINT_DISABLE_ADDED',
+-          path: currentFile,
+-          detail: `インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: ${addedText.trim()}`,
++          code: 'LINT_DISABLE_ADDED', path: currentFile,
++          detail: `インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: ${directive}`,
+         });
+       }
+     }
+diff --git a/reports/implementation/verification-first-factory/T-002.md b/reports/implementation/verification-first-factory/T-002.md
+index da60c03b7..2325b52db 100644
+--- a/reports/implementation/verification-first-factory/T-002.md
++++ b/reports/implementation/verification-first-factory/T-002.md
+@@ -97,3 +97,11 @@ Input manifest: `specs/verification-first-factory/verification/T-002/report-reva
+ ## 要件 ID 修正後の機械検証（2026-11-26）
+ 
+ 機械ゲートを `f755b33f3a68ee1ec6dd34087d32bdce274da544` の隔離 checkout で再実行した。実行 `03080001-1bc4-4e0d-a46e-506026483c94` は PASS。新しく個別に検証した要件を含む ID 一覧と実測数は `specs/verification-first-factory/verification/T-002/evidence-id-refresh/current-verification.json` に収録した。MCP の sdd_gate_audit は specInputsCurrent=true、独立審査前の readyForDone=false を返した。先の実行 JSON は上の prior-execution.json に保存した。
++
++## 第3回修正の事前確認（2026-11-26）
++
++| 出力 | 対応する仕様・記録 | 失敗を確認するテスト |
++|---|---|---|
++| status、violations[].code/path、openQuestion | REQ-010、AC-009、永続化する OQ の違反一覧 | README の説明とソース内の文字列・解説コメントを追加すると終了0で OQ は作成されない。実際の抑止コメントを追加すると終了4になり、対象パスと違反種別が OQ と一致する。 |
++
++RED コミット `aac66a7a2` で、新規2件が失敗した。README と引用例は終了4で、未追跡のTypeScript・Pythonソースに追加した実際の指示は報告から漏れた。修正後はファイルの言語、文字列とコメントの境界、Git の追加行を照合する。公開 CLI の対象スイートは25件成功、失敗・スキップ0件。テストは正当な説明変更でOQが生成されないことと、実際のコメントの違反パスがOQに保存されることを確認する。
+diff --git a/specs/self-verification/formal/mapping.json b/specs/self-verification/formal/mapping.json
+index 36ea25868..ea11fec70 100644
+--- a/specs/self-verification/formal/mapping.json
++++ b/specs/self-verification/formal/mapping.json
+@@ -125,7 +125,7 @@
+   "source_sync_commit": "55b2ac8d00b0af427b6c645216c6b4aad35e5de7",
+   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
+   "source_sha256": {
+-    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "d39bf2d72558974ce36127119a94a3e3aa63a4d77705943035ae3c87e35722a7",
++    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "f81eeecacf88a5c59012107f27f6376a134c8e68b0cdf0120b714fb094729c99",
+     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "a7aee485341a1a50f7427e81893384502e1fdf09429be64bf85ab7c70a519892",
+     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "a0e7158ab4298502b14d05375f3694184dca6fa6c118a68f0bb6e56bde8d9498",
+     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+diff --git a/tests/v2-spec-drift.test.mjs b/tests/v2-spec-drift.test.mjs
+index 74509bdc3..b00705b25 100644
+--- a/tests/v2-spec-drift.test.mjs
++++ b/tests/v2-spec-drift.test.mjs
+@@ -406,6 +406,48 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+     return spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
+   }
+ 
++  it('allows documentation and quoted examples of inline lint directives without opening an OQ', (t) => {
++    const { dir, git } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const marker = ['sdd-lint', '-disable'].join('');
++    fs.writeFileSync(path.join(dir, 'README.md'), [
++      'The ' + marker + ' directive is forbidden.',
++      '```js', '// ' + marker + ' example', '```',
++    ].join('\n'));
++    assert.equal(git('add', 'README.md').status, 0);
++    fs.appendFileSync(path.join(dir, 'tests/sample.test.mjs'), [
++      'const inline = "// ' + marker + ' example";',
++      "const block = '/* " + marker + " example */';",
++      'const multiline = `', '// ' + marker + ' example', '`;',
++      '// Explain the ' + marker + ' directive.',
++    ].join('\n'));
++    const result = runAntiTamper(dir);
++    assert.equal(result.status, 0, result.stdout);
++    assert.deepEqual(JSON.parse(result.stdout).violations, []);
++    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++  });
++
++  it('reports added lint directives in source comments with a persisted OQ', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const marker = ['sdd-lint', '-disable'].join('');
++    for (const [file, source] of [
++      ['tests/sample.test.mjs', 'const x = 1; // ' + marker + ' rule-a\n'],
++      ['tests/extra.ts', '/**\n * ' + marker + ' rule-b\n */\n'],
++      ['tests/extra.py', 'x = 1  # ' + marker + ' rule-c\n'],
++    ]) {
++      fs.writeFileSync(path.join(dir, file), source);
++    }
++    const result = runAntiTamper(dir);
++    assert.equal(result.status, 4, result.stdout);
++    const { violations, openQuestion } = JSON.parse(result.stdout);
++    const expected = ['tests/extra.py', 'tests/extra.ts', 'tests/sample.test.mjs'];
++    assert.deepEqual(violations.map(v => v.path).sort(), expected);
++    assert.ok(violations.every(v => v.code === 'LINT_DISABLE_ADDED'));
++    const persisted = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
++    assert.deepEqual(persisted.violations, violations.map(({ code, path }) => ({ code, path })));
++  });
++
+   it('allows renaming an already skipped test and editing existing skip reasons', (t) => {
+     const { dir, git } = initGitRepoWithTests();
+     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));

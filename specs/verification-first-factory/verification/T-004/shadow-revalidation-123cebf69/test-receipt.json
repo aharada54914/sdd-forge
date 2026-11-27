@@ -1,0 +1,166 @@
+{
+  "revision": "123cebf69fdddd474ec19ee1fe0d5639ac5e0f04",
+  "run_id": "e83454de-3515-4d54-abb5-febcd2ef6100",
+  "input_manifest_sha256": "8424d9e0159eaaaa36a45e37912149d8a88531ac7e5a8060dbb8b5c5c26ecba8",
+  "inputs_verified_before": true,
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+        "--format",
+        "json"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.024,
+      "raw_log_sha256": "8c9813b1d60c5194e366bf38af2fa09e9a8152f4dd88066dfe2b3b815117b9d2",
+      "result": {
+        "schema": "sdd-agent-lint/v1",
+        "mode": "off",
+        "status": "SKIPPED",
+        "scannedFiles": 0,
+        "durationMs": 1,
+        "findings": [],
+        "waived": [],
+        "expiredWaivers": []
+      }
+    },
+    {
+      "argv": [
+        "node",
+        "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+        "--diff-only",
+        "--base-ref",
+        "2db182ad22706c86734b85a00e4263f23fda03f0",
+        "--mode",
+        "shadow",
+        "--format",
+        "json"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 2.109,
+      "raw_log_sha256": "ebcf3ef8b984cec13a0568802ce15dbf99bea4c1ec4ae5ad5e808ddb0137cff4",
+      "result": {
+        "schema": "sdd-agent-lint/v1",
+        "mode": "shadow",
+        "status": "WARN",
+        "scannedFiles": 51,
+        "durationMs": 2081,
+        "findings": [
+          {
+            "rule": "no-child-process-shell-true",
+            "line": 96,
+            "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+            "severity": "error"
+          },
+          {
+            "rule": "no-console-log",
+            "line": 22,
+            "path": "plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs",
+            "severity": "warn"
+          },
+          {
+            "rule": "no-console-log",
+            "line": 473,
+            "path": "plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs",
+            "severity": "warn"
+          },
+          {
+            "rule": "no-child-process-shell-true",
+            "line": 572,
+            "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+            "severity": "error"
+          },
+          {
+            "rule": "no-child-process-shell-true",
+            "line": 96,
+            "path": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+            "severity": "error"
+          },
+          {
+            "rule": "no-child-process-shell-true",
+            "line": 726,
+            "path": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+            "severity": "error"
+          },
+          {
+            "rule": "no-empty-catch",
+            "line": 4,
+            "path": "tests/fixtures/agent-lint/violations.mjs",
+            "severity": "error"
+          },
+          {
+            "rule": "no-eval-or-new-function",
+            "line": 8,
+            "path": "tests/fixtures/agent-lint/violations.mjs",
+            "severity": "error"
+          },
+          {
+            "rule": "no-child-process-shell-true",
+            "line": 12,
+            "path": "tests/fixtures/agent-lint/violations.mjs",
+            "severity": "error"
+          },
+          {
+            "rule": "no-console-log",
+            "line": 16,
+            "path": "tests/fixtures/agent-lint/violations.mjs",
+            "severity": "warn"
+          }
+        ],
+        "waived": [],
+        "expiredWaivers": []
+      }
+    },
+    {
+      "argv": [
+        "node",
+        "--test",
+        "tests/v2-agent-lint.test.mjs",
+        "tests/v2-agent-lint-bundle.test.mjs",
+        "tests/v2-hooks-and-ci.test.mjs"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 3.827,
+      "raw_log_sha256": "e14b14d5c54cb1fe59ef38f132cfeeddae899f14c4c131c7936e947e49529104",
+      "output": "✔ an independently rebuilt bundle preserves only the documented source catch (740.141334ms)\n✔ an input map pointing to a different documented catch cannot clear a finding (149.414625ms)\n▶ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers\n  ✔ passes cleanly on clean fixture and catches violations with remediation_hint in strict vs shadow mode (62.097709ms)\n  ✔ honors active built-in guardrails.yaml waivers and fails on expired waivers in strict mode (2.265708ms)\n  ✔ reports changed lines, untracked files and changed local imports on a clean branch checkout (151.222834ms)\n  ✔ applies the production console rule to source while retaining other checks in test and reporting tools (3.258625ms)\n  ✔ uses TS syntax, scoped flag groups, configured control depth and comment nodes (1.480584ms)\n  ✔ NFR-004 performance budget: lints 100 files in <= 3000ms (16.687958ms)\n✔ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers (237.533334ms)\n▶ Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer\n  ✔ all 4 host hook manifests parse as valid JSON and wire to v2/sdd-soft-guard.mjs (0.550917ms)\n  ✔ deprecated hard-lock scripts, 3-loop reviews, and sdd-lite plugin are removed (0.150666ms)\n  ✔ CI workflow and CODEOWNERS cover Layer 3 guardrails boundary (0.128583ms)\n  ✔ install.sh --target FilesOnly succeeds end-to-end and installs v2 guardrail scripts (3151.582541ms)\n  ✔ install-payload.txt includes README-linked guardrails example and user guides (H5) (0.286709ms)\n  ✔ v1.26.1 (#789): session-model-start.py emits valid UTF-8 JSON under ASCII stdout across 3 AI hosts (90.090584ms)\n  ✔ #852: Spec Drift CI reports its coverage and lists approved features without a baseline (0.248958ms)\n  ✔ #861: Bash and PowerShell installers require the same Cloud entry files (0.653041ms)\n  ✔ publish-release cuts a tag only by manual dispatch on main, never moving an existing tag (0.232458ms)\n  ✔ #869: every v2 CLI behaves the same when launched through a symlink (484.804208ms)\n  ✔ #869 review: a CLI embedded under another file name (a bundle) never runs its main() (24.796209ms)\n  ✔ no node_modules entry (directory or symlink) is ever tracked (10.709125ms)\n  ✔ #858: every workflow and distributed CI template pins third-party actions to a commit SHA (0.95375ms)\n  ✔ #855: Claude never auto-loads a second hooks/hooks.json next to a manifest-declared hooks file (0.3265ms)\n  ✔ #851/#801: required-checks aggregates every dependency result and installers job runs install suites (0.144917ms)\n  ✔ all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version (2.083625ms)\n✔ Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer (3768.407208ms)\n▶ #862 the verification catalog report matches what CI runs\n  ✔ a suite counts as run only when a current test.yml job names it; the committed report is current (2.7175ms)\n✔ #862 the verification catalog report matches what CI runs (2.760916ms)\n▶ #850 the committed ruleset, the CI jobs and the threat model agree\n  ✔ every required check is a real job, the Spec Drift job is required, and docs do not claim owner review (0.48125ms)\n✔ #850 the committed ruleset, the CI jobs and the threat model agree (0.50875ms)\nℹ tests 26\nℹ suites 4\nℹ pass 26\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3805.702667\n"
+    },
+    {
+      "argv": [
+        "/private/tmp/sdd-ci-t010.YINA8zmr/actionlint",
+        ".github/workflows/sdd-guardrails.yml"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.023,
+      "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code",
+        "2db182ad22706c86734b85a00e4263f23fda03f0",
+        "HEAD",
+        "--",
+        "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.009,
+      "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    },
+    {
+      "argv": [
+        "wc",
+        "-l",
+        "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.002,
+      "raw_log_sha256": "cd23e97e120373764324935af3909c18581e3109a2e3e7c1049bee02754774f5",
+      "output": "     677 plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs\n"
+    }
+  ],
+  "inputs_verified_after": true
+}

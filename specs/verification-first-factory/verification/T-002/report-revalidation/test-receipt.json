@@ -1,0 +1,16 @@
+{
+  "revision": "725eb86c5ec64d7c3465db5bee24123e9fbe2712",
+  "run_id": "6de20319-418b-4d91-84ea-816d633b9370",
+  "input_manifest_sha256": "24eba78c93585dfd61175d1abc2254b375e33f52970f27d89cb97679c07fbdb4",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "--test",
+        "tests/v2-spec-drift.test.mjs"
+      ],
+      "exit_code": 0,
+      "output": "▶ record-spec-baseline.mjs & check-spec-drift.mjs\n  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (107.430416ms)\n  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (74.392417ms)\n  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (105.946625ms)\n✔ record-spec-baseline.mjs & check-spec-drift.mjs (288.155292ms)\n▶ #820 AMENDED names the changed IDs no amendment entry mentions\n  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (230.249917ms)\n✔ #820 AMENDED names the changed IDs no amendment entry mentions (230.336084ms)\n▶ #818 staged human approval is not spec drift\n  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (142.942541ms)\n  ✔ a baseline recorded before this change keeps its old comparison (105.284875ms)\n✔ #818 staged human approval is not spec drift (248.3295ms)\n▶ #834 unreadable spec files are reported apart from deletions\n  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (86.656291ms)\n✔ #834 unreadable spec files are reported apart from deletions (86.740208ms)\n▶ #972 review: unreadable and newly approved are visible and enforced\n  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (194.76125ms)\n  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (161.589792ms)\n✔ #972 review: unreadable and newly approved are visible and enforced (356.443292ms)\n▶ #972 re-review: text added to an Approval line is drift\n  ✔ only a bare approval value is normalized (74.542583ms)\n✔ #972 re-review: text added to an Approval line is drift (74.595833ms)\n▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (273.733417ms)\n  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (310.087166ms)\n  ✔ requires a nonempty retirement reason in the trusted manifest (209.385708ms)\n  ✔ requires a nonempty retirement approved_by in the trusted manifest (196.422833ms)\n  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (300.15075ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (1289.919042ms)\nℹ tests 15\nℹ suites 7\nℹ pass 15\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2609.992958\n"
+    }
+  ]
+}

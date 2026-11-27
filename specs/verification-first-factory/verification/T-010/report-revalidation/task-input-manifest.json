@@ -1,0 +1,58 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-010",
+  "run_id": "7d3c742a-5175-45d2-8e2e-f32d86a08f0c",
+  "session_id": "01a21386-d1da-7fa0-adf2-acf9fd7fb9b4",
+  "agent_instance_id": "01a21386-d1da-7fa0-adf2-acf9fd7fb9b4",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Estimated incremental API charge for this report run under the Codex subscription. Excludes subscription cost.",
+  "cost_estimate_timestamp": "2026-11-25T16:26:30Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": ".github/workflows/sdd-guardrails.yml",
+      "sha256": "483fe852d3d6d2af2d4d0b50e409b1c5e425d751af9e7ff0446894862cd0b334"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "3d6b5a2f8b96a026c2f243e035bfdedfd4d08bf23ec5d3cfa54f3e9ae85b2f92"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "af2bd6082058b56fb9bd366e6b10d65020bc074d56d4930be405add4aefeba0b"
+    },
+    {
+      "path": "sdd/approved-test-retirements.json",
+      "sha256": "79e34a84d77f2cc10a807cd33210dbef8ae5764a36f1cc0e5d7d40a724e1dd8a"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "accb5eec84813566cb2c1565a84f28996fb7fd003a356bcf0e716148a2f823a0"
+    },
+    {
+      "path": "tests/v2-hooks-and-ci.test.mjs",
+      "sha256": "789c3964e6f547b0700c9b8c29d73a03ddeac73a58768dff84ffdbb55353a1ea"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "1e78d83e8708c69bd2fe9d5e8489ceb6891668ffc7b2d92c85071b6ad27e657f"
+    }
+  ],
+  "allowed_outputs": [
+    "specs/verification-first-factory/verification/T-010/report-revalidation/test-receipt.json",
+    "reports/implementation/verification-first-factory/T-010.md"
+  ]
+}

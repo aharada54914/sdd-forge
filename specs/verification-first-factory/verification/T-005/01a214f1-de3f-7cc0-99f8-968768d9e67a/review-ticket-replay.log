@@ -1,0 +1,33 @@
+RT-20261126-001 | T-005 | 01a214f1-de3f-7cc0-99f8-968768d9e67a
+macOS | Node v24.13.0 | JRE 21.0.13.1
+TLC 2.19 | tla2tools.jar SHA-256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88
+Apalache 0.63.0 | apalache.jar SHA-256 f2d43f2e279a657be50b2ecec3a013ba2915266008a2562b38412c3269347dc9
+
+RED | source base 84ec68a80259f61a4f42ca7f4056cbcf42f6c3e3
+node --test --test-name-pattern="TLC replay recognizes" tests/v2-formal-gate.test.mjs | exit 1
+ℹ original [[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+AssertionError [ERR_ASSERTION]: ordinary: ["Unsupported baseline SPECIFICATION for trace replay: Spec"]
+Source identities before the change
+a0b88c9f10711e6ffa89f474b1c9b64c50da170d01c4f51b607c3845c52ea8e6 plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
+a7aee485341a1a50f7427e81893384502e1fdf09429be64bf85ab7c70a519892 plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs
+
+GREEN | integrated verification input 83861a0d1c230d8552c592d81700691fdd0a4ab5
+node --test tests/v2-formal-gate.test.mjs | exit 0
+Phase tuple = [exit, violated invariant, distinct states, depth]; order = baseline, negative, replay.
+✔ TLC replay recognizes the selected specification outside comments and strings (8594.630708ms)
+ℹ original [[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ ordinary [[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ nested [[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ strings and inline comments [[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ APALACHE version: 0.63.0 | build: 67b8ec6 TaskLock baseline, negative, and projection: length=10
+ℹ tests 17
+ℹ pass 17
+ℹ fail 0
+ℹ skipped 0
+Controls in the same case: unsupported fairness, comment-only definition, LET-local definition, unclosed nested comment, stray closing delimiter, and unclosed string were rejected.
+
+python3 tests/project-skill-formal.tests.py -v | exit 0
+Ran 8 tests in 1.149s
+OK
+
+validate-task-input-manifest.sh --manifest <manifest> --snapshot-root <integrated checkout> --expected-task T-005 | TASK_INPUT_OK

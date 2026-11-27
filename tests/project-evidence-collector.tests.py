@@ -6,6 +6,7 @@ import json
 import os
 import copy
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import sys
@@ -27,11 +28,16 @@ C = module(
 )
 F = module("fixtures", ROOT / "tests/project-skill-observation.tests.py")
 
+requires_linux_runner = unittest.skipUnless(
+    sys.platform == "linux", "successful process ownership verification requires Linux"
+)
+
 
 class CollectorTests(unittest.TestCase):
     def setUp(self):
         self.fixture = F.Contracts()
-        self.fixture.setUp()
+        runtime = "python" if os.name == "nt" or not shutil.which("python3") else "python3"
+        self.fixture.setUp(runtime=runtime)
         self.addCleanup(self.fixture.temp.cleanup)
         self.fixture.task()
         self.fixture.observation.unlink()
@@ -93,22 +99,47 @@ class CollectorTests(unittest.TestCase):
             self.root, self.contract, self.fixture.task_path, "example", "smoke", prepare=True
         )
 
+    def cli(self, *args):
+        return subprocess.run([
+            sys.executable, str(C.HERE / "collect-project-evidence.py"),
+            "--execution-root", str(self.root), "--contract", str(self.contract),
+            "--task-input-manifest", str(self.fixture.task_path), "--skill", "example", "--check", "smoke", *args,
+        ], capture_output=True, text=True)
+
     def test_normal_generation_is_retired_before_anything_runs(self):
         with self.assertRaisesRegex(C.V.Invalid, "normal-generation-retired"):
             C.collect(self.root, self.contract, self.fixture.task_path, "example", "smoke")
         self.assertFalse(self.fixture.observation.exists())
         self.assertFalse(list(self.root.rglob("T-001.contract.json")))
-        cli = subprocess.run([
-            sys.executable, str(C.HERE / "collect-project-evidence.py"),
-            "--execution-root", str(self.root), "--contract", str(self.contract),
-            "--task-input-manifest", str(self.fixture.task_path), "--skill", "example", "--check", "smoke",
-        ], capture_output=True, text=True)
+        cli = self.cli()
         self.assertEqual(cli.returncode, 1)
         self.assertIn("normal-generation-retired", cli.stderr)
         self.assertIn("--prepare", cli.stderr)
 
     def test_actual_run_prepares_a_valid_contract_without_a_bundle(self):
-        result = self.collect()
+        original_bytes = self.contract.read_bytes()
+        cli = self.cli("--prepare")
+        if sys.platform != "linux":
+            self.assertEqual(cli.returncode, 1, cli.stderr)
+            self.assertIn("project-evidence: blocked: execution-incomplete", cli.stderr)
+            self.assertEqual(cli.stdout, "")
+            observation = self.fixture.observation
+            self.assertEqual(json.loads(observation.read_bytes())["outcome"], "not-run")
+            receipts = list(observation.parent.glob("*.receipt.json"))
+            self.assertEqual(len(receipts), 1)
+            receipt = json.loads(receipts[0].read_bytes())
+            self.assertEqual(receipt["reason"], "platform-process-ownership-unverified")
+            self.assertEqual(receipt["outcome"], "not-run")
+            self.assertIsNone(receipt["exit_code"])
+            self.assertIs(receipt["cleanup"], False)
+            for stream in ("stdout", "stderr"):
+                self.assertEqual((self.root / receipt[stream]["path"]).read_bytes(), b"")
+            self.assertEqual(self.contract.read_bytes(), original_bytes)
+            for artifact in ("*.contract.json", "*.report.md", "*.execution.log", "*.evidence.json"):
+                self.assertFalse(list(self.root.rglob(artifact)), artifact)
+            return
+        self.assertEqual(cli.returncode, 0, cli.stderr)
+        result = json.loads(cli.stdout)
         self.assertTrue(result["contract_valid"], result)
         self.assertIsNone(result["bundle"])
         self.assertIsNone(result["task_transition"])
@@ -120,6 +151,7 @@ class CollectorTests(unittest.TestCase):
         evidence = self.root / check["evidence"]
         self.assertIn(b"real invocation", evidence.read_bytes())
 
+    @requires_linux_runner
     def test_failed_real_check_is_not_pass(self):
         entry = self.fixture.skill / "run.py"
         entry.write_text("raise SystemExit(3)\n")
@@ -131,6 +163,7 @@ class CollectorTests(unittest.TestCase):
         self.assertEqual(result["execution_outcome"], "failed")
         self.assertFalse(result["contract_valid"])
 
+    @requires_linux_runner
     def test_replaced_failed_observation_cannot_be_promoted_to_pass(self):
         entry = self.fixture.skill / "run.py"
         entry.write_text("raise SystemExit(3)\n")
@@ -154,11 +187,11 @@ class CollectorTests(unittest.TestCase):
         self.assertFalse(list(self.root.rglob("T-001.contract.json")))
 
     def test_wrong_task_and_check_rejected_before_execution(self):
-        for key, value in [("task_id", "T-002"), ("checks", [])]:
+        for key, value, reason in [("task_id", "T-002", "task-mismatch"), ("checks", [], "check-mismatch")]:
             changed = dict(self.original)
             changed[key] = value
             self.contract.write_text(json.dumps(changed))
-            with self.assertRaises(C.V.Invalid):
+            with self.assertRaisesRegex(C.V.Invalid, reason):
                 self.collect()
             self.assertFalse(self.fixture.observation.exists())
 
@@ -197,6 +230,7 @@ class CollectorTests(unittest.TestCase):
         return C.collect(self.root, self.contract, self.fixture.task_path, "example", "unit-tests",
                          tdd_transition=transition, tdd_sources=["implementation.txt"], **kwargs)
 
+    @requires_linux_runner
     def test_original_red_and_green_are_in_the_prepared_evidence(self):
         result = self.tdd(self.setup_tdd(), prepare=True)
         self.assertTrue(result["contract_valid"], result)
@@ -211,6 +245,7 @@ class CollectorTests(unittest.TestCase):
         self.assertIn(b"actual green", raw)
         self.assertEqual(check["red_evidence"], check["evidence"])
 
+    @requires_linux_runner
     def test_cli_live_red_then_green_handoff(self):
         transition = self.setup_tdd()
         process = subprocess.Popen([
@@ -232,6 +267,7 @@ class CollectorTests(unittest.TestCase):
                 process.kill()
             process.communicate()
 
+    @requires_linux_runner
     def test_timeout_is_retained_but_cannot_be_red(self):
         transition = self.setup_tdd()
         entry = self.fixture.skill / "run.py"
@@ -253,6 +289,7 @@ class CollectorTests(unittest.TestCase):
         with self.assertRaisesRegex(C.V.Invalid, "tdd-requires-original"):
             self.tdd(None)
 
+    @requires_linux_runner
     def test_same_run_cannot_be_green(self):
         transition = self.setup_tdd()
         def change(red):
@@ -264,6 +301,7 @@ class CollectorTests(unittest.TestCase):
         with self.assertRaisesRegex(C.V.Invalid, "tdd-identity-mismatch"):
             self.tdd(change)
 
+    @requires_linux_runner
     def test_green_cannot_widen_output_grants(self):
         transition = self.setup_tdd()
         def change(red):
@@ -275,6 +313,7 @@ class CollectorTests(unittest.TestCase):
         with self.assertRaisesRegex(C.V.Invalid, "tdd-output-lineage-mismatch"):
             self.tdd(change)
 
+    @requires_linux_runner
     def test_changed_test_cannot_be_green(self):
         transition = self.setup_tdd()
         def change(red):
@@ -285,6 +324,7 @@ class CollectorTests(unittest.TestCase):
         with self.assertRaisesRegex(C.V.Invalid, "tdd-input-lineage-mismatch"):
             self.tdd(change)
 
+    @requires_linux_runner
     def test_passing_red_cannot_start_transition(self):
         transition = self.setup_tdd()
         (self.root / "implementation.txt").write_text("green")
@@ -294,6 +334,7 @@ class CollectorTests(unittest.TestCase):
         with self.assertRaisesRegex(C.V.Invalid, "tdd-red-must-be-real-failure"):
             self.tdd(transition)
 
+    @requires_linux_runner
     def test_test_replacement_after_lineage_admission_is_rejected(self):
         transition = self.setup_tdd()
         original_execute = C.execute
@@ -317,6 +358,7 @@ class CollectorTests(unittest.TestCase):
                 self.tdd(transition)
         self.assertFalse(list(self.root.rglob("T-001.contract.json")))
 
+    @requires_linux_runner
     def test_transition_cannot_expose_signing_environment_to_green(self):
         transition = self.setup_tdd()
         def change(red):
@@ -328,6 +370,7 @@ class CollectorTests(unittest.TestCase):
                 self.tdd(change)
         self.assertFalse(list(self.root.rglob("T-001.contract.json")))
 
+    @requires_linux_runner
     def test_transition_cannot_switch_runtime_to_passing_shim(self):
         transition = self.setup_tdd()
         def change(red):
@@ -344,6 +387,7 @@ class CollectorTests(unittest.TestCase):
                 self.tdd(change, prepare=True)
         self.assertFalse(list(self.root.rglob("T-001.contract.json")))
 
+    @requires_linux_runner
     def test_prepare_does_not_generate_a_bundle_or_claim_review(self):
         self.original["risk"] = "critical"
         self.contract.write_text(json.dumps(self.original))
@@ -361,14 +405,24 @@ class CollectorTests(unittest.TestCase):
                     self.collect()
         self.assertFalse(self.fixture.observation.exists())
 
+    @requires_linux_runner
     def test_existing_evidence_cannot_be_overwritten(self):
-        self.collect()
-        with self.assertRaises(ValueError):
+        first = self.collect()
+        self.assertTrue(first["contract_valid"], first)
+        evidence = (self.root / first["contract"]).parent
+
+        def snapshot():
+            return {path.relative_to(evidence): path.read_bytes()
+                    for path in evidence.rglob("*") if path.is_file()}
+
+        original = snapshot()
+        with self.assertRaisesRegex(ValueError, "^task-evidence-immutable$"):
             self.collect()
+        self.assertEqual(snapshot(), original)
 
     def test_unbounded_timeout_and_nonobject_manifest_rejected(self):
         for timeout in (0, -1, float("nan"), float("inf"), 3601, True):
-            with self.assertRaises(C.V.Invalid):
+            with self.subTest(timeout=timeout), self.assertRaisesRegex(C.V.Invalid, "timeout-invalid"):
                 C.collect(
                     self.root,
                     self.contract,
@@ -376,12 +430,16 @@ class CollectorTests(unittest.TestCase):
                     "example",
                     "smoke",
                     timeout=timeout,
+                    prepare=True,
                 )
         self.fixture.task_path.write_text("[]")
-        with self.assertRaises(C.V.Invalid):
+        with self.assertRaisesRegex(C.V.Invalid, "task-mismatch"):
             self.collect()
         self.assertFalse(self.fixture.observation.exists())
 
 
 if __name__ == "__main__":
-    unittest.main()
+    result = unittest.main(exit=False).result
+    if sys.platform == "linux" and result.skipped:
+        sys.exit(f"Linux collector suite requires execution of each selected test; skipped {len(result.skipped)}")
+    sys.exit(not result.wasSuccessful() or result.testsRun == 0)

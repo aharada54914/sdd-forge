@@ -1,0 +1,370 @@
+{
+  "source_revision": "6b6f911a3e59f097791f0be4fd487e1aec760eb0",
+  "source_workflow_sha256": "a8b573cd5fa239d1b58097b69cc221264d30057f3486bc126d475c7e2b2df294",
+  "jobs": {
+    "v2-guardrails": [
+      {
+        "uses": "actions/checkout",
+        "with": {
+          "persist-credentials": false,
+          "fetch-depth": 0
+        }
+      },
+      {
+        "uses": "actions/setup-node",
+        "with": {
+          "node-version": "20"
+        }
+      },
+      {
+        "commands": [
+          "npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts"
+        ]
+      },
+      {
+        "commands": [
+          "npm ci --prefix plugins/sdd-quality-loop/rules --ignore-scripts"
+        ]
+      },
+      {
+        "shell": "pwsh",
+        "commands": [
+          "./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1"
+        ]
+      },
+      {
+        "routes": [
+          "ubuntu-latest",
+          "macos-latest"
+        ],
+        "shell": "bash",
+        "commands": [
+          "bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+        ]
+      },
+      {
+        "routes": [
+          "ubuntu-latest",
+          "macos-latest"
+        ],
+        "shell": "bash",
+        "commands": [
+          "bash ./tests/workflow-state-ci-integration.tests.sh",
+          "bash ./tests/task-lifecycle-enum-parity.tests.sh",
+          "python3 tests/lib/core-lifecycle-checks.py approvals",
+          "python3 tests/lib/core-lifecycle-checks.py templates",
+          "python3 tests/lib/task-done-parity.py plugins/sdd-quality-loop/scripts/check-task-state.sh plugins/sdd-quality-loop/scripts/check-task-state.ps1"
+        ]
+      },
+      {
+        "commands": [
+          "node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs tests/v2-agent-lint.test.mjs tests/v2-formal-gate.test.mjs tests/v2-wave3-integration.test.mjs tests/self-fitness.test.mjs tests/self-security-adversarial.test.mjs"
+        ],
+        "env": {
+          "SDD_REQUIRE_AJV": "1"
+        }
+      },
+      {
+        "shell": "bash",
+        "commands": [
+          "if [[ \"$RUNNER_OS\" == \"Windows\" ]]; then",
+          "export PATH=\"${BASH%/*}:$PATH\"",
+          "fi",
+          "bash tests/hitl-wfi-terminal.tests.sh",
+          "bash tests/check-placeholders-brownfield.tests.sh",
+          "pwsh -NoProfile -File tests/hitl-wfi-terminal.tests.ps1",
+          "pwsh -NoProfile -File tests/check-placeholders-brownfield.tests.ps1"
+        ]
+      },
+      {
+        "shell": "bash",
+        "commands": [
+          "command -v pwsh",
+          "bash tests/quality-gate-cycle-limit.tests.sh"
+        ]
+      },
+      {
+        "routes": [
+          "ubuntu-latest"
+        ],
+        "commands": [
+          "python3 tests/release-readiness.tests.py"
+        ]
+      },
+      {
+        "routes": [
+          "ubuntu-latest"
+        ],
+        "shell": "bash",
+        "commands": [
+          "bash tests/model-freshness-check.tests.sh"
+        ]
+      },
+      {
+        "routes": [
+          "ubuntu-latest"
+        ],
+        "commands": [
+          "python3 -B tests/design-sync-policy.tests.py"
+        ]
+      },
+      {
+        "routes": [
+          "macos-latest",
+          "windows-latest"
+        ],
+        "shell": "bash",
+        "commands": [
+          "if [[ \"$RUNNER_OS\" == \"Windows\" ]]; then",
+          "SDD_TEST_BASH=$(cygpath -am \"${BASH%.exe}.exe\")",
+          "export SDD_TEST_BASH",
+          "export PATH=\"${BASH%/*}:$PATH\"",
+          "python=python",
+          "else",
+          "python=python3",
+          "fi",
+          "\"$python\" tests/release-readiness.tests.py ReleaseReadiness.test_bump_stops_before_writing_or_synchronizes_all_files"
+        ]
+      },
+      {
+        "routes": [
+          "ubuntu-latest",
+          "macos-latest"
+        ],
+        "shell": "bash",
+        "commands": [
+          "bash ./tests/ownership-digest.tests.sh"
+        ]
+      },
+      {
+        "routes": [
+          "ubuntu-latest",
+          "macos-latest"
+        ],
+        "shell": "pwsh",
+        "commands": [
+          "./tests/ownership-digest.tests.ps1"
+        ]
+      },
+      {
+        "routes": [
+          "ubuntu-latest",
+          "macos-latest"
+        ],
+        "shell": "bash",
+        "commands": [
+          "bash scripts/check-sdd-structure.sh",
+          "bash tests/structure-check-feature-mode.tests.sh"
+        ]
+      },
+      {
+        "routes": [
+          "windows-latest"
+        ],
+        "shell": "pwsh",
+        "commands": [
+          "./tests/structure-check-feature-mode.tests.ps1"
+        ]
+      },
+      {
+        "routes": [
+          "ubuntu-latest",
+          "macos-latest"
+        ],
+        "shell": "bash",
+        "commands": [
+          "bash -n install.sh && bash -n uninstall.sh"
+        ]
+      },
+      {
+        "routes": [
+          "windows-latest"
+        ],
+        "shell": "bash",
+        "commands": [
+          "cygpath -aw \"${BASH%/*}\" >> \"$GITHUB_PATH\""
+        ]
+      },
+      {
+        "routes": [
+          "windows-latest"
+        ],
+        "shell": "pwsh",
+        "commands": [
+          "./tests/model-freshness-check.tests.ps1"
+        ]
+      }
+    ],
+    "sdd-forge-mcp-v2": [
+      {
+        "uses": "actions/checkout",
+        "with": {
+          "persist-credentials": false
+        }
+      },
+      {
+        "uses": "actions/setup-node",
+        "with": {
+          "node-version": "20",
+          "cache": "npm",
+          "cache-dependency-path": "mcp/sdd-forge-mcp/package-lock.json"
+        }
+      },
+      {
+        "commands": [
+          "cd mcp/sdd-forge-mcp",
+          "npm ci",
+          "npm run typecheck",
+          "npx tsc -p tsconfig.test.json",
+          "npm run build",
+          "git diff --exit-code dist/index.js",
+          "node --test dist-test/mcp/sdd-forge-mcp/tests/path-security/*.test.js dist-test/mcp/sdd-forge-mcp/tests/readonly/*.test.js dist-test/mcp/sdd-forge-mcp/tests/error-paths/*.test.js dist-test/mcp/sdd-forge-mcp/tests/no-secrets/*.test.js dist-test/mcp/sdd-forge-mcp/tests/root-immutable/*.test.js dist-test/mcp/sdd-forge-mcp/tests/dashboard.test.js"
+        ]
+      }
+    ],
+    "mcp-tests": [
+      {
+        "uses": "actions/checkout",
+        "with": {
+          "persist-credentials": false
+        }
+      },
+      {
+        "uses": "actions/setup-node",
+        "with": {
+          "node-version": "20",
+          "cache": "npm",
+          "cache-dependency-path": "mcp/${{ matrix.mcp }}/package-lock.json"
+        }
+      },
+      {
+        "working-directory": "mcp/${{ matrix.mcp }}",
+        "commands": [
+          "npm ci"
+        ]
+      },
+      {
+        "working-directory": "mcp/${{ matrix.mcp }}",
+        "commands": [
+          "npx tsc --noEmit",
+          "npm test"
+        ]
+      }
+    ],
+    "cloud-and-ddd": [
+      {
+        "uses": "actions/checkout",
+        "with": {
+          "persist-credentials": false
+        }
+      },
+      {
+        "uses": "actions/setup-python",
+        "with": {
+          "python-version": "3.12"
+        }
+      },
+      {
+        "routes": [
+          "cloud"
+        ],
+        "commands": [
+          "python3 tests/cloud-orchestration-contracts.tests.py",
+          "python3 tests/cloud-orchestration-routing.tests.py",
+          "python3 tests/cloud-orchestration-execution.tests.py",
+          "python3 tests/cloud-orchestration-verification.tests.py"
+        ],
+        "env": {
+          "TZ": "Asia/Tokyo"
+        }
+      },
+      {
+        "routes": [
+          "ddd"
+        ],
+        "commands": [
+          "python3 tests/concept-test.tests.py"
+        ],
+        "env": {
+          "TZ": "Asia/Tokyo"
+        }
+      },
+      {
+        "routes": [
+          "ddd"
+        ],
+        "commands": [
+          "python3 tests/codex-versioned-cache.tests.py"
+        ],
+        "env": {
+          "TZ": "Asia/Tokyo"
+        }
+      },
+      {
+        "routes": [
+          "cloud"
+        ],
+        "commands": [
+          "python3 tests/sql-development-contract.tests.py"
+        ],
+        "env": {
+          "TZ": "Asia/Tokyo"
+        }
+      },
+      {
+        "routes": [
+          "cloud"
+        ],
+        "shell": "bash",
+        "commands": [
+          "command -v pwsh",
+          "python3 tests/check-evidence-bundle-parity.tests.py"
+        ],
+        "env": {
+          "TZ": "Asia/Tokyo"
+        }
+      },
+      {
+        "routes": [
+          "ddd"
+        ],
+        "shell": "bash",
+        "commands": [
+          "python3 tests/domain-review-finalize.tests.py"
+        ],
+        "env": {
+          "TZ": "Asia/Tokyo"
+        }
+      }
+    ],
+    "installers": [
+      {
+        "uses": "actions/checkout",
+        "with": {
+          "persist-credentials": false
+        }
+      },
+      {
+        "uses": "actions/setup-node",
+        "with": {
+          "node-version": "20"
+        }
+      },
+      {
+        "uses": "actions/setup-python",
+        "with": {
+          "python-version": "3.12"
+        }
+      },
+      {
+        "shell": "bash",
+        "commands": [
+          "git config --global user.name \"CI Installer Tests\"",
+          "git config --global user.email \"ci-installer-tests@example.invalid\"",
+          "bash tests/install.tests.sh",
+          "bash tests/uninstall.tests.sh"
+        ]
+      }
+    ]
+  }
+}

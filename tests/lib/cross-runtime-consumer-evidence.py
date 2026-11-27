@@ -34,8 +34,12 @@ def current_proof_inputs(repo, records):
     """Keep proof collection roots separate from the current trusted policy."""
     validator = repo / 'plugins/sdd-quality-loop/scripts/validate-live-host-proof.py'
     module = proof_validator(repo)
-    inputs = [artifact('validator', validator, repo),
-              artifact('handshake_verifier', validator.with_name('check-hook-activation-handshake.py'), repo)]
+    # Keep the original roster for historical validators that invoked the
+    # separate handshake script. Current native denial replay is in the validator.
+    dependencies = getattr(module, 'REPLAY_CODE_INPUTS',
+                           {'handshake_verifier': 'check-hook-activation-handshake.py'})
+    inputs = [artifact('validator', validator, repo)]
+    inputs.extend(artifact(kind, validator.with_name(name), repo) for kind, name in dependencies.items())
     for relative in module.CONSUMERS.values():
         current = artifact('consumer', repo / relative, repo)
         captured = artifact('consumer', records.parent.parent / relative, records.parent.parent)

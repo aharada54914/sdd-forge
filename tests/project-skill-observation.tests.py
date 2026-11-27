@@ -11,6 +11,7 @@ import sys
 import tempfile
 import shlex
 import shutil
+from types import SimpleNamespace
 from unittest.mock import patch
 import unittest
 
@@ -21,8 +22,45 @@ V = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(V)
 
 
+class RuntimeIdentity(unittest.TestCase):
+    def test_windows_runtime_compares_both_open_handles_in_full(self):
+        # Model a regular executable whose path stat and handle metadata differ.
+        named = Path(sys.executable).stat()
+        fields = {key: getattr(named, key) for key in
+                  ("st_dev", "st_ino", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")}
+        fields["st_mode"] &= ~0o111
+        fields["st_ctime_ns"] += 1
+        manifest = {"runtime": sys.executable, "requires": []}
+        real_fstat = os.fstat
+        windows = SimpleNamespace(platform="win32", executable=sys.executable)
+
+        descriptors = []
+        def fingerprint(snapshots):
+            def fstat(fd):
+                snapshot = next(snapshots, None)
+                if snapshot is None:
+                    return real_fstat(fd)
+                descriptors.append(fd)
+                return snapshot
+            with patch.object(V, "sys", windows), patch.object(os, "fstat", side_effect=fstat):
+                return V.runtime_environment(manifest)["toolchain"][0]
+
+        stable = SimpleNamespace(**fields)
+        actual = fingerprint(iter([stable, stable, stable]))
+        self.assertEqual(descriptors[0], descriptors[1])
+        self.assertNotEqual(descriptors[0], descriptors[2])
+        self.assertEqual(actual["identity_sha256"], V.digest(json.dumps(tuple(fields.values())).encode()))
+        for position in (1, 2):  # after reading, then reopening the current path
+            for field in fields:
+                with self.subTest(position=position, field=field):
+                    snapshots = [stable, stable, stable]
+                    snapshots[position] = SimpleNamespace(**{**fields, field: fields[field] + 1})
+                    with self.assertRaisesRegex(V.Invalid, "^runtime-changed$"):
+                        fingerprint(iter(snapshots))
+
+
 class Contracts(unittest.TestCase):
-    def setUp(self):
+    def setUp(self, runtime="python3"):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
@@ -33,7 +71,7 @@ class Contracts(unittest.TestCase):
             "schema": "project-skill-manifest/v1",
             "name": "example",
             "checks": ["smoke"],
-            "runtime": "python3",
+            "runtime": runtime,
             "entry": "run.py",
             "args": [],
             "requires": [],
@@ -472,8 +510,13 @@ class Contracts(unittest.TestCase):
         ):
             if command[0] == "bash" and os.name == "nt":
                 continue
-            # Bind each observation to the interpreter its actual entry point uses.
-            interpreter = (shutil.which("python3") or shutil.which("python")) if command[0] == "bash" else sys.executable
+            interpreter = sys.executable
+            if command[0] == "bash":
+                # A launcher on PATH may report a different sys.executable (e.g. Homebrew).
+                launcher = shutil.which("python3") or "python"
+                interpreter = subprocess.check_output(
+                    [launcher, "-c", "import sys; print(sys.executable)"], text=True
+                ).rstrip("\r\n")
             with patch.object(V.sys, "executable", interpreter):
                 self.obs["environment"].update(V.runtime_environment(self.manifest))
             self.observation.write_text(json.dumps(self.obs), encoding="utf-8")

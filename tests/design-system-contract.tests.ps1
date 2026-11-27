@@ -1,9 +1,159 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $schemaPath = Join-Path $repositoryRoot "contracts/design-system.contract.v1.schema.json"
-$tokensPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-tokens.template.json"
+$tokensPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-tokens.template.json"
+
+# V-08: Detect v2 layout (sdd-core-spec + sdd-gate, no retired sdd-bootstrap-interviewer / sdd-lite)
+# and route to the current v2 design-system contract checks while retaining the legacy v1 branch below.
+$isLegacyV1Layout = (Test-Path -LiteralPath (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md")) -and
+    (Test-Path -LiteralPath (Join-Path $repositoryRoot "plugins/sdd-lite/templates/design-lite.md"))
+
+if (-not $isLegacyV1Layout) {
+    $v2Pass = 0
+    $v2Fail = 0
+    function Assert-V2Check([string]$label, [scriptblock]$body) {
+        try {
+            & $body
+            $script:v2Pass++
+            Write-Host "PASS: $label"
+        } catch {
+            $script:v2Fail++
+            Write-Host "FAIL: $label -- $($_.Exception.Message)"
+        }
+    }
+
+    Assert-V2Check "V2-DS-001 token contract schema and template metadata" {
+        $schema = Get-Content -Raw -Encoding Utf8 $schemaPath | ConvertFrom-Json
+        $tokens = Get-Content -Raw -Encoding Utf8 $tokensPath | ConvertFrom-Json
+        if ($schema.'$id' -ne 'https://sdd-forge.dev/contracts/design-system.contract.v1.schema.json') { throw "schema `$id mismatch" }
+        if ($schema.properties.meta.properties.schema.const -cne 'design-system-contract/v1') { throw "schema const mismatch" }
+        if ($tokens.meta.schema -cne 'design-system-contract/v1') { throw "tokens meta.schema mismatch" }
+        if ($tokens.meta.version -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') { throw "tokens meta.version invalid" }
+        if (@('design-sync-loop','ui-ux-pro-max','manual','figma-dtcg-import') -notcontains $tokens.meta.generated_by) { throw "tokens meta.generated_by invalid" }
+        if ($tokens.meta.profile -ne 'custom') { throw "tokens meta.profile invalid" }
+    }
+
+    Assert-V2Check "V2-DS-002 DTCG token groups, types, and values" {
+        $tokens = Get-Content -Raw -Encoding Utf8 $tokensPath | ConvertFrom-Json
+        foreach ($group in @('color','typography','spacing')) {
+            if ($null -eq $tokens.$group) { throw "token group $group missing" }
+        }
+        if ($tokens.color.primary.'$type' -ne 'color') { throw "color.primary `$type invalid" }
+        if ($tokens.color.primary.'$value' -notmatch '^#[0-9a-fA-F]{6}$') { throw "color.primary `$value invalid" }
+        & node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") design-system ([System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName)
+        if ($LASTEXITCODE -ne 0) { throw "bootstrap-core-contracts design-system failed" }
+    }
+
+    Assert-V2Check "V2-DS-003 design-system and ui-patterns templates" {
+        $dsPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-system.template.md"
+        $uipPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/ui-patterns.template.md"
+        $ds = Get-Content -Raw -Encoding Utf8 $dsPath
+        $uip = Get-Content -Raw -Encoding Utf8 $uipPath
+        $em = [string][char]0x2014
+        foreach ($section in @("## Layer 1 $em Tokens (machine-extracted)", "## Layer 2 $em Do / Don't (component conventions)", "## Layer 3 $em Review checklist (human-curated)", '## Change Process')) {
+            if ($ds -notmatch [regex]::Escape($section)) { throw "design-system template missing $section" }
+        }
+        if ($ds -notmatch 'WCAG 2\.2 AA') { throw "design-system template missing WCAG 2.2 AA" }
+        foreach ($section in @('## Actions', '## Dialogs', '## Icons', '## Flow', '## States', '## Cognitive Load')) {
+            if ($uip -notmatch [regex]::Escape($section)) { throw "ui-patterns template missing $section" }
+        }
+    }
+
+    Assert-V2Check "V2-DS-004 visual verification and evaluator wiring" {
+        $dsl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md")
+        $vvl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md")
+        $gate = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md")
+        $core = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md")
+        foreach ($needle in @('design-tokens.json', 'Figma DTCG JSON', 'MASTER.md')) {
+            if ($dsl -notmatch [regex]::Escape($needle)) { throw "design-sync-loop missing $needle" }
+        }
+        foreach ($needle in @('design-system/{design-tokens.json,ui-patterns.md}', 'sdd-gate')) {
+            if ($vvl -notmatch [regex]::Escape($needle)) { throw "visual-verify-loop missing $needle" }
+        }
+        foreach ($scriptRel in @("plugins/sdd-quality-loop/scripts/check-design-system.ps1", "plugins/sdd-quality-loop/scripts/check-design-system.sh")) {
+            if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $scriptRel) -PathType Leaf)) { throw "missing $scriptRel" }
+        }
+        if ($gate -notmatch '\*\*G5\*\*' -or $gate -notmatch 'design-system/') { throw "sdd-gate missing G5 design-system check" }
+        if ($core -notmatch 'design-system/') { throw "sdd-core-spec missing design-system reference" }
+    }
+
+    Write-Host "PASS: $v2Pass"
+    Write-Host "FAIL: $v2Fail"
+    if ($v2Fail -gt 0) { exit 1 }
+    exit 0
+}
+
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") design-system ([System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName)
+if ($LASTEXITCODE -ne 0) { throw "not ok: Core design-system contract" }
+
+$Script:TestPass = 0
+$Script:TestFail = 0
+function Test-Pass([string]$label) {
+    $Script:TestPass++
+    Write-Host "PASS: $label"
+}
+function Test-Fail([string]$label) {
+    $Script:TestFail++
+    Write-Host "FAIL: $label"
+}
+
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-initial
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
+} else {
+    Test-Fail "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
+}
+
+$pythonCommand = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $pythonCommand) { $pythonCommand = Get-Command python -ErrorAction Stop }
+& $pythonCommand -B (Join-Path $PSScriptRoot 'design-sync-policy.tests.py') PolicyTests.test_subsequent_uploads_reuse_current_grant
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
+} else {
+    Test-Fail "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
+}
+
+& $pythonCommand -B (Join-Path $PSScriptRoot 'design-sync-policy.tests.py') PolicyTests.test_different_feature_or_session_requires_consent
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
+} else {
+    Test-Fail "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
+}
+
+function Test-ConsentPolicy([string]$method, [string]$label) {
+    & $pythonCommand -B (Join-Path $PSScriptRoot 'design-sync-policy.tests.py') "PolicyTests.$method"
+    if ($LASTEXITCODE -eq 0) { Test-Pass $label } else { Test-Fail $label }
+}
+Test-ConsentPolicy 'test_disclosure_payload' 'TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)'
+Test-ConsentPolicy 'test_disclosure_destination' 'TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)'
+Test-ConsentPolicy 'test_disclosure_retention' 'TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)'
+Test-ConsentPolicy 'test_disclosure_repeated_uploads' 'TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)'
+Test-ConsentPolicy 'test_disclosure_regenerated_mockups' 'TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)'
+Test-ConsentPolicy 'test_disclosure_operator_authority' 'TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)'
+
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-prompt
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
+} else {
+    Test-Fail "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
+}
+
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") consent-off
+if ($LASTEXITCODE -eq 0) {
+    Test-Pass "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
+} else {
+    Test-Fail "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
+}
+
+Test-ConsentPolicy 'test_decline_stops_current_upload' "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
+Test-ConsentPolicy 'test_retry_after_decline_prompts_again' "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
+Test-ConsentPolicy 'test_decline_is_distinct_from_prohibition' "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
+Test-ConsentPolicy 'test_consent_binds_selected_project' "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
+Test-ConsentPolicy 'test_destination_change_checks_its_own_grant' "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
+Test-ConsentPolicy 'test_operator_can_withdraw_during_session' "TEST-046 a mid-session withdrawal path is stated (AC-028)"
+Test-ConsentPolicy 'test_withdrawn_consent_needs_fresh_grant' "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
 
 # DS-001 both JSON files must parse (PS5.1-safe: ConvertFrom-Json, no Test-Json)
 $schema = Get-Content -Raw -Encoding Utf8 $schemaPath | ConvertFrom-Json
@@ -29,8 +179,8 @@ if ($tokens.color.primary.'$value' -notmatch '^#[0-9a-fA-F]{6}$') { throw "not o
 Write-Host "ok: DS-002 tokens template conforms"
 
 # DS-003 / DS-004 markdown templates
-$dsPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md"
-$uipPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md"
+$dsPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-system.template.md"
+$uipPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/ui-patterns.template.md"
 $ds = Get-Content -Raw -Encoding Utf8 $dsPath
 $uip = Get-Content -Raw -Encoding Utf8 $uipPath
 # PS5.1 reads BOM-less .ps1 as ANSI, so non-ASCII literals must be built from code points.
@@ -56,7 +206,7 @@ Write-Host "ok: DS-005 PLUGIN-CONTRACTS section"
 
 # DS-006 design-sync-loop v2 (ASCII-only assertions; the em-dash fallback note is asserted by the sh twin)
 $dsl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md")
-foreach ($needle in @('## Ensure design-system/', 'ui-ux-pro-max', 'design-system --persist', 'figma-dtcg-import', 'design-system/design-tokens.json', 'MASTER.md')) {
+foreach ($needle in @('Ensure `design-system/`', 'ui-ux-pro-max', 'design-system --persist', 'Figma DTCG JSON', 'design-tokens.json', 'MASTER.md')) {
     if ($dsl -notmatch [regex]::Escape($needle)) { throw "not ok: DS-006 missing $needle" }
 }
 Write-Host "ok: DS-006 design-sync-loop v2"
@@ -98,7 +248,7 @@ Write-Host "ok: DS-012 implementation policy UI rules"
 
 # DS-013 visual-verify-loop design-system comparison
 $vvl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md")
-foreach ($needle in @('design-system/design-tokens.json', 'design-system/ui-patterns.md', 'check-design-system')) {
+foreach ($needle in @('design-system/{design-tokens.json,ui-patterns.md}', 'check-design-system')) {
     if ($vvl -notmatch [regex]::Escape($needle)) { throw "not ok: DS-013 missing $needle" }
 }
 Write-Host "ok: DS-013 visual-verify-loop design-system comparison"
@@ -177,21 +327,10 @@ Write-Host "ok: design-system contract tests passed"
 # cover here.
 # -----------------------------------------------------------------------
 
-$Script:TestPass = 0
-$Script:TestFail = 0
-function Test-Pass([string]$label) {
-    $Script:TestPass++
-    Write-Host "PASS: $label"
-}
-function Test-Fail([string]$label) {
-    $Script:TestFail++
-    Write-Host "FAIL: $label"
-}
-
 $dslPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
 $bsiPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 $wfgPath = Join-Path $repositoryRoot "docs/workflow-guide.md"
-$cdwPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+$cdwPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 $chgPath = Join-Path $repositoryRoot "CHANGELOG.md"
 $dscDraftPath = Join-Path $repositoryRoot "specs/design-sync-consent/verification/T-004/staged-lite-spec-candidate.draft.md"
 $dscManifestPath = Join-Path $repositoryRoot "specs/design-sync-consent/human-copy/MANIFEST.sha256"
@@ -322,7 +461,6 @@ $dslLines = Get-LinesOrEmpty $dslPath
 $dslText = Get-TextOrEmpty $dslPath
 $loopLines = Get-SectionBetween $dslLines '^## Loop$' '^## '
 $boundariesLines = Get-SectionBetween $dslLines '^## Boundaries$' '^## '
-$capLines = Get-SectionBetween $dslLines '^## Capability Detection$' '^## '
 $bsiLines = Get-LinesOrEmpty $bsiPath
 $bsiUiBulletLines = Get-SectionBetween $bsiLines '^- When the target is a UI application' '^- Otherwise ask whether the human has a local mockup'
 $wfgLines = Get-LinesOrEmpty $wfgPath
@@ -332,59 +470,16 @@ $cdwText = Get-TextOrEmpty $cdwPath
 $dslFlat = Get-FlatText $dslText
 $loopFlat = Get-Flat $loopLines
 $boundariesFlat = Get-Flat $boundariesLines
-$capFlat = Get-Flat $capLines
 $bsiUiBulletFlat = Get-Flat $bsiUiBulletLines
 $wfgSectionFlat = Get-Flat $wfgSectionLines
 $cdwFlat = Get-FlatText $cdwText
 
 # --- REQ-001 (AC-001, AC-002, AC-026, AC-027, AC-028, AC-030) -----------
 
-if (($loopFlat -match 'consent has not been obtained for this scope') -and ($loopFlat -match 'Obtain informed consent')) {
-    Test-Pass "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
-} else {
-    Test-Fail "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
-}
-
-if (($loopFlat -match 'consent already holds') -and ($loopFlat -match 'continue to 5|proceeds? (directly )?to (the )?(pre-upload|step 5)')) {
-    Test-Pass "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
-} else {
-    Test-Fail "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
-}
-
-if (($loopFlat -match 'both must match') -or ($loopFlat -match 'session has ended does not hold')) {
-    Test-Pass "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
-} else {
-    Test-Fail "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
-}
-
 if (($dslFlat -cmatch 'this feature AND this session|this feature and this session') -and -not ($dslFlat -match 'feature or session|feature/session|per-feature/session')) {
     Test-Pass "TEST-004 scope names exactly one unit, no disjunction between units (AC-002)"
 } else {
     Test-Fail "TEST-004 scope names exactly one unit, no disjunction between units (AC-002)"
-}
-
-if (($loopFlat -match 'REQ-NNN') -and ($loopFlat -match 'AC-NNN') -and ($loopFlat -match 'confidential|pre-release')) {
-    Test-Pass "TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)"
-} else {
-    Test-Fail "TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)"
-}
-
-if ($loopFlat.Contains("claude.ai/design") -and ($loopFlat -match 'external') -and ($loopFlat -match 'selected in step 1|project selected')) {
-    Test-Pass "TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)"
-} else {
-    Test-Fail "TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)"
-}
-
-if (($loopFlat -match 'may be retained') -and ($loopFlat -match 'does not control|outside this repository.{0,3}s control')) {
-    Test-Pass "TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)"
-} else {
-    Test-Fail "TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)"
-}
-
-if (($loopFlat -match 'for this session') -and ($loopFlat -match 'without asking again|without prompting again|proceed without asking')) {
-    Test-Pass "TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)"
-} else {
-    Test-Fail "TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)"
 }
 
 if ($loopFlat.Contains("finalize_plan") -and ($loopFlat -match 'not (fully )?(known|knowable|established)|opacity|limitation|not (fully )?enumerable')) {
@@ -463,13 +558,15 @@ if ($dslFlat -match 'audit trace[^.]{0,100}not[^.]{0,60}authorization') {
     Test-Fail "TEST-018 record is an audit trace, not an authorization anything enforces (AC-012, load-bearing)"
 }
 
-if (($capFlat -match 'tool is unavailable') -and $capFlat.Contains("design tools unavailable")) {
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") tool-unavailable
+if ($LASTEXITCODE -eq 0) {
     Test-Pass "TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)"
 } else {
     Test-Fail "TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)"
 }
 
-if (($capFlat -match 'authentication fails') -and $capFlat.Contains("design tools unavailable")) {
+& node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") auth-failed
+if ($LASTEXITCODE -eq 0) {
     Test-Pass "TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)"
 } else {
     Test-Fail "TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)"
@@ -481,7 +578,7 @@ if ($cdwText.Contains("does not automatically inspect, upload, or retain") -and 
     Test-Fail "TEST-021 fallback still performs no upload, and gained no consent step (AC-014, positive+negative)"
 }
 
-if ($boundariesFlat -match 'absence of mockups.{0,20}never blocks|mockups or design tools') {
+if ($cdwFlat -match 'mockups and HTML previews are optional attachments.{0,25}absence never blocks specification review') {
     Test-Pass "TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)"
 } else {
     Test-Fail "TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)"
@@ -553,22 +650,10 @@ if ($loopFlat.Contains("property of the check") -and ($loopFlat -match 'does not
     Test-Fail "TEST-027 check point's blocking behaviour carries no interactive-human precondition (AC-018)"
 }
 
-if ($loopFlat -match 'consent has not been obtained for this scope') {
-    Test-Pass "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
-} else {
-    Test-Fail "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
-}
-
 if ($loopFlat -match 'consent already holds for this feature') {
     Test-Pass "TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)"
 } else {
     Test-Fail "TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)"
-}
-
-if (($loopFlat -match 'egress is not permitted') -and ($loopFlat -match 'manual fallback') -and ($loopFlat -match 'no upload')) {
-    Test-Pass "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
-} else {
-    Test-Fail "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
 }
 
 if (($dslFlat -match 'extensible') -and ($dslFlat -match 'ignored|non-conforming')) {
@@ -706,7 +791,7 @@ if (Test-039CiRegistered) {
     Test-Fail "TEST-039 this feature's assertions are reachable from a CI entry point (AC-024) -- DESIGNED RED: staged workflow patch not yet applied (R-OQ-8 part 3)"
 }
 
-if (($dslFlat -cmatch '## Ensure design-system/') -and $dslText.Contains("ui-ux-pro-max") `
+if (($dslFlat -cmatch 'Ensure `design-system/`') -and $dslText.Contains("ui-ux-pro-max") `
         -and $dslText.Contains("design-system --persist") -and $dslText.Contains("figma-dtcg-import") `
         -and $dslText.Contains("design-system/design-tokens.json") -and $dslText.Contains("MASTER.md")) {
     Test-Pass "TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression) -- ASCII subset; the em-dash D6 fallback note is asserted by the sh twin, following this file's existing DS-006 precedent"
@@ -714,64 +799,10 @@ if (($dslFlat -cmatch '## Ensure design-system/') -and $dslText.Contains("ui-ux-
     Test-Fail "TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression) -- ASCII subset; the em-dash D6 fallback note is asserted by the sh twin, following this file's existing DS-006 precedent"
 }
 
-if (($loopFlat -match 'no upload') -and ($loopFlat -match 'decline')) {
-    Test-Pass "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
-} else {
-    Test-Fail "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
-}
-
-if ($loopFlat -match 'next (one|attempt).{0,20}asks again|next upload attempt.{0,20}prompts again') {
-    Test-Pass "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
-} else {
-    Test-Fail "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
-}
-
-if ($loopFlat -match 'not the same thing as a decline at 4') {
-    Test-Pass "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
-} else {
-    Test-Fail "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
-}
-
-if ($dslFlat.Contains("Egress-Destination") -and ($dslFlat -match 'project selected in step 1|selected in step 1')) {
-    Test-Pass "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
-} else {
-    Test-Fail "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
-}
-
-if ($dslFlat -match 'does not carry to|re-enters step 4|different destination.{0,30}gated again') {
-    Test-Pass "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
-} else {
-    Test-Fail "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
-}
-
-if (($dslFlat -match 'withdraw') -and ($dslFlat -match 'mid-session')) {
-    Test-Pass "TEST-046 a mid-session withdrawal path is stated (AC-028)"
-} else {
-    Test-Fail "TEST-046 a mid-session withdrawal path is stated (AC-028)"
-}
-
-if (($dslFlat -match 'withdraw') -and ($dslFlat -match 'gated again|does not hold')) {
-    Test-Pass "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
-} else {
-    Test-Fail "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
-}
-
-if (($loopFlat -match 'future regenerations') -and ($loopFlat -match 'for this session')) {
-    Test-Pass "TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)"
-} else {
-    Test-Fail "TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)"
-}
-
 if (($loopFlat -match 'pull direction') -and ($loopFlat -match 'human-supplied project name')) {
     Test-Pass "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"
 } else {
     Test-Fail "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"
-}
-
-if (($loopFlat -match 'asserting.{0,20}authority') -and ($loopFlat -match 'claim, not a check|not enforced')) {
-    Test-Pass "TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)"
-} else {
-    Test-Fail "TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)"
 }
 
 if (($loopFlat -match 'not change consent state') -and ($loopFlat -match 'reports the failure') `

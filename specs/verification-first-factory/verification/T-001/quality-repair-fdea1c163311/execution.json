@@ -1,0 +1,178 @@
+{
+  "schema": "sdd-gate-execution/v1",
+  "runId": "ebe33fd9-bc68-4801-8ea8-b1be09d38628",
+  "feature": "verification-first-factory",
+  "taskId": "T-001",
+  "mode": "standard",
+  "executedAt": "2026-11-25T23:18:11.338Z",
+  "verdict": "PASS",
+  "specInputs": {
+    "schema": "sdd-task-evidence-inputs/v2",
+    "task": "f9587116b30ac27531365cfc179c156898eecf8a39abc25588b1e7e1b2794440",
+    "ids": {
+      "AC-008": "8a911933795277c3e7a39a6fcd3e4e5f9338c05ce48efa4d7cdb81af6cf553b9",
+      "AC-012": "362720c325bfddea48b036d36ddc2ee1000a52d05275026b4fc1286ae96d7318",
+      "AC-013": "26463fe9609d6d77512d5b3d6b2ab77ecbacf5704be9c1d96c7ed23b101d4a1f",
+      "NFR-001": "4377c9370ebf8772f76b1ab4e279965f587a804c158e171da17976e804c75aab",
+      "NFR-003": "f194ba3590c269153d8661cab7797dd4054f209bae2005c0ec460dbd2fcacd08",
+      "NFR-004": "70e47d76ac214f58ee64f798e9667f7a2e11ae449b80d9d82b8c7bc1101058ab",
+      "NFR-005": "6aa282ae2762be8076b39410ce7cb9f488bd986e5236cc11aaa99d55d2550688",
+      "REQ-009": "f2055c6d01e886de9bcf1d9867244d7f1895b7a5bce51d5dcc59cecea553842c",
+      "REQ-012": "1383543317e6145bfc5f464eb6ac03c3ad5bdeb2b05bf4e606479b0b3e4b0a3d"
+    },
+    "design": "d4179bdef77f2f7b2734db853cad1850f2df7b890a378beed5ca7c731927085f"
+  },
+  "coverage": {
+    "commandsRun": 2,
+    "specDriftChecked": true,
+    "sensorsChecked": true,
+    "complete": true
+  },
+  "scope": {
+    "mode": "explicit",
+    "taskScope": [
+      "docs/adr/0054-verification-first-and-agentic-factory.md",
+      "AGENTS.md",
+      "sdd/guardrails.example.yaml",
+      "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs"
+    ],
+    "outOfScopeFiles": [
+      "tests/v2-sdd-doctor.test.mjs"
+    ]
+  },
+  "warnings": [
+    "OUT_OF_SCOPE_CHANGES: 1 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
+  ],
+  "checks": {
+    "lockCheck": {
+      "checked": false,
+      "passed": true,
+      "acquired": null
+    },
+    "taskPrecondition": {
+      "passed": true,
+      "taskId": "T-001",
+      "approval": "Approved",
+      "status": "Implementation Complete",
+      "risk": "standard",
+      "scopePaths": [
+        "docs/adr/0054-verification-first-and-agentic-factory.md",
+        "AGENTS.md",
+        "sdd/guardrails.example.yaml",
+        "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs"
+      ],
+      "errors": []
+    },
+    "specDrift": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-spec-drift/v1",
+      "feature": "verification-first-factory",
+      "status": "CLEAN",
+      "baselineRecordedAt": "2026-11-25T16:43:30.106Z",
+      "baselineGitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
+      "changedFiles": [],
+      "deletedFiles": [],
+      "addedFiles": [],
+      "removedIdentifiers": [],
+      "modifiedIdentifiers": [],
+      "addedIdentifiers": [],
+      "amendments": [
+        {
+          "file": "specs/verification-first-factory/requirements.md",
+          "text": "*(承認後の仕様変更時は、日付・理由・影響IDをここに追記する。テスト廃止の例外承認はここではなく `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "*(承認後の仕様・タスク変更時は、日付・理由・影響タスクをここに追記する。テスト廃止の例外承認は `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        }
+      ],
+      "baselineAmendmentCount": 2,
+      "changedIdsWithoutAmendment": [],
+      "revokedApprovals": [],
+      "newlyApprovedTasks": [],
+      "unreadableFiles": []
+    },
+    "antiTamper": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "writeScope": {
+      "skipped": true,
+      "passed": true
+    },
+    "agentLint": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "securityGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "formalGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "placeholders": {
+      "passed": true,
+      "scannedFiles": [
+        "sdd/guardrails.example.yaml",
+        "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs"
+      ],
+      "findings": []
+    },
+    "nonFunctionalSensors": {
+      "skipped": false,
+      "passed": true,
+      "findings": [],
+      "advisoryFindings": []
+    },
+    "openQuestions": {
+      "passed": true,
+      "blocking": false,
+      "provisionalCount": 0,
+      "provisionalIds": []
+    },
+    "reviewTickets": {
+      "passed": true,
+      "blocking": []
+    },
+    "conceptTest": {
+      "passed": true,
+      "status": "NOT_APPLICABLE"
+    },
+    "commands": [
+      {
+        "label": "doctor",
+        "command": "node --test tests/v2-sdd-doctor.test.mjs",
+        "exitCode": 0,
+        "durationMs": 577,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)\n  ✔ passes cleanly on the sdd-forge repository itself with explicit Non-checks (200.306333ms)\n  ✔ detects skill description > 1024 chars as NG (prevents silent host drop) (8.254125ms)\n  ✔ detects raw ASCII control character corruption in specs/ as NG without modifying files (1.866958ms)\n  ✔ warns on non-ASCII .ps1 without UTF-8 BOM, unbaselined approved specs, and AGENT_STOP (2.467209ms)\n  ✔ detects invalid guardrails.yaml mode and broken hook JSON as NG (27.673708ms)\n  ✔ verifies Zenn §8-§12 template & skill contracts (Alternatives Rejected, Non-checks, rules-first retrospective) (0.391875ms)\n  ✔ normalizes inline extension mappings, including nested options and quoted commas (75.720208ms)\n  ✔ reports an invalid checker jar path as a JSON configuration finding (119.737625ms)\n  ✔ ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2 (81.294917ms)\n✔ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI) (518.266625ms)\nℹ tests 9\nℹ suites 1\nℹ pass 9\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 553.725458\n",
+        "stderr": ""
+      },
+      {
+        "label": "mcp",
+        "command": "npm --prefix mcp/sdd-forge-mcp test",
+        "exitCode": 0,
+        "durationMs": 20470,
+        "passed": true,
+        "error": null,
+        "stdout": "...[truncated 25968 chars]...\n absent and gate audit identifies a task's review report (11.077958ms)\n✔ resolved root is frozen and immutable after construction (3.162459ms)\n✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (2.285583ms)\n✔ changing cwd after resolution does not affect the already-resolved root (1.897333ms)\n✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (7.268542ms)\n✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (1.094667ms)\n✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (0.966667ms)\n✔ unknown CLI options and missing root values fail before cwd fallback (0.211458ms)\n✔ stdio entry rejects unknown options without protocol stdout (214.814333ms)\n✔ inspector CLI: tools/list reports the four public v2 tools (465.7845ms)\n✔ inspector CLI: each public tool declares read-only behavior and a strict input schema (342.121583ms)\n✔ inspector CLI: the server lists the overview and feature resource template (457.67325ms)\n✔ inspector CLI: sdd_project_overview returns schema-valid active features for the real repo (1069.449834ms)\n✔ local status view exposes fresh guarded state and rejects untrusted requests (126.395542ms)\n✔ pre-approval guidance follows the feature’s recorded review and skip policy on every status surface (452.714292ms)\n✔ indeterminate status keeps known review progress and recovers to the quality gate when the report appears (11.65825ms)\n✔ a late feature refresh cannot overwrite the newest selection (2.601417ms)\n✔ local status page explains the recorded Concept Test stop and refreshes after revalidation (36.995458ms)\n✔ AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv) (179.635791ms)\n✔ AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv) (5.214375ms)\n✔ AC-015: an invalid-input error envelope conforms to the v1 contract (ajv) (5.355458ms)\n✔ AC-015: a not-found error envelope conforms to the v1 contract (ajv) (1.849667ms)\n✔ AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv) (2.649625ms)\n✔ TEST-004 (AC-004): hostRequiredChecks never affects verdict — pass and fail fixtures (7.687375ms)\n✔ TEST-018a (AC-018): a bundle with no signature block still carries both hostRequiredChecks (5.3805ms)\n✔ TEST-018b (AC-018): a bundle whose git_commit is not 40-hex still carries both hostRequiredChecks (2.450791ms)\n✔ TEST-009 leg (AC-009): the schema requires hostRequiredChecks and pins its nested shape (0.308917ms)\n✔ TEST-009 leg (AC-009): an ok deep-verify envelope omitting hostRequiredChecks FAILS ajv validation (2.896792ms)\n✔ TEST-016 (AC-016): the schema description is verbatim requirements.md's CONFIRMED literal (1.127875ms)\n✔ AC-015 additivity: five retained evidence readers return their expected v1 contract kinds (7.848333ms)\n✔ AC-013: the serialized evidenceDeepVerify pass result is identical on two reads of one root (7.770458ms)\n✔ AC-013: the serialized evidenceDeepVerify pass result is identical across independently seeded roots (12.891ms)\n✔ AC-013: an error envelope (not-found) is byte-identical across two calls with identical input (6.550708ms)\n✔ AC-006: a drifted spec file maps to specRevision mismatch (recompute + filesHashed) + verdict fail (19.79175ms)\n✔ AC-007: a missing git_commit is shape-invalid + verdict fail (2.588583ms)\n✔ AC-007: a short git_commit is shape-invalid + verdict fail (3.033209ms)\n✔ AC-007: a too-long git_commit is shape-invalid + verdict fail (3.585042ms)\n✔ AC-007: a non-hex git_commit is shape-invalid + verdict fail (3.80675ms)\n✔ AC-007: a uppercase git_commit is shape-invalid + verdict fail (5.042458ms)\n✔ AC-008: a foreign well-formed 40-hex is shapeValid with ancestryVerified false and does not fail the verdict (2.989375ms)\n✔ AC-008: evidence_deep_verify never spawns a git subprocess (no-exec boundary, ADR-0008) (3.468417ms)\n✔ AC-009: a verification_contract task_id mismatch maps to crossBinding mismatch + verdict fail (9.624375ms)\n✔ AC-009: a verification_contract feature mismatch maps to crossBinding mismatch + verdict fail (3.255167ms)\n✔ AC-010: a quality_report Task ID mismatch maps to crossBinding mismatch + verdict fail (2.562417ms)\n✔ AC-010: a quality_report Feature mismatch maps to crossBinding mismatch + verdict fail (4.704083ms)\n✔ AC-010: an unreadable quality_report maps to crossBinding mismatch + verdict fail (no throw) (2.450791ms)\n✔ AC-019: all specs absent with recorded spec_revision '' is a match (no throw) (9.507791ms)\n✔ AC-019: all specs absent with a non-empty recorded spec_revision is a mismatch + verdict fail (no throw) (2.990833ms)\n✔ AC-001: legacy evidenceDeepVerify returns an ok pass envelope for a consistent bundle (4.455375ms)\n✔ error envelope: an invalid taskId maps to invalid-input in evidenceDeepVerify (170.455458ms)\n✔ error envelope: an invalid feature maps to invalid-input in evidenceDeepVerify (3.239667ms)\n✔ error envelope: a missing bundle maps to not-found in evidenceDeepVerify (3.790292ms)\n✔ error envelope: a malformed-JSON bundle maps to cannot-parse in evidenceDeepVerify (2.166917ms)\n✔ AC-001: a fully consistent bundle verifies as pass with no failures (4.386375ms)\n✔ AC-002: a 1-byte on-disk artifact tamper maps to mismatch + digest mismatch + verdict fail (5.043875ms)\n✔ AC-003: a recorded sha rewritten to a different 64-hex maps to mismatch + verdict fail (2.477125ms)\n✔ AC-018: empty artifacts[] is a vacuous pass when the remaining invariants hold, without throwing (3.237167ms)\n✔ AC-018: empty artifacts[] still fails when another invariant fails (malformed git_commit) (2.343709ms)\n▶ legacy evidence and task-state readers return domain results for malformed JSON shapes and recover\n  ✔ bundle null (139.665875ms)\n  ✔ bundle [] (3.098ms)\n  ✔ bundle 7 (2.113792ms)\n  ✔ bundle \"scalar\" (1.244209ms)\n  ✔ bundle true (1.039666ms)\n  ✔ contract null (3.132167ms)\n  ✔ contract [] (1.941292ms)\n  ✔ contract 7 (1.603375ms)\n  ✔ contract \"scalar\" (1.560083ms)\n  ✔ artifact null retains valid siblings (2.084042ms)\n  ✔ artifact [] retains valid siblings (2.010708ms)\n  ✔ artifact 7 retains valid siblings (2.804209ms)\n  ✔ artifact \"scalar\" retains valid siblings (1.808833ms)\n  ✔ checks null (1.278583ms)\n  ✔ checks {} (1.16825ms)\n  ✔ checks [null] (1.026167ms)\n  ✔ checks [[]] (1.229666ms)\n  ✔ checks [3] (1.203083ms)\n  ✔ object-valued fields cannot replace primitive conversion methods (1.429459ms)\n✔ legacy evidence and task-state readers return domain results for malformed JSON shapes and recover (178.323791ms)\n✔ legacy Lite Done requires real reports but no Full contract/review headers (14.685042ms)\n✔ v2 implementation and sdd-gate routes use /sdd-ship:ship; missing implementation fails (7.03575ms)\n✔ Lite fallback never bypasses present Project Context; ambiguous profile fails (4.34275ms)\n✔ artifact byte hashing supports non-UTF8 files outside content allowlist without exposing content (4.5085ms)\n✔ Lite declaration cannot weaken high/critical tasks or choose between duplicate settings (7.590625ms)\n✔ observation code shipped with plugin exactly matches MCP source (0.448541ms)\n✔ heartbeat deduplicates events; changes, removal and continuous dwell are observed (0.917792ms)\n✔ failure freezes dwell, recovery and long gaps reset continuity without inferred actors (0.877917ms)\n✔ history retains only latest 200 events and 30 days on read and write (5.940458ms)\n✔ private reads and publisher-only writes; malformed input and future timestamps rejected (24.894875ms)\n✔ collector restart failure retains last-good data and source time; heartbeat keeps content age (3.162833ms)\n✔ payload bounds, malformed task shapes, cross origin and project replacement are rejected (3.415792ms)\n✔ dedicated snapshot contract and MCP envelope projection stay identical (0.758ms)\n✔ health publication is private, ordered and separate from task data (2.672958ms)\n✔ observations share snapshot CAS, remain private and cannot be supplied by publishers (2.061625ms)\n✔ decision validator is identical across installed worker and collector; malformed projection is refused (0.331ms)\nℹ tests 369\nℹ suites 0\nℹ pass 369\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 19438.765791\n",
+        "stderr": ""
+      }
+    ],
+    "rebuildDifferential": {
+      "skipped": true,
+      "passed": true
+    }
+  }
+}

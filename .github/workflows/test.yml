@@ -2,7 +2,7 @@ name: Test (SDD Forge v2)
 
 on:
   push:
-    branches: [main, "feat/v2-*"]
+    branches: [main, "feat/v2-*", "feat/adr-*"]
   pull_request:
     branches: [main]
   merge_group:
@@ -23,24 +23,104 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Set up Node.js 20 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "20"
+          node-version: "26.13.0"
 
       - name: Install sdd-forge-mcp dependencies (Ajv for MCP contract checks, #857)
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
 
+      - name: Install AST dependencies
+        run: npm ci --prefix plugins/sdd-quality-loop/rules --ignore-scripts
+
+      - name: Validate workflow state (PowerShell)
+        shell: pwsh
+        run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+
+      - name: Validate workflow state (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+
+      - name: Check persisted workflow integration and Core lifecycle
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash ./tests/workflow-state-ci-integration.tests.sh
+          bash ./tests/task-lifecycle-enum-parity.tests.sh
+          python3 tests/lib/core-lifecycle-checks.py approvals
+          python3 tests/lib/core-lifecycle-checks.py templates
+          python3 tests/lib/task-done-parity.py plugins/sdd-quality-loop/scripts/check-task-state.sh plugins/sdd-quality-loop/scripts/check-task-state.ps1
+
       - name: Run v2 Lightweight Guardrails & SDD Core tests
         env:
           SDD_REQUIRE_AJV: "1"
-        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs
+        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs tests/v2-agent-lint.test.mjs tests/v2-formal-gate.test.mjs tests/v2-wave3-integration.test.mjs tests/self-fitness.test.mjs tests/self-security-adversarial.test.mjs
+
+      - name: Test HITL, WFI and brownfield CLI behavior in Bash and PowerShell
+        shell: bash
+        run: |
+          # The PowerShell tests invoke bash for the HITL template and inventory.
+          # On Windows, keep the runner's Git Bash ahead of the WSL launcher.
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PATH="${BASH%/*}:$PATH"
+          fi
+          bash tests/hitl-wfi-terminal.tests.sh
+          bash tests/check-placeholders-brownfield.tests.sh
+          pwsh -NoProfile -File tests/hitl-wfi-terminal.tests.ps1
+          pwsh -NoProfile -File tests/check-placeholders-brownfield.tests.ps1
+
+      - name: Test the feature-scoped cycle limit in Bash and PowerShell
+        shell: bash
+        run: |
+          command -v pwsh
+          bash tests/quality-gate-cycle-limit.tests.sh
+
+      - name: Exercise release readiness and model catalog checks offline
+        if: runner.os == 'Linux'
+        run: python3 tests/release-readiness.tests.py
+
+      - name: Run the full Bash model freshness suite
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bash tests/model-freshness-check.tests.sh
+
+      - name: Test design-sync consent decisions and provider receipts
+        if: runner.os == 'Linux'
+        run: python3 -B tests/design-sync-policy.tests.py
+
+      - name: Exercise the workstation version bump on macOS and Windows
+        if: runner.os != 'Linux'
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            # Native Python must launch this Git Bash, even when System32 contains bash.exe.
+            SDD_TEST_BASH=$(cygpath -am "${BASH%.exe}.exe")
+            export SDD_TEST_BASH
+            export PATH="${BASH%/*}:$PATH"
+            python=python
+          else
+            python=python3
+          fi
+          "$python" tests/release-readiness.tests.py ReleaseReadiness.test_bump_stops_before_writing_or_synchronizes_all_files
+
+      - name: Check ownership digests and registration (Bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/ownership-digest.tests.sh
+
+      - name: Check ownership digests and registration (PowerShell)
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/ownership-digest.tests.ps1
 
       - name: Verify SDD repository structure (POSIX)
         if: runner.os != 'Windows'
@@ -59,6 +139,41 @@ jobs:
         shell: bash
         run: bash -n install.sh && bash -n uninstall.sh
 
+      - name: Select Git Bash for the PowerShell inventory check
+        if: runner.os == 'Windows'
+        shell: bash
+        run: cygpath -aw "${BASH%/*}" >> "$GITHUB_PATH"
+
+      - name: Test the native PowerShell model catalog on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/model-freshness-check.tests.ps1
+
+      - name: Test multitarget foundation contracts on Linux and macOS
+        if: runner.os != 'Windows'
+        run: python3 -B tests/sdd-domain-multitarget-foundation.tests.py
+
+      - name: Test multitarget foundation contracts on Windows
+        if: runner.os == 'Windows'
+        run: python -B tests/sdd-domain-multitarget-foundation.tests.py
+
+      - name: Test the project evidence collector on Linux and macOS
+        if: runner.os != 'Windows'
+        run: python3 -B tests/project-evidence-collector.tests.py
+
+      - name: Test the project evidence collector on Windows
+        if: runner.os == 'Windows'
+        run: python -B tests/project-evidence-collector.tests.py
+
+      - name: Verify the required CI workload on each matrix route
+        if: runner.os == 'Linux'
+        working-directory: tests
+        run: python3 -B verification-ci.tests.py CurrentV2WorkflowTests.test_hosts_and_workloads_on_each_v2_job_route
+
+      - name: Verify release source contracts
+        shell: bash
+        run: node .github/scripts/check-release-source.mjs
+
   sdd-forge-mcp-v2:
     name: mcp-tests (sdd-forge-mcp)
     runs-on: ubuntu-latest
@@ -71,7 +186,7 @@ jobs:
       - name: Set up Node.js 20 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "20"
+          node-version: "26.13.0"
           cache: npm
           cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
 
@@ -110,7 +225,7 @@ jobs:
       - name: Set up Node.js 20 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "20"
+          node-version: "26.13.0"
           cache: npm
           cache-dependency-path: mcp/${{ matrix.mcp }}/package-lock.json
 
@@ -123,7 +238,11 @@ jobs:
           npm test
 
   cloud-and-ddd:
-    name: cloud-and-ddd (ubuntu-latest / JST)
+    name: cloud-and-ddd (${{ matrix.shard }} / ubuntu-latest / JST)
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [cloud, ddd]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -139,6 +258,7 @@ jobs:
           python-version: "3.12"
 
       - name: Run Cloud Orchestration test suites (non-UTC timezone)
+        if: matrix.shard == 'cloud'
         run: |
           python3 tests/cloud-orchestration-contracts.tests.py
           python3 tests/cloud-orchestration-routing.tests.py
@@ -146,28 +266,34 @@ jobs:
           python3 tests/cloud-orchestration-verification.tests.py
 
       - name: Run DDD Concept-Test suite
+        if: matrix.shard == 'ddd'
         run: python3 tests/concept-test.tests.py
 
       - name: Run Concept Test from Codex's versioned plugin cache (#812)
+        if: matrix.shard == 'ddd'
         run: python3 tests/codex-versioned-cache.tests.py
 
-      - name: Run workflow-state batch session tests (gate audit binding)
-        # Only the audit-pin binding: WorkflowSession's real-history case fails on main too
-        # (stale pinned review inputs, see the burndown follow-up).
-        run: python3 tests/workflow-state-session.tests.py GateAuditBinding
-
       - name: Run SQL Development Contract tests
+        if: matrix.shard == 'cloud'
         run: python3 tests/sql-development-contract.tests.py
 
       - name: Run evidence-bundle checker parity tests (.sh vs .ps1)
+        if: matrix.shard == 'cloud'
         shell: bash
         run: |
           command -v pwsh  # the .ps1 half is skipped silently without it
           python3 tests/check-evidence-bundle-parity.tests.py
 
       - name: Run domain-review finalize wrapper tests (.sh and .ps1)
+        if: matrix.shard == 'ddd'
         shell: bash
         run: python3 tests/domain-review-finalize.tests.py
+
+      - name: Run workflow-state batch session tests (gate audit binding)
+        if: matrix.shard == 'ddd'
+        # Only the audit-pin binding: WorkflowSession's real-history case fails on main too
+        # (stale pinned review inputs, see the burndown follow-up).
+        run: python3 tests/workflow-state-session.tests.py GateAuditBinding
 
   installers:
     # tests/verification-catalog.json routes install/uninstall suites to the
@@ -187,7 +313,7 @@ jobs:
       - name: Set up Node.js 20 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "20"
+          node-version: "26.13.0"
 
       - name: Set up Python 3.12
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0

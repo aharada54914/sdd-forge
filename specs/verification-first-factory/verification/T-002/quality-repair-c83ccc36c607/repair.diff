@@ -1,0 +1,150 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+index 55cb41d37..44bdf5721 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+@@ -293,7 +293,7 @@ function shellParser() {
+       performance, setTimeout, clearTimeout, console });
+     runInContext(parserAsset('wasm_exec.cjs', '0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14').toString('utf8'), context);
+     const go = new context.Go();
+-    const bytes = gunzipSync(parserAsset('parser.wasm.gz', '4f081f94132585a1115a4bf1c8151e71056cc83a4ff09daf26e17f7ea0c027bb'));
++    const bytes = gunzipSync(parserAsset('parser.wasm.gz', '9be325198675db18e31af53f2995f66942a304488745a1fcdcf101db5df496f3'));
+     void go.run(new WebAssembly.Instance(new WebAssembly.Module(bytes), go.importObject));
+     parseShell = context.sddParseShellComments;
+   }
+@@ -424,10 +424,8 @@ function unconditionalTrueDefinitions(source) {
+ function isTestFileRelPath(relPath) {
+   const lower = normalizeRelPath(relPath).toLowerCase();
+   return (
+-    lower.startsWith('tests/') ||
+     lower.startsWith('test/') ||
+-    lower.includes('/tests/') ||
+-    lower.includes('/__tests__/') ||
++    /(?:^|\/)(?:tests|__tests__)\//.test(lower) ||
+     /(?:\.test|\.spec|_test|\.tests)\.[a-z0-9]+$/i.test(lower)
+   );
+ }
+diff --git a/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz b/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz
+index 61b7a4df3..2b7732aab 100644
+Binary files a/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz and b/plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz differ
+diff --git a/scripts/vendor-shell-parser/zsh_loops.go.in b/scripts/vendor-shell-parser/zsh_loops.go.in
+index 859d31cd3..b85b4e166 100644
+--- a/scripts/vendor-shell-parser/zsh_loops.go.in
++++ b/scripts/vendor-shell-parser/zsh_loops.go.in
+@@ -66,7 +66,9 @@ func (p *Parser) zshForWords(start Pos) *WordIter {
+ 	}
+ 	if pos, ok := p.gotRsrv("in"); ok {
+ 		wi.InPos = pos
+-		for !p.stopToken() {
++		// In an in-list, { is a value. A standalone unquoted } ends
++		// the list token stream and cannot supply its required separator.
++		for !p.stopToken() && !(p.tok == _LitWord && p.val == "}") {
+ 			word := p.getWord()
+ 			if word == nil {
+ 				p.curErr("expected a word in for list")
+diff --git a/specs/self-verification/formal/mapping.json b/specs/self-verification/formal/mapping.json
+index 914791f1c..793a41377 100644
+--- a/specs/self-verification/formal/mapping.json
++++ b/specs/self-verification/formal/mapping.json
+@@ -122,10 +122,10 @@
+     "One task; max two automatic retry rounds; terminal Done and Blocked states; finite safety properties only.",
+     "TaskLockMutation models three concurrent local operations, with unique intent identities and accurate local PID death detection. Enter abstracts the directory scan after publication; a live peer present for the entire scan is observed. It checks exclusion only."
+   ],
+-  "source_sync_commit": "207622f8b433fb9f58f13d2a9b3ed5518a0f71ec",
++  "source_sync_commit": "344ae9fe885fab5eba5da7ec4ef41e3068e9821d",
+   "source_sync_note": "source_sync_commit is the committed predecessor used for this comparison. source_sha256 identifies the reviewed implementation bytes, including the changes on top of that commit. Recheck the action mapping and traces before updating a source digest.",
+   "source_sha256": {
+-    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "d119024dc66b017c684976e08efb5626e2361a8feb8fbc3374a2c6a2a2732f78",
++    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "c2dd0cab187df4c207de6de67db33d1b78dc1de26d3de05301af75bb9a6ed640",
+     "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "e5ea79c8603530352eecfe93955adc45db65bd2e8ca3c8bea90fcb6a82aed3a5",
+     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "a1d576c2cab796e556bd582975090607ba4bb916f0cdb5950808babe8a16027b",
+     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+diff --git a/tests/v2-spec-drift.test.mjs b/tests/v2-spec-drift.test.mjs
+index 14560eaf8..85b10d4e2 100644
+--- a/tests/v2-spec-drift.test.mjs
++++ b/tests/v2-spec-drift.test.mjs
+@@ -546,8 +546,12 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+   for (const [name, header, footer] of [
+     ['short for', 'for item (one) ', ''],
+     ['brace for', 'for item in one; { ', '}'],
++    ['newline brace for', 'for item in one\n{ ', '}'],
++    ['literal brace in short for', 'for item in {; ', ''],
++    ['quoted brace in short for', "for item in '}'; ", ''],
+     ['parenthesized brace for', 'for v (one two) { ', '}'],
+     ['short in for', 'for item in one; ', ''],
++    ['short for in an outer block', '{ for item in one; ', '}'],
+     ['repeat do', 'repeat 1 do ', 'done'],
+     ['repeat', 'repeat 1 { ', '}'],
+   ]) {
+@@ -586,6 +590,26 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+     });
+   }
+ 
++  for (const [name, ending] of [
++    ['in the word list', ' }'],
++    ['after a semicolon', '; }'],
++    ['after a newline', '\n}'],
++  ]) {
++    it('rejects a zsh for list with an unmatched closing brace ' + name, (t) => {
++      const { dir } = initGitRepoWithTests();
++      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++      const file = path.join(dir, 'help.zsh');
++      const script = "for item in a b { print -r -- '" + shellMarker + " shown'" + ending + '\n';
++      const native = spawnSync('zsh', ['-fn'], { input: script, encoding: 'utf8' });
++      if (native.error?.code !== 'ENOENT') assert.equal(native.status, 1, native.stderr);
++      fs.writeFileSync(file, script);
++      const result = runAntiTamper(dir);
++      assert.equal(result.status, 2, result.stderr + result.stdout);
++      assert.match(result.stderr, /Cannot parse shell source help\.zsh/);
++      assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++    });
++  }
++
+   it('keeps repeat an ordinary command in Bash and POSIX shells', (t) => {
+     const { dir } = initGitRepoWithTests();
+     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+@@ -969,4 +993,45 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+     assert.equal(JSON.parse(approved.stdout).status, 'CLEAN');
+     fs.rmSync(dir, { recursive: true, force: true });
+   });
++
++  it('checks retirement approvals for complete __tests__ directory segments at root and nested levels', (t) => {
++    const { dir, git } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++
++    const approved = ['__tests__/old.mjs', 'pkg/__tests__/old.mjs'];
++    const unapproved = ['__tests__/current.mjs', 'pkg/__tests__/current.mjs'];
++    const ordinary = ['__tests__helpers/old.mjs', 'pkg/my__tests__/old.mjs'];
++    const files = [...approved, ...unapproved, ...ordinary];
++    for (const file of files) {
++      fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
++      fs.writeFileSync(path.join(dir, file), 'export const fixture = true;\n');
++    }
++    assert.equal(git('add', ...files).status, 0);
++    assert.equal(git('commit', '-m', 'add fixture files').status, 0);
++    // All fixtures share a blob. Approval for a sibling path must not carry over.
++    const blobSha = git('rev-parse', 'HEAD:' + approved[0]).stdout.trim();
++    const retirements = approved.map(file => ({
++      path: file, git_blob_sha: blobSha, approved_by: 'fixture-owner', reason: 'superseded',
++    }));
++    // The nested current file has a path approval for a different blob.
++    const otherBlobSha = git('rev-parse', 'HEAD:tests/sample.test.mjs').stdout.trim();
++    retirements.push({ ...retirements[0], path: unapproved[1], git_blob_sha: otherBlobSha });
++    const manifest = 'sdd/approved-test-retirements.json';
++    fs.writeFileSync(path.join(dir, manifest), JSON.stringify({ schema: 'sdd-approved-test-retirements/v1', retirements }));
++    assert.equal(git('add', manifest).status, 0);
++    assert.equal(git('commit', '-m', 'approve fixture retirements').status, 0);
++
++    for (const file of files) fs.unlinkSync(path.join(dir, file));
++    const rejected = runAntiTamper(dir);
++    assert.equal(rejected.status, 4, rejected.stderr || rejected.stdout);
++    assert.deepEqual(
++      JSON.parse(rejected.stdout).violations.map(({ code, path }) => ({ code, path })),
++      unapproved.map(path => ({ code: 'UNAUTHORIZED_TEST_DELETION', path })),
++    );
++
++    assert.equal(git('restore', '--', ...unapproved).status, 0);
++    const accepted = runAntiTamper(dir);
++    assert.equal(accepted.status, 0, accepted.stderr || accepted.stdout);
++    assert.deepEqual(JSON.parse(accepted.stdout).violations, []);
++  });
+ });

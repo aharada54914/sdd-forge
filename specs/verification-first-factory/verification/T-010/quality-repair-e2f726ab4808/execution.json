@@ -1,0 +1,392 @@
+{
+  "schema": "sdd-gate-execution/v1",
+  "runId": "121d4a29-a4cb-4f7c-bc60-2c90b729090c",
+  "feature": "verification-first-factory",
+  "taskId": "T-010",
+  "mode": "standard",
+  "executedAt": "2026-11-26T00:49:51.454Z",
+  "verdict": "PASS",
+  "specInputs": {
+    "schema": "sdd-task-evidence-inputs/v2",
+    "task": "70beab72218f7bf1f632fce50f2888510a2818490bb3781876630f0948a625c8",
+    "ids": {
+      "AC-013": "26463fe9609d6d77512d5b3d6b2ab77ecbacf5704be9c1d96c7ed23b101d4a1f",
+      "NFR-003": "f194ba3590c269153d8661cab7797dd4054f209bae2005c0ec460dbd2fcacd08",
+      "NFR-004": "70e47d76ac214f58ee64f798e9667f7a2e11ae449b80d9d82b8c7bc1101058ab",
+      "NFR-005": "6aa282ae2762be8076b39410ce7cb9f488bd986e5236cc11aaa99d55d2550688",
+      "SELF-AC-005": "de3b25f7b5d9908717ff17ce1ed9a383a4eea455b2238e26b5734fc7b1f83feb",
+      "SELF-AC-006": "a6b8f6fb0d74b76c6d9349544b807eccc43f76a21a2d89b3a7a41f92c301ef33",
+      "SELF-REQ-005": "5c9556662b5e71338d23885e8ff507289261002e941b0a4c63798a94a0e9d342",
+      "SELF-REQ-006": "4928bfc8a58010519b8949609802c17d160d899f237b56706f689cebae5e6704"
+    },
+    "design": "d4179bdef77f2f7b2734db853cad1850f2df7b890a378beed5ca7c731927085f"
+  },
+  "coverage": {
+    "commandsRun": 20,
+    "specDriftChecked": true,
+    "sensorsChecked": true,
+    "complete": true
+  },
+  "scope": {
+    "mode": "explicit",
+    "taskScope": [
+      ".github/workflows/sdd-guardrails.yml",
+      ".github/workflows/test.yml",
+      "tests/verification-catalog.json",
+      "sdd/approved-test-retirements.json",
+      ".gitignore"
+    ],
+    "outOfScopeFiles": [
+      "docs/operations/verification-catalog-status.md",
+      "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
+      "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1",
+      "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md",
+      "tests/bootstrap-cross-layer-index.tests.sh",
+      "tests/bootstrap-interview-guidance.tests.sh",
+      "tests/bootstrap-layer-templates.tests.sh",
+      "tests/design-sync-policy.tests.py",
+      "tests/design-sync-standing-consent.tests.ps1",
+      "tests/design-sync-standing-consent.tests.sh",
+      "tests/design-system-contract.tests.ps1",
+      "tests/design-system-contract.tests.sh",
+      "tests/emit-run-record-feature-scope.tests.ps1",
+      "tests/emit-run-record-feature-scope.tests.sh",
+      "tests/lib/bootstrap-core-contracts.mjs",
+      "tests/lib/core-lifecycle-checks.py",
+      "tests/lib/ownership-ci-registration.cjs",
+      "tests/lib/task-done-parity.py",
+      "tests/model-freshness-check.tests.sh",
+      "tests/ownership-digest.tests.ps1",
+      "tests/ownership-digest.tests.sh",
+      "tests/release-config-lock.tests.sh",
+      "tests/release-readiness.tests.py",
+      "tests/research-consumers.tests.py",
+      "tests/research-evidence.tests.py",
+      "tests/task-lifecycle-enum-parity.tests.sh",
+      "tests/task-state-grammar-parity.tests.sh",
+      "tests/template-validator-parity.tests.ps1",
+      "tests/template-validator-parity.tests.sh",
+      "tests/v2-hooks-and-ci.test.mjs",
+      "tests/workflow-state-ci-integration.tests.sh"
+    ]
+  },
+  "warnings": [
+    "OUT_OF_SCOPE_CHANGES: 31 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
+  ],
+  "checks": {
+    "lockCheck": {
+      "checked": false,
+      "passed": true,
+      "acquired": null
+    },
+    "taskPrecondition": {
+      "passed": true,
+      "taskId": "T-010",
+      "approval": "Approved",
+      "status": "Implementation Complete",
+      "risk": "high",
+      "scopePaths": [
+        ".github/workflows/sdd-guardrails.yml",
+        ".github/workflows/test.yml",
+        "tests/verification-catalog.json",
+        "sdd/approved-test-retirements.json",
+        ".gitignore"
+      ],
+      "errors": []
+    },
+    "specDrift": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-spec-drift/v1",
+      "feature": "verification-first-factory",
+      "status": "CLEAN",
+      "baselineRecordedAt": "2026-11-25T16:43:30.106Z",
+      "baselineGitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
+      "changedFiles": [],
+      "deletedFiles": [],
+      "addedFiles": [],
+      "removedIdentifiers": [],
+      "modifiedIdentifiers": [],
+      "addedIdentifiers": [],
+      "amendments": [
+        {
+          "file": "specs/verification-first-factory/requirements.md",
+          "text": "*(承認後の仕様変更時は、日付・理由・影響IDをここに追記する。テスト廃止の例外承認はここではなく `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "*(承認後の仕様・タスク変更時は、日付・理由・影響タスクをここに追記する。テスト廃止の例外承認は `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "- 2026-11-26（所有者承認、T-003・T-004）。AC-007 の Layer 1 基準を上流の677行に更新。上限700行、差分ゼロ、外部依存ゼロを維持する。過去の663行の記述に対する適用範囲と照合手順は [基準変更の記録](verification/T-004/approved-layer1-baseline.md) に示す。"
+        }
+      ],
+      "baselineAmendmentCount": 2,
+      "changedIdsWithoutAmendment": [],
+      "revokedApprovals": [],
+      "newlyApprovedTasks": [],
+      "unreadableFiles": []
+    },
+    "antiTamper": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "writeScope": {
+      "skipped": true,
+      "passed": true
+    },
+    "agentLint": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "securityGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "formalGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "placeholders": {
+      "passed": true,
+      "scannedFiles": [
+        ".github/workflows/sdd-guardrails.yml",
+        ".github/workflows/test.yml",
+        ".gitignore",
+        "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1"
+      ],
+      "findings": []
+    },
+    "nonFunctionalSensors": {
+      "skipped": false,
+      "passed": true,
+      "findings": [],
+      "advisoryFindings": []
+    },
+    "openQuestions": {
+      "passed": true,
+      "blocking": false,
+      "provisionalCount": 0,
+      "provisionalIds": []
+    },
+    "reviewTickets": {
+      "passed": true,
+      "blocking": []
+    },
+    "conceptTest": {
+      "passed": true,
+      "status": "NOT_APPLICABLE"
+    },
+    "commands": [
+      {
+        "label": "check-1",
+        "command": "/tmp/sdd-ci-t010.YINA8zmr/actionlint --version",
+        "exitCode": 0,
+        "durationMs": 5,
+        "passed": true,
+        "error": null,
+        "stdout": "1.7.12\ninstalled by downloading from release page\nbuilt with go1.26.1 compiler for darwin/arm64\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-2",
+        "command": "/tmp/sdd-ci-t010.YINA8zmr/actionlint .github/workflows/sdd-guardrails.yml .github/workflows/test.yml",
+        "exitCode": 0,
+        "durationMs": 5,
+        "passed": true,
+        "error": null,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "label": "check-3",
+        "command": "node --test tests/v2-hooks-and-ci.test.mjs",
+        "exitCode": 0,
+        "durationMs": 3688,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer\n  ✔ all 4 host hook manifests parse as valid JSON and wire to v2/sdd-soft-guard.mjs (0.488667ms)\n  ✔ deprecated hard-lock scripts, 3-loop reviews, and sdd-lite plugin are removed (0.160334ms)\n  ✔ CI workflow and CODEOWNERS cover Layer 3 guardrails boundary (0.112541ms)\n  ✔ keeps the installed managed model entry in the release source (0.084209ms)\n  ✔ install.sh --target FilesOnly succeeds end-to-end and installs v2 guardrail scripts (3013.321708ms)\n  ✔ install-payload.txt includes README-linked guardrails example and user guides (H5) (0.228834ms)\n  ✔ v1.26.1 (#789): session-model-start.py emits valid UTF-8 JSON under ASCII stdout across 3 AI hosts (84.839125ms)\n  ✔ #852: Spec Drift CI reports its coverage and lists approved features without a baseline (0.2585ms)\n  ✔ #861: Bash and PowerShell installers require the same Cloud entry files (0.477375ms)\n  ✔ publish-release cuts a tag only by manual dispatch on main, never moving an existing tag (0.28625ms)\n  ✔ #869: every v2 CLI behaves the same when launched through a symlink (487.808167ms)\n  ✔ #869 review: a CLI embedded under another file name (a bundle) never runs its main() (27.314917ms)\n  ✔ no node_modules entry (directory or symlink) is ever tracked (11.044416ms)\n  ✔ #858: every workflow and distributed CI template pins third-party actions to a commit SHA (1.000041ms)\n  ✔ #855: Claude never auto-loads a second hooks/hooks.json next to a manifest-declared hooks file (0.368917ms)\n  ✔ #851/#801: required-checks aggregates every dependency result and installers job runs install suites (0.127666ms)\n  ✔ all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version (2.113958ms)\n✔ Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer (3630.849083ms)\n▶ #862 the verification catalog report matches what CI runs\n  ✔ a suite counts as run only when a current test.yml job names it; the committed report is current (2.863875ms)\n✔ #862 the verification catalog report matches what CI runs (2.895292ms)\n▶ #850 the committed ruleset, the CI jobs and the threat model agree\n  ✔ every required check is a real job, the Spec Drift job is required, and docs do not claim owner review (0.461792ms)\n✔ #850 the committed ruleset, the CI jobs and the threat model agree (0.482625ms)\nℹ tests 19\nℹ suites 3\nℹ pass 19\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3665.855584\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-4",
+        "command": "shasum -a 256 /tmp/sdd-ci-t010.YINA8zmr/local-posix.log /tmp/sdd-ci-t010.YINA8zmr/remaining.json",
+        "exitCode": 0,
+        "durationMs": 20,
+        "passed": true,
+        "error": null,
+        "stdout": "f98c593f97d71b5ca7f83f6a89ef6968f0d4eb7e24f97a88657046c3962c0568  /tmp/sdd-ci-t010.YINA8zmr/local-posix.log\n45b8fb123d4dccb1a039739d6b554d95ca3dc870ccf27b9c6824d70000cee300  /tmp/sdd-ci-t010.YINA8zmr/remaining.json\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-5",
+        "command": "python3 -c 'import collections,json,pathlib; r=json.loads(pathlib.Path('\"'\"'/tmp/sdd-ci-t010.YINA8zmr/remaining.json'\"'\"').read_bytes()); print(r['\"'\"'revision'\"'\"'],dict(collections.Counter(x['\"'\"'status'\"'\"'] for x in r['\"'\"'results'\"'\"']))); assert len(set(r['\"'\"'selected'\"'\"'])) == len(r['\"'\"'results'\"'\"']) == 13 and set(r['\"'\"'selected'\"'\"']) == {x['\"'\"'suite'\"'\"'] for x in r['\"'\"'results'\"'\"']}'",
+        "exitCode": 0,
+        "durationMs": 22,
+        "passed": true,
+        "error": null,
+        "stdout": "fc166bd1a8b8303531c0445ff78965897ea59c61 {'passed': 4, 'failed': 9}\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-6",
+        "command": "python3 tests/verification-catalog.tests.py",
+        "exitCode": 0,
+        "durationMs": 4563,
+        "passed": true,
+        "error": null,
+        "stdout": "==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/a.tests.py\nSKIPPED: tests/a.tests.py\n==> tests/native-a.tests.ps1\nFAILED: tests/native-a.tests.ps1\n==> tests/native-b.tests.ps1\nPASSED: tests/native-b.tests.ps1\n==> tests/b.tests.py\npass-b\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nfail-a\nFAILED: tests/a.tests.py\n==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nfixed\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nfixture\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nchanged\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n",
+        "stderr": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 4.501s\n\nOK\n"
+      },
+      {
+        "label": "check-7",
+        "command": "python3 tests/release-readiness.tests.py",
+        "exitCode": 0,
+        "durationMs": 3346,
+        "passed": true,
+        "error": null,
+        "stdout": "",
+        "stderr": "test_admission_uses_ci_for_the_tagged_commit (__main__.ReleaseReadiness.test_admission_uses_ci_for_the_tagged_commit) ... ok\ntest_bump_stops_before_writing_or_synchronizes_all_files (__main__.ReleaseReadiness.test_bump_stops_before_writing_or_synchronizes_all_files) ... ok\ntest_config_and_model_catalog (__main__.ReleaseReadiness.test_config_and_model_catalog) ... ok\ntest_release_prerequisites (__main__.ReleaseReadiness.test_release_prerequisites) ... ok\ntest_source_archive_sbom_checksums_and_provenance (__main__.ReleaseReadiness.test_source_archive_sbom_checksums_and_provenance) ... ok\ntest_upload_rechecks_tag_before_selecting_files (__main__.ReleaseReadiness.test_upload_rechecks_tag_before_selecting_files) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 3.301s\n\nOK\n"
+      },
+      {
+        "label": "check-8",
+        "command": "bash tests/workflow-state-ci-integration.tests.sh",
+        "exitCode": 0,
+        "durationMs": 980,
+        "passed": true,
+        "error": null,
+        "stdout": "Core gate accepted the target baseline and rejected its unrecorded AC-001 change.\nWorkflow-state CI integration tests passed.\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-9",
+        "command": "python3 tests/lib/core-lifecycle-checks.py templates",
+        "exitCode": 0,
+        "durationMs": 539,
+        "passed": true,
+        "error": null,
+        "stdout": "Core gate blocked critical/major and accepted minor. Only the target PASS report enabled Done readiness.\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-10",
+        "command": "python3 tests/research-evidence.tests.py",
+        "exitCode": 0,
+        "durationMs": 489,
+        "passed": true,
+        "error": null,
+        "stdout": "",
+        "stderr": ".....................\n----------------------------------------------------------------------\nRan 21 tests in 0.438s\n\nOK\n"
+      },
+      {
+        "label": "check-11",
+        "command": "python3 tests/research-consumers.tests.py",
+        "exitCode": 0,
+        "durationMs": 349,
+        "passed": true,
+        "error": null,
+        "stdout": "",
+        "stderr": ".................\n----------------------------------------------------------------------\nRan 17 tests in 0.288s\n\nOK\n"
+      },
+      {
+        "label": "check-12",
+        "command": "python3 tests/design-sync-policy.tests.py",
+        "exitCode": 0,
+        "durationMs": 1160,
+        "passed": true,
+        "error": null,
+        "stdout": "",
+        "stderr": "test_alternative_provider_never_reports_claude_design_connected (__main__.PolicyTests.test_alternative_provider_never_reports_claude_design_connected) ... ok\ntest_core_delegates_provider_operations_to_the_shipped_resolver (__main__.PolicyTests.test_core_delegates_provider_operations_to_the_shipped_resolver) ... ok\ntest_decline_is_transient_and_grant_is_audited (__main__.PolicyTests.test_decline_is_transient_and_grant_is_audited) ... ok\ntest_default_unknown_and_case_variants_require_consent (__main__.PolicyTests.test_default_unknown_and_case_variants_require_consent) ... ok\ntest_design_sync_receipt_validator_enforces_provider_and_sqlite_gates (__main__.PolicyTests.test_design_sync_receipt_validator_enforces_provider_and_sqlite_gates) ... ok\ntest_exact_scope_and_latest_decision (__main__.PolicyTests.test_exact_scope_and_latest_decision) ... ok\ntest_invalid_input_never_authorizes_provider (__main__.PolicyTests.test_invalid_input_never_authorizes_provider) ... ok\ntest_local_routes_do_not_call_fake_provider (__main__.PolicyTests.test_local_routes_do_not_call_fake_provider) ... ok\ntest_off_and_setting_changes_override_previous_grants (__main__.PolicyTests.test_off_and_setting_changes_override_previous_grants) ... ok\ntest_off_record_does_not_override_new_per_feature_setting (__main__.PolicyTests.test_off_record_does_not_override_new_per_feature_setting) ... ok\ntest_pull_is_separate_from_upload_consent (__main__.PolicyTests.test_pull_is_separate_from_upload_consent) ... ok\ntest_pull_respects_egress_policy_without_upload_consent (__main__.PolicyTests.test_pull_respects_egress_policy_without_upload_consent) ... ok\ntest_scope_egress_prohibition_is_persisted (__main__.PolicyTests.test_scope_egress_prohibition_is_persisted) ... ok\ntest_standing_audits_once_per_feature_and_destination (__main__.PolicyTests.test_standing_audits_once_per_feature_and_destination) ... ok\n\n----------------------------------------------------------------------\nRan 14 tests in 1.120s\n\nOK\n"
+      },
+      {
+        "label": "check-13",
+        "command": "bash tests/emit-run-record-feature-scope.tests.sh",
+        "exitCode": 0,
+        "durationMs": 2715,
+        "passed": true,
+        "error": null,
+        "stdout": "ok: gate_reports.total counts only feat-a reports (.metrics.gate_reports.total = 3)\nok: feat-b's BLOCKED report is not counted for feat-a (.metrics.gate_reports.blocked = 0)\nok: max_runs_single_task reflects feat-a T-001 gated twice (.metrics.gate_reports.max_runs_single_task = 2)\nok: only feat-a T-002 passed on a single gate run (.metrics.first_pass_gate.passed_first_try = 1)\nok: review_tickets.major counts only feat-a tickets (.metrics.review_tickets.major = 1)\nok: feat-b's critical ticket is not counted for feat-a (.metrics.review_tickets.critical = 0)\nok: CRLF feat-a ticket severity is counted (.metrics.review_tickets.minor = 1)\nok: feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report (.metrics.gate_reports.total = 1)\nok: feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report -- the VERDICT: PASS report with body-text \"BLOCKED\" (AC-010), the VERDICT: NEEDS_WORK report (AC-008 negative), and the no-VERDICT-line report (AC-009) are all correctly excluded (.metrics.gate_reports.blocked = 1)\nok: AC-021: schema bumps to v2 when any --effort-* flag supplied (.schema = sdd-run-record/v2)\nok: AC-021: v1 field feature unchanged in v2 shape (.feature = feat-e021)\nok: AC-021: v1 field track unchanged in v2 shape (.track = lite)\nok: AC-021: v1 field model_ids.main unchanged in v2 shape (.model_ids.main = unknown)\nok: AC-021: effort.main has exactly the three subfields ((.effort.main | keys | sort) == ([\"effort_applied\",\"effort_degraded_reason\",\"effort_requested\"] | sort) = true)\nok: AC-021: effort.reviewers has exactly the three subfields ((.effort.reviewers | keys | sort) == ([\"effort_applied\",\"effort_degraded_reason\",\"effort_requested\"] | sort) = true)\nok: AC-033 matrix effort-only: existing v2 shape has no capability key (has(\"capability\") = false)\nok: AC-021: v1 metrics object unchanged in v2 shape (.metrics.tasks.total = 1)\nok: AC-022: effort_requested recorded on confirmed-applied outcome\nok: AC-022: effort_requested recorded on degraded (frontmatter) outcome\nok: AC-023 positive: effort_applied carries the confirmed value under flag control\nok: AC-023 negative: effort_applied is null under frontmatter control\nok: AC-023 negative: effort_applied is null under none control\nok: AC-023 negative: effort_applied is null when flag control declines application (none sentinel)\nok: AC-023 structural: --effort-applied-main with non-flag control is rejected fail-closed\nok: AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value\nok: AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied (effort-control-frontmatter)\nok: AC-024 vacuity: no reason recorded when --effort-main itself was never supplied for that slot\nok: AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code ({\n  \"effort_applied\": null,\n  \"effort_degraded_reason\": \"effort-control-frontmatter\"\n})\nok: AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)\nok: case-sensitivity: mis-cased --effort-control-main value is rejected fail-closed\nok: AC-033 matrix no flags: emits the unchanged v1 schema (.schema = sdd-run-record/v1)\nok: AC-033 matrix no flags: v1 shape has no effort key at all (has(\"effort\") = false)\nok: AC-033 matrix no flags: v1 shape has no capability key at all (has(\"capability\") = false)\nok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)\nok: AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)\nok: AC-033 matrix capability-only: exact usage error, exit 1, and no output record\nok: block-id-only: exact usage error, exit 1, and no output record\nok: block-id-only with an effort flag: still the block-id diagnostic, exit 1, no output record\nok: block_id serialization: a failing jq aborts non-zero and writes no record (exit=1)\nok: AC-033 matrix both: schema remains v2 (.schema = sdd-run-record/v2)\nok: AC-033 matrix both: effort sibling is present (has(\"effort\") = true)\nok: AC-012 matrix both: capability has exactly enforcement and block_id (((.capability // {}) | keys | sort) == ([\"block_id\",\"enforcement\"] | sort) = true)\nok: AC-012 matrix both: enforcement is persisted (.capability.enforcement = advisory)\nok: AC-012 matrix both: supplied block_id is persisted (.capability.block_id = resolver-no-match)\nok: AC-012 block_id: JSON-sensitive characters round-trip exactly (.capability.block_id = resolver-\"quoted\"\\path)\nok: AC-012 optional block_id: enforcement is persisted (.capability.enforcement = required)\nok: AC-012 optional block_id: omitted value serializes as null (.capability.block_id = null)\nok: case-sensitivity: mis-cased --capability-enforcement is rejected fail-closed\nok: AC-026: implementation-report.template.md carries the Model/Effort lines\nok: AC-026: validate-implementation-report.sh checks the Model/Effort lines\nok: AC-026: sdd-gate SKILL.md documents the Model/Effort Process instruction\nok: AC-026: validator accepts a report carrying well-formed Model/Effort lines\nok: AC-026: validator rejects a report missing the Model line\nok: AC-026: validator rejects a report missing the Effort line\nok: metadata quotes round-trip in v1/v2; failed output writes fail closed\nPASS: complete metrics with spaced paths; real unreadable task/report tree/ticket fail closed\nok: metric-source I/O failures do not become zero counts\n\nemit-run-record-feature-scope.tests.sh: 56 passed, 0 failed\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-14",
+        "command": "pwsh -NoProfile -File tests/emit-run-record-feature-scope.tests.ps1",
+        "exitCode": 0,
+        "durationMs": 16042,
+        "passed": true,
+        "error": null,
+        "stdout": "ok: gate_reports.total counts only feat-a reports (3)\nok: feat-b's BLOCKED report is not counted for feat-a (0)\nok: max_runs_single_task reflects feat-a T-001 gated twice (2)\nok: only feat-a T-002 passed on a single gate run (1)\nok: review_tickets.major counts only feat-a tickets (1)\nok: feat-b's critical ticket is not counted for feat-a (0)\nok: CRLF feat-a ticket severity is counted (1)\nok: feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report (1)\nok: feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report (VERDICT: PASS + body-text BLOCKED, VERDICT: NEEDS_WORK, and no-VERDICT-line reports all correctly excluded) (1)\nok: status token case is exact (1)\nok: literal report is counted and case-distinct feature reports excluded (1)\nok: case-distinct reports cannot add blocked metrics (0)\nok: AC-021: schema bumps to v2 when any -Effort* param bound (sdd-run-record/v2)\nok: AC-021: v1 field feature unchanged in v2 shape (feat-e021)\nok: AC-021: v1 field track unchanged in v2 shape (lite)\nok: AC-021: v1 field model_ids.main unchanged in v2 shape (unknown)\nok: AC-021: effort.main has exactly the three subfields (effort_applied,effort_degraded_reason,effort_requested)\nok: AC-021: effort.reviewers has exactly the three subfields (effort_applied,effort_degraded_reason,effort_requested)\nok: AC-033 matrix effort-only: existing v2 shape has no capability key (False)\nok: AC-021: v1 metrics object unchanged in v2 shape (1)\nok: AC-022: effort_requested recorded on confirmed-applied outcome\nok: AC-022: effort_requested recorded on degraded (frontmatter) outcome\nok: AC-023 positive: effort_applied carries the confirmed value under flag control\nok: AC-023 negative: effort_applied is null under frontmatter control\nok: AC-023 negative: effort_applied is null under none control\nok: AC-023 negative: effort_applied is null when flag control declines application (none sentinel)\nok: AC-023 structural: -EffortAppliedMain with non-flag control is rejected fail-closed\nok: AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value\nok: AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied (effort-control-frontmatter)\nok: AC-024 vacuity: no reason recorded when -EffortMain itself was never supplied for that slot\nok: AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code (effort-control-frontmatter)\nok: AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)\nok: case-sensitivity: mis-cased -EffortControlMain value is rejected fail-closed\nok: AC-033 matrix no flags: emits the unchanged v1 schema (sdd-run-record/v1)\nok: AC-033 matrix no flags: v1 shape has no effort key at all (False)\nok: AC-033 matrix no flags: v1 shape has no capability key at all (False)\nok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)\nok: AC-011: native newline byte guard rejects changed or missing newline (width=1)\nok: AC-011: native newline byte guard rejects changed or missing newline (width=1)\nok: AC-011: native newline byte guard rejects changed or missing newline (width=2)\nok: AC-011: native newline byte guard rejects changed or missing newline (width=2)\nok: AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)\nok: AC-033 matrix capability-only: exact usage error, exit 1, and no output record\nok: block-id-only: exact usage error, exit 1, and no output record\nok: block-id-only with an effort parameter: still the block-id diagnostic, exit 1, no output record\nok: block_id serialization: the .ps1 emitter uses no external JSON tool, so the .sh stub-jq failure mode is unreachable here\nok: AC-033 matrix both: schema remains v2 (sdd-run-record/v2)\nok: AC-033 matrix both: effort sibling is present (True)\nok: AC-012 matrix both: capability has exactly enforcement and block_id (block_id,enforcement)\nok: AC-012 matrix both: enforcement is persisted (advisory)\nok: AC-012 matrix both: supplied block_id is persisted (resolver-no-match)\nok: AC-012 block_id: JSON-sensitive characters round-trip exactly (resolver-\"quoted\"\\path)\nok: AC-012 optional block_id: enforcement is persisted (required)\nok: AC-012 optional block_id: omitted value serializes as null ()\nok: case-sensitivity: mis-cased -CapabilityEnforcement is rejected fail-closed\nok: AC-026: implementation-report.template.md carries the Model/Effort lines\nok: AC-026: validate-implementation-report.sh checks the Model/Effort lines\nok: AC-026: sdd-gate SKILL.md documents the Model/Effort Process instruction\nok: AC-026: validator accepts a report carrying well-formed Model/Effort lines\nok: AC-026: validator rejects a report missing the Model line\nok: AC-026: validator rejects a report missing the Effort line\n\nemit-run-record-feature-scope.tests.ps1: 61 passed, 0 failed\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-15",
+        "command": "node tests/lib/bootstrap-core-contracts.mjs interview",
+        "exitCode": 0,
+        "durationMs": 29,
+        "passed": true,
+        "error": null,
+        "stdout": "Verified Core interview\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-16",
+        "command": "node tests/lib/bootstrap-core-contracts.mjs layers",
+        "exitCode": 0,
+        "durationMs": 117,
+        "passed": true,
+        "error": null,
+        "stdout": "Verified Core layers\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-17",
+        "command": "node tests/lib/bootstrap-core-contracts.mjs traceability",
+        "exitCode": 0,
+        "durationMs": 115,
+        "passed": true,
+        "error": null,
+        "stdout": "Verified Core traceability\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-18",
+        "command": "node tests/lib/bootstrap-core-contracts.mjs design-system",
+        "exitCode": 0,
+        "durationMs": 92,
+        "passed": true,
+        "error": null,
+        "stdout": "Verified Core design-system\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-19",
+        "command": "node tests/lib/bootstrap-core-contracts.mjs tool-unavailable",
+        "exitCode": 0,
+        "durationMs": 26,
+        "passed": true,
+        "error": null,
+        "stdout": "Verified Core tool-unavailable\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-20",
+        "command": "node tests/lib/bootstrap-core-contracts.mjs auth-failed",
+        "exitCode": 0,
+        "durationMs": 25,
+        "passed": true,
+        "error": null,
+        "stdout": "Verified Core auth-failed\n",
+        "stderr": ""
+      }
+    ],
+    "rebuildDifferential": {
+      "skipped": true,
+      "passed": true
+    }
+  }
+}

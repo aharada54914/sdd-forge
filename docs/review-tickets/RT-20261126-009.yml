@@ -1,0 +1,19 @@
+ticket_id: RT-20261126-009
+status: resolved
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-004
+summary: "Invalid dates grant permanent agent-lint waivers"
+problem: |
+  In strict mode invalid-date and 2026-99-99 exempt a no-empty-catch finding and exit 0.
+expected_fix:
+  - Require a real calendar date and keep same-day expiry inclusive.
+  - Verify invalid strings, impossible dates and a valid leap day through the public CLI.
+references:
+  - reports/quality-gate/verification-first-factory-T-004.md
+resolution:
+  commit: dab8c531c
+  receipt: specs/verification-first-factory/verification/T-004/RT-20261126-009/test-receipt.json
+  result: "Invalid calendar dates do not waive findings. Valid leap dates and inclusive expiry are covered."

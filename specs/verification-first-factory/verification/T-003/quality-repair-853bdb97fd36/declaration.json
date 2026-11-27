@@ -1,0 +1,103 @@
+{
+  "schema": "supplemental-delivery-declaration/v1",
+  "feature": "verification-first-factory",
+  "task_id": "T-003",
+  "implementation_report": {
+    "path": "reports/implementation/verification-first-factory/T-003.md",
+    "sha256": "6c6667f18bf908c58c2ffbcdb5d1817785e99885185c77049b8ea26935f75b0b"
+  },
+  "artifacts": [
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "3cfcb6b3b11f672793b96c5945dc51b015028b4796d6ca56aba5bf7933c97055"
+    },
+    {
+      "path": "CODEOWNERS",
+      "sha256": "da1bbc91a4bf360b76da648ea886afd2d6e610a7bc7a31a784e78df05e41f73c"
+    },
+    {
+      "path": "README.md",
+      "sha256": "028c9391da940ed142f2ee442b7b086e406abaa114d58ada0f8caeaedd6983b7"
+    },
+    {
+      "path": "docs/architecture/verification-first-concept.md",
+      "sha256": "e8444cf5b9e9df940f2f4cd6f79069b1e02b0d2c5693b181613143fbe7d28269"
+    },
+    {
+      "path": "docs/operations/verification-catalog-status.md",
+      "sha256": "69414e4244a4b8d5845e36a9ca95474b4799e4db48115b712fd5a16f144cbef7"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/package-lock.json",
+      "sha256": "11c8bef06f85c87fcae33a7d471e9d0ac43f5432637331102a3f2b7619ba275d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/package.json",
+      "sha256": "61acad78570f9db3a87b424e27ff97c84fc7bff2a42b85a715bd4fec6364cdce"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/rules/source-ast.mjs",
+      "sha256": "bd55fc26a795ae02a83aca6596d4932ba09d7e9d4fd6ea5978a7ea678a81dabb"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+      "sha256": "0aaf0786d8161d109dd664bad873330a33507aa97eb053f17e86acef83651399"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05"
+    },
+    {
+      "path": "sdd/approved-test-retirements.json",
+      "sha256": "79e34a84d77f2cc10a807cd33210dbef8ae5764a36f1cc0e5d7d40a724e1dd8a"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-003/quality-repair-853bdb97fd36/catalog-inventory.json",
+      "sha256": "d4820b60c5edd8dc147558c0a7eb2e84e2b16b187825899268d9eee222fda560"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-003/quality-repair-853bdb97fd36/execution.json",
+      "sha256": "9e48a9b5909a2126545e30bf563e190e8f49868ac1ab09bebf64f9886286cb10"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-003/quality-repair-853bdb97fd36/repair.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-003/retirement-parity.md",
+      "sha256": "22247a8fc7a18b519c014c8ae6a0c75ccc2dabf28a7b4e2df4ba064fc334fdfe"
+    },
+    {
+      "path": "tests/doc-diagrams.tests.py",
+      "sha256": "6cea69023ea3bc1e0836bec17b3b3f761a6d5bf299e2c1cbdc93e19e94423190"
+    },
+    {
+      "path": "tests/self-fitness.test.mjs",
+      "sha256": "3b5ecc89cc650f5f18802321ff326919a188a4730c32b9ae59548a9f7c3414ab"
+    },
+    {
+      "path": "tests/verification-catalog-status.mjs",
+      "sha256": "385a4f65ff166acfd8e8784f5666f85a62c6e6b64315d5a9ae158538b024d5e7"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "sha256": "4980cfaaae427f4fa26e40ba744b918bc19028129efdf790e9853e9d90a3c1e1"
+    },
+    {
+      "path": "tests/verification-timings.json",
+      "sha256": "76f7b31490f174580f182c73143d172b227054556177591b252d6ed426499050"
+    },
+    {
+      "path": "tests/verification.py",
+      "sha256": "2e56fcd6a1fa3f751b87d2ee2536e82ce6a9cdf2ab93b1dc6f347cb2a24c996a"
+    }
+  ]
+}

@@ -1,0 +1,4283 @@
+diff --git a/docs/operations/verification-catalog-status.md b/docs/operations/verification-catalog-status.md
+index 562e8c7a8..3c261bac5 100644
+--- a/docs/operations/verification-catalog-status.md
++++ b/docs/operations/verification-catalog-status.md
+@@ -12,30 +12,28 @@
+ 
+ | カタログのジョブ名 | 現行に存在 | 登録数 | 実行中 | CI 外 | 廃止 |
+ |---|---|---|---|---|---|
+-| `cli-hook-enforcement` | no | 2 | 0 | 0 | 2 |
+ | `cloud-and-ddd` | yes | 3 | 3 | 0 | 0 |
+ | `cloud-native` | no | 6 | 4 | 2 | 0 |
+ | `coding-standards` | no | 2 | 0 | 2 | 0 |
+ | `installers` | yes | 7 | 2 | 5 | 0 |
+ | `interrupted-recovery` | no | 2 | 0 | 2 | 0 |
+ | `loops-routing` | no | 23 | 0 | 23 | 0 |
+-| `posix-regression` | no | 62 | 1 | 57 | 4 |
++| `posix-regression` | no | 58 | 1 | 57 | 0 |
+ | `sql-contract` | no | 1 | 1 | 0 | 0 |
+ | `sql-mysql` | no | 1 | 0 | 1 | 0 |
+ | `sql-postgres` | no | 1 | 0 | 1 | 0 |
+ | `sql-tsql` | no | 1 | 0 | 1 | 0 |
+-| `test` | no | 51 | 3 | 41 | 7 |
+-| `test-windows-heavy` | no | 20 | 0 | 17 | 3 |
+-| `version-gates` | no | 78 | 0 | 39 | 39 |
++| `test` | no | 44 | 3 | 41 | 0 |
++| `test-windows-heavy` | no | 17 | 0 | 17 | 0 |
++| `version-gates` | no | 39 | 0 | 39 | 0 |
+ | `version-gates-windows-bump` | no | 3 | 0 | 3 | 0 |
+-| `windows-powershell` | no | 2 | 0 | 1 | 1 |
++| `windows-powershell` | no | 1 | 0 | 1 | 0 |
+ 
+ ## `posix-regression` に登録されたスイート
+ 
+ | スイート | 状態 | 実行している現行ジョブ |
+ |---|---|---|
+ | `tests/codex-mcp-config.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+-| `tests/kill-switch-inspection.tests.sh` | 廃止（ファイルなし） | — |
+ | `tests/guard-stop-inspection.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+ | `tests/mcp-diagnostics-sharing.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+ | `tests/python-input-boundaries.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+@@ -70,8 +68,6 @@
+ | `tests/fixed-review-precheck-bash.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+ | `tests/fixed-review-precheck-ps.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+ | `tests/fixed-review-state.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+-| `tests/guard-dispatch-fallback.tests.sh` | 廃止（ファイルなし） | — |
+-| `tests/guard-negative-corpus.tests.sh` | 廃止（ファイルなし） | — |
+ | `tests/host-review-preflight.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+ | `tests/issue311-scratch-isolation.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+ | `tests/review-implementation-binding.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+@@ -81,7 +77,6 @@
+ | `tests/required-checks-posix.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+ | `tests/review-conditional-inputs.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+ | `tests/sdd-domain.tests.ps1` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+-| `tests/sdd-sudo-guard-mutation.tests.py` | 廃止（ファイルなし） | — |
+ | `tests/shared-launch-build.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+ | `tests/spec-review-verify-inputs.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+ | `tests/supplemental-delivery-declaration.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
+diff --git a/plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs b/plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs
+index 3703bf9bc..6e0dd75bf 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs
+@@ -31,15 +31,66 @@ export const DEFAULT_CONFIG = Object.freeze({
+   limits: {
+     max_auto_fix_rounds: 2,
+   },
++  formal_verification: {
++    enabled: false,
++    mode: 'shadow',
++    checker: {
++      adapter: 'tlc',
++      adapter_options: {
++        tlc: {},
++        apalache: {},
++        lean4: {},
++      },
++    },
++    trigger_tiers: ['high'],
++    timeout_sec: 120,
++    pr_total_budget_sec: 300,
++    on_timeout: 'fail',
++  },
++  agent_lint: {
++    enabled: false,
++    mode: 'shadow',
++    diff_only: true,
++    max_abstraction_depth: 6,
++    waivers: [],
++  },
++  security_audit: {
++    enabled: false,
++    mode: 'shadow',
++    enabled_adapters: ['builtin-secret-pattern', 'builtin-slopsquatting'],
++  },
++  anti_tampering: {
++    enabled: true,
++    mode: 'strict',
++    base_ref: 'HEAD',
++    retirements_manifest: 'sdd/approved-test-retirements.json',
++    protected_repo_paths: [
++      'sdd/guardrails.yaml',
++      'sdd/approved-test-retirements.json',
++      '.github/workflows/**',
++      'CODEOWNERS',
++    ],
++  },
+ });
+ 
+ export const VALID_MODES = new Set(['warn', 'confirm', 'strict']);
+ export const VALID_PRE_IMPL = new Set(['auto', 'always', 'off']);
+ export const VALID_RISK_TIERS = new Set(['low', 'standard', 'high']);
++export const VALID_FORMAL_ADAPTERS = new Set(['tlc', 'apalache', 'lean4', 'none']);
++export const VALID_SECURITY_ADAPTERS = new Set([
++  'builtin-secret-pattern',
++  'builtin-slopsquatting',
++  'semgrep',
++  'gitleaks',
++  'trufflehog',
++  'codeql',
++  'socket',
++]);
++export const VALID_GATE_MODES = new Set(['off', 'shadow', 'warn', 'strict']);
++export const VALID_ANTI_TAMPER_MODES = new Set(['off', 'warn', 'strict']);
+ 
+ const APPROVAL_LINE_RE = /(?:^|\n)[ \t]*Approval:[ \t]*Approved\b/g;
+ const DOMAIN_MODEL_APPROVAL_RE = /(?:^|\n)[ \t]*Domain-Model-Status:[ \t]*Approved\b/g;
+-const STATUS_LINE_RE = /^[ \t]*Status:[ \t]*.*$/gm;
+ const AMENDMENT_HEADING_RE = /^(#{2,3})[ \t]+Spec Amendments[ \t]*$/im;
+ const IDENTIFIER_LINE_RE =
+   /^[ \t]*(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)(?:\*\*)?(?:[ \t]*[（(][^）)\n]+[）)])?(?:\*\*)?[ \t]*[:：][^\n]*$/gm;
+@@ -112,11 +163,64 @@ export function stripYamlComment(line) {
+   return line;
+ }
+ 
++// Split only at top-level commas so quoted strings and nested collections remain intact.
++function flowItems(text) {
++  const entries = [];
++  const closers = [];
++  let quote = '';
++  let atScalarStart = true;
++  let start = 0;
++  for (let i = 0; i < text.length; i += 1) {
++    const ch = text[i];
++    if (quote) {
++      if (ch === '\\' && quote === '"') i += 1;
++      else if (ch === "'" && quote === "'" && text[i + 1] === "'") i += 1;
++      else if (ch === quote) quote = '';
++    } else if (atScalarStart && (ch === '"' || ch === "'")) {
++      quote = ch;
++      atScalarStart = false;
++    } else if (ch === '[' || ch === '{') {
++      closers.push(ch === '[' ? ']' : '}');
++      atScalarStart = true;
++    } else if (ch === ']' || ch === '}') {
++      if (closers.pop() !== ch) throw new Error('Unbalanced YAML flow collection');
++      atScalarStart = false;
++    } else if (ch === ',' || ch === ':') {
++      if (ch === ',' && !closers.length) {
++        entries.push(text.slice(start, i).trim());
++        start = i + 1;
++      }
++      atScalarStart = true;
++    } else if (ch.trim()) {
++      atScalarStart = false;
++    }
++  }
++  if (quote || closers.length) throw new Error('Unterminated YAML flow collection');
++  const last = text.slice(start).trim();
++  if (last) entries.push(last);
++  if (entries.includes('')) throw new Error('Empty YAML flow collection entry');
++  return entries;
++}
++
+ function parseYamlScalar(raw) {
+   const trimmed = raw.trim();
+   if (trimmed === 'true') return true;
+   if (trimmed === 'false') return false;
+   if (trimmed === 'null' || trimmed === '~') return null;
++  if (trimmed === '[]') return [];
++  if (trimmed === '{}') return {};
++  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
++    const map = trimmed.startsWith('{');
++    if (!trimmed.endsWith(map ? '}' : ']')) throw new Error('Expected a complete single-line YAML flow collection');
++    const parts = flowItems(trimmed.slice(1, -1));
++    if (!map) return parts.map(parseYamlScalar);
++    return Object.fromEntries(parts.map((entry) => {
++      const match = /^("[^"]+"|'[^']+'|[\w.-]+)\s*:\s*(.*)$/.exec(entry);
++      if (!match) throw new Error('Unsupported YAML flow entry: use an indented mapping');
++      const key = match[1].replace(/^(['"])(.*)\1$/, '$2');
++      return [key, match[2] ? parseYamlScalar(match[2]) : null];
++    }));
++  }
+   if (/^-?\d+(?:\.\d+)?$/.test(trimmed)) return Number(trimmed);
+   if (
+     (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+@@ -128,62 +232,307 @@ function parseYamlScalar(raw) {
+ }
+ 
+ /**
+- * Minimal deterministic parser for 2-level YAML config files (maps, scalars, string lists).
++ * Minimal deterministic parser for nested YAML config files
++ * (maps, scalars, scalar lists, and lists of maps).
+  */
+ export function parseSimpleYaml(text) {
+-  const root = {};
+-  const lines = normalizeNewlines(text).split('\n');
+-  let currentSection = null;
+-  let currentListKey = null;
+-
+-  for (const rawLine of lines) {
++  const rawLines = normalizeNewlines(text).split('\n');
++  const tokens = [];
++  for (const rawLine of rawLines) {
+     const cleaned = stripYamlComment(rawLine).replace(/\s+$/, '');
+     if (!cleaned.trim()) continue;
+-
+     const indent = cleaned.length - cleaned.trimStart().length;
+-    const content = cleaned.trim();
+-
+-    if (indent === 0) {
+-      currentListKey = null;
+-      const idx = content.indexOf(':');
+-      if (idx === -1) continue;
+-      const key = content.slice(0, idx).trim();
+-      const rest = content.slice(idx + 1).trim();
++    tokens.push({ indent, content: cleaned.trim() });
++  }
++
++  function parseBlock(startIdx, minIndent) {
++    if (startIdx >= tokens.length) return { value: {}, nextIdx: startIdx };
++    const first = tokens[startIdx];
++    if (first.content.startsWith('- ') || first.content === '-') {
++      const list = [];
++      let i = startIdx;
++      while (i < tokens.length && tokens[i].indent === first.indent && (tokens[i].content.startsWith('- ') || tokens[i].content === '-')) {
++        const afterDash = tokens[i].content === '-' ? '' : tokens[i].content.slice(2).trim();
++        const itemIndent = tokens[i].indent;
++        i += 1;
++        if (!afterDash) {
++          if (i < tokens.length && tokens[i].indent > itemIndent) {
++            const sub = parseBlock(i, tokens[i].indent);
++            list.push(sub.value);
++            i = sub.nextIdx;
++          } else {
++            list.push(null);
++          }
++          continue;
++        }
++        const colonIdx = afterDash.indexOf(':');
++        const looksLikeMapEntry =
++          colonIdx > 0 &&
++          !afterDash.startsWith('{') &&
++          !afterDash.startsWith('[') &&
++          !afterDash.startsWith('"') &&
++          !afterDash.startsWith("'") &&
++          (colonIdx === afterDash.length - 1 || afterDash[colonIdx + 1] === ' ');
++        if (looksLikeMapEntry) {
++          const obj = {};
++          const k = afterDash.slice(0, colonIdx).trim();
++          const rest = afterDash.slice(colonIdx + 1).trim();
++          if (rest === '') {
++            if (i < tokens.length && tokens[i].indent > itemIndent) {
++              const sub = parseBlock(i, tokens[i].indent);
++              obj[k] = sub.value;
++              i = sub.nextIdx;
++            } else {
++              obj[k] = {};
++            }
++          } else {
++            obj[k] = parseYamlScalar(rest);
++          }
++          while (i < tokens.length && tokens[i].indent > itemIndent) {
++            const propLine = tokens[i].content;
++            if (propLine.startsWith('- ')) break;
++            const cIdx = propLine.indexOf(':');
++            if (cIdx === -1) {
++              i += 1;
++              continue;
++            }
++            const pk = propLine.slice(0, cIdx).trim();
++            const prest = propLine.slice(cIdx + 1).trim();
++            const pIndent = tokens[i].indent;
++            i += 1;
++            if (prest === '') {
++              if (i < tokens.length && tokens[i].indent > pIndent) {
++                const sub = parseBlock(i, tokens[i].indent);
++                obj[pk] = sub.value;
++                i = sub.nextIdx;
++              } else {
++                obj[pk] = [];
++              }
++            } else {
++              obj[pk] = parseYamlScalar(prest);
++            }
++          }
++          list.push(obj);
++        } else {
++          list.push(parseYamlScalar(afterDash));
++        }
++      }
++      return { value: list, nextIdx: i };
++    }
++
++    const map = {};
++    let i = startIdx;
++    while (i < tokens.length && tokens[i].indent >= minIndent) {
++      if (tokens[i].indent > minIndent) {
++        i += 1;
++        continue;
++      }
++      const line = tokens[i].content;
++      if (line.startsWith('- ')) break;
++      const idx = line.indexOf(':');
++      if (idx === -1) {
++        i += 1;
++        continue;
++      }
++      const key = line.slice(0, idx).trim();
++      const rest = line.slice(idx + 1).trim();
++      const keyIndent = tokens[i].indent;
++      i += 1;
+       if (rest === '') {
+-        root[key] = {};
+-        currentSection = key;
++        if (i < tokens.length && tokens[i].indent > keyIndent) {
++          const sub = parseBlock(i, tokens[i].indent);
++          map[key] = sub.value;
++          i = sub.nextIdx;
++        } else {
++          map[key] = {};
++        }
+       } else {
+-        root[key] = parseYamlScalar(rest);
+-        currentSection = null;
++        map[key] = parseYamlScalar(rest);
++      }
++    }
++    return { value: map, nextIdx: i };
++  }
++
++  if (tokens.length === 0) return {};
++  if (tokens[0].content.startsWith('{')) {
++    if (tokens.length !== 1) throw new Error('Use a single-line or indented YAML mapping');
++    return parseYamlScalar(tokens[0].content);
++  }
++  return parseBlock(0, tokens[0].indent).value;
++}
++
++function findForbiddenKeys(obj, prefix, forbiddenNames, out = []) {
++  if (!obj || typeof obj !== 'object') return out;
++  if (Array.isArray(obj)) {
++    obj.forEach((item, idx) => findForbiddenKeys(item, `${prefix}[${idx}]`, forbiddenNames, out));
++    return out;
++  }
++  for (const [k, v] of Object.entries(obj)) {
++    const keyPath = prefix ? `${prefix}.${k}` : k;
++    if (forbiddenNames.has(k.toLowerCase())) {
++      out.push(keyPath);
++    }
++    if (v && typeof v === 'object') {
++      findForbiddenKeys(v, keyPath, forbiddenNames, out);
++    }
++  }
++  return out;
++}
++
++/**
++ * Validates optional ADR-0054 v2.2 guardrails extensions (REQ-009, REQ-012).
++ * Rejects arbitrary `command` keys in `security_audit` / `formal_verification`
++ * and rejects any formal or security adapter outside the fixed allowlists.
++ */
++export function validateGuardrailsExtensions(parsed) {
++  const errors = [];
++  if (!parsed || typeof parsed !== 'object') return errors;
++
++  const forbiddenNames = new Set(['command', 'shell', 'exec', 'cmd']);
++
++  for (const key of ['formal_verification', 'agent_lint', 'security_audit', 'anti_tampering']) {
++    const section = parsed[key];
++    if (section !== undefined && (!section || typeof section !== 'object' || Array.isArray(section))) {
++      errors.push({ code: 'INVALID_EXTENSION_SECTION', path: key,
++        message: key + ' must be a mapping', action: 'Specify named settings in a mapping' });
++    }
++  }
++
++  if (parsed.formal_verification && typeof parsed.formal_verification === 'object') {
++    const fv = parsed.formal_verification;
++    const options = fv.checker?.adapter_options;
++    for (const name of ['tlc', 'apalache']) {
++      const jar = options?.[name]?.jar;
++      if (jar !== undefined && (typeof jar !== 'string' || !jar.trim() || jar.includes('\0'))) {
++        const key = 'formal_verification.checker.adapter_options.' + name + '.jar';
++        errors.push({ code: 'INVALID_CHECKER_JAR', path: key,
++          message: key + ' must be a nonempty path string', action: 'Specify a path to the checker JAR' });
++      }
++    }
++    for (const field of ['timeout_sec', 'pr_total_budget_sec']) {
++      if (fv[field] !== undefined && (!Number.isSafeInteger(fv[field]) || fv[field] < 1 || fv[field] > 2147483)) {
++        errors.push({code:'INVALID_FORMAL_BUDGET',path:'formal_verification.'+field,
++          message: field+' must be a positive timeout in seconds',action:'Use an integer from 1 to 2147483'});
+       }
+-      continue;
+     }
++    if (fv.on_timeout !== undefined && fv.on_timeout !== 'fail') {
++      errors.push({code:'INVALID_TIMEOUT_POLICY',path:'formal_verification.on_timeout',
++        message:'Unsupported timeout policy',action:'Set on_timeout to fail'});
++    }
++    for (const kp of findForbiddenKeys(fv, 'formal_verification', forbiddenNames)) {
++      errors.push({
++        code: 'FORBIDDEN_COMMAND_KEY',
++        path: kp,
++        message: `任意コマンド実行キー (${kp}) は禁止されています（固定アダプタアローリストのみ許可）`,
++        action: `${kp} を削除し、formal_verification.checker.adapter に tlc | apalache | lean4 | none を指定してください`,
++      });
++    }
++    if (fv.mode !== undefined && !VALID_GATE_MODES.has(fv.mode)) {
++      errors.push({
++        code: 'INVALID_GATE_MODE',
++        path: 'formal_verification.mode',
++        message: `不正な formal_verification.mode: ${fv.mode}`,
++        action: 'off | shadow | warn | strict のいずれかを指定してください',
++      });
++    }
++    const adapter = fv.checker && typeof fv.checker === 'object' ? fv.checker.adapter : fv.adapter;
++    if (adapter !== undefined && !VALID_FORMAL_ADAPTERS.has(String(adapter))) {
++      errors.push({
++        code: 'UNALLOWED_FORMAL_ADAPTER',
++        path: 'formal_verification.checker.adapter',
++        message: `未許可の形式検証アダプタ: ${adapter}`,
++        action: `許可されたアダプタ (${[...VALID_FORMAL_ADAPTERS].join(' | ')}) のいずれかを指定してください`,
++      });
++    }
++  }
+ 
+-    if (content.startsWith('- ')) {
+-      const value = parseYamlScalar(content.slice(2));
+-      if (currentSection && currentListKey) {
+-        if (!Array.isArray(root[currentSection][currentListKey])) {
+-          root[currentSection][currentListKey] = [];
++  if (parsed.agent_lint && typeof parsed.agent_lint === 'object') {
++    const al = parsed.agent_lint;
++    if (al.max_abstraction_depth !== undefined &&
++      (!Number.isSafeInteger(al.max_abstraction_depth) || al.max_abstraction_depth < 1)) {
++      errors.push({
++        code: 'INVALID_ABSTRACTION_DEPTH',
++        path: 'agent_lint.max_abstraction_depth',
++        message: 'max_abstraction_depth は正の整数で指定してください',
++        action: '1 以上の整数を指定してください',
++      });
++    }
++    if (al.mode !== undefined && !VALID_GATE_MODES.has(al.mode)) {
++      errors.push({
++        code: 'INVALID_GATE_MODE',
++        path: 'agent_lint.mode',
++        message: `不正な agent_lint.mode: ${al.mode}`,
++        action: 'off | shadow | warn | strict のいずれかを指定してください',
++      });
++    }
++    if (Array.isArray(al.waivers)) {
++      al.waivers.forEach((w, idx) => {
++        if (!w || typeof w !== 'object' || !w.rule || !w.path || !/^\d{4}-\d{2}-\d{2}$/.test(String(w.expires_on || ''))) {
++          errors.push({
++            code: 'INVALID_WAIVER_ENTRY',
++            path: `agent_lint.waivers[${idx}]`,
++            message: `agent_lint.waivers[${idx}] に必須項目 (rule, path, expires_on: YYYY-MM-DD) が不足しています`,
++            action: 'rule, path, reason, expires_on (YYYY-MM-DD) を明記してください',
++          });
++        }
++      });
++    }
++  }
++
++  if (parsed.security_audit && typeof parsed.security_audit === 'object') {
++    const sa = parsed.security_audit;
++    for (const kp of findForbiddenKeys(sa, 'security_audit', forbiddenNames)) {
++      errors.push({
++        code: 'FORBIDDEN_COMMAND_KEY',
++        path: kp,
++        message: `security_audit 内の任意コマンド実行キー (${kp}) は禁止されています`,
++        action: `${kp} を削除し、security_audit.enabled_adapters に許可アダプタ ID のみ指定してください`,
++      });
++    }
++    if (sa.mode !== undefined && !VALID_GATE_MODES.has(sa.mode)) {
++      errors.push({
++        code: 'INVALID_GATE_MODE',
++        path: 'security_audit.mode',
++        message: `不正な security_audit.mode: ${sa.mode}`,
++        action: 'off | shadow | warn | strict のいずれかを指定してください',
++      });
++    }
++    if (sa.enabled_adapters !== undefined) {
++      if (!Array.isArray(sa.enabled_adapters)) {
++        errors.push({
++          code: 'INVALID_SECURITY_ADAPTERS',
++          path: 'security_audit.enabled_adapters',
++          message: 'security_audit.enabled_adapters は配列で指定してください',
++          action: `許可アダプタ (${[...VALID_SECURITY_ADAPTERS].join(', ')}) の配列を指定してください`,
++        });
++      } else {
++        for (const adapter of sa.enabled_adapters) {
++          if (!VALID_SECURITY_ADAPTERS.has(String(adapter))) {
++            errors.push({
++              code: 'UNALLOWED_SECURITY_ADAPTER',
++              path: 'security_audit.enabled_adapters',
++              message: `未許可のセキュリティアダプタ: ${adapter}`,
++              action: `許可されたアダプタ (${[...VALID_SECURITY_ADAPTERS].join(', ')}) のみ指定してください`,
++            });
++          }
+         }
+-        root[currentSection][currentListKey].push(value);
+       }
+-      continue;
+     }
++  }
+ 
+-    const idx = content.indexOf(':');
+-    if (idx === -1 || !currentSection) continue;
+-    const key = content.slice(0, idx).trim();
+-    const rest = content.slice(idx + 1).trim();
+-    if (rest === '') {
+-      root[currentSection][key] = [];
+-      currentListKey = key;
+-    } else {
+-      root[currentSection][key] = parseYamlScalar(rest);
+-      currentListKey = null;
++  if (parsed.anti_tampering && typeof parsed.anti_tampering === 'object') {
++    const at = parsed.anti_tampering;
++    if (at.mode !== undefined && !VALID_ANTI_TAMPER_MODES.has(at.mode)) {
++      errors.push({
++        code: 'INVALID_ANTI_TAMPER_MODE',
++        path: 'anti_tampering.mode',
++        message: `不正な anti_tampering.mode: ${at.mode}`,
++        action: 'off | warn | strict のいずれかを指定してください',
++      });
+     }
+   }
+ 
+-  return root;
++  return errors;
+ }
+ 
+ export function normalizeGuardrailsConfig(parsed, sourcePath = null) {
+@@ -191,6 +540,10 @@ export function normalizeGuardrailsConfig(parsed, sourcePath = null) {
+   const rv = parsed && typeof parsed.review === 'object' && parsed.review ? parsed.review : {};
+   const rd = parsed && typeof parsed.risk_defaults === 'object' && parsed.risk_defaults ? parsed.risk_defaults : {};
+   const lm = parsed && typeof parsed.limits === 'object' && parsed.limits ? parsed.limits : {};
++  const fv = parsed && typeof parsed.formal_verification === 'object' && parsed.formal_verification ? parsed.formal_verification : {};
++  const al = parsed && typeof parsed.agent_lint === 'object' && parsed.agent_lint ? parsed.agent_lint : {};
++  const sa = parsed && typeof parsed.security_audit === 'object' && parsed.security_audit ? parsed.security_audit : {};
++  const at = parsed && typeof parsed.anti_tampering === 'object' && parsed.anti_tampering ? parsed.anti_tampering : {};
+ 
+   const maxAutoFix =
+     typeof lm.max_auto_fix_rounds === 'number' &&
+@@ -200,6 +553,14 @@ export function normalizeGuardrailsConfig(parsed, sourcePath = null) {
+       ? lm.max_auto_fix_rounds
+       : DEFAULT_CONFIG.limits.max_auto_fix_rounds;
+ 
++  const fvChecker = fv.checker && typeof fv.checker === 'object' ? fv.checker : {};
++  const fvAdapter = VALID_FORMAL_ADAPTERS.has(fvChecker.adapter)
++    ? fvChecker.adapter
++    : VALID_FORMAL_ADAPTERS.has(fv.adapter)
++      ? fv.adapter
++      : DEFAULT_CONFIG.formal_verification.checker.adapter;
++  const fvAdapterOpts = fvChecker.adapter_options && typeof fvChecker.adapter_options === 'object' ? fvChecker.adapter_options : {};
++
+   return {
+     schema: 'sdd-guardrails/v1',
+     sourcePath,
+@@ -229,6 +590,54 @@ export function normalizeGuardrailsConfig(parsed, sourcePath = null) {
+     limits: {
+       max_auto_fix_rounds: maxAutoFix,
+     },
++    formal_verification: {
++      enabled: typeof fv.enabled === 'boolean' ? fv.enabled : DEFAULT_CONFIG.formal_verification.enabled,
++      mode: VALID_GATE_MODES.has(fv.mode) ? fv.mode : DEFAULT_CONFIG.formal_verification.mode,
++      checker: {
++        adapter: fvAdapter,
++        adapter_options: {
++          tlc: fvAdapterOpts.tlc && typeof fvAdapterOpts.tlc === 'object' ? { ...fvAdapterOpts.tlc } : {},
++          apalache: fvAdapterOpts.apalache && typeof fvAdapterOpts.apalache === 'object' ? { ...fvAdapterOpts.apalache } : {},
++          lean4: fvAdapterOpts.lean4 && typeof fvAdapterOpts.lean4 === 'object' ? { ...fvAdapterOpts.lean4 } : {},
++        },
++      },
++      timeout_sec: Number.isSafeInteger(fv.timeout_sec) && fv.timeout_sec > 0 ? fv.timeout_sec : DEFAULT_CONFIG.formal_verification.timeout_sec,
++      pr_total_budget_sec: Number.isSafeInteger(fv.pr_total_budget_sec) && fv.pr_total_budget_sec > 0 ? fv.pr_total_budget_sec : DEFAULT_CONFIG.formal_verification.pr_total_budget_sec,
++      on_timeout: 'fail',
++      trigger_tiers:
++        Array.isArray(fv.trigger_tiers) && fv.trigger_tiers.length > 0
++          ? fv.trigger_tiers.map((t) => String(t))
++          : [...DEFAULT_CONFIG.formal_verification.trigger_tiers],
++    },
++    agent_lint: {
++      enabled: typeof al.enabled === 'boolean' ? al.enabled : DEFAULT_CONFIG.agent_lint.enabled,
++      mode: VALID_GATE_MODES.has(al.mode) ? al.mode : DEFAULT_CONFIG.agent_lint.mode,
++      diff_only: typeof al.diff_only === 'boolean' ? al.diff_only : DEFAULT_CONFIG.agent_lint.diff_only,
++      max_abstraction_depth: Number.isSafeInteger(al.max_abstraction_depth) && al.max_abstraction_depth > 0
++        ? al.max_abstraction_depth : DEFAULT_CONFIG.agent_lint.max_abstraction_depth,
++      waivers: Array.isArray(al.waivers) ? al.waivers.filter((w) => w && typeof w === 'object') : [],
++    },
++    security_audit: {
++      enabled: typeof sa.enabled === 'boolean' ? sa.enabled : DEFAULT_CONFIG.security_audit.enabled,
++      mode: VALID_GATE_MODES.has(sa.mode) ? sa.mode : DEFAULT_CONFIG.security_audit.mode,
++      enabled_adapters:
++        Array.isArray(sa.enabled_adapters) && sa.enabled_adapters.length > 0
++          ? sa.enabled_adapters.map((a) => String(a)).filter((a) => VALID_SECURITY_ADAPTERS.has(a))
++          : [...DEFAULT_CONFIG.security_audit.enabled_adapters],
++    },
++    anti_tampering: {
++      enabled: typeof at.enabled === 'boolean' ? at.enabled : DEFAULT_CONFIG.anti_tampering.enabled,
++      mode: VALID_ANTI_TAMPER_MODES.has(at.mode) ? at.mode : DEFAULT_CONFIG.anti_tampering.mode,
++      base_ref: typeof at.base_ref === 'string' && at.base_ref.trim() ? at.base_ref.trim() : DEFAULT_CONFIG.anti_tampering.base_ref,
++      retirements_manifest:
++        typeof at.retirements_manifest === 'string' && at.retirements_manifest.trim()
++          ? at.retirements_manifest.trim()
++          : DEFAULT_CONFIG.anti_tampering.retirements_manifest,
++      protected_repo_paths:
++        Array.isArray(at.protected_repo_paths) && at.protected_repo_paths.length > 0
++          ? at.protected_repo_paths.map((p) => String(p))
++          : [...DEFAULT_CONFIG.anti_tampering.protected_repo_paths],
++    },
+   };
+ }
+ 
+@@ -292,9 +701,51 @@ export function countDomainModelApprovals(text) {
+   return (normalizeNewlines(text).match(DOMAIN_MODEL_APPROVAL_RE) || []).length;
+ }
+ 
++// Preserve fenced bytes for evidence while keeping examples out of the plan grammar.
++export function* markdownLines(text) {
++  let fence = '';
++  for (const line of normalizeNewlines(text || '').split('\n')) {
++    const marker = /^[ \t]*(`{3,}|~{3,})(.*)$/.exec(line);
++    const fenced = Boolean(fence || marker);
++    if (marker && !fence) fence = marker[1];
++    else if (marker && marker[1].startsWith(fence) && !marker[2].trim()) fence = '';
++    yield { line, fenced };
++  }
++}
++
++export function taskHeading(line) {
++  return /^#{2,3}[ \t]+(T-[A-Za-z0-9._-]+)(?:(?:[ \t]*:[ \t]*|[ \t]+)(.*))?$/i.exec(line.trimEnd());
++}
++
++const TASK_FIELD = /^[ \t]*(?:-[ \t]*)?(?:\*\*)?(Approval|Status|Risk|Scope):(?:\*\*)?[ \t]*(.*?)[ \t]*$/i;
++
++export function taskField(line) {
++  const match = TASK_FIELD.exec(line);
++  if (!match) return null;
++  return { name: match[1].toLowerCase(), raw: match[2], value: match[2].trim().replace(/^[`*_]+|[`*_]+$/g, '') };
++}
++
++export function normalizeTaskFields(text, { approval = false, evidence = false } = {}) {
++  let inTask = false;
++  return Array.from(markdownLines(text), ({ line, fenced }) => {
++    if (fenced) return line;
++    if (taskHeading(line)) inTask = true;
++    else if (/^##[ \t]+\S/.test(line)) inTask = false;
++    const field = taskField(line);
++    if (!field || (!inTask && !/^[ \t]*(?:Status|Approval):/.test(line))) return line;
++    if (field.name === 'status') return evidence ? '<NORMALIZED>' : 'Status: <NORMALIZED>';
++    if (approval && field.name === 'approval' && (field.value === 'Draft' || isApprovedValue(field.value))) {
++      return evidence ? '<NORMALIZED>' : 'Approval: <NORMALIZED>';
++    }
++    return line;
++  }).join('\n');
++}
++
+ function parseSpecAmendmentsSection(text) {
+   const normalized = normalizeNewlines(text);
+-  const match = AMENDMENT_HEADING_RE.exec(normalized);
++  // Mask fenced headings without shifting source offsets.
++  const headings = Array.from(markdownLines(normalized), ({ line, fenced }) => fenced ? ' '.repeat(line.length) : line).join('\n');
++  const match = AMENDMENT_HEADING_RE.exec(headings);
+   if (!match) {
+     return {
+       beforeAmendments: normalized,
+@@ -313,7 +764,7 @@ function parseSpecAmendmentsSection(text) {
+   const rest = normalized.slice(afterHeadingStart);
+ 
+   const nextHeadingRe = new RegExp(`^#{1,${headingLevel}}[ \\t]+\\S`, 'm');
+-  const nextMatch = nextHeadingRe.exec(rest);
++  const nextMatch = nextHeadingRe.exec(headings.slice(afterHeadingStart));
+ 
+   if (!nextMatch) {
+     return {
+@@ -385,7 +836,7 @@ export function canonicalSpecContractText(text, fileName) {
+   const { beforeAmendments, afterAmendments } = splitSpecAmendments(text);
+   let combined = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
+   if (String(fileName || '').toLowerCase() === 'tasks.md') {
+-    combined = combined.replace(STATUS_LINE_RE, 'Status: <NORMALIZED>');
++    combined = normalizeTaskFields(combined);
+   }
+   return combined.trim();
+ }
+@@ -396,8 +847,8 @@ export function isSafeSpecEditOnly(oldContent, newContent, fileName, allowAmendm
+     return canonicalSpecContractText(oldContent, lower) === canonicalSpecContractText(newContent, lower);
+   }
+   if (lower === 'tasks.md') {
+-    const oldNorm = normalizeNewlines(oldContent).replace(STATUS_LINE_RE, 'Status: <NORMALIZED>').trim();
+-    const newNorm = normalizeNewlines(newContent).replace(STATUS_LINE_RE, 'Status: <NORMALIZED>').trim();
++    const oldNorm = normalizeTaskFields(oldContent).trim();
++    const newNorm = normalizeTaskFields(newContent).trim();
+     return oldNorm === newNorm;
+   }
+   return normalizeNewlines(oldContent).trim() === normalizeNewlines(newContent).trim();
+diff --git a/plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs b/plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
+index 951c07c81..f84228527 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
+@@ -11,13 +11,14 @@ import path from 'node:path';
+ import {
+   assertValidFeatureName,
+   canonicalSpecContractText,
+-  countPrimaryApprovals,
+   extractAmendmentEntries,
+   extractSpecIdentifiers,
+   globToRegExp,
+   isApprovedValue,
+   matchProtectedSpecRelPath,
++  markdownLines,
+   normalizeGuardrailsConfig,
++  normalizeTaskFields,
+   normalizeNewlines,
+   normalizeRelPath,
+   parseSimpleYaml,
+@@ -25,9 +26,12 @@ import {
+   sha256Text,
+   splitSpecAmendments,
+   stripYamlComment,
++  taskField,
++  taskHeading,
+   VALID_MODES,
+   VALID_PRE_IMPL,
+   VALID_RISK_TIERS,
++  validateGuardrailsExtensions,
+ } from './v2-pure-lib.mjs';
+ 
+ const CONFIRMED_STATUS_RE = /^(?:confirmed|resolved|closed|確定)$/i;
+@@ -130,25 +134,7 @@ export function loadGuardrailsConfigFromIo(io) {
+ }
+ 
+ export function stripFencedCodeBlocks(text) {
+-  const lines = normalizeNewlines(text || '').split('\n');
+-  const out = [];
+-  let inFence = false;
+-  let fenceChar = '';
+-  for (const line of lines) {
+-    const m = line.match(/^[ \t]*(`{3,}|~{3,})/);
+-    if (m) {
+-      if (!inFence) {
+-        inFence = true;
+-        fenceChar = m[1][0];
+-      } else if (m[1][0] === fenceChar) {
+-        inFence = false;
+-        fenceChar = '';
+-      }
+-      continue;
+-    }
+-    if (!inFence) out.push(line);
+-  }
+-  return out.join('\n');
++  return [...markdownLines(text)].filter(({ fenced }) => !fenced).map(({ line }) => line).join('\n');
+ }
+ 
+ export function splitMarkdownTableRow(line) {
+@@ -375,11 +361,12 @@ function extractDeclaredBlockers(taskBlock) {
+ }
+ 
+ export function extractScopePaths(taskBlock) {
++  const inline = taskBlock.split('\n').map(taskField).find((field) => field?.name === 'scope' && field.raw);
+   const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
+-  if (!scopeMatch) return [];
+-  const rest = taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
++  if (!inline && !scopeMatch) return [];
++  const rest = inline ? '' : taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
+   const nextSub = /^###[ \t]+\S/m.exec(rest);
+-  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
++  const section = inline ? `- ${stripScopeNote(inline.raw)}` : (nextSub ? rest.slice(0, nextSub.index) : rest);
+   const paths = [];
+   for (const line of section.split('\n')) {
+     const trimmed = line.trim();
+@@ -419,6 +406,14 @@ function stripScopeNote(token) {
+   let out = '';
+   for (let i = 0; i < text.length; i += 1) {
+     const ch = text[i];
++    if (ch === '`') {
++      const end = text.indexOf('`', i + 1);
++      if (end !== -1) {
++        out += text.slice(i, end + 1);
++        i = end;
++        continue;
++      }
++    }
+     if (ch !== '(' && ch !== '（') {
+       out += ch;
+       continue;
+@@ -496,46 +491,62 @@ export function normalizeRiskTier(raw, fallback = 'standard') {
+   return fallback;
+ }
+ 
++// One structural scan for the CLI, public read-only views and evidence hashing.
++function taskSections(text) {
++  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text || '');
++  const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
++  const sections = [];
++  let current = null;
++  for (const { line, fenced } of markdownLines(body)) {
++    const heading = !fenced && taskHeading(line);
++    if (heading) {
++      current = { id: heading[1].toUpperCase(), title: (heading[2] || '').trim(), raw: [line], body: [], fields: {} };
++      sections.push(current);
++    } else if (!fenced && /^##[ \t]+\S/.test(line)) {
++      current = null;
++    } else if (current) {
++      current.raw.push(line);
++      if (fenced) continue;
++      current.body.push(line);
++      const field = taskField(line);
++      if (field?.value && !(field.name in current.fields)) current.fields[field.name] = field.value;
++    }
++  }
++  return sections;
++}
++
++export function parseTaskBlock(tasksContent, taskId) {
++  const section = taskSections(tasksContent).find(({ id }) => id === taskId.toUpperCase());
++  if (!section) return null;
++  const { approval = null, status = null, risk } = section.fields;
++  return { taskId: section.id, approval, status, risk: normalizeRiskTier(risk), scopePaths: extractScopePaths(section.body.join('\n')) };
++}
++
++function taskSummary({ id: taskId, title, body, fields }) {
++  const block = body.join('\n');
++  const { approval = 'Draft', status = 'Planned' } = fields;
++  const risk = normalizeRiskTier(fields.risk);
++  const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
++  const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
++  const declaredBlockers = extractDeclaredBlockers(block);
++  const selfBlocked = declaredBlockers.includes(taskId);
++
++  return {
++    selfBlocked,
++    declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
++    id: taskId,
++    title,
++    approval,
++    status,
++    risk,
++    acRefs,
++    blockers,
++    block,
++  };
++}
++
+ export function parseTasksSummary(tasksText) {
+-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksText || '');
+-  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments);
+-  const tasks = [];
+-  const h2Re = /^##[ \t]+(.+)$/gm;
+-  const headings = [...body.matchAll(h2Re)];
+-
+-  for (let i = 0; i < headings.length; i += 1) {
+-    const h = headings[i];
+-    const titleLine = h[1].trim();
+-    const taskMatch = titleLine.match(/^(T-[A-Za-z0-9._-]+)(?:[ \t]+(.*))?$/);
+-    if (!taskMatch) continue;
+-
+-    const start = h.index + h[0].length;
+-    const end = i + 1 < headings.length ? headings[i + 1].index : body.length;
+-    const block = body.slice(start, end);
+-
+-    const approval = (block.match(/^[ \t]*Approval:[ \t]*(.+)$/m) || [])[1]?.trim() || 'Draft';
+-    const status = (block.match(/^[ \t]*Status:[ \t]*(.+)$/m) || [])[1]?.trim() || 'Planned';
+-    const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], 'standard');
+-    const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
+-    const taskId = taskMatch[1].toUpperCase();
+-    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+-    const declaredBlockers = extractDeclaredBlockers(block);
+-    const selfBlocked = declaredBlockers.includes(taskId);
+-
+-    tasks.push({
+-      selfBlocked,
+-      declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
+-      id: taskId,
+-      title: (taskMatch[2] || '').trim(),
+-      approval,
+-      status,
+-      risk,
+-      acRefs,
+-      blockers,
+-      block,
+-    });
+-  }
+-  return tasks;
++  return taskSections(tasksText).map(taskSummary);
+ }
+ 
+ export function detectDomains(combinedText) {
+@@ -677,42 +688,20 @@ function isTestPath(relPath) {
+   );
+ }
+ 
+-// Only a line that is exactly an approval value is normalized; any other text
+-// on the line (a waiver, a scope note) stays part of the contract hash.
+-const APPROVAL_FIELD_RE = /^([ \t]*Approval:[ \t]*)(?:Approved(?:[ \t]*\([^()\n]*\))?|Draft)[ \t]*$/gm;
+-
+ // An IO may cap reads (MCP: 2 MiB). Ask it whether a null read means "there
+ // but unreadable"; IOs without the method fall back to exists().
+ function existsButUnreadable(io, relPath) {
+   return typeof io.existsButUnreadable === 'function' ? io.existsButUnreadable(relPath) : io.exists(relPath);
+ }
+ 
+-// Raw text of each task section in tasks.md, fenced code included (the
+-// parsed task block drops fences, but a command in a fence is a spec too).
+-function rawTaskSections(tasksRaw) {
+-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(normalizeNewlines(tasksRaw || ''));
+-  const lines = (afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments).split('\n');
+-  const sections = new Map();
+-  let fence = false;
+-  let current = null;
+-  for (const line of lines) {
+-    if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
+-    const heading = !fence && /^##[ \t]+(\S+)/.exec(line);
+-    if (heading) {
+-      current = /^T-[A-Za-z0-9._-]+$/i.test(heading[1]) ? heading[1].toUpperCase() : null;
+-      if (current && !sections.has(current)) sections.set(current, [line]);
+-      else if (current) current = null; // a repeated heading keeps the first section
+-      continue;
+-    }
+-    if (current) sections.get(current).push(line);
+-  }
+-  return new Map([...sections].map(([id, body]) => [id, body.join('\n')]));
+-}
+-
+-const ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
+-const LIST_ENTRY_HEAD_RE = /^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?(?:REQ|AC)-\d+\b/i;
++// Bind complete identifiers. A self-verification AC can have the same numeric
++// suffix as a distinct product AC in the same feature.
++const EVIDENCE_ID = String.raw`(?:(?:SELF-)?(?:REQ|AC)|NFR)-\d+`;
++const EVIDENCE_TABLE_ROW_RE = new RegExp(String.raw`^[ \t]*\|[ \t]*(?:\*\*)?(${EVIDENCE_ID})\b`, 'i');
++const ENTRY_HEAD_RE = new RegExp(String.raw`^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?(${EVIDENCE_ID})\b`, 'i');
++const LIST_ENTRY_HEAD_RE = new RegExp(String.raw`^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?${EVIDENCE_ID}\b`, 'i');
+ 
+-// Every line that defines a REQ/AC: its bullet line with the indented
++// Every line that defines an evidence ID: its bullet line with the indented
+ // continuation lines under it, and table rows whose first cell is the ID.
+ function specEntries(text) {
+   const entries = new Map();
+@@ -727,7 +716,7 @@ function specEntries(text) {
+     const line = lines[i];
+     if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
+     if (fence) continue;
+-    const row = /^[ \t]*\|[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i.exec(line);
++    const row = EVIDENCE_TABLE_ROW_RE.exec(line);
+     if (row) {
+       add(row[1], line);
+       continue;
+@@ -751,7 +740,8 @@ function specEntries(text) {
+ /**
+  * What a gate run verifies for each task of a feature (#831): the task's raw
+  * section (fences included) with bare Status / Approval values normalized,
+- * every REQ/AC entry it depends on (its ACs, the REQs those ACs and the task
++ * every AC, REQ and NFR entry it depends on (including SELF-prefixed ACs
++ * and REQs, plus requirements referenced by its ACs and by the task
+  * name; bullet lines with their continuation lines and table rows, from
+  * requirements.md and acceptance-tests.md), and design.md without its
+  * amendment log. The spec files are read once per feature. Changing an input
+@@ -779,24 +769,27 @@ export function featureEvidenceInputs(io, { feature }) {
+   // still makes the evidence stale (fail closed); only an ID found nowhere is
+   // 'missing'.
+   const fallbackHash = (id) => {
+-    const re = new RegExp(`\\b${id}\\b`, 'i');
++    const re = new RegExp(`(?<![\\w-])${id}\\b`, 'i');
+     const hits = contracts.filter((c) => re.test(c.contract));
+     return hits.length === 0 ? 'missing' : sha256Text(hits.map((c) => `${c.name}:\n${c.contract}`).join('\n'));
+   };
+   const designRaw = io.readText(`specs/${feature}/design.md`);
+   const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, 'design.md'));
+-  const sections = rawTaskSections(tasksRaw);
+-  const reqsIn = (text) => (String(text || '').match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
+-  for (const task of parseTasksSummary(tasksRaw)) {
+-    const wanted = new Set(task.acRefs);
+-    for (const req of reqsIn(task.block)) wanted.add(req);
+-    for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join('\n'))) wanted.add(req);
++  const refsIn = (text) => [...text.matchAll(new RegExp(String.raw`(?<![\w-])${EVIDENCE_ID}\b`, 'gi'))]
++    .map(([id]) => id.toUpperCase());
++  for (const section of taskSections(tasksRaw)) {
++    if (byTask.has(section.id)) continue;
++    const task = taskSummary(section);
++    const wanted = new Set(refsIn(task.block));
++    for (const ac of [...wanted].filter((id) => /^(?:SELF-)?AC-/.test(id))) {
++      for (const ref of refsIn((entries.get(ac) || []).join('\n'))) {
++        if (!/^(?:SELF-)?AC-/.test(ref)) wanted.add(ref);
++      }
++    }
+     const ids = {};
+     for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join('\n')) : fallbackHash(key);
+-    const section = (sections.get(task.id) || task.block)
+-      .replace(/^[ \t]*Status:[ \t]*.*$/gm, '<NORMALIZED>')
+-      .replace(APPROVAL_FIELD_RE, '<NORMALIZED>');
+-    byTask.set(task.id, { schema: 'sdd-task-evidence-inputs/v2', task: sha256Text(section.trim()), ids, design });
++    const normalized = normalizeTaskFields(section.raw.join('\n'), { approval: true, evidence: true });
++    byTask.set(task.id, { schema: 'sdd-task-evidence-inputs/v2', task: sha256Text(normalized.trim()), ids, design });
+   }
+   return byTask;
+ }
+@@ -830,7 +823,7 @@ export function diffEvidenceInputs(recorded, current) {
+  */
+ export function taskApprovalBaseline(rawText, fileName) {
+   if (String(fileName || '').toLowerCase() !== 'tasks.md') return null;
+-  const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, 'Approval: <NORMALIZED>');
++  const contract = normalizeTaskFields(canonicalSpecContractText(rawText, fileName), { approval: true });
+   const taskApprovals = {};
+   for (const t of parseTasksSummary(rawText)) taskApprovals[t.id] = t.approval;
+   return { approvalContractSha256: sha256Text(contract), taskApprovals };
+@@ -897,7 +890,8 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
+     // older comparison, where any Approval: edit changes the file.
+     const approvalView = typeof baseInfo?.approvalContractSha256 === 'string' ? taskApprovalBaseline(rawText, fileName) : null;
+     if (approvalView) {
+-      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256) {
++      // Older baselines used a narrower grammar. Identical raw bytes always match.
++      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256 && sha256Text(rawText) !== baseInfo.rawSha256) {
+         changedFiles.push(safeRel);
+       }
+       for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {
+@@ -906,7 +900,7 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
+         if (isApprovedValue(was) && !isApprovedValue(now)) revokedApprovals.push(id);
+         else if (!isApprovedValue(was) && isApprovedValue(now)) newlyApprovedTasks.push(id);
+       }
+-    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
++    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256 && sha256Text(rawText) !== baseInfo?.rawSha256) {
+       changedFiles.push(safeRel);
+     }
+ 
+@@ -1558,7 +1552,24 @@ export function buildDecisionViewDataCore(io, { feature, config = null }) {
+   const designText = designRaw || '';
+   const tasksText = tasksRaw || '';
+ 
++  const formalDir = `reports/verification/${feature}/formal-questions`;
++  const formalQuestions = io.listDir(formalDir)
++    .filter((entry) => entry.isFile && /^OQ-\d+\.json$/.test(entry.name))
++    .map((entry) => {
++      const sourceFile = formalDir + '/' + entry.name;
++      const q = JSON.parse(io.readText(sourceFile));
++      if (q.feature !== feature || q.id + '.json' !== entry.name ||
++          typeof q.fact !== 'string' || typeof q.evidence !== 'string') {
++        throw new Error('Invalid formal question: ' + sourceFile);
++      }
++      return {
++        id: q.id, status: q.status, confirmed: isOpenQuestionConfirmed(q.status), category: '形式検証',
++        fact: q.fact, reason: q.evidence, question: '反例とモデル・実装の対応を確認してください。',
++        impactedTasks: [], sourceFile, sourceRef: sourceFile,
++      };
++    });
+   const openQuestions = mergeOpenQuestions(
++    formalQuestions,
+     parseOpenQuestions(reqText, reqRel),
+     parseOpenQuestions(designText, designRel),
+   );
+@@ -2078,6 +2089,9 @@ export function runDoctorCore(
+     if (maxRounds !== undefined && (!Number.isInteger(maxRounds) || maxRounds < 0 || maxRounds > 10)) {
+       addFinding(findings, 'NG', 'config', `不正な limits.max_auto_fix_rounds: ${maxRounds}`, configRel, '0〜10 の整数を指定してください');
+     }
++    for (const extErr of validateGuardrailsExtensions(parsed)) {
++      addFinding(findings, 'NG', 'config', extErr.message, configRel, extErr.action);
++    }
+   }
+ 
+   // 4. Hooks & Skills (CLI full repo mode only; MCP stays strictly inside allowlist)
+@@ -2236,8 +2250,9 @@ export function runDoctorCore(
+     const content = io.readText(relTasks);
+     if (content === null) continue;
+ 
+-    const approvedCount = countPrimaryApprovals(content);
+-    const hasActiveTask = /^[ \t]*Status:[ \t]*(?:Planned|In Progress|Implementation Complete|Blocked)\b/im.test(content);
++    const tasks = parseTasksSummary(content);
++    const approvedCount = tasks.filter((task) => isApprovedValue(task.approval)).length;
++    const hasActiveTask = tasks.some((task) => /^(?:Planned|In Progress|Implementation Complete|Blocked)$/.test(task.status));
+     const baselineRel = `specs/${entry.name}/.spec-baseline.json`;
+ 
+     if (approvedCount > 0 && hasActiveTask && !io.exists(baselineRel)) {
+@@ -2251,7 +2266,7 @@ export function runDoctorCore(
+       );
+     }
+ 
+-    if (/^[ \t]*Status:[ \t]*In Progress\b/im.test(content)) {
++    if (tasks.some((task) => task.status === 'In Progress')) {
+       const mtimeMs = io.statMtimeMs(relTasks);
+       if (mtimeMs !== null && nowMs - mtimeMs > staleMs) {
+         const ageDays = Math.floor((nowMs - mtimeMs) / (24 * 60 * 60 * 1000));
+@@ -2343,6 +2358,7 @@ export function runDoctorCore(
+     info: findings.filter((f) => f.severity === 'INFO').length,
+   };
+ 
++  const normalizedCfg = normalizeGuardrailsConfig(parsed, configRel);
+   const result = {
+     schema: 'sdd-doctor/v1',
+     checked_at: new Date().toISOString(),
+@@ -2350,6 +2366,27 @@ export function runDoctorCore(
+     summary,
+     non_checks: [...NON_CHECKS],
+     findings,
++    v2_2_gates: {
++      formal_verification: {
++        enabled: normalizedCfg.formal_verification.enabled,
++        mode: normalizedCfg.formal_verification.mode,
++        adapter: normalizedCfg.formal_verification.checker.adapter,
++      },
++      agent_lint: {
++        enabled: normalizedCfg.agent_lint.enabled,
++        mode: normalizedCfg.agent_lint.mode,
++        waiver_count: normalizedCfg.agent_lint.waivers.length,
++      },
++      security_audit: {
++        enabled: normalizedCfg.security_audit.enabled,
++        mode: normalizedCfg.security_audit.mode,
++        enabled_adapters: normalizedCfg.security_audit.enabled_adapters,
++      },
++      anti_tampering: {
++        enabled: normalizedCfg.anti_tampering.enabled,
++        mode: normalizedCfg.anti_tampering.mode,
++      },
++    },
+   };
+   if (rootLabel !== null) {
+     result.root = rootLabel;
+diff --git a/tests/self-fitness.test.mjs b/tests/self-fitness.test.mjs
+new file mode 100644
+index 000000000..20762de99
+--- /dev/null
++++ b/tests/self-fitness.test.mjs
+@@ -0,0 +1,300 @@
++import assert from 'node:assert/strict';
++import { spawnSync } from 'node:child_process';
++import fs from 'node:fs';
++import os from 'node:os';
++import path from 'node:path';
++import { isBuiltin } from 'node:module';
++import { parseSource } from '../plugins/sdd-quality-loop/rules/source-ast.mjs';
++import { describe, it } from 'node:test';
++import { fileURLToPath } from 'node:url';
++import { classifyCatalog } from './verification-catalog-status.mjs';
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++const REPO_ROOT = path.resolve(__dirname, '..');
++
++const PURE_READONLY_TARGETS = [
++  'plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs',
++  'plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs',
++];
++
++const SOFT_GUARD_PATH = 'plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs';
++const SOFT_GUARD_MAX_LINES = 700;
++
++function literal(node) {
++  return node?.kind() === 'string' ? node.text().slice(1, -1) : null;
++}
++
++function moduleSpecifiers(root) {
++  const specifiers = [];
++  for (const node of root.findAll({ rule: { any: ['import_statement', 'export_statement', 'call_expression'].map(kind => ({ kind })) } })) {
++    if (node.kind() === 'call_expression') {
++      if (['import', 'require'].includes(node.field('function')?.text())) {
++        specifiers.push(literal(node.field('arguments')?.namedChildren()[0]) ?? '<dynamic>');
++      }
++    } else if (node.field('source')) {
++      specifiers.push(literal(node.field('source')));
++    }
++  }
++  return specifiers;
++}
++
++export function checkReadOnlyPurity(source, label = '<source>') {
++  const root = parseSource(source, label);
++  const violations = [];
++  for (const spec of moduleSpecifiers(root)) {
++    if (spec === '<dynamic>' || /^(?:node:)?(?:fs(?:\/promises)?|child_process|os|net|https?|process)$/.test(spec)) {
++      violations.push(`${label}: forbidden side-effect import ${spec}`);
++    }
++  }
++  const writeMethods = /^(?:(?:writeFile|appendFile|createWriteStream|mkdir|mkdtemp|rmdir|rm|unlink|rename|truncate|copyFile|chmod|symlink|link)(?:Sync)?|writeText)$/;
++  for (const node of root.findAll({ rule: { any: [{ kind: 'member_expression' }, { kind: 'subscript_expression' }] } })) {
++    const prop = node.field('property')?.text() ?? literal(node.field('index'));
++    if (writeMethods.test(prop) || (['process', 'globalThis.process'].includes(node.field('object')?.text()) && ['argv', 'env'].includes(prop))) {
++      violations.push(`${label}: forbidden access ${node.text()}`);
++    }
++  }
++  for (const node of root.findAll({ rule: { kind: 'variable_declarator' } })) {
++    if (node.field('value')?.text() === 'process' && node.field('name')?.kind() === 'object_pattern') {
++      violations.push(`${label}: process destructuring`);
++    }
++  }
++  return violations;
++}
++
++export function checkSoftGuardRatchet(source, maxLines = SOFT_GUARD_MAX_LINES) {
++  const lineCount = source.split(/\r?\n/).length - Number(source.endsWith('\n'));
++  const violations = [];
++  if (lineCount > maxLines) violations.push(`sdd-soft-guard.mjs has ${lineCount} lines (limit <= ${maxLines})`);
++  for (const spec of moduleSpecifiers(parseSource(source))) {
++    if (!isBuiltin(spec) && !spec.startsWith('./') && !spec.startsWith('../')) {
++      violations.push(`sdd-soft-guard.mjs imports external dependency ${spec}`);
++    }
++  }
++  return { lineCount, violations };
++}
++
++function checkHostParity(read) {
++  const violations = [];
++  const hosts = [
++    ['.claude-plugin/plugin.json', 'hooks/claude-hooks.json'],
++    ['.codex-plugin/plugin.json', 'hooks/codex-hooks.json'],
++    ['.plugin/plugin.json', 'hooks/copilot-hooks.json'],
++    ['.antigravity-plugin/plugin.json', 'hooks.json'],
++    ['gemini/gemini-extension.json', 'gemini/hooks/hooks.json'],
++  ];
++  const version = read(hosts[0][0]).version;
++  for (const [manifestPath, hookPath] of hosts) {
++    const manifest = read(manifestPath);
++    if (manifest.name !== 'sdd-quality-loop' || manifest.version !== version) violations.push(manifestPath);
++    if (hookPath.startsWith('hooks/') && manifest.hooks?.replace(/^\.\//, '') !== hookPath) violations.push(manifestPath);
++    const hooks = read(hookPath);
++    if (hookPath.includes('copilot')) {
++      const hook = hooks.hooks.preToolUse?.[0];
++      const bashPreflight = 'if [ -z "$root" ] || [ ! -f "$root/scripts/v2/sdd-soft-guard.mjs" ]; then';
++      const bashTarget = /(?:^|;)\s*node "\$root\/scripts\/v2\/sdd-soft-guard\.mjs" --emit copilot\s*$/;
++      const psTarget = /\$guard\s*=\s*if\s*\(\$root\)\s*\{\s*Join-Path \$root 'scripts\/v2\/sdd-soft-guard\.mjs'\s*\}/;
++      const psPreflight = 'if (-not $guard -or -not (Test-Path -LiteralPath $guard))';
++      if (hook?.type !== 'command' || !hook.bash?.includes(bashPreflight) || !bashTarget.test(hook.bash)
++          || !psTarget.test(hook.powershell) || !hook.powershell?.includes(psPreflight)
++          || !/& node \$guard --emit copilot\s*$/.test(hook.powershell)) violations.push(hookPath);
++      continue;
++    }
++    const groups = hookPath === 'hooks.json' ? hooks['sdd-soft-guard']?.PreToolUse
++      : hookPath.startsWith('gemini/') ? hooks.hooks?.BeforeTool : hooks.hooks?.PreToolUse;
++    const hook = groups?.[0]?.hooks?.[0];
++    if (groups?.[0]?.matcher !== '*' || hook?.type !== 'command') {
++      violations.push(hookPath);
++      continue;
++    }
++    if (hookPath.includes('claude')) {
++      const args = ['${CLAUDE_PLUGIN_ROOT}/scripts/v2/sdd-soft-guard.mjs', '--emit', 'exit'];
++      if (hook.command !== 'node' || JSON.stringify(hook.args) !== JSON.stringify(args)) violations.push(hookPath);
++    } else if (hookPath.includes('codex')) {
++      const posix = 'node "${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/v2/sdd-soft-guard.mjs" --emit exit';
++      const windows = /cp\.spawnSync\(process\.execPath,\s*\[p\.join\(r,\s*'scripts',\s*'v2',\s*'sdd-soft-guard\.mjs'\),\s*'--emit',\s*'exit'\]/;
++      if (hook.command !== posix || !windows.test(hook.command_windows)) violations.push(hookPath);
++    } else {
++      const command = hookPath === 'hooks.json' ? 'node ./scripts/v2/sdd-soft-guard.mjs --emit antigravity'
++        : 'node "${extensionPath}/../scripts/v2/sdd-soft-guard.mjs" --emit gemini';
++      if (hook.command !== command) violations.push(hookPath);
++    }
++  }
++  return violations;
++}
++
++function hasPinnedReleaseLine(readme) {
++  const lines = readme.split(/\r\n|[\n\r\v\f\x1c-\x1e\u0085\u2028\u2029]/u, 5);
++  return lines.some(line => /^v\p{Nd}+\.\p{Nd}+\.\p{Nd}+ — /u.test(line));
++}
++
++describe('ADR-0054 T-003 (SELF-AC-003): sdd-forge Self-Fitness Functions', () => {
++  it('1. Pure Read-Only architecture: v2-pure-lib.mjs & v2-readonly-core.mjs have zero fs/child_process/env/argv imports (with negative fixture)', () => {
++    for (const rel of PURE_READONLY_TARGETS) {
++      const src = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
++      const violations = checkReadOnlyPurity(src, rel);
++      assert.deepEqual(violations, [], `Purity violations in ${rel}: ${violations.join('; ')}`);
++    }
++
++    // Negative test: injecting a forbidden fs import must fail the fitness check
++    const taintedFixture = ['import fs from ', "'node:", "fs';\nexport const x = process.env.SECRET;\n"].join('');
++    const negViolations = checkReadOnlyPurity(taintedFixture, 'fixture.mjs');
++    assert.ok(negViolations.length >= 2, `Expected purity check to fail on negative fixture, got: ${JSON.stringify(negViolations)}`);
++  });
++
++  it('2. sdd-soft-guard.mjs non-growth ratchet (<= 700 lines, zero external deps, < 200ms latency) with negative fixture', () => {
++    const abs = path.join(REPO_ROOT, SOFT_GUARD_PATH);
++    const src = fs.readFileSync(abs, 'utf8');
++    const result = checkSoftGuardRatchet(src, SOFT_GUARD_MAX_LINES);
++    assert.deepEqual(result.violations, [], result.violations.join('; '));
++    assert.ok(result.lineCount <= SOFT_GUARD_MAX_LINES, `Expected <= ${SOFT_GUARD_MAX_LINES} lines, got ${result.lineCount}`);
++
++    // Latency check: warm single invocation on benign Read tool payload must stay under 200ms
++    const payload = JSON.stringify({ tool_name: 'Read', tool_input: { file_path: 'README.md' } });
++    // Warm-up once to avoid cold OS cache jitter
++    spawnSync(process.execPath, [abs, '--emit', 'claude'], { input: payload, encoding: 'utf8', cwd: REPO_ROOT });
++    const t0 = performance.now();
++    const res = spawnSync(process.execPath, [abs, '--emit', 'claude'], { input: payload, encoding: 'utf8', cwd: REPO_ROOT });
++    const elapsedMs = performance.now() - t0;
++    assert.equal(res.status, 0, res.stderr);
++    assert.ok(elapsedMs < 200, `sdd-soft-guard.mjs invocation took ${elapsedMs.toFixed(1)}ms (budget < 200ms)`);
++
++    // Negative fixture: > 700 lines must fail
++    const bloated = `${'const a = 1;\n'.repeat(SOFT_GUARD_MAX_LINES + 5)}`;
++    const neg = checkSoftGuardRatchet(bloated, SOFT_GUARD_MAX_LINES);
++    assert.ok(neg.violations.length > 0, 'Expected ratchet check to fail when exceeding line cap');
++  });
++
++  it('parses side-effect syntax independent of quotes, comments and strings', () => {
++    for (const code of ["import 'node:fs';", "export * from 'child_process';",
++      "function f(io) { io.writeText('out', 'data'); }", "export const p = process['env'];"]) {
++      assert.ok(checkReadOnlyPurity(code).length, code);
++    }
++    assert.deepEqual(checkReadOnlyPurity('const help = "Examples use process.env and fs.writeFile";'), []);
++  });
++
++  it('detects a new external dependency imported for its side effect', () => {
++    assert.ok(checkSoftGuardRatchet("import 'fixture-dependency';").violations.length);
++  });
++
++  it('detects a host manifest pointing to the wrong hook or a hook changing output protocol', () => {
++    const read = rel => JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop', rel), 'utf8'));
++    assert.deepEqual(checkHostParity(read), []);
++    for (const target of ['.codex-plugin/plugin.json', 'gemini/hooks/hooks.json', 'hooks/copilot-hooks.json']) {
++      const mutate = rel => {
++        const data = read(rel);
++        if (rel === target) {
++          if (target.includes('plugin.json')) data.hooks = './hooks/claude-hooks.json';
++          else if (target.startsWith('gemini')) data.hooks.BeforeTool[0].hooks[0].command += '-wrong';
++          else data.hooks.preToolUse[0].powershell = 'echo sdd-soft-guard.mjs';
++        }
++        return data;
++      };
++      assert.ok(checkHostParity(mutate).length, target);
++    }
++  });
++
++  it('rejects a directory-only change to each host guard invocation', () => {
++    const cases = [
++      ['hooks/claude-hooks.json', data => data.hooks.PreToolUse[0].hooks[0].args, 0],
++      ['hooks/codex-hooks.json', data => data.hooks.PreToolUse[0].hooks[0], 'command'],
++      ['hooks/codex-hooks.json', data => data.hooks.PreToolUse[0].hooks[0], 'command_windows'],
++      ['hooks/copilot-hooks.json', data => data.hooks.preToolUse[0], 'bash'],
++      ['hooks/copilot-hooks.json', data => data.hooks.preToolUse[0], 'powershell'],
++      ['hooks.json', data => data['sdd-soft-guard'].PreToolUse[0].hooks[0], 'command'],
++      ['gemini/hooks/hooks.json', data => data.hooks.BeforeTool[0].hooks[0], 'command'],
++    ];
++    for (const [target, select, key] of cases) {
++      const read = rel => {
++        const data = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop', rel), 'utf8'));
++        if (rel === target) {
++          const command = select(data);
++          // Copilot Bash checks existence first. Change only the executable target.
++          const index = command[key].lastIndexOf('v2');
++          assert.ok(index >= 0);
++          command[key] = command[key].slice(0, index) + 'v3' + command[key].slice(index + 2);
++        }
++        return data;
++      };
++      assert.ok(checkHostParity(read).includes(target), target + ' ' + key);
++    }
++  });
++
++  const copilotPath = 'hooks/copilot-hooks.json';
++  const guardFile = 'scripts/v2/sdd-soft-guard.mjs';
++  for (const [site, key, operand, changedOperand] of [
++    ['Bash existence path', 'bash', `-f "$root/${guardFile}"`, `-f "$root/archive/${guardFile}"`],
++    ['Bash launcher path', 'bash', `node "$root/${guardFile}"`, `node "$root/archive/${guardFile}"`],
++    ['PowerShell assignment path', 'powershell', `Join-Path $root '${guardFile}'`, `Join-Path $root 'archive/${guardFile}'`],
++    ['PowerShell guard presence reference', 'powershell', '-not $guard -or', '-not $other -or'],
++    ['PowerShell existence reference', 'powershell', '-LiteralPath $guard)', '-LiteralPath $other)'],
++    ['PowerShell launcher reference', 'powershell', '& node $guard ', '& node $other '],
++  ]) {
++    it(`detects Copilot configuration drift at the ${site}`, () => {
++      const read = rel => {
++        const data = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'plugins/sdd-quality-loop', rel), 'utf8'));
++        if (rel === copilotPath) {
++          const hook = data.hooks.preToolUse[0];
++          assert.equal(hook[key].split(operand).length, 2, `expected a unique ${site}`);
++          hook[key] = hook[key].replace(operand, changedOperand);
++        }
++        return data;
++      };
++      assert.deepEqual(checkHostParity(read), [copilotPath], site);
++    });
++  }
++
++  it('4. Doc-Gardening: AGENTS.md Active Spec Directories matches specs/*/ on disk', () => {
++    const agentsText = fs.readFileSync(path.join(REPO_ROOT, 'AGENTS.md'), 'utf8');
++    const sectionMatch = /## Active Spec Directories([\s\S]*?)\n## /.exec(agentsText);
++    assert.ok(sectionMatch, 'AGENTS.md must contain ## Active Spec Directories section');
++    const listed = [...sectionMatch[1].matchAll(/`specs\/([^/`]+)\/`/g)].map((m) => m[1]).sort();
++    const onDisk = fs
++      .readdirSync(path.join(REPO_ROOT, 'specs'), { withFileTypes: true })
++      .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
++      .map((e) => e.name)
++      .sort();
++
++    const missingInAgents = onDisk.filter((d) => !listed.includes(d));
++    const missingOnDisk = listed.filter((d) => !onDisk.includes(d));
++    assert.deepEqual(missingInAgents, [], `Spec dirs missing from AGENTS.md: ${missingInAgents.join(', ')}`);
++    assert.deepEqual(missingOnDisk, [], `AGENTS.md lists non-existent spec dirs: ${missingOnDisk.join(', ')}`);
++  });
++
++  it('5. Verification Catalog hygiene (SELF-AC-006): zero file-missing ghost suites in tests/verification-catalog.json', () => {
++    const { suites } = classifyCatalog(REPO_ROOT);
++    const ghosts = suites.filter((s) => s.state === 'file-missing').map((s) => s.path);
++    const catalog = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tests/verification-catalog.json'), 'utf8'));
++    const registered = new Set(catalog.suites.map(s => s.path));
++    for (const [profile, paths] of Object.entries(catalog.profiles)) {
++      assert.deepEqual(paths.filter(p => !registered.has(p)), [], profile);
++    }
++    assert.deepEqual(ghosts, [], `Found ${ghosts.length} ghost catalog entries: ${ghosts.slice(0, 5).join(', ')}`);
++  });
++
++  it('checks the pinned README release line within the first five lines', () => {
++    assert.ok(hasPinnedReleaseLine(fs.readFileSync(path.join(REPO_ROOT, 'README.md'), 'utf8')));
++  });
++
++  it('matches the legacy doc-diagrams release-line verdict on the same controls', t => {
++    const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-release-line-'));
++    t.after(() => fs.rmSync(fixture, { recursive: true, force: true }));
++    const legacySuite = path.join(REPO_ROOT, 'tests/doc-diagrams.tests.py');
++    const boundary = '# Project\n\nDescription\n\n';
++    const release = 'v1.2.3 — Release\n';
++    for (const [label, readme, expected] of [
++      ['line five', boundary + release, true],
++      ['line six', boundary + '\n' + release, false],
++      ['missing version component', boundary + 'v1.2 — Release\n', false],
++      ['wrong separator', boundary + 'v1.2.3 - Release\n', false],
++    ]) {
++      const readmePath = path.join(fixture, 'README.md');
++      fs.writeFileSync(readmePath, readme);
++      const python = process.platform === 'win32' ? 'python' : 'python3';
++      const legacy = spawnSync(python, [legacySuite, '--root', fixture, '--no-selftest'], { encoding: 'utf8' });
++      assert.ifError(legacy.error);
++      assert.equal(legacy.status, expected ? 0 : 1, `${label}: ${legacy.stderr}`);
++      if (!expected) assert.match(legacy.stderr, /README\.md: the release line/);
++      assert.equal(hasPinnedReleaseLine(fs.readFileSync(readmePath, 'utf8')), expected, label);
++    }
++  });
++});
+diff --git a/tests/verification-catalog.json b/tests/verification-catalog.json
+index 0480351fe..ea748ffa4 100644
+--- a/tests/verification-catalog.json
++++ b/tests/verification-catalog.json
+@@ -50,432 +50,2080 @@
+     ]
+   },
+   "suites": [
+-    {"path": "tests/session-hub.tests.py", "runtime": "python"},
+-    {"path": "tests/merge-readiness.tests.py", "runtime": "python"},
+-    {"path": "tests/dashboard-publisher.tests.py", "runtime": "python"},
+-    {"path": "tests/dashboard-runtime.tests.py", "runtime": "python"},
+-    {"path": "tests/workflow-state-installed-root.tests.py", "runtime": "python"},
+-    {"path": "tests/codex-review-identity.tests.py", "runtime": "python"},
+-    {"path": "tests/risk-upgrade-context.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/risk-upgrade-context.tests.sh", "runtime": "bash"},
+-    {"path": "tests/installed-review-precheck.tests.py", "runtime": "python"},
+-    {"path": "tests/guard-quoted-patch-evidence.tests.py", "runtime": "python"},
+-    {"path": "tests/check-evidence-bundle-parity.tests.py", "runtime": "python", "ci_jobs": ["cloud-and-ddd"]},
+-    {"path": "tests/codex-versioned-cache.tests.py", "runtime": "python", "ci_jobs": ["cloud-and-ddd"]},
+-    {"path": "tests/sql-development-contract.tests.py", "runtime": "python", "ci_jobs": ["sql-contract"]},
+-    {"path": "tests/sql-development-postgres.tests.py", "runtime": "python", "args": ["--output", "../sql-postgres-proof.json"], "ci_jobs": ["sql-postgres"]},
+-    {"path": "tests/sql-development-mysql.tests.py", "runtime": "python", "args": ["--output", "../sql-mysql-proof.json"], "ci_jobs": ["sql-mysql"]},
+-    {"path": "tests/sql-development-tsql.tests.py", "runtime": "python", "args": ["--output", "../sql-tsql-proof.json", "--sqlpackage", "../sql-tsql-tools/sqlpackage"], "ci_jobs": ["sql-tsql"]},
+-    {"path": "tests/cloud-orchestration-contracts.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+-    {"path": "tests/cloud-orchestration-routing.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+-    {"path": "tests/cloud-orchestration-execution.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+-    {"path": "tests/cloud-orchestration-verification.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+-    {"path": "tests/install-cloud.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+-    {"path": "tests/sdd-domain-multitarget-foundation.tests.py", "runtime": "python", "ci_jobs": ["cloud-native"]},
+-    {"path": "tests/windows-powershell.tests.ps1", "runtime": "powershell", "ci_jobs": ["windows-powershell"]},
+-    {"path": "tests/codex-mcp-config.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/kill-switch-inspection.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/guard-stop-inspection.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/mcp-diagnostics-sharing.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/python-input-boundaries.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/coding-standards.tests.py", "runtime": "python", "ci_jobs": ["coding-standards"]},
+-    {"path": "tests/coding-standards-audit.tests.py", "runtime": "python", "ci_jobs": ["coding-standards"]},
+-    {"path": "tests/benchmark-gates.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/factory-workflow.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/run-measurement.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/run-measurement-integration.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/project-evidence-collector.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/project-skill-lifecycle.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/project-skill-profiles.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/project-skill-observation.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/research-owner-integration.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/research-discovery.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/research-consumers.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/research-acquire.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/research-evidence.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/golden-eval.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/project-skill-formal.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/a9-advisory-evidence.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
+-    {"path": "tests/a9-dogfood.tests.ps1", "runtime": "powershell", "ci_jobs": ["test-windows-heavy", "version-gates"]},
+-    {"path": "tests/a9-dogfood.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
+-    {"path": "tests/a9-dogfood.tests.sh", "runtime": "bash"},
+-    {"path": "tests/a9-promotion-admission.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
+-    {"path": "tests/a9-rollback-receipt.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
+-    {"path": "tests/adversarial-review-contracts.tests.sh", "runtime": "bash"},
+-    {"path": "tests/agent-capabilities-v2.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/agent-capabilities-v2.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/agent-model-routing.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/agent-model-routing.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/apply-branch-protection.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/apply-human-copy.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/apply-human-copy.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/approval-boundary.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/approver-registry-schema.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/approver-registry-schema.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/bootstrap-cross-layer-index.tests.sh", "runtime": "bash"},
+-    {"path": "tests/bootstrap-interview-guidance.tests.sh", "runtime": "bash"},
+-    {"path": "tests/bootstrap-layer-templates.tests.sh", "runtime": "bash"},
+-    {"path": "tests/boundary-reference-authorization-parity.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/boundary-reference-authorization-parity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/bump-version-gate.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates", "version-gates-windows-bump"]},
+-    {"path": "tests/bump-version-gate.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates", "version-gates-windows-bump"]},
+-    {"path": "tests/canonicalize-sdd-yaml.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/canonicalize-sdd-yaml.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/capability-registry-parity.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/capability-registry-parity.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/capability-registry-schema.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/capability-registry-schema.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/capability-summary-schema.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/capability-summary-schema.tests.sh", "runtime": "bash"},
+-    {"path": "tests/check-a8-process-integrity.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/check-a8-process-integrity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/check-component-coverage.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-component-coverage.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-hook-activation-handshake.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-hook-activation-handshake.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-installed-plugin-drift.tests.ps1", "runtime": "powershell", "ci_jobs": ["test-windows-heavy"]},
+-    {"path": "tests/check-installed-plugin-drift.tests.sh", "runtime": "bash"},
+-    {"path": "tests/check-placeholders-brownfield.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/check-placeholders-brownfield.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/check-placeholders.tests.sh", "runtime": "bash"},
+-    {"path": "tests/check-risk-upgrade-byte-identical.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-risk-upgrade-byte-identical.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-risk-upgrade-capability-merge.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-risk-upgrade-capability-merge.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-risk-upgrade-fragment-fail-closed.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-risk-upgrade-fragment-fail-closed.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/check-risk-upgrade-ineligible-no-reasons.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/ci-claude-install.tests.sh", "runtime": "bash"},
+-    {"path": "tests/ci-qcd-candidate.tests.sh", "runtime": "bash", "excluded": "Historical CI candidate patch diagnostic; not registered by the previous runners."},
+-    {"path": "tests/ci-suite-wiring.tests.sh", "runtime": "bash"},
+-    {"path": "tests/claude-bash-matcher.tests.sh", "runtime": "bash"},
+-    {"path": "tests/claude-hook-runtime.tests.py", "runtime": "python", "args": ["--output", "claude-hook-runtime-proof.json"], "ci_jobs": ["cli-hook-enforcement"]},
+-    {"path": "tests/claude-manifest-validation.tests.ps1", "runtime": "powershell", "ci_jobs": ["installers"]},
+-    {"path": "tests/claude-registration.tests.ps1", "runtime": "powershell", "ci_jobs": ["installers"]},
+-    {"path": "tests/cli-hook-enforcement.ps1", "runtime": "powershell", "ci_jobs": ["cli-hook-enforcement"]},
+-    {"path": "tests/collection-layer.tests.ps1", "runtime": "powershell", "excluded": "Standalone offline panel collection checks; not registered by the previous runners."},
+-    {"path": "tests/collection-layer.tests.sh", "runtime": "bash"},
+-    {"path": "tests/compatibility-byte-identical.tests.ps1", "runtime": "powershell", "ci_jobs": ["test-windows-heavy"]},
+-    {"path": "tests/compatibility-byte-identical.tests.sh", "runtime": "bash"},
+-    {"path": "tests/component-path-diff-basis.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/component-path-diff-basis.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/component-path-ownership-parity.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/component-path-ownership-parity.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/component-path-resolver.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/component-path-resolver.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/concept-review-continuity.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/concept-test.tests.py", "runtime": "python", "ci_jobs": ["posix-regression", "test"]},
+-    {"path": "tests/constant-parity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/context-projection-schema.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/context-projection-schema.tests.sh", "runtime": "bash"},
+-    {"path": "tests/copilot-hook-handshake.tests.py", "runtime": "python", "delegated_to": "tests/check-hook-activation-handshake.tests.sh"},
+-    {"path": "tests/criterion-freeze.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/crlf-parity.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/cross-model-empty-phase.tests.ps1", "runtime": "powershell", "delegated_to": "tests/cross-model.tests.ps1"},
+-    {"path": "tests/cross-model-encoding.tests.ps1", "runtime": "powershell", "delegated_to": "tests/cross-model.tests.ps1"},
+-    {"path": "tests/cross-model-process-state.tests.py", "runtime": "python", "delegated_to": "tests/cross-model.tests.sh"},
+-    {"path": "tests/cross-model.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/cross-model.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/cross-runtime-cli-contract.tests.sh", "runtime": "bash", "delegated_to": "tests/cross-runtime-handoff.tests.sh"},
+-    {"path": "tests/cross-runtime-handoff.tests.ps1", "runtime": "powershell", "ci_jobs": ["test-windows-heavy"]},
+-    {"path": "tests/cross-runtime-handoff.tests.sh", "runtime": "bash"},
+-    {"path": "tests/cross-runtime-live-driver.tests.py", "runtime": "python", "delegated_to": "tests/cross-runtime-handoff.tests.sh"},
+-    {"path": "tests/current-byte-capture.tests.py", "runtime": "python", "ci_jobs": ["posix-regression", "test-windows-heavy"]},
+-    {"path": "tests/design-sync-policy.tests.py", "runtime": "python"},
+-    {"path": "tests/design-sync-policy.tests.sh", "runtime": "bash"},
+-    {"path": "tests/design-sync-scan.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/design-sync-scan.tests.sh", "runtime": "bash"},
+-    {"path": "tests/design-sync-standing-consent.tests.ps1", "runtime": "powershell", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/design-sync-standing-consent.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/design-system-compliance.tests.ps1", "runtime": "powershell", "excluded": "Standalone design-system compliance checks; not registered by the previous runners."},
+-    {"path": "tests/design-system-compliance.tests.sh", "runtime": "bash"},
+-    {"path": "tests/design-system-contract.tests.ps1", "runtime": "powershell", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/design-system-contract.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/detect-policy-weakening.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/detect-policy-weakening.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/doc-diagrams.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/doc-diagrams.tests.py", "runtime": "python", "delegated_to": "tests/doc-diagrams.tests.sh"},
+-    {"path": "tests/doc-diagrams.tests.sh", "runtime": "bash"},
+-    {"path": "tests/deterministic-lane-selfcheck.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/domain-review-finalize.tests.py", "runtime": "python", "ci_jobs": ["test", "cloud-and-ddd"]},
+-    {"path": "tests/downstream-review-precheck-parity.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/downstream-review-precheck.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/downstream-review-precheck.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/effort-policy-flip.tests.ps1", "runtime": "powershell", "excluded": "Standalone PowerShell effort policy diagnostic; previous CI executes the Bash variant via agent-model-routing."},
+-    {"path": "tests/effort-policy-flip.tests.sh", "runtime": "bash", "delegated_to": "tests/agent-model-routing.tests.sh"},
+-    {"path": "tests/emit-run-record-feature-scope.tests.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
+-    {"path": "tests/emit-run-record-feature-scope.tests.sh", "runtime": "bash"},
+-    {"path": "tests/escalation-skip-activation.tests.sh", "runtime": "bash", "excluded": "Isolated clone mutation diagnostic; not registered by the previous runners."},
+-    {"path": "tests/eval.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/evidence-generation-boundary.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy", "windows-powershell"]},
+-    {"path": "tests/evaluate-predicate.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/evaluate-predicate.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/evaluator-scratch-metrics.tests.py", "runtime": "python", "delegated_to": "tests/wfi-034-scratch-metric.tests.sh"},
+-    {"path": "tests/facet-manifest-parity.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/facet-manifest-parity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/facet-manifest-schema.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/facet-manifest-schema.tests.sh", "runtime": "bash"},
+-    {"path": "tests/facet-manifest-semantics.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/facet-manifest-semantics.tests.sh", "runtime": "bash"},
+-    {"path": "tests/facet-manifest-staleness.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/facet-manifest-staleness.tests.sh", "runtime": "bash"},
+-    {"path": "tests/fixed-review-inputs.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/codex-review-launcher.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/session-models.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/gemini-environment-loops.tests.py", "runtime": "python", "ci_jobs": ["test"]},
+-    {"path": "tests/model-discovery.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/fixed-review-launch.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/fixed-review-precheck-bash.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/fixed-review-precheck-ps.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/fixed-review-state.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/gates.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/generate-approval-sidecar.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/generate-approval-sidecar.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/generate-gate-capabilities.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/generate-gate-capabilities.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/generate-registry-digest.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/generate-registry-digest.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/golden-baseline-contract.tests.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
+-    {"path": "tests/golden-baseline-contract.tests.sh", "runtime": "bash"},
+-    {"path": "tests/guard-cwd-bypass.tests.sh", "runtime": "bash"},
+-    {"path": "tests/guard-dispatch-fallback.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/guard-invariants-epic-a1.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/guard-invariants-epic-a1.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/guard-negative-corpus.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/guard-parity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/guard-ps1-ascii.tests.sh", "runtime": "bash"},
+-    {"path": "tests/guard-r10-port.tests.ps1", "runtime": "powershell", "optional_in": ["local-posix"], "host_args": ["-ExecutionPolicy", "Bypass"]},
+-    {"path": "tests/guard-readonly-inputs.tests.py", "runtime": "python", "delegated_to": "tests/guard-parity.tests.sh"},
+-    {"path": "tests/guard-staging-exemption.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/guards.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/hitl-wfi-terminal.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/hitl-wfi-terminal.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/hook-guard-epic-a1-boundary.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/hook-guard-epic-a1-boundary.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/hooks.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/hooks/domain-model-visibility.Tests.ps1", "runtime": "powershell", "excluded": "Standalone domain-model visibility Pester suite; outside the domain Pester runner directory."},
+-    {"path": "tests/host-review-preflight.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/human-copy-mirror-freshness.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/human-copy-mirror-freshness.tests.sh", "runtime": "bash"},
+-    {"path": "tests/human-copy-mirrors-classification.tests.py", "runtime": "python"},
+-    {"path": "tests/human-copy-runner-contract.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/human-copy-runner-contract.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/impl-layer-review-inputs.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/impl-layer-review-inputs.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/impl-review-adr-inputs.tests.sh", "runtime": "bash"},
+-    {"path": "tests/impl-review-round2-contract.tests.sh", "runtime": "bash"},
+-    {"path": "tests/implementation-report-corpus.tests.sh", "runtime": "bash", "excluded": "Historical implementation-report corpus ratchet; not registered by the previous runners."},
+-    {"path": "tests/install-uninstall-matrix.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/install-uninstall-matrix.tests.sh", "runtime": "bash"},
+-    {"path": "tests/install.tests.ps1", "runtime": "powershell", "ci_jobs": ["installers"]},
+-    {"path": "tests/install.tests.sh", "runtime": "bash", "ci_jobs": ["installers"]},
+-    {"path": "tests/installer-idempotency.tests.ps1", "runtime": "powershell", "ci_jobs": ["installers"]},
+-    {"path": "tests/installer-idempotency.tests.sh", "runtime": "bash"},
+-    {"path": "tests/issue311-scratch-isolation.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"], "args": ["--repo", "."], "requires": ["powershell"], "optional_in": ["local-posix"]},
+-    {"path": "tests/review-implementation-binding.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"], "args": ["--repo", "."], "requires": ["powershell"], "optional_in": ["local-posix"]},
+-    {"path": "tests/lite-gate-cli-chain.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/lite-gate-cli-chain.tests.sh", "runtime": "bash"},
+-    {"path": "tests/lite-gate-direct-edit-contract.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/lite-gate-direct-edit-contract.tests.sh", "runtime": "bash"},
+-    {"path": "tests/lite-gate-full-upgrade-backstop.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-gate-full-upgrade-backstop.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-gate-summary-absent-active-enforcement.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-gate-summary-absent-active-enforcement.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-gate-summary-absent.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-gate-summary-absent.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-gate-summary-consumption.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-gate-summary-consumption.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-gate-summary-invalid.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-gate-summary-invalid.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-registry-contract.tests.py", "runtime": "python", "delegated_to": "tests/validate-capability-registry.tests.sh"},
+-    {"path": "tests/lite-spec-capability-block.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/lite-spec-capability-block.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/loop-consistency.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/loop-consistency.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/loop-driver.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/loop-driver.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/loop-escalation.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/loop-escalation.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/loop-inventory.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/loop-inventory.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/model-observation.tests.py", "runtime": "python", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/model-identity.tests.py", "runtime": "python", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/model-selector-package.tests.py", "runtime": "python", "requires": ["bash", "powershell"], "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/model-policy.tests.py", "runtime": "python", "requires": ["bash", "powershell"], "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/model-policy-launch-platform.tests.py", "runtime": "python", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/model-policy-launch.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/model-policy-installed.tests.py", "runtime": "python", "requires": ["bash", "powershell"], "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/model-freshness-check.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/model-freshness-check.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/ownership-digest.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/ownership-digest.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/p0-hardening.tests.sh", "runtime": "bash"},
+-    {"path": "tests/path-lineending-regression.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/path-lineending-regression.tests.sh", "runtime": "bash"},
+-    {"path": "tests/phase2-contract-path-helper.tests.ps1", "runtime": "powershell", "excluded": "Candidate/golden contract-path helper diagnostic; not registered by the previous runners."},
+-    {"path": "tests/phase2-guard-invariants.tests.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
+-    {"path": "tests/phase2-guard-invariants.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/phase2-guard-tokenizer.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/phase2-guard-tokenizer.tests.sh", "runtime": "bash"},
+-    {"path": "tests/phase2-risk-upgrade.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/phase2-risk-upgrade.tests.sh", "runtime": "bash"},
+-    {"path": "tests/phase2-sudo-signature-static.tests.sh", "runtime": "bash"},
+-    {"path": "tests/phase2-sudo-signature.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/plugin-contracts-track-selection.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/plugin-contracts-track-selection.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/prepare-panelist.tests.ps1", "runtime": "powershell", "ci_jobs": ["test-windows-heavy"]},
+-    {"path": "tests/prepare-panelist.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/project-context-schema.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/project-context-schema.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/promote-golden-baseline-ci-guard.tests.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
+-    {"path": "tests/promote-golden-baseline-ci-guard.tests.sh", "runtime": "bash"},
+-    {"path": "tests/quality-gate-cycle-limit.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/quality-loop-calibration.tests.sh", "runtime": "bash"},
+-    {"path": "tests/quality-nontty-transport.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/registry-discovery.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/registry-discovery.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/registry-migration-cli.tests.sh", "runtime": "bash"},
+-    {"path": "tests/context-signing-environment.tests.py", "runtime": "python", "delegated_to": "tests/release-config-lock.tests.sh"},
+-    {"path": "tests/release-config-lock.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/release-host-smoke.sh", "runtime": "bash", "excluded": "Manual release host smoke requiring an opt-in host/environment; CI performs syntax validation only."},
+-    {"path": "tests/release-loop-gate.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/release-loop-gate.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates", "version-gates-windows-bump"]},
+-    {"path": "tests/render-agent-frontmatter.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/render-agent-frontmatter.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/repository-release-validation.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/required-checks-posix.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/resolve-project-context-block.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/resolve-project-context-block.tests.sh", "runtime": "bash"},
+-    {"path": "tests/resolve-project-context-caller-contract.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/resolve-project-context-caller-contract.tests.sh", "runtime": "bash"},
+-    {"path": "tests/resolve-project-context-cli.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/resolve-project-context-cli.tests.sh", "runtime": "bash"},
+-    {"path": "tests/resolve-project-context-discovery.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/resolve-project-context-discovery.tests.sh", "runtime": "bash"},
+-    {"path": "tests/resolve-project-context-lite.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/resolve-project-context-lite.tests.sh", "runtime": "bash"},
+-    {"path": "tests/resolve-project-context-match.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/resolve-project-context-match.tests.sh", "runtime": "bash"},
+-    {"path": "tests/resolve-project-context-metamorphic.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/resolve-project-context-metamorphic.tests.sh", "runtime": "bash"},
+-    {"path": "tests/resolve-project-context-parity.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/resolve-project-context-parity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/resolver-evidence-schema.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/resolver-evidence-schema.tests.sh", "runtime": "bash"},
+-    {"path": "tests/retrospective-loop.tests.sh", "runtime": "bash"},
+-    {"path": "tests/review-agent-isolation.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/review-conditional-inputs.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/review-context-anchors.tests.py", "runtime": "python", "delegated_to": "tests/review-context-boundary.tests.sh"},
+-    {"path": "tests/review-context-boundary.tests.sh", "runtime": "bash"},
+-    {"path": "tests/review-contract-foundation-parity.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/review-contract-foundation.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/review-contract-foundation.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/review-hash-normalization.tests.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
+-    {"path": "tests/review-investigation-completeness.tests.py", "runtime": "python", "delegated_to": "tests/review-context-boundary.tests.sh"},
+-    {"path": "tests/review-investigation-runtime.tests.py", "runtime": "python", "delegated_to": "tests/review-context-boundary.tests.sh"},
+-    {"path": "tests/review-prompt-calibration.tests.sh", "runtime": "bash"},
+-    {"path": "tests/review-scratch-history.tests.py", "runtime": "python", "delegated_to": "tests/review-agent-isolation.tests.sh"},
+-    {"path": "tests/rollback-1.5.0.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/rollback-1.5.0.tests.sh", "runtime": "bash"},
+-    {"path": "tests/run-all-python.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/run-panelist-effort.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/run-panelist-effort.tests.sh", "runtime": "bash"},
+-    {"path": "tests/scenario.tests.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
+-    {"path": "tests/scenario.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/schema-engine-identity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/scripts.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/sdd-domain-multitarget-T-003.tests.py", "runtime": "python", "ci_jobs": ["test"]},
+-    {"path": "tests/sdd-domain-multitarget-T-004.tests.py", "runtime": "python"},
+-    {"path": "tests/sdd-domain-multitarget-T-004.tests.sh", "runtime": "bash"},
+-    {"path": "tests/sdd-domain.tests.ps1", "runtime": "powershell", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/sdd-domain/absence-regression.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/artifact-set.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/check-domain-conformance.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/contract-schema.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/contract-v2-schema.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/cross-model-gate.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/domain-review-loop.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/domain-sync.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/drift-metrics.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/reverse-seed.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/template-language.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-domain/update-mode.Tests.ps1", "runtime": "powershell", "delegated_to": "tests/sdd-domain.tests.ps1"},
+-    {"path": "tests/sdd-sudo-guard-mutation.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/second-approval-mask.tests.sh", "runtime": "bash"},
+-    {"path": "tests/self-improvement-guard.tests.sh", "runtime": "bash"},
+-    {"path": "tests/shared-launch-build.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/ship-track-selection-migration.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/ship-track-selection-migration.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/skip-allowlist-manifest.tests.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
+-    {"path": "tests/skip-allowlist-manifest.tests.sh", "runtime": "bash"},
+-    {"path": "tests/spec-review-interrupted-recovery.tests.ps1", "runtime": "powershell", "ci_jobs": ["interrupted-recovery"]},
+-    {"path": "tests/spec-review-interrupted-recovery.tests.sh", "runtime": "bash", "ci_jobs": ["interrupted-recovery"]},
+-    {"path": "tests/spec-review-loop.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/spec-review-verify-inputs.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/structural-activation.tests.sh", "runtime": "bash", "excluded": "Isolated clone structural mutation diagnostic; not registered by the previous runners."},
+-    {"path": "tests/structural-compatibility-live-refresh.tests.ps1", "runtime": "powershell", "excluded": "Parameterized live-refresh fixture helper requiring State; not a standalone default invocation."},
+-    {"path": "tests/structural-compatibility-live-refresh.tests.sh", "runtime": "bash", "delegated_to": "tests/sdd-domain-multitarget-T-004.tests.py"},
+-    {"path": "tests/structural-compatibility.tests.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
+-    {"path": "tests/structural-compatibility.tests.sh", "runtime": "bash"},
+-    {"path": "tests/structure-check-feature-mode.tests.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
+-    {"path": "tests/structure-check-feature-mode.tests.sh", "runtime": "bash"},
+-    {"path": "tests/supplemental-delivery-declaration.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/t001-evaluation-preparation.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/task-context-isolation.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/task-context-isolation.tests.sh", "runtime": "bash"},
+-    {"path": "tests/task-layer-full-profile.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/task-layer-review-inputs.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/task-layer-review-inputs.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/task-lifecycle-enum-parity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/task-plan-binding-durability.tests.sh", "runtime": "bash"},
+-    {"path": "tests/task-prior-pass-receipt.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
+-    {"path": "tests/task-prior-pass-receipt.tests.py", "runtime": "python", "delegated_to": "tests/task-prior-pass-receipt.tests.sh"},
+-    {"path": "tests/task-prior-pass-receipt.tests.sh", "runtime": "bash"},
+-    {"path": "tests/task-review-precheck.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/task-state-grammar-parity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/task-structured-output.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/template-validator-parity.tests.ps1", "runtime": "powershell", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/template-validator-parity.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
+-    {"path": "tests/traceability-freeze-contract.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/turn-first-workflow.tests.sh", "runtime": "bash"},
+-    {"path": "tests/unified-launch-order.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/unified-task-launch.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/uninstall.tests.ps1", "runtime": "powershell", "ci_jobs": ["installers"]},
+-    {"path": "tests/uninstall.tests.sh", "runtime": "bash", "ci_jobs": ["installers"]},
+-    {"path": "tests/upstream-concept-issue.tests.py", "runtime": "python"},
+-    {"path": "tests/upstream-concept-issue.tests.sh", "runtime": "bash"},
+-    {"path": "tests/validate-approval-sidecar.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/validate-approval-sidecar.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/validate-capability-registry.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/validate-capability-registry.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
+-    {"path": "tests/validate-live-host-proof.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/validate-live-host-proof.tests.sh", "runtime": "bash"},
+-    {"path": "tests/validate-repository.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
+-    {"path": "tests/validate-repository.sh", "runtime": "bash", "ci_jobs": ["test"]},
+-    {"path": "tests/validate-resolver-evidence.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/validate-resolver-evidence.tests.sh", "runtime": "bash"},
+-    {"path": "tests/verification-catalog.tests.py", "runtime": "python", "delegated_to": "tests/ci-suite-wiring.tests.sh", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/verification-ci-plan.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/verification-ci.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/verification-impact.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/wfi-034-scratch-metric.tests.sh", "runtime": "bash"},
+-    {"path": "tests/wfi-058-outputs-anchor.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/wfi-058-outputs-anchor.tests.sh", "runtime": "bash"},
+-    {"path": "tests/wfi-059-evidence-path-base.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/wfi-059-evidence-path-base.tests.sh", "runtime": "bash"},
+-    {"path": "tests/workflow-conditional-inputs.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/workflow-documentation.tests.sh", "runtime": "bash"},
+-    {"path": "tests/workflow-scenarios/workflow-scenarios.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
+-    {"path": "tests/workflow-state-ci-integration.tests.sh", "runtime": "bash"},
+-    {"path": "tests/workflow-state-session.tests.py", "runtime": "python"},
+-    {"path": "tests/workflow-state-parity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/workflow-state-registry-parity.tests.sh", "runtime": "bash"},
+-    {"path": "tests/workflow-state-registry.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/workflow-state-registry.tests.sh", "runtime": "bash"},
+-    {"path": "tests/workflow-state-repository-integration.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/workflow-state.tests.ps1", "runtime": "powershell"},
+-    {"path": "tests/workflow-state.tests.sh", "runtime": "bash"}
++    {
++      "path": "tests/session-hub.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/merge-readiness.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/dashboard-publisher.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/dashboard-runtime.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/workflow-state-installed-root.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/codex-review-identity.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/risk-upgrade-context.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/risk-upgrade-context.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/installed-review-precheck.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/check-evidence-bundle-parity.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "cloud-and-ddd"
++      ]
++    },
++    {
++      "path": "tests/codex-versioned-cache.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "cloud-and-ddd"
++      ]
++    },
++    {
++      "path": "tests/sql-development-contract.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "sql-contract"
++      ]
++    },
++    {
++      "path": "tests/sql-development-postgres.tests.py",
++      "runtime": "python",
++      "args": [
++        "--output",
++        "../sql-postgres-proof.json"
++      ],
++      "ci_jobs": [
++        "sql-postgres"
++      ]
++    },
++    {
++      "path": "tests/sql-development-mysql.tests.py",
++      "runtime": "python",
++      "args": [
++        "--output",
++        "../sql-mysql-proof.json"
++      ],
++      "ci_jobs": [
++        "sql-mysql"
++      ]
++    },
++    {
++      "path": "tests/sql-development-tsql.tests.py",
++      "runtime": "python",
++      "args": [
++        "--output",
++        "../sql-tsql-proof.json",
++        "--sqlpackage",
++        "../sql-tsql-tools/sqlpackage"
++      ],
++      "ci_jobs": [
++        "sql-tsql"
++      ]
++    },
++    {
++      "path": "tests/cloud-orchestration-contracts.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "cloud-native"
++      ]
++    },
++    {
++      "path": "tests/cloud-orchestration-routing.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "cloud-native"
++      ]
++    },
++    {
++      "path": "tests/cloud-orchestration-execution.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "cloud-native"
++      ]
++    },
++    {
++      "path": "tests/cloud-orchestration-verification.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "cloud-native"
++      ]
++    },
++    {
++      "path": "tests/install-cloud.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "cloud-native"
++      ]
++    },
++    {
++      "path": "tests/sdd-domain-multitarget-foundation.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "cloud-native"
++      ]
++    },
++    {
++      "path": "tests/windows-powershell.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "windows-powershell"
++      ]
++    },
++    {
++      "path": "tests/codex-mcp-config.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/guard-stop-inspection.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/mcp-diagnostics-sharing.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/python-input-boundaries.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/coding-standards.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "coding-standards"
++      ]
++    },
++    {
++      "path": "tests/coding-standards-audit.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "coding-standards"
++      ]
++    },
++    {
++      "path": "tests/benchmark-gates.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/factory-workflow.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/run-measurement.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/run-measurement-integration.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/project-evidence-collector.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/project-skill-lifecycle.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/project-skill-profiles.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/project-skill-observation.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/research-owner-integration.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/research-discovery.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/research-consumers.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/research-acquire.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/research-evidence.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/golden-eval.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/project-skill-formal.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/a9-advisory-evidence.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/a9-dogfood.tests.sh"
++    },
++    {
++      "path": "tests/a9-dogfood.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test-windows-heavy",
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/a9-dogfood.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/a9-dogfood.tests.sh"
++    },
++    {
++      "path": "tests/a9-dogfood.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/a9-promotion-admission.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/a9-dogfood.tests.sh"
++    },
++    {
++      "path": "tests/a9-rollback-receipt.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/a9-dogfood.tests.sh"
++    },
++    {
++      "path": "tests/adversarial-review-contracts.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/agent-capabilities-v2.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/agent-capabilities-v2.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/agent-model-routing.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/agent-model-routing.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/apply-branch-protection.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/approver-registry-schema.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/bootstrap-cross-layer-index.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/bootstrap-interview-guidance.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/bootstrap-layer-templates.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/boundary-reference-authorization-parity.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/boundary-reference-authorization-parity.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/bump-version-gate.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates",
++        "version-gates-windows-bump"
++      ]
++    },
++    {
++      "path": "tests/bump-version-gate.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates",
++        "version-gates-windows-bump"
++      ]
++    },
++    {
++      "path": "tests/capability-registry-parity.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/capability-registry-parity.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/capability-registry-schema.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/capability-registry-schema.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/capability-summary-schema.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/capability-summary-schema.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/check-a8-process-integrity.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/check-a8-process-integrity.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/check-component-coverage.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/check-component-coverage.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/check-installed-plugin-drift.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/check-installed-plugin-drift.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/check-placeholders-brownfield.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/check-placeholders-brownfield.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/check-placeholders.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/ci-claude-install.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/ci-qcd-candidate.tests.sh",
++      "runtime": "bash",
++      "excluded": "Historical CI candidate patch diagnostic; not registered by the previous runners."
++    },
++    {
++      "path": "tests/ci-suite-wiring.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/claude-manifest-validation.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "installers"
++      ]
++    },
++    {
++      "path": "tests/claude-registration.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "installers"
++      ]
++    },
++    {
++      "path": "tests/compatibility-byte-identical.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/compatibility-byte-identical.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/component-path-diff-basis.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/component-path-diff-basis.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/component-path-ownership-parity.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/component-path-ownership-parity.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/component-path-resolver.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/component-path-resolver.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/concept-review-continuity.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/concept-test.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression",
++        "test"
++      ]
++    },
++    {
++      "path": "tests/constant-parity.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/context-projection-schema.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/context-projection-schema.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/criterion-freeze.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/crlf-parity.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/cross-model-empty-phase.tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/cross-model.tests.ps1"
++    },
++    {
++      "path": "tests/cross-model-encoding.tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/cross-model.tests.ps1"
++    },
++    {
++      "path": "tests/cross-model-process-state.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/cross-model.tests.sh"
++    },
++    {
++      "path": "tests/cross-model.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/cross-model.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/cross-runtime-cli-contract.tests.sh",
++      "runtime": "bash",
++      "delegated_to": "tests/cross-runtime-handoff.tests.sh"
++    },
++    {
++      "path": "tests/cross-runtime-handoff.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/cross-runtime-handoff.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/cross-runtime-live-driver.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/cross-runtime-handoff.tests.sh"
++    },
++    {
++      "path": "tests/current-byte-capture.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/design-sync-policy.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/design-sync-policy.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/design-sync-scan.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/design-sync-scan.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/design-sync-standing-consent.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/design-sync-standing-consent.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/design-system-compliance.tests.ps1",
++      "runtime": "powershell",
++      "excluded": "Standalone design-system compliance checks; not registered by the previous runners."
++    },
++    {
++      "path": "tests/design-system-compliance.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/design-system-contract.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/design-system-contract.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/detect-policy-weakening.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/detect-policy-weakening.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/doc-diagrams.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/doc-diagrams.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/doc-diagrams.tests.sh"
++    },
++    {
++      "path": "tests/doc-diagrams.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/deterministic-lane-selfcheck.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/domain-review-finalize.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "test",
++        "cloud-and-ddd"
++      ]
++    },
++    {
++      "path": "tests/downstream-review-precheck-parity.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/downstream-review-precheck.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/downstream-review-precheck.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/effort-policy-flip.tests.ps1",
++      "runtime": "powershell",
++      "excluded": "Standalone PowerShell effort policy diagnostic; previous CI executes the Bash variant via agent-model-routing."
++    },
++    {
++      "path": "tests/effort-policy-flip.tests.sh",
++      "runtime": "bash",
++      "delegated_to": "tests/agent-model-routing.tests.sh"
++    },
++    {
++      "path": "tests/emit-run-record-feature-scope.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/emit-run-record-feature-scope.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/escalation-skip-activation.tests.sh",
++      "runtime": "bash",
++      "excluded": "Isolated clone mutation diagnostic; not registered by the previous runners."
++    },
++    {
++      "path": "tests/eval.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/evaluate-predicate.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/evaluate-predicate.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/evaluator-scratch-metrics.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/wfi-034-scratch-metric.tests.sh"
++    },
++    {
++      "path": "tests/facet-manifest-parity.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/facet-manifest-parity.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/facet-manifest-schema.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/facet-manifest-schema.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/facet-manifest-semantics.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/facet-manifest-semantics.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/facet-manifest-staleness.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/facet-manifest-staleness.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/fixed-review-inputs.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/codex-review-launcher.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/session-models.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/gemini-environment-loops.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/model-discovery.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/fixed-review-launch.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/fixed-review-precheck-bash.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/fixed-review-precheck-ps.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/fixed-review-state.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/gates.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/generate-gate-capabilities.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/generate-gate-capabilities.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/generate-registry-digest.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/generate-registry-digest.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/golden-baseline-contract.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/golden-baseline-contract.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/hitl-wfi-terminal.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/hitl-wfi-terminal.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/hooks/domain-model-visibility.Tests.ps1",
++      "runtime": "powershell",
++      "excluded": "Standalone domain-model visibility Pester suite; outside the domain Pester runner directory."
++    },
++    {
++      "path": "tests/host-review-preflight.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/human-copy-mirror-freshness.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/human-copy-runner-contract.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/impl-layer-review-inputs.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/impl-layer-review-inputs.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/impl-review-adr-inputs.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/implementation-report-corpus.tests.sh",
++      "runtime": "bash",
++      "excluded": "Historical implementation-report corpus ratchet; not registered by the previous runners."
++    },
++    {
++      "path": "tests/install-uninstall-matrix.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/install-uninstall-matrix.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/install.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "installers"
++      ]
++    },
++    {
++      "path": "tests/install.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "installers"
++      ]
++    },
++    {
++      "path": "tests/installer-idempotency.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "installers"
++      ]
++    },
++    {
++      "path": "tests/installer-idempotency.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/issue311-scratch-isolation.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ],
++      "args": [
++        "--repo",
++        "."
++      ],
++      "requires": [
++        "powershell"
++      ],
++      "optional_in": [
++        "local-posix"
++      ]
++    },
++    {
++      "path": "tests/review-implementation-binding.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ],
++      "args": [
++        "--repo",
++        "."
++      ],
++      "requires": [
++        "powershell"
++      ],
++      "optional_in": [
++        "local-posix"
++      ]
++    },
++    {
++      "path": "tests/lite-gate-summary-absent.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/lite-gate-summary-absent.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/lite-registry-contract.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/validate-capability-registry.tests.sh"
++    },
++    {
++      "path": "tests/loop-consistency.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/loop-consistency.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/loop-driver.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/loop-driver.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/loop-escalation.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/loop-escalation.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/loop-inventory.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/loop-inventory.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/model-observation.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/model-identity.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/model-selector-package.tests.py",
++      "runtime": "python",
++      "requires": [
++        "bash",
++        "powershell"
++      ],
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/model-policy.tests.py",
++      "runtime": "python",
++      "requires": [
++        "bash",
++        "powershell"
++      ],
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/model-policy-launch-platform.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/model-policy-launch.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/model-policy-installed.tests.py",
++      "runtime": "python",
++      "requires": [
++        "bash",
++        "powershell"
++      ],
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/model-freshness-check.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/model-freshness-check.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/ownership-digest.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/ownership-digest.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/p0-hardening.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/path-lineending-regression.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/path-lineending-regression.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/phase2-contract-path-helper.tests.ps1",
++      "runtime": "powershell",
++      "excluded": "Candidate/golden contract-path helper diagnostic; not registered by the previous runners."
++    },
++    {
++      "path": "tests/project-context-schema.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/project-context-schema.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/promote-golden-baseline-ci-guard.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/promote-golden-baseline-ci-guard.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/quality-gate-cycle-limit.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/quality-loop-calibration.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/quality-nontty-transport.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/registry-discovery.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/registry-discovery.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/registry-migration-cli.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/context-signing-environment.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/release-config-lock.tests.sh"
++    },
++    {
++      "path": "tests/release-config-lock.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/release-host-smoke.sh",
++      "runtime": "bash",
++      "excluded": "Manual release host smoke requiring an opt-in host/environment; CI performs syntax validation only."
++    },
++    {
++      "path": "tests/release-loop-gate.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/release-loop-gate.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates",
++        "version-gates-windows-bump"
++      ]
++    },
++    {
++      "path": "tests/render-agent-frontmatter.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/render-agent-frontmatter.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/repository-release-validation.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/required-checks-posix.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/resolve-project-context-block.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/resolve-project-context-block.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/resolve-project-context-caller-contract.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/resolve-project-context-caller-contract.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/resolve-project-context-cli.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/resolve-project-context-cli.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/resolve-project-context-discovery.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/resolve-project-context-discovery.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/resolve-project-context-lite.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/resolve-project-context-lite.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/resolve-project-context-match.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/resolve-project-context-match.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/resolve-project-context-metamorphic.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/resolve-project-context-metamorphic.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/resolve-project-context-parity.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/resolve-project-context-parity.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/resolver-evidence-schema.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/resolver-evidence-schema.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/retrospective-loop.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/review-agent-isolation.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/review-conditional-inputs.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/review-context-anchors.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/review-context-boundary.tests.sh"
++    },
++    {
++      "path": "tests/review-context-boundary.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/review-contract-foundation-parity.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/review-contract-foundation.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/review-contract-foundation.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/review-hash-normalization.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/review-investigation-completeness.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/review-context-boundary.tests.sh"
++    },
++    {
++      "path": "tests/review-investigation-runtime.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/review-context-boundary.tests.sh"
++    },
++    {
++      "path": "tests/review-prompt-calibration.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/review-scratch-history.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/review-agent-isolation.tests.sh"
++    },
++    {
++      "path": "tests/rollback-1.5.0.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/rollback-1.5.0.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/run-all-python.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/run-panelist-effort.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/run-panelist-effort.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/scenario.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/scenario.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/schema-engine-identity.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/scripts.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/sdd-domain-multitarget-T-003.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/sdd-domain-multitarget-T-004.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/sdd-domain-multitarget-T-004.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/sdd-domain.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/sdd-domain/absence-regression.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/artifact-set.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/check-domain-conformance.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/contract-schema.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/contract-v2-schema.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/cross-model-gate.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/domain-review-loop.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/domain-sync.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/drift-metrics.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/reverse-seed.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/template-language.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/sdd-domain/update-mode.Tests.ps1",
++      "runtime": "powershell",
++      "delegated_to": "tests/sdd-domain.tests.ps1"
++    },
++    {
++      "path": "tests/self-improvement-guard.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/shared-launch-build.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/skip-allowlist-manifest.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/skip-allowlist-manifest.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/spec-review-interrupted-recovery.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "interrupted-recovery"
++      ]
++    },
++    {
++      "path": "tests/spec-review-interrupted-recovery.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "interrupted-recovery"
++      ]
++    },
++    {
++      "path": "tests/spec-review-loop.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/spec-review-verify-inputs.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/structural-activation.tests.sh",
++      "runtime": "bash",
++      "excluded": "Isolated clone structural mutation diagnostic; not registered by the previous runners."
++    },
++    {
++      "path": "tests/structural-compatibility-live-refresh.tests.ps1",
++      "runtime": "powershell",
++      "excluded": "Parameterized live-refresh fixture helper requiring State; not a standalone default invocation."
++    },
++    {
++      "path": "tests/structural-compatibility-live-refresh.tests.sh",
++      "runtime": "bash",
++      "delegated_to": "tests/sdd-domain-multitarget-T-004.tests.py"
++    },
++    {
++      "path": "tests/structural-compatibility.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/structural-compatibility.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/structure-check-feature-mode.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/structure-check-feature-mode.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/supplemental-delivery-declaration.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/t001-evaluation-preparation.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/task-context-isolation.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/task-context-isolation.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/task-layer-full-profile.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/task-layer-review-inputs.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/task-layer-review-inputs.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/task-lifecycle-enum-parity.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/task-plan-binding-durability.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/task-prior-pass-receipt.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test",
++        "test-windows-heavy"
++      ]
++    },
++    {
++      "path": "tests/task-prior-pass-receipt.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/task-prior-pass-receipt.tests.sh"
++    },
++    {
++      "path": "tests/task-prior-pass-receipt.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/task-review-precheck.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/task-state-grammar-parity.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/task-structured-output.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/template-validator-parity.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/template-validator-parity.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "loops-routing"
++      ]
++    },
++    {
++      "path": "tests/traceability-freeze-contract.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/turn-first-workflow.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/unified-launch-order.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/unified-task-launch.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/uninstall.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "installers"
++      ]
++    },
++    {
++      "path": "tests/uninstall.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "installers"
++      ]
++    },
++    {
++      "path": "tests/upstream-concept-issue.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/upstream-concept-issue.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/validate-capability-registry.tests.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/validate-capability-registry.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "version-gates"
++      ]
++    },
++    {
++      "path": "tests/validate-live-host-proof.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/validate-live-host-proof.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/validate-repository.ps1",
++      "runtime": "powershell",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/validate-repository.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "test"
++      ]
++    },
++    {
++      "path": "tests/validate-resolver-evidence.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/validate-resolver-evidence.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/verification-catalog.tests.py",
++      "runtime": "python",
++      "delegated_to": "tests/ci-suite-wiring.tests.sh",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/verification-ci-plan.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/verification-ci.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/verification-impact.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/wfi-034-scratch-metric.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/wfi-058-outputs-anchor.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/wfi-058-outputs-anchor.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/wfi-059-evidence-path-base.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/wfi-059-evidence-path-base.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/workflow-conditional-inputs.tests.py",
++      "runtime": "python",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/workflow-documentation.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/workflow-scenarios/workflow-scenarios.tests.sh",
++      "runtime": "bash",
++      "ci_jobs": [
++        "posix-regression"
++      ]
++    },
++    {
++      "path": "tests/workflow-state-ci-integration.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/workflow-state-session.tests.py",
++      "runtime": "python"
++    },
++    {
++      "path": "tests/workflow-state-parity.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/workflow-state-registry-parity.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/workflow-state-registry.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/workflow-state-registry.tests.sh",
++      "runtime": "bash"
++    },
++    {
++      "path": "tests/workflow-state-repository-integration.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/workflow-state.tests.ps1",
++      "runtime": "powershell"
++    },
++    {
++      "path": "tests/workflow-state.tests.sh",
++      "runtime": "bash"
++    }
+   ],
+   "profiles": {
+     "ci-cloud": [
+@@ -487,13 +2135,15 @@
+       "tests/sdd-domain-multitarget-foundation.tests.py"
+     ],
+     "ci-windows-powershell51": [
+-      "tests/windows-powershell.tests.ps1",
+-      "tests/evidence-generation-boundary.tests.ps1"
++      "tests/windows-powershell.tests.ps1"
+     ],
+     "ci-windows-powershell7": [
+       "tests/windows-powershell.tests.ps1"
+     ],
+-    "coding-standards": ["tests/coding-standards.tests.py", "tests/coding-standards-audit.tests.py"],
++    "coding-standards": [
++      "tests/coding-standards.tests.py",
++      "tests/coding-standards-audit.tests.py"
++    ],
+     "local-posix": [
+       "tests/session-hub.tests.py",
+       "tests/merge-readiness.tests.py",
+@@ -503,7 +2153,6 @@
+       "tests/codex-review-identity.tests.py",
+       "tests/risk-upgrade-context.tests.sh",
+       "tests/installed-review-precheck.tests.py",
+-      "tests/guard-quoted-patch-evidence.tests.py",
+       "tests/cloud-orchestration-contracts.tests.py",
+       "tests/cloud-orchestration-routing.tests.py",
+       "tests/cloud-orchestration-execution.tests.py",
+@@ -511,7 +2160,6 @@
+       "tests/install-cloud.tests.py",
+       "tests/sdd-domain-multitarget-foundation.tests.py",
+       "tests/codex-mcp-config.tests.py",
+-      "tests/kill-switch-inspection.tests.sh",
+       "tests/spec-review-interrupted-recovery.tests.sh",
+       "tests/benchmark-gates.tests.py",
+       "tests/factory-workflow.tests.py",
+@@ -536,11 +2184,8 @@
+       "tests/installer-idempotency.tests.sh",
+       "tests/install-uninstall-matrix.tests.sh",
+       "tests/uninstall.tests.sh",
+-      "tests/guards.tests.sh",
+-      "tests/approval-boundary.tests.sh",
+       "tests/gates.tests.sh",
+       "tests/check-placeholders.tests.sh",
+-      "tests/prepare-panelist.tests.sh",
+       "tests/wfi-058-outputs-anchor.tests.sh",
+       "tests/wfi-059-evidence-path-base.tests.sh",
+       "tests/review-contract-foundation.tests.sh",
+@@ -553,7 +2198,6 @@
+       "tests/downstream-review-precheck-parity.tests.sh",
+       "tests/task-review-precheck.tests.sh",
+       "tests/task-prior-pass-receipt.tests.sh",
+-      "tests/impl-review-round2-contract.tests.sh",
+       "tests/impl-review-adr-inputs.tests.sh",
+       "tests/review-agent-isolation.tests.sh",
+       "tests/agent-model-routing.tests.sh",
+@@ -576,25 +2220,13 @@
+       "tests/workflow-state-registry-parity.tests.sh",
+       "tests/workflow-state.tests.sh",
+       "tests/workflow-state-parity.tests.sh",
+-      "tests/second-approval-mask.tests.sh",
+       "tests/workflow-state-ci-integration.tests.sh",
+       "tests/structure-check-feature-mode.tests.sh",
+       "tests/quality-gate-cycle-limit.tests.sh",
+       "tests/quality-loop-calibration.tests.sh",
+-      "tests/guard-dispatch-fallback.tests.sh",
+-      "tests/guard-negative-corpus.tests.sh",
+-      "tests/guard-cwd-bypass.tests.sh",
+-      "tests/guard-parity.tests.sh",
+-      "tests/claude-bash-matcher.tests.sh",
+-      "tests/phase2-guard-invariants.tests.sh",
+-      "tests/human-copy-mirror-freshness.tests.sh",
+-      "tests/phase2-guard-tokenizer.tests.sh",
+-      "tests/phase2-risk-upgrade.tests.sh",
+-      "tests/phase2-sudo-signature-static.tests.sh",
+       "tests/self-improvement-guard.tests.sh",
+       "tests/p0-hardening.tests.sh",
+       "tests/deterministic-lane-selfcheck.tests.sh",
+-      "tests/guard-ps1-ascii.tests.sh",
+       "tests/repository-release-validation.tests.sh",
+       "tests/template-validator-parity.tests.sh",
+       "tests/criterion-freeze.tests.sh",
+@@ -616,7 +2248,6 @@
+       "tests/bootstrap-layer-templates.tests.sh",
+       "tests/bootstrap-interview-guidance.tests.sh",
+       "tests/bootstrap-cross-layer-index.tests.sh",
+-      "tests/collection-layer.tests.sh",
+       "tests/workflow-documentation.tests.sh",
+       "tests/doc-diagrams.tests.sh",
+       "tests/bump-version-gate.tests.sh",
+@@ -631,18 +2262,7 @@
+       "tests/facet-manifest-parity.tests.sh",
+       "tests/project-context-schema.tests.sh",
+       "tests/a9-dogfood.tests.sh",
+-      "tests/canonicalize-sdd-yaml.tests.sh",
+-      "tests/generate-approval-sidecar.tests.sh",
+-      "tests/approver-registry-schema.tests.sh",
+       "tests/detect-policy-weakening.tests.sh",
+-      "tests/validate-approval-sidecar.tests.sh",
+-      "tests/apply-human-copy.tests.sh",
+-      "tests/check-hook-activation-handshake.tests.sh",
+-      "tests/guard-invariants-epic-a1.tests.sh",
+-      "tests/hook-guard-epic-a1-boundary.tests.sh",
+-      "tests/plugin-contracts-track-selection.tests.sh",
+-      "tests/ship-track-selection-migration.tests.sh",
+-      "tests/guard-staging-exemption.tests.sh",
+       "tests/design-sync-standing-consent.tests.sh",
+       "tests/design-sync-scan.tests.sh",
+       "tests/resolver-evidence-schema.tests.sh",
+@@ -663,18 +2283,7 @@
+       "tests/path-lineending-regression.tests.sh",
+       "tests/validate-live-host-proof.tests.sh",
+       "tests/human-copy-runner-contract.tests.sh",
+-      "tests/check-risk-upgrade-byte-identical.tests.sh",
+-      "tests/check-risk-upgrade-capability-merge.tests.sh",
+-      "tests/check-risk-upgrade-fragment-fail-closed.tests.sh",
+-      "tests/check-risk-upgrade-ineligible-no-reasons.tests.sh",
+-      "tests/lite-spec-capability-block.tests.sh",
+-      "tests/lite-gate-summary-consumption.tests.sh",
+       "tests/lite-gate-summary-absent.tests.sh",
+-      "tests/lite-gate-summary-invalid.tests.sh",
+-      "tests/lite-gate-full-upgrade-backstop.tests.sh",
+-      "tests/lite-gate-summary-absent-active-enforcement.tests.sh",
+-      "tests/lite-gate-direct-edit-contract.tests.sh",
+-      "tests/lite-gate-cli-chain.tests.sh",
+       "tests/capability-registry-schema.tests.sh",
+       "tests/evaluate-predicate.tests.sh",
+       "tests/registry-discovery.tests.sh",
+@@ -694,7 +2303,6 @@
+       "tests/sdd-domain-multitarget-T-004.tests.sh",
+       "tests/design-sync-policy.tests.sh",
+       "tests/upstream-concept-issue.tests.sh",
+-      "tests/guard-r10-port.tests.ps1",
+       "tests/issue311-scratch-isolation.tests.py",
+       "tests/review-implementation-binding.tests.py",
+       "tests/sdd-domain-multitarget-T-003.tests.py",
+@@ -741,7 +2349,6 @@
+       "tests/cloud-orchestration-verification.tests.py",
+       "tests/install-cloud.tests.py",
+       "tests/sdd-domain-multitarget-foundation.tests.py",
+-      "tests/evidence-generation-boundary.tests.ps1",
+       "tests/spec-review-interrupted-recovery.tests.ps1",
+       "tests/benchmark-gates.tests.py",
+       "tests/factory-workflow.tests.py",
+@@ -773,10 +2380,6 @@
+       "tests/impl-layer-review-inputs.tests.ps1",
+       "tests/task-layer-review-inputs.tests.ps1",
+       "tests/cross-model.tests.ps1",
+-      "tests/hooks.tests.ps1",
+-      "tests/phase2-guard-tokenizer.tests.ps1",
+-      "tests/phase2-risk-upgrade.tests.ps1",
+-      "tests/phase2-sudo-signature.tests.ps1",
+       "tests/scenario.tests.ps1",
+       "tests/install.tests.ps1",
+       "tests/installer-idempotency.tests.ps1",
+@@ -811,17 +2414,8 @@
+       "tests/design-system-contract.tests.ps1",
+       "tests/project-context-schema.tests.ps1",
+       "tests/a9-dogfood.tests.ps1",
+-      "tests/canonicalize-sdd-yaml.tests.ps1",
+-      "tests/generate-approval-sidecar.tests.ps1",
+       "tests/approver-registry-schema.tests.ps1",
+       "tests/detect-policy-weakening.tests.ps1",
+-      "tests/validate-approval-sidecar.tests.ps1",
+-      "tests/apply-human-copy.tests.ps1",
+-      "tests/check-hook-activation-handshake.tests.ps1",
+-      "tests/guard-invariants-epic-a1.tests.ps1",
+-      "tests/hook-guard-epic-a1-boundary.tests.ps1",
+-      "tests/plugin-contracts-track-selection.tests.ps1",
+-      "tests/ship-track-selection-migration.tests.ps1",
+       "tests/design-sync-standing-consent.tests.ps1",
+       "tests/design-sync-scan.tests.ps1",
+       "tests/doc-diagrams.tests.ps1",
+@@ -845,19 +2439,7 @@
+       "tests/cross-runtime-handoff.tests.ps1",
+       "tests/check-installed-plugin-drift.tests.ps1",
+       "tests/check-a8-process-integrity.tests.ps1",
+-      "tests/human-copy-runner-contract.tests.ps1",
+-      "tests/check-risk-upgrade-byte-identical.tests.ps1",
+-      "tests/check-risk-upgrade-capability-merge.tests.ps1",
+-      "tests/check-risk-upgrade-fragment-fail-closed.tests.ps1",
+-      "tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1",
+-      "tests/lite-spec-capability-block.tests.ps1",
+-      "tests/lite-gate-summary-consumption.tests.ps1",
+       "tests/lite-gate-summary-absent.tests.ps1",
+-      "tests/lite-gate-summary-invalid.tests.ps1",
+-      "tests/lite-gate-full-upgrade-backstop.tests.ps1",
+-      "tests/lite-gate-summary-absent-active-enforcement.tests.ps1",
+-      "tests/lite-gate-direct-edit-contract.tests.ps1",
+-      "tests/lite-gate-cli-chain.tests.ps1",
+       "tests/capability-registry-schema.tests.ps1",
+       "tests/evaluate-predicate.tests.ps1",
+       "tests/registry-discovery.tests.ps1",
+@@ -902,7 +2484,6 @@
+       "tests/wfi-058-outputs-anchor.tests.sh",
+       "tests/wfi-059-evidence-path-base.tests.sh",
+       "tests/task-prior-pass-receipt.tests.sh",
+-      "tests/impl-review-round2-contract.tests.sh",
+       "tests/impl-review-adr-inputs.tests.sh",
+       "tests/task-context-isolation.tests.sh",
+       "tests/turn-first-workflow.tests.sh",
+@@ -914,20 +2495,11 @@
+       "tests/workflow-state-registry-parity.tests.sh",
+       "tests/workflow-state.tests.sh",
+       "tests/workflow-state-parity.tests.sh",
+-      "tests/second-approval-mask.tests.sh",
+       "tests/workflow-state-ci-integration.tests.sh",
+       "tests/structure-check-feature-mode.tests.sh",
+       "tests/quality-loop-calibration.tests.sh",
+-      "tests/guard-cwd-bypass.tests.sh",
+-      "tests/guard-parity.tests.sh",
+-      "tests/claude-bash-matcher.tests.sh",
+-      "tests/human-copy-mirror-freshness.tests.sh",
+-      "tests/phase2-guard-tokenizer.tests.sh",
+-      "tests/phase2-risk-upgrade.tests.sh",
+-      "tests/phase2-sudo-signature-static.tests.sh",
+       "tests/self-improvement-guard.tests.sh",
+       "tests/p0-hardening.tests.sh",
+-      "tests/guard-ps1-ascii.tests.sh",
+       "tests/task-lifecycle-enum-parity.tests.sh",
+       "tests/task-state-grammar-parity.tests.sh",
+       "tests/task-plan-binding-durability.tests.sh",
+@@ -939,7 +2511,6 @@
+       "tests/bootstrap-layer-templates.tests.sh",
+       "tests/bootstrap-interview-guidance.tests.sh",
+       "tests/bootstrap-cross-layer-index.tests.sh",
+-      "tests/collection-layer.tests.sh",
+       "tests/workflow-documentation.tests.sh",
+       "tests/doc-diagrams.tests.sh",
+       "tests/facet-manifest-schema.tests.sh",
+@@ -949,7 +2520,6 @@
+       "tests/facet-manifest-staleness.tests.sh",
+       "tests/facet-manifest-parity.tests.sh",
+       "tests/a9-dogfood.tests.sh",
+-      "tests/apply-human-copy.tests.sh",
+       "tests/design-sync-scan.tests.sh",
+       "tests/resolver-evidence-schema.tests.sh",
+       "tests/resolve-project-context-block.tests.sh",
+@@ -968,8 +2538,6 @@
+       "tests/promote-golden-baseline-ci-guard.tests.sh",
+       "tests/path-lineending-regression.tests.sh",
+       "tests/validate-live-host-proof.tests.sh",
+-      "tests/lite-gate-direct-edit-contract.tests.sh",
+-      "tests/lite-gate-cli-chain.tests.sh",
+       "tests/registry-migration-cli.tests.sh",
+       "tests/cross-runtime-handoff.tests.sh",
+       "tests/check-installed-plugin-drift.tests.sh",
+@@ -979,12 +2547,10 @@
+       "tests/upstream-concept-issue.tests.sh"
+     ],
+     "ci-shared-python": [
+-      "tests/sdd-sudo-guard-mutation.tests.py",
+       "tests/guard-stop-inspection.tests.py",
+       "tests/mcp-diagnostics-sharing.tests.py",
+       "tests/python-input-boundaries.tests.py",
+       "tests/benchmark-gates.tests.py",
+-      "tests/human-copy-mirrors-classification.tests.py",
+       "tests/factory-workflow.tests.py",
+       "tests/run-measurement.tests.py",
+       "tests/run-measurement-integration.tests.py",
+@@ -1032,7 +2598,6 @@
+       "tests/promote-golden-baseline-ci-guard.tests.ps1"
+     ],
+     "ci-portable-prechecks": [
+-      "tests/evidence-generation-boundary.tests.ps1",
+       "tests/review-contract-foundation.tests.ps1",
+       "tests/downstream-review-precheck.tests.ps1",
+       "tests/impl-layer-review-inputs.tests.ps1",
+diff --git a/tests/verification-timings.json b/tests/verification-timings.json
+index 0a3b84e65..ac63a4d73 100644
+--- a/tests/verification-timings.json
++++ b/tests/verification-timings.json
+@@ -2,10 +2,29 @@
+   "schema": "ci-suite-timings/v1",
+   "measurement": "Elapsed GitHub log timestamps from each top-level ==> suite marker to the next marker, with the final suite ending at the successful shard summary. Includes inter-suite runner overhead; not CPU time or isolated-test benchmarks.",
+   "sources": [{"run_id": 39080933664, "event": "pull_request"}, {"run_id": 39083426002, "event": "push"}],
++  "removed_missing_suites": {
++    "reason": "These absent suites were removed from the catalog in 40eec6263. Historical observations are retained here outside active sharding weights.",
++    "removed_weight_seconds": 170,
++    "samples_by_suite": {
++      "tests/apply-human-copy.tests.sh": {"weight_seconds": 53, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 49.734}, {"run_id": 39083426002, "shard": 0, "seconds": 52.034}]},
++      "tests/claude-bash-matcher.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 0.58}, {"run_id": 39083426002, "shard": 0, "seconds": 0.664}]},
++      "tests/collection-layer.tests.sh": {"weight_seconds": 9, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 8.507}, {"run_id": 39083426002, "shard": 3, "seconds": 8.515}]},
++      "tests/guard-cwd-bypass.tests.sh": {"weight_seconds": 3, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 2.142}, {"run_id": 39083426002, "shard": 2, "seconds": 2.076}]},
++      "tests/guard-parity.tests.sh": {"weight_seconds": 37, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 36.84}, {"run_id": 39083426002, "shard": 3, "seconds": 35.979}]},
++      "tests/guard-ps1-ascii.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 0.024}, {"run_id": 39083426002, "shard": 3, "seconds": 0.025}]},
++      "tests/human-copy-mirror-freshness.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 0.091}, {"run_id": 39083426002, "shard": 1, "seconds": 0.115}]},
++      "tests/impl-review-round2-contract.tests.sh": {"weight_seconds": 5, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 4.929}, {"run_id": 39083426002, "shard": 2, "seconds": 4.916}]},
++      "tests/lite-gate-cli-chain.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 0.392}, {"run_id": 39083426002, "shard": 0, "seconds": 0.423}]},
++      "tests/lite-gate-direct-edit-contract.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 0.019}, {"run_id": 39083426002, "shard": 3, "seconds": 0.019}]},
++      "tests/phase2-guard-tokenizer.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 0.047}, {"run_id": 39083426002, "shard": 2, "seconds": 0.04}]},
++      "tests/phase2-risk-upgrade.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 0.004}, {"run_id": 39083426002, "shard": 3, "seconds": 0.004}]},
++      "tests/phase2-sudo-signature-static.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 0.022}, {"run_id": 39083426002, "shard": 0, "seconds": 0.022}]},
++      "tests/second-approval-mask.tests.sh": {"weight_seconds": 55, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 54.096}, {"run_id": 39083426002, "shard": 2, "seconds": 52.386}]}
++    }
++  },
+   "suites": {
+     "tests/a9-dogfood.tests.sh": {"weight_seconds": 351, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 337.68}, {"run_id": 39083426002, "shard": 3, "seconds": 350.394}]},
+     "tests/adversarial-review-contracts.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 0.172}, {"run_id": 39083426002, "shard": 3, "seconds": 0.166}]},
+-    "tests/apply-human-copy.tests.sh": {"weight_seconds": 53, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 49.734}, {"run_id": 39083426002, "shard": 0, "seconds": 52.034}]},
+     "tests/bootstrap-cross-layer-index.tests.sh": {"weight_seconds": 17, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 16.629}, {"run_id": 39083426002, "shard": 2, "seconds": 15.407}]},
+     "tests/bootstrap-interview-guidance.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 0.04}, {"run_id": 39083426002, "shard": 1, "seconds": 0.051}]},
+     "tests/bootstrap-layer-templates.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 0.159}, {"run_id": 39083426002, "shard": 0, "seconds": 0.161}]},
+@@ -16,8 +35,6 @@
+     "tests/check-placeholders.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 0.05}, {"run_id": 39083426002, "shard": 2, "seconds": 0.046}]},
+     "tests/ci-claude-install.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 0.048}, {"run_id": 39083426002, "shard": 1, "seconds": 0.06}]},
+     "tests/ci-suite-wiring.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 0.567}, {"run_id": 39083426002, "shard": 0, "seconds": 0.611}]},
+-    "tests/claude-bash-matcher.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 0.58}, {"run_id": 39083426002, "shard": 0, "seconds": 0.664}]},
+-    "tests/collection-layer.tests.sh": {"weight_seconds": 9, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 8.507}, {"run_id": 39083426002, "shard": 3, "seconds": 8.515}]},
+     "tests/compatibility-byte-identical.tests.sh": {"weight_seconds": 4, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 3.457}, {"run_id": 39083426002, "shard": 0, "seconds": 3.552}]},
+     "tests/constant-parity.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 0.092}, {"run_id": 39083426002, "shard": 1, "seconds": 0.109}]},
+     "tests/context-projection-schema.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 0.827}, {"run_id": 39083426002, "shard": 0, "seconds": 0.893}]},
+@@ -31,21 +48,11 @@
+     "tests/facet-manifest-semantics.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 0.593}, {"run_id": 39083426002, "shard": 2, "seconds": 0.538}]},
+     "tests/facet-manifest-staleness.tests.sh": {"weight_seconds": 2, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 1.639}, {"run_id": 39083426002, "shard": 1, "seconds": 1.808}]},
+     "tests/golden-baseline-contract.tests.sh": {"weight_seconds": 23, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 16.585}, {"run_id": 39083426002, "shard": 1, "seconds": 22.371}]},
+-    "tests/guard-cwd-bypass.tests.sh": {"weight_seconds": 3, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 2.142}, {"run_id": 39083426002, "shard": 2, "seconds": 2.076}]},
+-    "tests/guard-parity.tests.sh": {"weight_seconds": 37, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 36.84}, {"run_id": 39083426002, "shard": 3, "seconds": 35.979}]},
+-    "tests/guard-ps1-ascii.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 0.024}, {"run_id": 39083426002, "shard": 3, "seconds": 0.025}]},
+-    "tests/human-copy-mirror-freshness.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 0.091}, {"run_id": 39083426002, "shard": 1, "seconds": 0.115}]},
+     "tests/impl-review-adr-inputs.tests.sh": {"weight_seconds": 613, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 612.508}, {"run_id": 39083426002, "shard": 3, "seconds": 610.272}]},
+-    "tests/impl-review-round2-contract.tests.sh": {"weight_seconds": 5, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 4.929}, {"run_id": 39083426002, "shard": 2, "seconds": 4.916}]},
+     "tests/install-uninstall-matrix.tests.sh": {"weight_seconds": 12, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 7.986}, {"run_id": 39083426002, "shard": 1, "seconds": 11.931}]},
+     "tests/installer-idempotency.tests.sh": {"weight_seconds": 4, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 3.034}, {"run_id": 39083426002, "shard": 0, "seconds": 2.062}]},
+-    "tests/lite-gate-cli-chain.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 0.392}, {"run_id": 39083426002, "shard": 0, "seconds": 0.423}]},
+-    "tests/lite-gate-direct-edit-contract.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 0.019}, {"run_id": 39083426002, "shard": 3, "seconds": 0.019}]},
+     "tests/p0-hardening.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 0.018}, {"run_id": 39083426002, "shard": 2, "seconds": 0.016}]},
+     "tests/path-lineending-regression.tests.sh": {"weight_seconds": 2, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 1.724}, {"run_id": 39083426002, "shard": 1, "seconds": 1.996}]},
+-    "tests/phase2-guard-tokenizer.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 0.047}, {"run_id": 39083426002, "shard": 2, "seconds": 0.04}]},
+-    "tests/phase2-risk-upgrade.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 0.004}, {"run_id": 39083426002, "shard": 3, "seconds": 0.004}]},
+-    "tests/phase2-sudo-signature-static.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 0.022}, {"run_id": 39083426002, "shard": 0, "seconds": 0.022}]},
+     "tests/promote-golden-baseline-ci-guard.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 0.096}, {"run_id": 39083426002, "shard": 0, "seconds": 0.103}]},
+     "tests/quality-loop-calibration.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 0.016}, {"run_id": 39083426002, "shard": 1, "seconds": 0.027}]},
+     "tests/registry-migration-cli.tests.sh": {"weight_seconds": 8, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 6.85}, {"run_id": 39083426002, "shard": 1, "seconds": 7.932}]},
+@@ -64,7 +71,6 @@
+     "tests/rollback-1.5.0.tests.sh": {"weight_seconds": 32, "samples": [{"run_id": 39080933664, "shard": 0, "seconds": 23.93}, {"run_id": 39083426002, "shard": 0, "seconds": 31.453}]},
+     "tests/schema-engine-identity.tests.sh": {"weight_seconds": 1, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 0.139}, {"run_id": 39083426002, "shard": 3, "seconds": 0.131}]},
+     "tests/sdd-domain-multitarget-T-004.tests.sh": {"weight_seconds": 26, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 21.374}, {"run_id": 39083426002, "shard": 1, "seconds": 25.697}]},
+-    "tests/second-approval-mask.tests.sh": {"weight_seconds": 55, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 54.096}, {"run_id": 39083426002, "shard": 2, "seconds": 52.386}]},
+     "tests/self-improvement-guard.tests.sh": {"weight_seconds": 2, "samples": [{"run_id": 39080933664, "shard": 1, "seconds": 0.96}, {"run_id": 39083426002, "shard": 1, "seconds": 1.417}]},
+     "tests/skip-allowlist-manifest.tests.sh": {"weight_seconds": 3, "samples": [{"run_id": 39080933664, "shard": 3, "seconds": 2.095}, {"run_id": 39083426002, "shard": 3, "seconds": 2.104}]},
+     "tests/structural-compatibility.tests.sh": {"weight_seconds": 9, "samples": [{"run_id": 39080933664, "shard": 2, "seconds": 8.389}, {"run_id": 39083426002, "shard": 2, "seconds": 7.765}]},

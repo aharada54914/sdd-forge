@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": null,
+  "revision": "df85f19d65c251e9f0e3dbd3abf26d9c6e30d619",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "136597c59f0adbf37e7a42c3f8c16473f2a40b92fc6eb7c7a3b241ffb46589c2",
+  "selected": [
+    "tests/task-state-grammar-parity.tests.sh"
+  ],
+  "results": [
+    {
+      "suite": "tests/task-state-grammar-parity.tests.sh",
+      "source_sha256": "01083ddfa692771038bf51155c5f456dce733f8a9e1862066eede43568e12624",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 28.223349
+    }
+  ],
+  "revision_after": "df85f19d65c251e9f0e3dbd3abf26d9c6e30d619",
+  "clean_after": true
+}

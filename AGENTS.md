@@ -154,6 +154,8 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/sql-development-flow/`
 - `specs/visual-spec-decisions/`
 - `specs/v2-lightweight-guardrails/`
+- `specs/verification-first-factory/`
+- `specs/self-verification/`
 
 ## Source Artifact Locations
 

@@ -44,6 +44,8 @@ user-invocable: false
 2. **独立レビュー（統一 5 観点 G1〜G5・1 パス）**:
    `git diff`、`specs/<feature>/{requirements,design,tasks}.md`、`reports/implementation/<feature>/<task-id>.md`、`execution.json`、対象 feature・タスクの `docs/review-tickets/*.yml` を突き合わせる（未解決の `critical` / `major` チケットは `execution.json` の `checks.reviewTickets.blocking` に列挙され、機械判定も FAIL になる）:
 
+   v2 実装レポートの `- Model:` / `- Effort:` に実行時のモデルと推論レベルが記録されていることを確認する。形式は実装プラグインの `scripts/validate-implementation-report.sh` に対象レポートを渡して検証する。
+
    | ID | 観点 | 検査基準（全リスク階層共通） | `low` / `standard`（1 体） | `high`（2 体並列） |
    |---|---|---|---|---|
    | **G1** | **AC / Done When 実証 & 偽装完了検知** | 全対象 `AC-NNN` / `### Done When` が実コマンド・実テストで証明され、ハードコード・スキップ・空実装がないか（`Risk: high` は TDD Red→Green 証跡も確認） | Evaluator | Evaluator A |

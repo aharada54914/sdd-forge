@@ -1,0 +1,20 @@
+ticket_id: RT-20261126-003
+status: resolved
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-005
+summary: "A rejected replay shows a successful checker exit, and prose after the module can prevent replay"
+problem: |
+  A reversed reservation trace with round 99 fails the semantic replay check while its decision view displays checker exit 0 as the reason.
+  A separate minor finding showed that a free quotation mark after the module terminator is accepted by TLC and rejected by the gate.
+expected_fix:
+  - "Show the reason for rejecting an observed replay and retain genuine checker failures and timeout diagnostics."
+  - "Match native behavior for trailing prose and preserve failures inside the TLA+ module."
+references:
+  - reports/quality-gate/verification-first-factory-T-005.md
+resolution:
+  commit: f90ecd1ce
+  result: "Strict replay reports the unreachable observed step. Native and projected models agree on text after the module terminator."
+  evidence: reports/implementation/verification-first-factory/T-005.md

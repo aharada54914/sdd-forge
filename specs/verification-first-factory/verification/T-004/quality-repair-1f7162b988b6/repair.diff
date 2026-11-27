@@ -1,0 +1,1597 @@
+diff --git a/.github/workflows/sdd-guardrails.yml b/.github/workflows/sdd-guardrails.yml
+index 548bc7564..32d5e3336 100644
+--- a/.github/workflows/sdd-guardrails.yml
++++ b/.github/workflows/sdd-guardrails.yml
+@@ -4,30 +4,174 @@ on:
+   pull_request:
+     branches: [main]
+   push:
+-    branches: [main, "feat/v2-*"]
++    branches: [main, "feat/v2-*", "feat/adr-*"]
++
++  schedule:
++    - cron: "17 2 * * *"
+ 
+ permissions:
+   contents: read
+ 
+ jobs:
+   guardrails-and-spec-drift:
++    if: github.event_name != 'schedule'
+     name: Lightweight Guardrails & Spec Drift Check
+     runs-on: ubuntu-latest
++    timeout-minutes: 15
+     steps:
+       - name: Checkout repository
+         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
++        with:
++          persist-credentials: false
++          fetch-depth: 0
++
++      - name: Resolve reviewed commit range
++        id: review
++        env:
++          PR_BASE: ${{ github.event.pull_request.base.sha }}
++          PUSH_BEFORE: ${{ github.event.before }}
++          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
++        run: |
++          base="${PR_BASE:-$PUSH_BEFORE}"
++          if [[ "$base" == "0000000000000000000000000000000000000000" ]]; then
++            base=$(git merge-base "origin/$DEFAULT_BRANCH" HEAD)
++          fi
++          [[ "$base" =~ ^[0-9a-f]{40}$ ]]
++          if ! git cat-file -e "$base^{commit}" 2>/dev/null; then
++            # A forced push can remove the previous tip from all fetched refs.
++            git fetch --no-tags origin "$base"
++          fi
++          echo "base=$base" >> "$GITHUB_OUTPUT"
++          if git diff --quiet "$base" HEAD -- 'specs/**/formal/**' tests/fixtures/project-skills/formal-review-reservation \
++            tests/v2-formal-gate.test.mjs tests/project-skill-formal.tests.py tests/verify-review-reservation.py \
++            plugins/sdd-quality-loop/scripts/v2 plugins/sdd-quality-loop/scripts/validate-review-context-set.sh \
++            plugins/sdd-ship/skills/ship/SKILL.md .github/workflows/sdd-guardrails.yml; then
++            echo 'formal=false' >> "$GITHUB_OUTPUT"
++          else
++            [[ $? == 1 ]] || exit 1
++            echo 'formal=true' >> "$GITHUB_OUTPUT"
++          fi
+ 
+       - name: Setup Node.js (20 LTS)
+         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+         with:
+           node-version: "20"
+ 
+-      - name: Run v2 Lightweight Guardrails test suite
+-        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs
++      - name: Install AST dependencies
++        run: npm ci --prefix plugins/sdd-quality-loop/rules --ignore-scripts
++
++      - name: Verify generated catch provenance for reviewed distribution changes
++        env:
++          BASE: ${{ steps.review.outputs.base }}
++        run: |
++          if git diff --quiet "$BASE" HEAD -- mcp/sdd-forge-mcp/dist/index.js mcp/sdd-forge-mcp/package-lock.json \
++              plugins/sdd-quality-loop/rules/rebuilt-catches.mjs plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs \
++              tests/v2-agent-lint-bundle.test.mjs .github/workflows/sdd-guardrails.yml; then
++            exit 0
++          else
++            [[ $? == 1 ]] || exit 1
++          fi
++          npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts --no-audit --no-fund
++          node --test tests/v2-agent-lint-bundle.test.mjs
++
++      - name: Run v2 Lightweight Guardrails & ADR-0054 Self-Verification test suite
++        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-agent-lint.test.mjs tests/v2-formal-gate.test.mjs tests/v2-wave3-integration.test.mjs tests/self-fitness.test.mjs tests/self-security-adversarial.test.mjs
+ 
+       - name: Run sdd-doctor read-only harness health check
+         run: node plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root . --quiet-info
+ 
++      - name: Evaluate added source lines and dependency manifests
++        env:
++          BASE: ${{ steps.review.outputs.base }}
++        run: |
++          node plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs --diff-only --base-ref "$BASE" --mode shadow --format markdown >> "$GITHUB_STEP_SUMMARY"
++          node plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs --adapters builtin-slopsquatting --mode shadow
++
++      - name: Install pinned review scanners
++        working-directory: ${{ runner.temp }}
++        run: |
++          curl --fail --silent --show-error --location --retry 2 -o gitleaks.tgz \
++            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
++          echo '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tgz' | sha256sum -c -
++          tar -xzf gitleaks.tgz gitleaks
++          python3 -m venv semgrep-venv
++          semgrep-venv/bin/pip --disable-pip-version-check install --quiet 'semgrep==1.187.0'
++
++      - name: Scan the reviewed range and retain only finding locations
++        env:
++          BASE: ${{ steps.review.outputs.base }}
++        run: |
++          cd "$GITHUB_WORKSPACE"
++          status=0
++          "$RUNNER_TEMP/gitleaks" git --log-opts="$BASE..HEAD" --redact=100 --exit-code=42 \
++            --report-format=json --report-path="$RUNNER_TEMP/gitleaks.json" . || status=$?
++          [[ $status == 0 || $status == 42 ]] || exit "$status"
++          gitleaks_seconds=$SECONDS
++          SECONDS=0
++          "$RUNNER_TEMP/semgrep-venv/bin/semgrep" scan --baseline-commit "$BASE" \
++            --config plugins/sdd-quality-loop/rules/security.yml --strict --metrics=off --disable-version-check \
++            --quiet --json-output "$RUNNER_TEMP/semgrep.json" . > /dev/null
++          jq -n --arg base "$BASE" --arg head "$GITHUB_SHA" \
++            --argjson gitleaks_seconds "$gitleaks_seconds" --argjson semgrep_seconds "$SECONDS" \
++            --slurpfile leaks "$RUNNER_TEMP/gitleaks.json" --slurpfile sast "$RUNNER_TEMP/semgrep.json" \
++            '{base: $base, head: $head, gitleaks_seconds: $gitleaks_seconds, semgrep_seconds: $semgrep_seconds,
++              gitleaks: [$leaks[0][] | {rule: .RuleID, commit: .Commit, path: .File, line: .StartLine}],
++              semgrep: [$sast[0].results[] | {rule: .check_id, path, line: .start.line}]}' \
++            > "$RUNNER_TEMP/shadow-findings.json"
++          jq -r '"Shadow findings: Gitleaks \(.gitleaks|length), Semgrep \(.semgrep|length)."' \
++            "$RUNNER_TEMP/shadow-findings.json" >> "$GITHUB_STEP_SUMMARY"
++
++      - name: Retain shadow review evidence
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: shadow-findings
++          path: ${{ runner.temp }}/shadow-findings.json
++          if-no-files-found: error
++          retention-days: 14
++
++      - name: Set up Java 21 for TLC
++        if: steps.review.outputs.formal == 'true'
++        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
++        with:
++          distribution: temurin
++          java-version: '21'
++
++      - name: Cache the pinned TLC download
++        if: steps.review.outputs.formal == 'true'
++        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
++        with:
++          path: ${{ runner.temp }}/tlc/tla2tools.jar
++          key: tlc-1.7.4-${{ hashFiles('specs/**/formal/**') }}
++          restore-keys: tlc-1.7.4-
++
++      - name: Run bounded TLC checks and the reservation bridge
++        id: models
++        if: steps.review.outputs.formal == 'true'
++        shell: bash
++        env:
++          TLA2TOOLS_JAR: ${{ runner.temp }}/tlc/tla2tools.jar
++        run: |
++          mkdir -p "$RUNNER_TEMP/tlc"
++          if [[ ! -f "$TLA2TOOLS_JAR" ]]; then
++            curl --fail --silent --show-error --location --retry 2 -o "$TLA2TOOLS_JAR" \
++              https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.jar
++          fi
++          echo "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88  $TLA2TOOLS_JAR" | sha256sum -c -
++          node --test --test-reporter=tap tests/v2-formal-gate.test.mjs | tee "$RUNNER_TEMP/formal-verification.tap"
++          python3 tests/project-skill-formal.tests.py
++          python3 tests/verify-review-reservation.py --jar "$TLA2TOOLS_JAR" --output "$RUNNER_TEMP/reservation"
++
++      - name: Retain the model test and reservation bridge results
++        if: "!cancelled() && steps.models.outcome != 'skipped'"
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: formal-verification
++          path: |
++            ${{ runner.temp }}/formal-verification.tap
++            ${{ runner.temp }}/reservation/report.json
++          if-no-files-found: error
++          retention-days: 14
++
+       - name: Check Spec Drift across all baselined features
+         run: |
+           node - <<'EOF'
+@@ -90,3 +234,33 @@ jobs:
+             process.exit(1);
+           }
+           EOF
++
++  nightly-codeql:
++    if: github.event_name == 'schedule'
++    runs-on: ubuntu-latest
++    timeout-minutes: 20
++    steps:
++      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
++        with:
++          persist-credentials: false
++      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
++        with:
++          node-version: '20'
++      - uses: github/codeql-action/init@915412ff23e8b7659517e607487dbeae018f2934 # v4
++        with:
++          languages: javascript-typescript
++          build-mode: none
++          queries: security-extended
++      - uses: github/codeql-action/analyze@915412ff23e8b7659517e607487dbeae018f2934 # v4
++        with:
++          upload: never
++          output: ${{ runner.temp }}/codeql
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
++        with:
++          name: nightly-codeql-sarif
++          path: ${{ runner.temp }}/codeql/*.sarif
++          if-no-files-found: error
++          retention-days: 14
++      - name: Scan dependency manifests for slopsquatting
++        if: "!cancelled()"
++        run: node plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs --adapters builtin-slopsquatting --mode shadow
+diff --git a/plugins/sdd-quality-loop/rules/agent-lint-ast.mjs b/plugins/sdd-quality-loop/rules/agent-lint-ast.mjs
+new file mode 100644
+index 000000000..c283a704a
+--- /dev/null
++++ b/plugins/sdd-quality-loop/rules/agent-lint-ast.mjs
+@@ -0,0 +1,144 @@
++import { parseSource } from './source-ast.mjs';
++
++const NESTED = new Set(['if_statement', 'switch_statement', 'for_statement', 'for_in_statement',
++  'while_statement', 'do_statement', 'try_statement', 'ternary_expression']);
++const SCOPES = new Set(['statement_block', 'program', 'switch_case', 'switch_default']);
++const FUNCTIONS = new Set(['function_declaration', 'function_expression', 'arrow_function',
++  'method_definition', 'generator_function', 'generator_function_declaration']);
++const SUPPRESS = /^\s*(?:\/\/|\/\*+|\*)?\s*(?:eslint-disable(?:-next-line|-line)?|@ts-(?:ignore|nocheck)|nosemgrep|(?:agent|sdd)-lint-disable)\b/;
++
++function lineSpan(node) {
++  const { start, end } = node.range();
++  return [start.line + 1, end.line + (end.column ? 1 : 0)];
++}
++
++// Limit combinations to bare flags, negation and boolean operators. Comparisons,
++// calls and property reads may have side effects or represent unrelated values.
++function readFlags(node, flags) {
++  if (!node) return false;
++  if (node.is('identifier')) {
++    flags.add(node.text());
++    return true;
++  }
++  if (node.is('parenthesized_expression')) return readFlags(node.namedChildren()[0], flags);
++  if (node.is('unary_expression') && node.field('operator')?.text() === '!') {
++    return readFlags(node.field('argument'), flags);
++  }
++  if (node.is('binary_expression') && ['&&', '||'].includes(node.field('operator')?.text())) {
++    return readFlags(node.field('left'), flags) && readFlags(node.field('right'), flags);
++  }
++  return false;
++}
++
++function moduleLiteral(node) {
++  if (!node?.is('string')) return null;
++  const parts = node.namedChildren();
++  return parts.length === 1 && parts[0].is('string_fragment') ? parts[0].text() : null;
++}
++
++function staticImport(node) {
++  if (node.is('import_statement') || node.is('export_statement')) {
++    if (node.children().some(child => child.kind() === 'type')) return null;
++    return node.field('source');
++  }
++  if (node.is('call_expression') && ['require', 'import'].includes(node.field('function')?.text())) {
++    return node.field('arguments')?.namedChildren()[0];
++  }
++  return null;
++}
++
++function memberIs(node, object, property) {
++  return node?.is('member_expression') && node.field('object')?.text() === object &&
++    node.field('property')?.text() === property;
++}
++
++function localEdge(node) {
++  const literal = staticImport(node);
++  const specifier = moduleLiteral(literal);
++  if (!specifier?.startsWith('./') && !specifier?.startsWith('../')) return null;
++  const [line, endLine] = lineSpan(literal);
++  return { specifier, line, endLine };
++}
++
++// Transitive dependencies only need import edges. Keep their AST traversal in
++// the native parser, avoiding lint queries on unchanged dependency bodies.
++export function readImports(source, filename) {
++  return parseSource(source, filename).findAll({
++    rule: { any: ['import_statement', 'export_statement', 'call_expression'].map(kind => ({ kind })) }
++  }).map(localEdge).filter(Boolean);
++}
++
++export function analyzeSource(source, filename, { maxDepth = 6, allowJsonReportOutput = false } = {}) {
++  const ast = parseSource(source, filename);
++  // Exported modules can be consumed by production even under a test directory.
++  const standaloneReport = allowJsonReportOutput && !ast.namedChildren().some(node => node.is('export_statement'));
++  const findings = [];
++  const imports = [];
++  const groups = new Map();
++
++  function record(rule, node, snippet = null) {
++    const [line, endLine] = lineSpan(node);
++    findings.push({ rule, line, endLine, snippet: snippet ?? node.text().slice(0, 120) });
++  }
++
++  function visit(node, depth, scope) {
++    const kind = node.kind();
++    if (FUNCTIONS.has(kind)) depth = 0;
++    if (SCOPES.has(kind)) scope = node.id();
++    const elseIf = kind === 'if_statement' && node.parent()?.is('else_clause');
++    if (NESTED.has(kind) && !elseIf && ++depth > maxDepth) {
++      record('no-deep-nesting', node.child(0) ?? node, `depth ${depth} exceeds ${maxDepth}`);
++    }
++    if (kind === 'if_statement') {
++      const condition = node.field('condition');
++      const flags = new Set();
++      if (readFlags(condition, flags) && flags.size >= 2) {
++        const key = JSON.stringify([scope, ...[...flags].sort()]);
++        if (!groups.has(key)) groups.set(key, []);
++        groups.get(key).push(condition);
++      }
++    }
++    if (kind === 'call_expression') {
++      const fn = node.field('function');
++      if (fn?.text() === 'eval') record('no-eval-or-new-function', fn);
++      if (fn?.text() === 'execSync') record('no-child-process-shell-true', fn);
++      if (memberIs(fn, 'console', 'log')) {
++        const args = node.field('arguments')?.namedChildren() ?? [];
++        const jsonOutput = args.length === 1 && args[0].is('call_expression') &&
++          memberIs(args[0].field('function'), 'JSON', 'stringify');
++        if (!standaloneReport || !jsonOutput) record('no-console-log', fn);
++      }
++    }
++    if (kind === 'new_expression' && node.field('constructor')?.text() === 'Function') {
++      record('no-eval-or-new-function', node.field('constructor'));
++    }
++    if (kind === 'pair' && node.field('key')?.text() === 'shell' && node.field('value')?.is('true')) {
++      record('no-child-process-shell-true', node);
++    }
++    if (kind === 'catch_clause' && node.field('body')?.namedChildren().length === 0) {
++      record('no-empty-catch', node);
++    }
++    if (kind === 'comment') {
++      const firstLine = node.range().start.line + 1;
++      for (const [index, text] of node.text().split('\n').entries()) {
++        if (SUPPRESS.test(text)) {
++          findings.push({ rule: 'no-inline-suppression', line: firstLine + index, endLine: firstLine + index,
++            snippet: text.trim().slice(0, 120) });
++        }
++      }
++    }
++    if (kind === 'ERROR') record('syntax-error', node);
++    if (['import_statement', 'export_statement', 'call_expression'].includes(kind)) {
++      const edge = localEdge(node);
++      if (edge) imports.push(edge);
++    }
++    for (const child of node.namedChildren()) visit(child, depth, scope);
++  }
++  visit(ast, 0, ast.id());
++  for (const conditions of groups.values()) {
++    if (conditions.length > 1) {
++      for (const condition of conditions) record('no-combinatorial-flags', condition);
++    }
++  }
++  return { findings, imports };
++}
+diff --git a/plugins/sdd-quality-loop/rules/agent-strict-rules.json b/plugins/sdd-quality-loop/rules/agent-strict-rules.json
+new file mode 100644
+index 000000000..4d8b09ad4
+--- /dev/null
++++ b/plugins/sdd-quality-loop/rules/agent-strict-rules.json
+@@ -0,0 +1,68 @@
++{
++  "schema": "sdd-agent-lint-rules/v1",
++  "rules": [
++    {
++      "id": "no-empty-catch",
++      "severity": "error",
++      "category": "reliability",
++      "message": "空の catch ブロックが例外を無言で握り潰しています",
++      "remediation_hint": "例外をログ出力・再送出するか、意図的に無視する場合は理由コメントまたは guardrails.yaml の agent_lint.waivers に登録してください"
++    },
++    {
++      "id": "no-eval-or-new-function",
++      "severity": "error",
++      "category": "security",
++      "message": "eval() または new Function() の動的コード実行が検出されました",
++      "remediation_hint": "動的評価を廃止し、静的マッピング・JSON.parse・安全なパーサへ置き換えてください"
++    },
++    {
++      "id": "no-child-process-shell-true",
++      "severity": "error",
++      "category": "security",
++      "message": "shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました",
++      "remediation_hint": "execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください"
++    },
++    {
++      "id": "no-console-log",
++      "severity": "warn",
++      "category": "observability",
++      "message": "プロダクションコードに console.log が残存しています",
++      "remediation_hint": "構造化ロガーまたは process.stdout.write へ置換するか、CLI 出力として guardrails.yaml の agent_lint.waivers に期限付き登録してください"
++    },
++    {
++      "id": "no-deep-nesting",
++      "severity": "warn",
++      "category": "maintainability",
++      "message": "制御構造のネストが max_abstraction_depth を超えています",
++      "remediation_hint": "早期 return（ガード節）またはヘルパー関数抽出でネストを浅くしてください"
++    },
++    {
++      "id": "no-combinatorial-flags",
++      "severity": "error",
++      "category": "maintainability",
++      "message": "同一スコープ内の複数の分岐が同じフラグの組み合わせに依存しています",
++      "remediation_hint": "分岐を明示的な状態または決定表にまとめてください"
++    },
++    {
++      "id": "no-dependency-cycle",
++      "severity": "error",
++      "category": "architecture",
++      "message": "このローカル import が循環依存に参加しています",
++      "remediation_hint": "依存の向きを揃えるか共通処理を独立したモジュールへ抽出してください"
++    },
++    {
++      "id": "no-inline-suppression",
++      "severity": "error",
++      "category": "maintainability",
++      "message": "新しいインライン抑止コメントがあります",
++      "remediation_hint": "理由と期限を agent_lint.waivers に登録してください"
++    },
++    {
++      "id": "syntax-error",
++      "severity": "error",
++      "category": "correctness",
++      "message": "構文解析できない箇所があります",
++      "remediation_hint": "ファイルの言語と構文を確認してください"
++    }
++  ]
++}
+diff --git a/plugins/sdd-quality-loop/rules/lint-diff.mjs b/plugins/sdd-quality-loop/rules/lint-diff.mjs
+new file mode 100644
+index 000000000..cdd4aee49
+--- /dev/null
++++ b/plugins/sdd-quality-loop/rules/lint-diff.mjs
+@@ -0,0 +1,40 @@
++import { execFileSync } from 'node:child_process';
++
++const EXT = ['js', 'jsx', 'mjs', 'cjs', 'ts', 'tsx', 'mts', 'cts'];
++export const LINTABLE = /\.(?:[cm]?[jt]s|[jt]sx)$/i;
++
++function git(root, args) {
++  return execFileSync('git', args, {
++    cwd: root, encoding: 'utf8', shell: false, maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'],
++  });
++}
++
++// The raw NUL-delimited names and the patch sections have the same diff order.
++// Associating by index preserves filenames containing spaces, quotes or newlines.
++export function changedHunks(root, baseRef = 'HEAD') {
++  const sha = git(root, ['rev-parse', '--verify', '--end-of-options', baseRef + '^{commit}']).trim();
++  const paths = EXT.map(ext => ':(icase,glob)**/*.' + ext);
++  const data = git(root, ['diff', '--no-ext-diff', '--no-textconv', '--no-color', '--no-renames',
++    '--diff-filter=AMT', '--raw', '-z', '--patch', '--unified=0', sha, '--', ...paths]);
++  const files = new Map();
++  if (data) {
++    const delimiter = data.indexOf('\0\0');
++    if (delimiter < 0) throw new Error('Cannot read Git diff header');
++    const raw = data.slice(0, delimiter).split('\0');
++    const patches = data.slice(delimiter + 2).split(/^diff --git /m).slice(1);
++    if (patches.length * 2 !== raw.length) throw new Error('Cannot match Git filenames to hunks');
++    for (const [i, patch] of patches.entries()) {
++      const ranges = [];
++      for (const match of patch.matchAll(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/gm)) {
++        const start = Number(match[1]);
++        const count = Number(match[2] ?? 1);
++        if (count) ranges.push([start, start + count - 1]);
++      }
++      if (ranges.length) files.set(raw[2 * i + 1], ranges);
++    }
++  }
++  for (const file of git(root, ['ls-files', '--others', '--exclude-standard', '-z', '--', ...paths]).split('\0')) {
++    if (file) files.set(file, [[1, Infinity]]);
++  }
++  return files;
++}
+diff --git a/plugins/sdd-quality-loop/rules/local-module-graph.mjs b/plugins/sdd-quality-loop/rules/local-module-graph.mjs
+new file mode 100644
+index 000000000..ecb960b24
+--- /dev/null
++++ b/plugins/sdd-quality-loop/rules/local-module-graph.mjs
+@@ -0,0 +1,83 @@
++import fs from 'node:fs';
++import path from 'node:path';
++import { LINTABLE } from './lint-diff.mjs';
++
++const EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs'];
++
++export function projectFile(root, rel) {
++  const absolute = path.resolve(root, rel);
++  const fromRoot = path.relative(root, absolute);
++  if (!fromRoot || fromRoot.split(path.sep).includes('..') || path.isAbsolute(fromRoot)) return null;
++  if (!fs.statSync(absolute, { throwIfNoEntry: false })?.isFile()) return null;
++  // Do not cross symlinks while reading user-controlled import paths.
++  return fs.realpathSync(absolute) === absolute ? absolute : null;
++}
++
++function resolveImport(root, from, specifier) {
++  const rel = path.posix.normalize(path.posix.join(path.posix.dirname(from), specifier));
++  if (rel.split('/').some(part => ['..', '.git', 'node_modules'].includes(part))) return null;
++  let candidates = [rel];
++  const ext = path.posix.extname(rel);
++  if (!ext) candidates = EXTENSIONS.flatMap(suffix => [rel + suffix, rel + '/index' + suffix]);
++  else if (['.js', '.mjs', '.cjs'].includes(ext)) {
++    candidates.push(rel.slice(0, -ext.length) + ext.replace('js', 'ts'));
++  }
++  return candidates.find(candidate => LINTABLE.test(candidate) && projectFile(root, candidate)) ?? null;
++}
++
++// Include unchanged dependencies to discover cycles that cross the diff boundary.
++// Report the source range of the changed edge, not all members of the cycle.
++export function dependencyCycles(root, seeds, importsFor, inScope) {
++  const graph = new Map();
++  const queue = [...seeds];
++  for (let i = 0; i < queue.length; i++) {
++    const from = queue[i];
++    if (graph.has(from)) continue;
++    const edges = [];
++    graph.set(from, edges);
++    for (const edge of importsFor(from)) {
++      const target = resolveImport(root, from, edge.specifier);
++      if (!target) continue;
++      edges.push({ ...edge, target });
++      if (!graph.has(target)) queue.push(target);
++    }
++  }
++  // Kosaraju's two passes, with explicit stacks so long import chains are safe.
++  const visited = new Set();
++  const order = [];
++  const backwards = new Map([...graph.keys()].map(key => [key, []]));
++  for (const [source, edges] of graph) {
++    for (const { target } of edges) backwards.get(target).push(source);
++    if (visited.has(source)) continue;
++    const stack = [[source, 0]];
++    visited.add(source);
++    while (stack.length) {
++      const frame = stack.at(-1);
++      const next = graph.get(frame[0])[frame[1]++];
++      if (!next) { order.push(stack.pop()[0]); continue; }
++      if (!visited.has(next.target)) { visited.add(next.target); stack.push([next.target, 0]); }
++    }
++  }
++  const group = new Map();
++  for (const source of order.reverse()) {
++    if (group.has(source)) continue;
++    const stack = [source];
++    group.set(source, source);
++    while (stack.length) {
++      for (const prev of backwards.get(stack.pop())) {
++        if (group.has(prev)) continue;
++        group.set(prev, source);
++        stack.push(prev);
++      }
++    }
++  }
++  const findings = [];
++  for (const from of seeds) {
++    for (const edge of graph.get(from)) {
++      if (inScope(from, edge) && group.get(from) === group.get(edge.target)) {
++        findings.push({ rule: 'no-dependency-cycle', path: from, line: edge.line, endLine: edge.endLine, snippet: edge.specifier });
++      }
++    }
++  }
++  return findings;
++}
+diff --git a/plugins/sdd-quality-loop/rules/package-lock.json b/plugins/sdd-quality-loop/rules/package-lock.json
+new file mode 100644
+index 000000000..1d0f552dd
+--- /dev/null
++++ b/plugins/sdd-quality-loop/rules/package-lock.json
+@@ -0,0 +1,179 @@
++{
++  "name": "sdd-quality-loop-rules",
++  "version": "1.0.0",
++  "lockfileVersion": 3,
++  "requires": true,
++  "packages": {
++    "": {
++      "name": "sdd-quality-loop-rules",
++      "version": "1.0.0",
++      "dependencies": {
++        "@ast-grep/napi": "0.51.3"
++      }
++    },
++    "node_modules/@ast-grep/napi": {
++      "version": "0.51.3",
++      "resolved": "https://registry.npmjs.org/@ast-grep/napi/-/napi-0.51.3.tgz",
++      "integrity": "sha512-C+AWyTwnOGXnZ1UnRbnLgsdcmKLTUSi2qATC8dUYQ43E0x4QGLevfpw9bwrmSUM31K3PK5bB/nII0AHj772pZA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 20.0.0"
++      },
++      "optionalDependencies": {
++        "@ast-grep/napi-darwin-arm64": "0.51.3",
++        "@ast-grep/napi-darwin-x64": "0.51.3",
++        "@ast-grep/napi-linux-arm64-gnu": "0.51.3",
++        "@ast-grep/napi-linux-arm64-musl": "0.51.3",
++        "@ast-grep/napi-linux-x64-gnu": "0.51.3",
++        "@ast-grep/napi-linux-x64-musl": "0.51.3",
++        "@ast-grep/napi-win32-arm64-msvc": "0.51.3",
++        "@ast-grep/napi-win32-ia32-msvc": "0.51.3",
++        "@ast-grep/napi-win32-x64-msvc": "0.51.3"
++      }
++    },
++    "node_modules/@ast-grep/napi-darwin-arm64": {
++      "version": "0.51.3",
++      "resolved": "https://registry.npmjs.org/@ast-grep/napi-darwin-arm64/-/napi-darwin-arm64-0.51.3.tgz",
++      "integrity": "sha512-jEetXhk5jdz4tdPVq5zGTxAe46o9ygl7fkuayjkUKBe7DF1EGK51tfI1zKVWqWs1IDzfRSZ+6TKx9KLwp+NfFw==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">= 20.0.0"
++      }
++    },
++    "node_modules/@ast-grep/napi-darwin-x64": {
++      "version": "0.51.3",
++      "resolved": "https://registry.npmjs.org/@ast-grep/napi-darwin-x64/-/napi-darwin-x64-0.51.3.tgz",
++      "integrity": "sha512-8D94ytfbbc89Cer2EMRAgeM0bmYF7wuY9VtEwA+Yrfhphgb8d5dM0BqcTjUplBO84BNg2Oc0GAS7SG6FQQq2ew==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">= 20.0.0"
++      }
++    },
++    "node_modules/@ast-grep/napi-linux-arm64-gnu": {
++      "version": "0.51.3",
++      "resolved": "https://registry.npmjs.org/@ast-grep/napi-linux-arm64-gnu/-/napi-linux-arm64-gnu-0.51.3.tgz",
++      "integrity": "sha512-o/qmmOtlA+MB+6BqXLLmJBPPlrdxfTJlEv5wra0JKiK6sQhvrS9FzRCzt4TC1JMvXY0DAqFw4G2pmxRP+KAg0A==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 20.0.0"
++      }
++    },
++    "node_modules/@ast-grep/napi-linux-arm64-musl": {
++      "version": "0.51.3",
++      "resolved": "https://registry.npmjs.org/@ast-grep/napi-linux-arm64-musl/-/napi-linux-arm64-musl-0.51.3.tgz",
++      "integrity": "sha512-l6MNH2iDhxz7nqwxfHn3DzWaOES9q+c23vD/wDwyjkoDGfgxwzCzj+cLgU/FQ+Ku7bMZd2UKQ9FacLRTSmSIxg==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 20.0.0"
++      }
++    },
++    "node_modules/@ast-grep/napi-linux-x64-gnu": {
++      "version": "0.51.3",
++      "resolved": "https://registry.npmjs.org/@ast-grep/napi-linux-x64-gnu/-/napi-linux-x64-gnu-0.51.3.tgz",
++      "integrity": "sha512-zSsre2fZNzrUEBCrBpLd9lhCYN/UkHzxF4wGfD/chS1om/8cBxSngDsgknRxMQ/xIgPLW/e9qN45txKONTh15w==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 20.0.0"
++      }
++    },
++    "node_modules/@ast-grep/napi-linux-x64-musl": {
++      "version": "0.51.3",
++      "resolved": "https://registry.npmjs.org/@ast-grep/napi-linux-x64-musl/-/napi-linux-x64-musl-0.51.3.tgz",
++      "integrity": "sha512-F8nqtnR8GrjjyrllvY/mf9yAdeRljenP/KDfSwyoHC5akmad8e/lh5P3OjTrLZS1RZioHBM3q00qkxQ0rga9LA==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 20.0.0"
++      }
++    },
++    "node_modules/@ast-grep/napi-win32-arm64-msvc": {
++      "version": "0.51.3",
++      "resolved": "https://registry.npmjs.org/@ast-grep/napi-win32-arm64-msvc/-/napi-win32-arm64-msvc-0.51.3.tgz",
++      "integrity": "sha512-9cr1yZ/TKYyP9a1/q54Tqfjc5gG4yokLpwWeHxdUGbJTbnenu4hawd813RAMvfLO7SAvJPrFK1pGKdH93DWsjA==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">= 20.0.0"
++      }
++    },
++    "node_modules/@ast-grep/napi-win32-ia32-msvc": {
++      "version": "0.51.3",
++      "resolved": "https://registry.npmjs.org/@ast-grep/napi-win32-ia32-msvc/-/napi-win32-ia32-msvc-0.51.3.tgz",
++      "integrity": "sha512-snWcPI07u72Cn2Y/fq86X7DevjqgUtMxBsFS3ytR81S7DT8YNR17oeQTxJx0QzrKNNpTMbbmISycniuivg7HkA==",
++      "cpu": [
++        "ia32"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">= 20.0.0"
++      }
++    },
++    "node_modules/@ast-grep/napi-win32-x64-msvc": {
++      "version": "0.51.3",
++      "resolved": "https://registry.npmjs.org/@ast-grep/napi-win32-x64-msvc/-/napi-win32-x64-msvc-0.51.3.tgz",
++      "integrity": "sha512-pG1F5IqCcijEBCb6+U6ADbkydCgHN4+JCFMHwDE4XCOTY0yRqdGHwWiPkELm+fL+tqPPRkAd/kWaqvrT9IIJuQ==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">= 20.0.0"
++      }
++    }
++  }
++}
+diff --git a/plugins/sdd-quality-loop/rules/package.json b/plugins/sdd-quality-loop/rules/package.json
+new file mode 100644
+index 000000000..a43800c2f
+--- /dev/null
++++ b/plugins/sdd-quality-loop/rules/package.json
+@@ -0,0 +1,8 @@
++{
++  "name": "sdd-quality-loop-rules",
++  "version": "1.0.0",
++  "private": true,
++  "dependencies": {
++    "@ast-grep/napi": "0.51.3"
++  }
++}
+diff --git a/plugins/sdd-quality-loop/rules/rebuilt-catches.mjs b/plugins/sdd-quality-loop/rules/rebuilt-catches.mjs
+new file mode 100644
+index 000000000..894f2ea32
+--- /dev/null
++++ b/plugins/sdd-quality-loop/rules/rebuilt-catches.mjs
+@@ -0,0 +1,107 @@
++import fs from 'node:fs';
++import path from 'node:path';
++import { execFileSync } from 'node:child_process';
++import { createRequire, SourceMap } from 'node:module';
++import { parseSource } from './source-ast.mjs';
++
++// This compiler belongs to the lint tool checkout. Never load code or builders
++// from the project passed to --root. Missing build inputs leave diagnostics intact.
++const requireTool = createRequire(new URL('../../../mcp/sdd-forge-mcp/package.json', import.meta.url));
++const bundlePath = 'mcp/sdd-forge-mcp/dist/index.js';
++const maxBytes = 12 * 1024 * 1024;
++
++function documentedCatch(source, filename, entry) {
++  const catches = parseSource(source, filename).findAll({ rule: { kind: 'catch_clause' } });
++  for (const clause of catches) {
++    const start = clause.range().start;
++    if (start.line !== entry.originalLine || start.column < entry.originalColumn) continue;
++    // esbuild can map the entire generated '} catch' span to the preceding brace.
++    const prefix = source.split('\n')[start.line].slice(entry.originalColumn, start.column);
++    if (!/^}?\s*$/.test(prefix)) continue;
++    const body = clause.field('body');
++    const statements = body.namedChildren();
++    if (!statements.length || !statements.every(n => n.is('comment'))) continue;
++    const offset = body.range().start.index;
++    if (source[offset] === '{') return offset + 1;
++  }
++  return null;
++}
++
++async function verifiedLines(root, lines) {
++  const { build } = requireTool('./node_modules/esbuild');
++  const pkg = path.join(root, 'mcp/sdd-forge-mcp');
++  const dist = path.join(pkg, 'dist');
++  const options = { absWorkingDir: pkg, entryPoints: ['src/index.ts'], bundle: true, platform: 'node',
++    format: 'esm', outfile: 'dist/index.js', sourcemap: 'external', write: false, logLevel: 'silent' };
++  const first = await build(options);
++  const output = first.outputFiles.find(file => file.path === path.join(dist, 'index.js')).contents;
++  const original = fs.readFileSync(path.join(root, bundlePath));
++  if (!original.equals(output)) return [];
++  const committedBundle = execFileSync('git', ['-C', root, 'show', 'HEAD:' + bundlePath],
++    { maxBuffer: maxBytes, stdio: ['ignore', 'pipe', 'ignore'] });
++  if (!original.equals(committedBundle)) return [];
++  const sourceMap = JSON.parse(first.outputFiles.find(file => file.path.endsWith('.js.map')).text);
++  const map = new SourceMap(sourceMap);
++  const outputLines = original.toString('utf8').split('\n');
++  const edits = new Map();
++  const expected = new Map();
++  const prefix = 'sdd_lint_provenance_';
++  if (original.includes(prefix)) return [];
++
++  for (const line of lines) {
++    const text = outputLines[line - 1];
++    if (!/^\s*} catch(?: \([^)]*\))? \{$/.test(text)) continue;
++    const entry = map.findEntry(line - 1, text.indexOf('catch'));
++    if (typeof entry.originalSource !== 'string') continue;
++    const filename = path.resolve(dist, entry.originalSource);
++    const rel = path.relative(root, filename);
++    if (rel.startsWith('..' + path.sep) || path.isAbsolute(rel) || rel.split(path.sep).includes('node_modules')) continue;
++    if (!/\.(?:[cm]?[jt]s|[jt]sx)$/.test(rel) || fs.realpathSync(filename) !== filename) continue;
++    const embedded = sourceMap.sourcesContent[sourceMap.sources.indexOf(entry.originalSource)];
++    if (typeof embedded !== 'string' || fs.readFileSync(filename, 'utf8') !== embedded) continue;
++    const committed = execFileSync('git', ['-C', root, 'show', 'HEAD:' + rel.split(path.sep).join('/')],
++      { encoding: 'utf8', maxBuffer: maxBytes, stdio: ['ignore', 'pipe', 'ignore'] });
++    if (committed !== embedded || embedded.includes(prefix)) continue;
++    const offset = documentedCatch(embedded, filename, entry);
++    if (offset === null) continue;
++    const marker = prefix + line;
++    if (!edits.has(filename)) edits.set(filename, { source: embedded, changes: [] });
++    edits.get(filename).changes.push({ offset, marker });
++    expected.set(marker, line);
++  }
++  if (!edits.size) return [];
++
++  // Prove that changing this source catch changes this generated catch.
++  // A stale or misleading sourceMappingURL alone cannot satisfy this check.
++  const instrument = { name: 'verify-catch-origin', setup(build) {
++    build.onLoad({ filter: /\.[cm]?[jt]sx?$/ }, args => {
++      const edit = edits.get(args.path);
++      if (!edit) return;
++      let contents = edit.source;
++      for (const { offset, marker } of edit.changes.sort((a, b) => b.offset - a.offset)) {
++        contents = contents.slice(0, offset) + 'console.warn("' + marker + '");' + contents.slice(offset);
++      }
++      const ext = path.extname(args.path);
++      const loader = ext.endsWith('sx') ? ext.slice(1) : ext.endsWith('ts') ? 'ts' : 'js';
++      return { contents, loader, resolveDir: path.dirname(args.path) };
++    });
++  } };
++  // Both builds are in memory. Their outputs are compared as data and never run.
++  const second = await build({ ...options, plugins: [instrument] });
++  const regenerated = second.outputFiles.find(file => file.path === path.join(dist, 'index.js')).text;
++  const unmarked = [];
++  const verified = [];
++  for (const text of regenerated.split('\n')) {
++    const match = /^\s*console\.warn\("(sdd_lint_provenance_\d+)"\);$/.exec(text);
++    if (!match) { unmarked.push(text); continue; }
++    if (expected.get(match[1]) === unmarked.length) verified.push(unmarked.length);
++  }
++  return unmarked.join('\n') === original.toString('utf8') ? verified : [];
++}
++
++try {
++  const { root, lines } = JSON.parse(fs.readFileSync(0, 'utf8'));
++  process.stdout.write(JSON.stringify(await verifiedLines(root, lines)));
++} catch {
++  process.stdout.write('[]');
++}
+diff --git a/plugins/sdd-quality-loop/rules/source-ast.mjs b/plugins/sdd-quality-loop/rules/source-ast.mjs
+new file mode 100644
+index 000000000..4fd383a96
+--- /dev/null
++++ b/plugins/sdd-quality-loop/rules/source-ast.mjs
+@@ -0,0 +1,18 @@
++import { createRequire } from 'node:module';
++
++const require = createRequire(import.meta.url);
++let parser;
++
++/** Parse a source file with the same grammar as the Layer 2/3 lint rules. */
++export function parseSource(source, filename = 'source.mjs') {
++  if (!parser) {
++    try {
++      parser = require('@ast-grep/napi');
++    } catch (cause) {
++      throw new Error('Agent Lint requires ast-grep. Run npm ci --prefix plugins/sdd-quality-loop/rules.', { cause });
++    }
++  }
++  const lang = /\.tsx$/i.test(filename) ? parser.Lang.Tsx
++    : /\.(?:ts|mts|cts)$/i.test(filename) ? parser.Lang.TypeScript : parser.Lang.JavaScript;
++  return parser.parse(lang, source).root();
++}
+diff --git a/plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs b/plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs
+new file mode 100644
+index 000000000..3f53c74a7
+--- /dev/null
++++ b/plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs
+@@ -0,0 +1,312 @@
++#!/usr/bin/env node
++/**
++ * run-agent-lint.mjs — Layer 2/3 Deterministic Agent-Strict Lint with Built-in Waivers (ADR-0054 T-004).
++ *
++ * Install the optional AST parser with npm ci --prefix plugins/sdd-quality-loop/rules.
++ * Layer 1 (`sdd-soft-guard.mjs`) remains untouched; this script runs in Layer 2/3
++ * (`sdd-gate` / CI) with `diff_only: true` by default and <= 3s per 100 files budget (NFR-004).
++ *
++ * Usage:
++ *   node run-agent-lint.mjs [--root <dir>] [--files <a,b>] [--diff-only] [--base-ref <commit>]
++ *                           [--mode off|shadow|warn|strict] [--format json|markdown]
++ *                           [--today YYYY-MM-DD]
++ *
++ * Exit codes:
++ *   0 — Pass (or shadow/warn/off mode)
++ *   1 — Strict mode failure (unwaived error, invalid expiry or expired waiver)
++ *   2 — Tool / argument error
++ */
++import fs from 'node:fs';
++import path from 'node:path';
++import { spawnSync } from 'node:child_process';
++import { fileURLToPath } from 'node:url';
++import {
++  globToRegExp,
++  isMainModule,
++  loadGuardrailsConfig,
++  normalizeRelPath,
++  resolveExplicitOrAutoRoot,
++} from './guardrails-lib.mjs';
++
++import { analyzeSource, readImports } from '../../rules/agent-lint-ast.mjs';
++import { changedHunks, LINTABLE } from '../../rules/lint-diff.mjs';
++import { dependencyCycles, projectFile } from '../../rules/local-module-graph.mjs';
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++const RULES_PATH = path.resolve(__dirname, '../../rules/agent-strict-rules.json');
++
++const IGNORED_DIRS = new Set(['.git', 'node_modules', 'dist', 'dist-test', 'build', '.next', '.worktrees']);
++
++function isCalendarDate(value) {
++  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
++  const date = new Date(value + 'T00:00:00Z');
++  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
++}
++
++function loadRulesCatalog() {
++  const raw = JSON.parse(fs.readFileSync(RULES_PATH, 'utf8'));
++  return new Map(raw.rules.map(rule => [rule.id, rule]));
++}
++
++function describeFinding({ rule, line, snippet }, rel, rulesMap) {
++  const { severity, category, message, remediation_hint } = rulesMap.get(rule);
++  return { rule, severity, category, path: rel, line, message, remediation_hint, snippet };
++}
++
++export function lintSourceCode(source, relPath, rulesMap = loadRulesCatalog()) {
++  return analyzeSource(source, relPath).findings.map(finding => describeFinding(finding, relPath, rulesMap));
++}
++
++function collectFilesRecursive(root, relDir = '', out = []) {
++  const absDir = relDir ? path.join(root, ...relDir.split('/')) : root;
++  let entries;
++  try {
++    entries = fs.readdirSync(absDir, { withFileTypes: true });
++  } catch {
++    return out;
++  }
++  for (const entry of entries) {
++    if (IGNORED_DIRS.has(entry.name)) continue;
++    const childRel = relDir ? `${relDir}/${entry.name}` : entry.name;
++    if (entry.isDirectory()) {
++      collectFilesRecursive(root, childRel, out);
++    } else if (entry.isFile() && LINTABLE.test(entry.name)) {
++      out.push(childRel);
++    }
++  }
++  return out;
++}
++
++export function runAgentLint({
++  projectRoot = null,
++  files = null,
++  diffOnly = null,
++  baseRef = null,
++  mode = null,
++  today = null,
++} = {}) {
++  const startedAt = performance.now();
++  const root = fs.realpathSync(resolveExplicitOrAutoRoot(projectRoot));
++  const config = loadGuardrailsConfig(root);
++  const alCfg = config.agent_lint || {};
++  const effectiveMode = mode || (alCfg.enabled ? alCfg.mode : 'off');
++  if (!['off', 'shadow', 'warn', 'strict'].includes(effectiveMode)) throw new Error('Invalid Agent Lint mode');
++  const effectiveDiffOnly = typeof diffOnly === 'boolean' ? diffOnly : Boolean(alCfg.diff_only);
++  const todayStr = today ?? new Date().toISOString().slice(0, 10);
++  if (!isCalendarDate(todayStr)) throw new Error('--today requires a calendar date in YYYY-MM-DD format');
++
++  if (effectiveMode === 'off') {
++    return {
++      schema: 'sdd-agent-lint/v1',
++      mode: 'off',
++      status: 'SKIPPED',
++      scannedFiles: 0,
++      durationMs: Math.round(performance.now() - startedAt),
++      findings: [],
++      waived: [],
++      expiredWaivers: [],
++      invalidWaivers: [],
++    };
++  }
++
++  // --files alone intentionally checks complete files (an editor/fixture use).
++  // --files plus --diff-only restricts findings to the intersection.
++  const explicit = Array.isArray(files) ? [...new Set(files.map(normalizeRelPath).filter(p => LINTABLE.test(p)))] : null;
++  const useDiff = effectiveDiffOnly && (!explicit || diffOnly === true || baseRef);
++  const hunks = useDiff ? changedHunks(root, baseRef || 'HEAD') : null;
++  const targetRelFiles = explicit ?? (hunks ? [...hunks.keys()] : collectFilesRecursive(root));
++  const inScope = (rel, { line, endLine }) => !hunks ||
++    hunks.get(rel)?.some(([start, end]) => start <= endLine && line <= end);
++
++  const rulesMap = loadRulesCatalog();
++  const waivers = Array.isArray(alCfg.waivers) ? alCfg.waivers : [];
++  const expiredWaivers = [];
++  const invalidWaivers = [];
++  const activeWaivers = [];
++
++  for (const w of waivers) {
++    if (!w || typeof w !== 'object' || !w.rule || !w.path) continue;
++    const exp = w.expires_on;
++    if (!isCalendarDate(exp)) {
++      invalidWaivers.push({
++        code: 'INVALID_WAIVER_EXPIRY',
++        rule: String(w.rule),
++        path: String(w.path),
++        expires_on: exp ?? null,
++        message: 'Waiver の有効期限が不正です',
++        remediation_hint: 'expires_on に実在する日付を YYYY-MM-DD 形式で指定してください',
++      });
++      continue;
++    }
++    if (exp < todayStr) {
++      expiredWaivers.push({
++        code: 'EXPIRED_WAIVER',
++        rule: String(w.rule),
++        path: String(w.path),
++        expires_on: exp,
++        message: `Waiver (${w.rule} @ ${w.path}) の有効期限 (${exp}) が切れています (today=${todayStr})`,
++        remediation_hint: '違反を修正して guardrails.yaml から waiver を削除するか、人間承認のもとで期限を更新してください',
++      });
++    } else {
++      activeWaivers.push({
++        rule: String(w.rule),
++        pathRe: globToRegExp(String(w.path)),
++        rawPath: String(w.path),
++        expires_on: exp,
++        reason: String(w.reason || ''),
++      });
++    }
++  }
++
++  const findings = [];
++  const waived = [];
++  const cache = new Map();
++  const cycleSeeds = [];
++  let scannedFiles = 0;
++  function analyze(rel) {
++    if (!cache.has(rel)) {
++      const file = projectFile(root, rel);
++      if (!file) throw new Error(`Cannot inspect project file: ${rel}`);
++      const reportTool = !explicit && rel.endsWith('.mjs') &&
++        (rel.startsWith('tests/') || rel.startsWith('reports/verification/'));
++      cache.set(rel, analyzeSource(fs.readFileSync(file, 'utf8'), rel, {
++        maxDepth: alCfg.max_abstraction_depth,
++        allowJsonReportOutput: reportTool,
++      }));
++    }
++    return cache.get(rel);
++  }
++  function add(rel, raw) {
++    const f = describeFinding(raw, rel, rulesMap);
++    const waiver = activeWaivers.find(w => w.rule === f.rule && w.pathRe.test(rel));
++    if (waiver) {
++      waived.push({ ...f, waiver: { path: waiver.rawPath, expires_on: waiver.expires_on, reason: waiver.reason } });
++    } else {
++      findings.push(f);
++    }
++  }
++  for (const rel of targetRelFiles) {
++    if (hunks && !hunks.has(rel)) continue;
++    const file = analyze(rel);
++    scannedFiles += 1;
++    const scoped = file.findings.filter(finding => inScope(rel, finding));
++    let documentedLines = [];
++    if (!explicit && rel === 'mcp/sdd-forge-mcp/dist/index.js') {
++      const lines = scoped.filter(f => f.rule === 'no-empty-catch').map(f => f.line);
++      if (lines.length) {
++        const worker = fileURLToPath(new URL('../../rules/rebuilt-catches.mjs', import.meta.url));
++        const result = spawnSync(process.execPath, [worker], {
++          input: JSON.stringify({ root, lines }), encoding: 'utf8', timeout: 2000, maxBuffer: 1024 * 1024,
++        });
++        if (result.status === 0 && /^\[(?:\d+(?:,\d+)*)?\]$/.test(result.stdout)) {
++          documentedLines = JSON.parse(result.stdout);
++        }
++      }
++    }
++    for (const finding of scoped) {
++      if (finding.rule === 'no-empty-catch' && documentedLines.includes(finding.line)) continue;
++      add(rel, finding);
++    }
++    if (file.imports.some(edge => inScope(rel, edge))) cycleSeeds.push(rel);
++  }
++  const importsFor = rel => cache.get(rel)?.imports ?? readImports(fs.readFileSync(projectFile(root, rel), 'utf8'), rel);
++  for (const finding of dependencyCycles(root, cycleSeeds, importsFor, inScope)) add(finding.path, finding);
++
++  const waiverErrors = expiredWaivers.length > 0 || invalidWaivers.length > 0;
++  const hasErrors = findings.some((f) => f.severity === 'error') || waiverErrors;
++  const status =
++    hasErrors && effectiveMode === 'strict'
++      ? 'FAIL'
++      : findings.length > 0 || waiverErrors
++        ? 'WARN'
++        : 'PASS';
++
++  return {
++    schema: 'sdd-agent-lint/v1',
++    mode: effectiveMode,
++    status,
++    scannedFiles,
++    durationMs: Math.round(performance.now() - startedAt),
++    findings,
++    waived,
++    expiredWaivers,
++    invalidWaivers,
++  };
++}
++
++export function formatAgentLintMarkdown(report) {
++  const lines = [
++    `## Agent-Strict Lint — \`${report.status}\` (mode: \`${report.mode}\`)`,
++    '',
++    `- **Scanned Files**: ${report.scannedFiles} (${report.durationMs}ms)`,
++    `- **Findings**: ${report.findings.length} / **Waived**: ${report.waived.length} / **Expired Waivers**: ${report.expiredWaivers.length}`,
++  ];
++  if (report.invalidWaivers?.length) {
++    lines.push('', '### Invalid Waiver Expiry Dates');
++    for (const w of report.invalidWaivers) {
++      lines.push(`- **${w.rule}** (\`${w.path}\`): ${w.message}`, `  - Hint: ${w.remediation_hint}`);
++    }
++  }
++  if (report.expiredWaivers.length > 0) {
++    lines.push('', '### Expired Waivers');
++    for (const ew of report.expiredWaivers) {
++      lines.push(`- **${ew.rule}** (\`${ew.path}\`, expired \`${ew.expires_on}\`): ${ew.message}`);
++      lines.push(`  - Hint: ${ew.remediation_hint}`);
++    }
++  }
++  if (report.findings.length > 0) {
++    lines.push('', '### Findings');
++    for (const f of report.findings) {
++      lines.push(`- **[${f.severity.toUpperCase()}] ${f.rule}** (\`${f.path}:L${f.line}\`): ${f.message}`);
++      lines.push(`  - Hint: ${f.remediation_hint}`);
++    }
++  }
++  return `${lines.join('\n')}\n`;
++}
++
++function parseArgs(argv) {
++  const opts = {
++    root: null,
++    files: null,
++    diffOnly: null,
++    mode: null,
++    format: 'json',
++    today: null,
++  };
++  for (let i = 0; i < argv.length; i += 1) {
++    const a = argv[i];
++    if (a === '--root' && argv[i + 1]) opts.root = argv[++i];
++    else if (a === '--files' && argv[i + 1]) opts.files = argv[++i].split(',').map((s) => s.trim()).filter(Boolean);
++    else if (a === '--base-ref' && argv[i + 1]) opts.baseRef = argv[++i];
++    else if (a === '--diff-only') opts.diffOnly = true;
++    else if (a === '--all') opts.diffOnly = false;
++    else if (a === '--mode' && argv[i + 1]) opts.mode = argv[++i];
++    else if (a === '--format' && ['json', 'markdown'].includes(argv[i + 1])) opts.format = argv[++i];
++    else if (a === '--today' && argv[i + 1]) opts.today = argv[++i];
++    else throw new Error(`Unknown or incomplete option: ${a}`);
++  }
++  return opts;
++}
++
++if (isMainModule(import.meta.url, 'run-agent-lint.mjs')) {
++  try {
++    const opts = parseArgs(process.argv.slice(2));
++    const report = runAgentLint({
++      projectRoot: opts.root || process.cwd(),
++      files: opts.files,
++      diffOnly: opts.diffOnly,
++      baseRef: opts.baseRef,
++      mode: opts.mode,
++      today: opts.today,
++    });
++    if (opts.format === 'markdown') {
++      process.stdout.write(formatAgentLintMarkdown(report));
++    } else {
++      process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
++    }
++    process.exit(report.status === 'FAIL' ? 1 : 0);
++  } catch (err) {
++    process.stderr.write(`run-agent-lint error: ${err.message}\n`);
++    process.exit(2);
++  }
++}
+diff --git a/tests/fixtures/agent-lint/clean.mjs b/tests/fixtures/agent-lint/clean.mjs
+new file mode 100644
+index 000000000..8bdeab673
+--- /dev/null
++++ b/tests/fixtures/agent-lint/clean.mjs
+@@ -0,0 +1,6 @@
++export function addNumbers(a, b) {
++  if (typeof a !== 'number' || typeof b !== 'number') {
++    throw new TypeError('Both inputs must be numbers');
++  }
++  return a + b;
++}
+diff --git a/tests/fixtures/agent-lint/violations.mjs b/tests/fixtures/agent-lint/violations.mjs
+new file mode 100644
+index 000000000..fbe6c1040
+--- /dev/null
++++ b/tests/fixtures/agent-lint/violations.mjs
+@@ -0,0 +1,17 @@
++export function riskySample(input) {
++  try {
++    return JSON.parse(input);
++  } catch (err) {}
++}
++
++export function evalSample(expr) {
++  return eval(expr);
++}
++
++export function shellSample(spawnFn) {
++  return spawnFn('echo', ['hi'], { shell: true });
++}
++
++export function logSample(msg) {
++  console.log(msg);
++}
+diff --git a/tests/v2-agent-lint-bundle.test.mjs b/tests/v2-agent-lint-bundle.test.mjs
+new file mode 100644
+index 000000000..4992d377a
+--- /dev/null
++++ b/tests/v2-agent-lint-bundle.test.mjs
+@@ -0,0 +1,89 @@
++import assert from 'node:assert/strict';
++import fs from 'node:fs';
++import os from 'node:os';
++import path from 'node:path';
++import { execFileSync } from 'node:child_process';
++import { createRequire, SourceMap } from 'node:module';
++import { test } from 'node:test';
++import { runAgentLint } from '../plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs';
++
++const { buildSync } = createRequire(new URL('../mcp/sdd-forge-mcp/package.json', import.meta.url))('./node_modules/esbuild');
++
++test('an independently rebuilt bundle preserves only the documented source catch', t => {
++  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lint-bundle-'));
++  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
++  const pkg = path.join(root, 'mcp/sdd-forge-mcp');
++  const src = path.join(pkg, 'src/index.ts');
++  const bundle = path.join(pkg, 'dist/index.js');
++  fs.mkdirSync(path.dirname(src), { recursive: true });
++  fs.writeFileSync(src, [
++    'export function documented(f: () => void) {',
++    '  try { f() } catch { /* Optional diagnostics may be absent. */ }',
++    '}',
++    'export function bare(f: () => void) {',
++    '  try { f() } catch {}',
++    '}',
++    '',
++  ].join('\n'));
++  buildSync({ absWorkingDir: pkg, entryPoints: ['src/index.ts'], bundle: true,
++    platform: 'node', format: 'esm', outfile: 'dist/index.js' });
++  const git = (...args) => execFileSync('git', args, { cwd: root });
++  git('init', '-q');
++  git('-c', 'user.name=Test', '-c', 'user.email=test@example.org', 'commit', '--allow-empty', '-qm', 'base');
++  const baseRef = git('rev-parse', 'HEAD').toString().trim();
++  git('add', '.');
++  git('-c', 'user.name=Test', '-c', 'user.email=test@example.org', 'commit', '-qm', 'build');
++  const rel = 'mcp/sdd-forge-mcp/dist/index.js';
++  const reportedCatches = () => runAgentLint({ projectRoot: root, diffOnly: true, baseRef, mode: 'strict' })
++    .findings.filter(f => f.path === rel && f.rule === 'no-empty-catch').map(f => f.line);
++  const generated = fs.readFileSync(bundle, 'utf8');
++  const lines = generated.split('\n').flatMap((s, i) => s.includes('catch {') ? [i + 1] : []);
++  assert.equal(lines.length, 2);
++  assert.deepEqual(reportedCatches(), [lines[1]]);
++  fs.appendFileSync(bundle, '// manual edit\n');
++  assert.deepEqual(reportedCatches(), lines);
++  fs.writeFileSync(bundle, generated);
++  const original = fs.readFileSync(src, 'utf8');
++  fs.writeFileSync(src, original.replace('Optional diagnostics may be absent.', 'Changed since the commit.'));
++  assert.deepEqual(reportedCatches(), lines);
++  fs.rmSync(src);
++  assert.deepEqual(reportedCatches(), lines);
++});
++
++test('an input map pointing to a different documented catch cannot clear a finding', t => {
++  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lint-mapped-'));
++  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
++  const pkg = path.join(root, 'mcp/sdd-forge-mcp');
++  const src = path.join(pkg, 'src');
++  fs.mkdirSync(src, { recursive: true });
++  fs.writeFileSync(path.join(src, 'index.ts'), "export { run } from './input.js'\n");
++  const lines = ['export function run(f) {', '  try {', '    f();',
++    '  } catch {', '  }', '}', ''];
++  const source = lines.map((s, i) => i === 3 ? s + ' /* Intentional cleanup. */' : s).join('\n');
++  fs.writeFileSync(path.join(src, 'original.ts'), source);
++  const inputMap = { version: 3, sources: ['original.ts'], sourcesContent: [source],
++    names: [], mappings: 'AAAA;AACA;AACA;EACE;AACF;AACA' };
++  const uri = Buffer.from(JSON.stringify(inputMap)).toString('base64');
++  fs.writeFileSync(path.join(src, 'input.js'), lines.join('\n') +
++    '//# sourceMappingURL=data:application/json;base64,' + uri + '\n');
++  const options = { absWorkingDir: pkg, entryPoints: ['src/index.ts'], bundle: true,
++    platform: 'node', format: 'esm', outfile: 'dist/index.js', sourcemap: 'external' };
++  buildSync(options);
++  const dist = path.join(pkg, 'dist/index.js');
++  const generated = fs.readFileSync(dist, 'utf8').split('\n');
++  const row = generated.findIndex(s => s.includes('catch {'));
++  const map = new SourceMap(JSON.parse(fs.readFileSync(dist + '.map', 'utf8')));
++  const entry = map.findEntry(row, generated[row].indexOf('catch'));
++  assert.equal(entry.originalSource, '../src/original.ts');
++  assert.equal(entry.originalLine, 3);
++  assert.equal(entry.originalColumn, 2);
++  const git = (...args) => execFileSync('git', args, { cwd: root });
++  git('init', '-q');
++  git('-c', 'user.name=Test', '-c', 'user.email=test@example.org', 'commit', '--allow-empty', '-qm', 'base');
++  const baseRef = git('rev-parse', 'HEAD').toString().trim();
++  git('add', '.');
++  git('-c', 'user.name=Test', '-c', 'user.email=test@example.org', 'commit', '-qm', 'build');
++  const result = runAgentLint({ projectRoot: root, diffOnly: true, baseRef, mode: 'shadow' });
++  assert.ok(result.findings.some(f => f.path === 'mcp/sdd-forge-mcp/dist/index.js' &&
++    f.rule === 'no-empty-catch' && f.line === row + 1));
++});
+diff --git a/tests/v2-agent-lint.test.mjs b/tests/v2-agent-lint.test.mjs
+new file mode 100644
+index 000000000..6641c6cfc
+--- /dev/null
++++ b/tests/v2-agent-lint.test.mjs
+@@ -0,0 +1,232 @@
++import assert from 'node:assert/strict';
++import { spawnSync } from 'node:child_process';
++import fs from 'node:fs';
++import os from 'node:os';
++import path from 'node:path';
++import { describe, it } from 'node:test';
++import { fileURLToPath } from 'node:url';
++import { runAgentLint } from '../plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs';
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++const REPO_ROOT = path.resolve(__dirname, '..');
++const LINT_CLI = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs');
++
++describe('ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers', () => {
++  it('passes cleanly on clean fixture and catches violations with remediation_hint in strict vs shadow mode', () => {
++    const clean = runAgentLint({
++      projectRoot: REPO_ROOT,
++      files: ['tests/fixtures/agent-lint/clean.mjs'],
++      mode: 'strict',
++    });
++    assert.equal(clean.status, 'PASS');
++    assert.equal(clean.findings.length, 0);
++
++    const shadowRes = spawnSync(
++      process.execPath,
++      [LINT_CLI, '--root', REPO_ROOT, '--files', 'tests/fixtures/agent-lint/violations.mjs', '--mode', 'shadow', '--format', 'json'],
++      { encoding: 'utf8' },
++    );
++    assert.equal(shadowRes.status, 0, shadowRes.stderr);
++    const shadowReport = JSON.parse(shadowRes.stdout);
++    const rules = new Set(shadowReport.findings.map((f) => f.rule));
++    assert.ok(rules.has('no-empty-catch'));
++    assert.ok(rules.has('no-eval-or-new-function'));
++    assert.ok(rules.has('no-child-process-shell-true'));
++    assert.ok(rules.has('no-console-log'));
++    assert.ok(shadowReport.findings.every((f) => typeof f.remediation_hint === 'string' && f.remediation_hint.length > 0));
++
++    const strictRes = spawnSync(
++      process.execPath,
++      [LINT_CLI, '--root', REPO_ROOT, '--files', 'tests/fixtures/agent-lint/violations.mjs', '--mode', 'strict', '--format', 'json'],
++      { encoding: 'utf8' },
++    );
++    assert.equal(strictRes.status, 1);
++  });
++
++  it('honors active built-in guardrails.yaml waivers and fails on expired waivers in strict mode', () => {
++    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-agent-lint-waiver-'));
++    fs.mkdirSync(path.join(dir, 'sdd'), { recursive: true });
++    fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
++    fs.writeFileSync(path.join(dir, 'src/cli.mjs'), 'export function run() { console.log("ok"); }\n', 'utf8');
++    fs.writeFileSync(
++      path.join(dir, 'sdd/guardrails.yaml'),
++      [
++        'schema: sdd-guardrails/v1',
++        'agent_lint:',
++        '  enabled: true',
++        '  mode: strict',
++        '  waivers:',
++        '    - rule: no-console-log',
++        '      path: src/cli.mjs',
++        '      reason: CLI stdout output',
++        '      expires_on: 2027-06-01',
++        '',
++      ].join('\n'),
++      'utf8',
++    );
++
++    const active = runAgentLint({ projectRoot: dir, files: ['src/cli.mjs'], mode: 'strict', today: '2026-11-25' });
++    assert.equal(active.status, 'PASS');
++    assert.equal(active.findings.length, 0);
++    assert.equal(active.waived.length, 1);
++
++    const expired = runAgentLint({ projectRoot: dir, files: ['src/cli.mjs'], mode: 'strict', today: '2027-06-02' });
++    assert.equal(expired.status, 'FAIL');
++    assert.equal(expired.expiredWaivers.length, 1);
++    assert.equal(expired.expiredWaivers[0].code, 'EXPIRED_WAIVER');
++    fs.rmSync(dir, { recursive: true, force: true });
++  });
++
++  it('checks waiver calendar dates through the CLI in strict, shadow and warn modes', t => {
++    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-waiver-dates-'));
++    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
++    fs.mkdirSync(path.join(root, 'sdd'));
++    const expiries = {
++      text: 'invalid-date', month: '2028-99-99', rollover: '2028-04-31',
++      nonleap: '2100-02-29', timestamp: '2028-02-29T23:59:59Z', missing: null,
++      yesterday: '2028-02-28', today: '2028-02-29', tomorrow: '2028-03-01',
++    };
++    const invalidFiles = ['text', 'month', 'rollover', 'nonleap', 'timestamp', 'missing'].map(k => k + '.mjs');
++    const waivers = [];
++    for (const [name, expiry] of Object.entries(expiries)) {
++      const file = name + '.mjs';
++      fs.writeFileSync(path.join(root, file), 'console.log(1);');
++      waivers.push('    - rule: no-console-log', '      path: ' + file, '      reason: CLI output');
++      if (expiry !== null) waivers.push('      expires_on: ' + expiry);
++    }
++    fs.writeFileSync(path.join(root, 'sdd/guardrails.yaml'), ['agent_lint:', '  enabled: true',
++      '  waivers:', ...waivers, ''].join('\n'));
++    fs.writeFileSync(path.join(root, 'clean.mjs'), 'export const clean = true;');
++    const files = Object.keys(expiries).map(k => k + '.mjs').join(',');
++    const run = (mode, today, targets = files) => spawnSync(process.execPath, [LINT_CLI, '--root', root,
++      '--files', targets, '--mode', mode, '--today', today], { encoding: 'utf8' });
++    for (const mode of ['strict', 'shadow', 'warn']) {
++      const result = run(mode, '2028-02-29');
++      assert.equal(result.status, mode === 'strict' ? 1 : 0, result.stderr);
++      const report = JSON.parse(result.stdout);
++      assert.equal(report.status, mode === 'strict' ? 'FAIL' : 'WARN');
++      assert.deepEqual(report.waived.map(w => w.path).sort(), ['today.mjs', 'tomorrow.mjs']);
++      assert.deepEqual(report.findings.map(f => f.path).sort(), [...invalidFiles, 'yesterday.mjs'].sort());
++      assert.deepEqual(report.expiredWaivers.map(w => [w.path, w.code]), [['yesterday.mjs', 'EXPIRED_WAIVER']]);
++      assert.deepEqual(report.invalidWaivers.map(w => [w.path, w.code]),
++        invalidFiles.map(file => [file, 'INVALID_WAIVER_EXPIRY']));
++    }
++    // At an earlier reference date the invalid waivers alone must still affect the result.
++    for (const mode of ['strict', 'shadow']) {
++      const clean = run(mode, '2028-02-01', 'clean.mjs');
++      assert.equal(clean.status, mode === 'strict' ? 1 : 0, clean.stderr);
++      assert.equal(JSON.parse(clean.stdout).status, mode === 'strict' ? 'FAIL' : 'WARN');
++    }
++    const invalidToday = run('strict', '2028-02-30');
++    assert.equal(invalidToday.status, 2);
++    assert.match(invalidToday.stderr, /--today/);
++  });
++
++  it('reports changed lines, untracked files and changed local imports on a clean branch checkout', t => {
++    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-diff-'));
++    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
++    const git = (...args) => {
++      const result = spawnSync('git', ['-c', 'user.name=fixture', '-c', 'user.email=fixture@invalid', ...args], {
++        cwd: root, encoding: 'utf8',
++      });
++      assert.equal(result.status, 0, result.stderr);
++      return result.stdout.trim();
++    };
++    const write = (name, code) => fs.writeFileSync(path.join(root, name), code);
++    git('init', '--quiet');
++    write('a file.ts', "console.log('existing');\nexport const a: number = 1;\n");
++    write('b.ts', "export { a } from './a file.ts';\n");
++    git('add', '.');
++    git('commit', '--quiet', '-m', 'base');
++    const base = git('rev-parse', 'HEAD');
++    fs.appendFileSync(path.join(root, 'a file.ts'), "import './b.ts';\nconsole.log('new');\n");
++    git('add', '.');
++    git('commit', '--quiet', '-m', 'changed edge');
++    assert.equal(git('status', '--porcelain'), '');
++    const result = spawnSync(process.execPath, [LINT_CLI, '--root', root, '--mode', 'strict',
++      '--diff-only', '--base-ref', base, '--format', 'json'], { encoding: 'utf8' });
++    assert.equal(result.status, 1, result.stderr);
++    const report = JSON.parse(result.stdout);
++    assert.equal(report.scannedFiles, 1);
++    assert.deepEqual(report.findings.map(f => [f.rule, f.path, f.line]).sort(), [
++      ['no-console-log', 'a file.ts', 4], ['no-dependency-cycle', 'a file.ts', 3],
++    ]);
++    write('new.tsx', 'export const component = <div>{console.log("value")}</div>;\n');
++    const scoped = runAgentLint({projectRoot: root, mode: 'strict', files: ['new.tsx','b.ts'], diffOnly: true, baseRef: base});
++    assert.equal(scoped.scannedFiles, 1);
++    assert.deepEqual(scoped.findings.map(f => f.path), ['new.tsx']);
++    assert.throws(() => runAgentLint({projectRoot: root, mode: 'strict', baseRef: 'missing-ref'}));
++  });
++
++  it('applies the production console rule to source while retaining other checks in test and reporting tools', t => {
++    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-tool-output-'));
++    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
++    for (const dir of ['src', 'tests', 'reports/verification']) {
++      fs.mkdirSync(path.join(root, dir), { recursive: true });
++      fs.writeFileSync(path.join(root, dir, 'tool.mjs'), "console.log(JSON.stringify({ ok: true }));\nconsole.log('debug');\ntry {} catch {}\n");
++    }
++    fs.writeFileSync(path.join(root, 'tests/module.mjs'), 'export const emit = data => console.log(JSON.stringify(data));');
++    fs.writeFileSync(path.join(root, 'tests/module.cjs'), 'exports.emit = data => console.log(JSON.stringify(data));');
++    const report = runAgentLint({ projectRoot: root, mode: 'shadow', diffOnly: false });
++    const consoleLocations = report.findings.filter(f => f.rule === 'no-console-log').map(f => [f.path, f.line]).sort();
++    assert.deepEqual(consoleLocations, [
++      ['reports/verification/tool.mjs', 2], ['src/tool.mjs', 1], ['src/tool.mjs', 2],
++      ['tests/module.cjs', 1], ['tests/module.mjs', 1], ['tests/tool.mjs', 2],
++    ]);
++    assert.equal(report.findings.filter(f => f.rule === 'no-empty-catch').length, 3);
++    const explicit = runAgentLint({ projectRoot: root, mode: 'shadow', files: ['tests/tool.mjs'] });
++    assert.ok(explicit.findings.some(f => f.rule === 'no-console-log' && f.line === 1));
++  });
++
++  it('uses TS syntax, scoped flag groups, configured control depth and comment nodes', t => {
++    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-ast-'));
++    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
++    fs.mkdirSync(path.join(root, 'sdd'));
++    fs.writeFileSync(path.join(root,'sdd/guardrails.json'), JSON.stringify({
++      agent_lint: { enabled: true, mode: 'strict', max_abstraction_depth: 1 }
++    }));
++    const directive = ['eslint', 'disable'].join('-');
++    const lines = [
++      'export function route(a: boolean, b: boolean) {',
++      '  if (a && b) return 1;',
++      '  if (a && !b) return 2;',
++      '  if (a) { if (b) return 3; }',
++      '  return { safe: { nested: { data: "" } } };',
++      '}',
++      'export function other(a: boolean, b: boolean) { if (a && b) return 4; }',
++      'export const markers = /eval[(]|console[.]log/;',
++      'export const note = "' + directive + '";',
++      '// ' + directive + '-next-line',
++      '// ' + ['sdd', 'lint', 'disable'].join('-'),
++      '// ' + ['@ts', 'ignore'].join('-'),
++      '// Why ' + directive + ' is disallowed.',
++    ];
++    fs.writeFileSync(path.join(root,'app.ts'), lines.join('\n'));
++    const report = runAgentLint({projectRoot: root, files: ['app.ts']});
++    assert.deepEqual(report.findings.map(f => [f.rule, f.line]).sort(), [
++      ['no-combinatorial-flags', 2], ['no-combinatorial-flags', 3],
++      ['no-deep-nesting', 4], ['no-inline-suppression', 10], ['no-inline-suppression', 11],
++      ['no-inline-suppression', 12],
++    ]);
++  });
++
++  it('NFR-004 performance budget: lints 100 files in <= 3000ms', () => {
++    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-agent-lint-perf-'));
++    fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
++    const files = [];
++    for (let i = 0; i < 100; i += 1) {
++      const rel = `src/mod_${i}.mjs`;
++      fs.writeFileSync(
++        path.join(dir, rel),
++        `export function fn${i}(x) {\n  if (x > 0) {\n    return x * 2;\n  }\n  return 0;\n}\n`,
++        'utf8',
++      );
++      files.push(rel);
++    }
++    const report = runAgentLint({ projectRoot: dir, files, mode: 'strict' });
++    assert.equal(report.scannedFiles, 100);
++    assert.equal(report.status, 'PASS');
++    assert.ok(report.durationMs <= 3000, `100 files took ${report.durationMs}ms (budget <= 3000ms)`);
++    fs.rmSync(dir, { recursive: true, force: true });
++  });
++});

@@ -1,0 +1,46 @@
+RT-20261126-003 | T-005 | 01a2150e-b79a-71c1-bea8-cfd6eb2ae273
+RED base 4008bfeb43758966bba79bcff79f4c4cc93271de
+Fix 694af839bda2f3fa81af2da511d480049cdc3ab5
+GREEN revision f90ecd1ceb63c7ca4df03c2894b36834804146a9
+Pinned TLC 2.19 | SHA-256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88
+Pinned Apalache 0.63.0 | SHA-256 f2d43f2e279a657be50b2ecec3a013ba2915266008a2562b38412c3269347dc9
+validate-task-input-manifest.sh --manifest <manifest> --snapshot-root . --expected-task T-005 | TASK_INPUT_OK | 23 inputs
+
+RED | node --test --test-name-pattern="explains the failed checker phase" tests/v2-formal-gate.test.mjs | exit 1
+Reservation (replay): checker exit 0
+RED | node --test --test-name-pattern="TLC replay recognizes" tests/v2-formal-gate.test.mjs | exit 1
+post-module documentation: ["Invalid TLA+ string or comment delimiter"]
+
+Public CLI: run-formal-gate.mjs --root <scratch> --tla <Reservation.tla> --feature review --round 99 --mode strict --trace <trace>
+Each phase tuple = [exit, violated invariant, distinct states, depth]; phases = baseline, negative, replay.
+Original fixture and five admitted observations; prose variant appends an unmatched quote and an unfinished comment after the footer.
+Order variant exchanges the actions at steps 1 and 2 without altering their step numbers, actors, or observed states.
+original | CLI 0 PASS | [[0, null, 15, 8], [12, "OneAccepted", 25, 7], [12, "TraceIncomplete", 5, 5]]
+trailing-prose | CLI 0 PASS | [[0, null, 15, 8], [12, "OneAccepted", 25, 7], [12, "TraceIncomplete", 5, 5]]
+reordered | CLI 1 FAIL | [[0, null, 15, 8], [12, "OneAccepted", 25, 7], [0, null, 1, 1]]
+round 99 OQ OQ-001 Provisional | exact persisted fact in decision-view --format html | Reservation (replay): The baseline model could not reproduce the observed trace: step 1 (Check) was unreachable
+render-decision-view.mjs --root <scratch> --feature review --format html | exit 0
+OQ evidence link matches the retained replay.log; the OQ, HTML and CLI all describe the same failed observation.
+
+Native malformed syntax (Next == )) displayed a parse error in the raw checker log, but the checker did not exit during a separate 12s probe. With a configured 2s checker timeout:
+malformed TLC model | 2s checker limit | CLI 1 | Reservation (baseline): timeout before the checker completed
+retained baseline.log reports parse error: True
+The completed parse-error status and a replay timeout were also separately exercised with injected runner outcomes.
+
+node --test tests/v2-formal-gate.test.mjs | exit 0
+ℹ Reservation (replay): The baseline model could not reproduce the observed trace: step 1 (Check) was unreachable
+ℹ Reservation (baseline): Invariant OneAccepted was violated
+ℹ Reservation (baseline): The checker could not parse or resolve the model
+ℹ Reservation (negative): The negative control did not violate invariant OneAccepted
+ℹ Reservation (replay): timeout before the checker completed
+ℹ post-module documentation [[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ APALACHE version: 0.63.0 | build: 67b8ec6 TaskLock baseline, negative, and projection: length=10
+ℹ tests 20
+ℹ pass 20
+ℹ fail 0
+ℹ skipped 0
+
+python3 tests/project-skill-formal.tests.py -v | exit 0
+Ran 8 tests in 1.160s
+
+OK

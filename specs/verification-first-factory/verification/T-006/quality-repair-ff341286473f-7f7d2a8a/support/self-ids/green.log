@@ -1,0 +1,11 @@
+▶ #972 review 4: wrapped prose, table cells, filesystems without hard links
+  ✔ binds SELF criteria, linked requirements and NFRs by their full IDs (2.172875ms)
+✔ #972 review 4: wrapped prose, table cells, filesystems without hard links (2.514584ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.739583

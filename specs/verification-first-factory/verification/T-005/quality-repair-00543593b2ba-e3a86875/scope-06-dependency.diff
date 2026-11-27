@@ -1,0 +1,16 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs b/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
+index 879c2e1bc..c1653abe8 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs
+@@ -20,7 +20,10 @@ function replayBehavior(model, cfg) {
+     const header =
+       /^\s*(INIT|NEXT|SPECIFICATION|INVARIANTS?|CHECK_DEADLOCK|CONSTANTS?|(?:ACTION_)?CONSTRAINTS?)\b(.*)$/.exec(line);
+     if (header) sections.push({ key: header[1], lines: [header[2]] });
+-    else if (/^\s*[A-Z][A-Z_]*\b/.test(line)) throw new Error('Unsupported baseline CFG directive: ' + line.trim());
++    // The remaining TLC 2.19 section keywords have semantics replay cannot project.
++    // Uppercase identifiers and values can continue a section across line breaks.
++    else if (/^\s*(VIEW|SYMMETRY|PROPERT(?:Y|IES)|TYPE(?:_CONSTRAINT)?)\b/.test(line))
++      throw new Error('Unsupported baseline CFG directive: ' + line.trim());
+     else if (sections.length) sections.at(-1).lines.push(line);
+     else throw new Error('Unsupported baseline CFG for trace replay');
+   }

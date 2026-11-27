@@ -1,0 +1,72 @@
+{
+  "authority": "none",
+  "claims": {
+    "assessable_claim_ids": [
+      "CLM-001",
+      "CLM-002",
+      "CLM-003",
+      "CLM-004"
+    ],
+    "claim_ids": [
+      "CLM-001",
+      "CLM-002",
+      "CLM-003",
+      "CLM-004",
+      "CLM-005"
+    ],
+    "claim_records": [
+      {
+        "claim_id": "CLM-001",
+        "record_revision": 1,
+        "record_sha256": "6989ec88cf83577136cefc0211f67e767fc8b3cc8d6848806348df6e92716b81"
+      },
+      {
+        "claim_id": "CLM-002",
+        "record_revision": 1,
+        "record_sha256": "c019e3e9e22e4e69f01d7b9e675f90f06671c048c90a306511f6312dbbf501d1"
+      },
+      {
+        "claim_id": "CLM-003",
+        "record_revision": 1,
+        "record_sha256": "611df32b5957d050faa3c52585f6b5de8c04dfc099fa1cfd143cac2e98328688"
+      },
+      {
+        "claim_id": "CLM-004",
+        "record_revision": 1,
+        "record_sha256": "bd7ea2fd8f58b96c94453aa37b76116b1ff407643bd48ed4d728914c65cd8e36"
+      },
+      {
+        "claim_id": "CLM-005",
+        "record_revision": 1,
+        "record_sha256": "ec24db4717925bddd7e0888876c74a35c3c696d781132a544ae0c6baab23804e"
+      }
+    ],
+    "feature": "verification-first-factory",
+    "semantic_assessment": "caller-declared-not-verified",
+    "verbatim_constraint": "Pstackという人気リポジトリの形式検証の手法や主要OSSのロジックとベストプラクティスを比較検証してこのブランチで実装したものを実用的なソースにリファクタリングして"
+  },
+  "max_parallel_readers": 2,
+  "max_results": 10,
+  "max_rounds": 4,
+  "minimum_citation_follow_attempts": 1,
+  "question": "Compare Pstack formal verification workflow with TLA+ TLC, Apalache, and Alloy practices for actionable verification of this branch.",
+  "routes": [
+    {
+      "query": "Compare Pstack formal verification workflow with TLA+ TLC, Apalache, and Alloy practices for actionable verification of this branch. official documentation specification",
+      "route": "official"
+    },
+    {
+      "query": "Compare Pstack formal verification workflow with TLA+ TLC, Apalache, and Alloy practices for actionable verification of this branch. primary source references implementation",
+      "route": "citation-trail"
+    }
+  ],
+  "saturation_threshold": 0.7,
+  "schema": "research-search-plan/v1",
+  "stop_when": [
+    "evidence-sufficient",
+    "saturation",
+    "round-limit",
+    "acquisition-wall",
+    "budget-exhausted"
+  ]
+}

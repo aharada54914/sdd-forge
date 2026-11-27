@@ -1,0 +1,42 @@
+RT-20261126-006 / T-005 / repair cycle 3 / implementation attempt 9
+Run 53d57688-c4fe-4253-a2da-a8c051d2c8b7, continuing the dedicated worker from attempt 8 (7849a594-94b3-43af-b0df-d1909f66c66f).
+Product RED 3519cb1d5e8fb23ed2bd36782845fc02d6b36279
+Product GREEN 8e1cb5334eb3647f55d10539c99371b1c463de2e
+Reviewer reproducer Reservation.tla SHA-256 3f7fcd56c4ada8fe195103c4bd18deefda61de06a0b8ce5b43438a6ae06515ef.
+To reproduce, insert the following line after EXTENDS Naturals, FiniteSets in tests/fixtures/project-skills/formal-review-reservation/Reservation.tla.
+---- (* end of declarations *) MODULECount == 1
+All three CLI invocations used byte-identical models, the same CFGs and the same five observations in reservation-observed.ndjson.
+java -cp <pinned-tla2tools.jar> tla2sany.SANY Reservation.tla
+java -cp <pinned-tla2tools.jar> tlc2.TLC -workers 1 -metadir <separate-dir> -config <baseline/negative cfg> Reservation.tla
+node plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs --root <fixture> --adapter tlc --mode strict --tla <fixture>/Reservation.tla --trace <observations>
+Pinned jar SHA-256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88 (TLC 2.19, 5a47802).
+tla2sany.SANY ['Reservation.tla'] 0 Semantic processing of module Reservation
+tlc2.TLC ['-workers', '1', '-metadir', 'states-baseline', '-config', 'Reservation.cfg', 'Reservation.tla'] 0 Semantic processing of module Reservation 15 distinct states found
+tlc2.TLC ['-workers', '1', '-metadir', 'states-negative', '-config', 'Reservation.negative.cfg', 'Reservation.tla'] 12 Semantic processing of module Reservation Invariant OneAccepted is violated 25 distinct states found
+gate 1 FAIL [('baseline', None, None), ('negative', None, None), ('replay', None, None)] ['Unsupported baseline SPECIFICATION for trace replay: Spec']
+Previous 27b2ff55e35f34f4ed8b040e6a86f26e1941d65d: gate 0 PASS [('baseline', 15, None), ('negative', 25, 'OneAccepted'), ('replay', 5, 'TraceIncomplete')] None
+Repaired: gate 0 PASS [('baseline', 15, None), ('negative', 25, 'OneAccepted'), ('replay', 5, 'TraceIncomplete')] None
+On RED the newly added outer-footer test also failed: a nested module footer alone passed structure checks.
+
+On GREEN, direct SANY and the public CLI on the same Reservation variants:
+separator "\n": SANY=0, gate=0
+separator "\r\n": SANY=0, gate=0
+separator "\t": SANY=0, gate=0
+separator "\f": SANY=0, gate=0
+separator " ": SANY=0, gate=0
+section followed by a MODULE-prefixed name: SANY=0, gate=0
+adjacent nested block comments: SANY=0, gate=0
+line comment after a separator: SANY=0, gate=0
+inline separator after selected specification: SANY=0, gate=0
+inline compact header: SANY=0, gate=0
+newline before module name: SANY=0, gate=0
+form feed before module name: SANY=255, gate=1
+dotted header before the real module: SANY=255, gate=1
+All eleven accepted variants retained baseline 15 / negative 25 (OneAccepted) / replay 5 (TraceIncomplete) states. Two malformed headers were rejected before replay.
+Compact real nested module: SANY accepted the whole Reservation module and structure passed. Replay refused the selected specification as ambiguously scoped. Missing outer footer: structure failed.
+Both pinned checkers, node --test tests/v2-formal-gate.test.mjs: 22 passed, 0 failed, 0 skipped.
+python3 tests/project-skill-formal.tests.py -v: 8 passed, 0 failed, 0 skipped.
+run-agent-lint.mjs strict changed-line check versus 3519cb1: 3 files, zero findings.
+tests/verify-review-reservation.py with the pinned TLC jar at product GREEN: passed. Real bridge baseline accepted 1, negative control accepted 2.
+mapping.json: eight source digests matched, source_sync_commit = 3519cb1d5e8fb23ed2bd36782845fc02d6b36279.
+validate-task-input-manifest.sh: TASK_INPUT_OK (37 inputs).

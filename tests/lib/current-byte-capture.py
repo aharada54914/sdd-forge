@@ -21,9 +21,11 @@ import tempfile
 
 # Same bounded source fixture as installer acceptance tests: documentation
 # archives are not product payload. Project AGENTS is supplied by F1/F2, not by
-# the development repository. Root sdd/ is project-owned metadata as well.
+# the development repository. In sdd/, only the shipped example belongs to
+# the product; the other tracked files contain project-specific metadata.
 # Exclude fixture symlinks on native Windows too.
-SOURCE_EXCLUDED = ('specs/', 'reports/', 'tests/fixtures/', 'sdd/')
+SOURCE_EXCLUDED = ('specs/', 'reports/', 'tests/fixtures/')
+GUARDRAILS_EXAMPLE = 'sdd/guardrails.example.yaml'
 
 
 def sha(data):
@@ -58,6 +60,8 @@ def indexed_source(root):
     for name in result.stdout.decode('utf-8').split('\0'):
         if not name or name == 'AGENTS.md' or name.startswith(SOURCE_EXCLUDED):
             continue
+        if name.partition('/')[0].lower() == 'sdd' and name != GUARDRAILS_EXAMPLE:
+            continue
         path = root / name
         if path.is_symlink():
             raise ValueError(f'unsupported product source symlink: {name}')
@@ -80,12 +84,47 @@ def files_only_payload(source):
                           or any(part and set(part) == {'.'} for part in entry.split('/'))
                           for entry in entries):
         raise ValueError('invalid public install-payload.txt contract')
+    # Project files are absent from F1/F2 by design. Check raw declarations
+    # before matching files so that an oversized allowlist cannot disappear.
+    sdd_entries = [entry for entry in entries if entry.split('/', 1)[0].lower() == 'sdd']
+    if sdd_entries != [GUARDRAILS_EXAMPLE]:
+        raise ValueError('public install-payload.txt must list only sdd/guardrails.example.yaml under sdd/')
+    if GUARDRAILS_EXAMPLE not in source:
+        raise ValueError('source is missing the declared sdd/guardrails.example.yaml')
     excluded = {'.git', 'node_modules', '__pycache__', '.pytest_cache', '.mypy_cache',
                 '.ruff_cache', '.cache', '.venv', '.private', '.learnings', '.DS_Store'}
     return {name: data for name, data in source.items()
             if not name.startswith('mcp/') and not excluded.intersection(name.split('/'))
             and not name.endswith(('.pyc', '.pyo'))
             and any(name.startswith(entry) if entry.endswith('/') else name == entry for entry in entries)}
+
+
+def powershell_for(runtime):
+    if runtime != 'powershell':
+        return None
+    shell = shutil.which('pwsh') or shutil.which('powershell')
+    if not shell:
+        raise ValueError('PowerShell is required for native twin capture')
+    return shell
+
+
+def schema_validator_result(product, workspace, shell, run):
+    contract = {'schema': 'domain-contract/v2',
+                'meta': {'version': '1.0.0', 'status': 'Pending', 'generated_from': ['domain/context-map.md']},
+                'contexts': [{'name': 'catalog', 'description': 'Catalog', 'terms': [], 'aggregates': []}],
+                'concepts': [{'id': 'CONCEPT-BOOK', 'name': 'Book', 'context': 'catalog',
+                              'definition': 'A publication', 'essence': 'Published content',
+                              'responsibilities': ['Identify publication'], 'evidence': ['domain/context-map.md']}]}
+    valid, invalid = workspace / 'valid.json', workspace / 'invalid.json'
+    valid.write_text(json.dumps(contract), encoding='utf-8')
+    invalid.write_text('{}', encoding='utf-8')
+    validator = product / 'plugins/sdd-domain/scripts/validate-domain-contract'
+    command = ([shell, '-NoProfile', '-File', str(validator.with_suffix('.ps1'))]
+               if shell else ['bash', str(validator.with_suffix('.sh'))])
+    accepted, rejected = run(command + [str(valid)]), run(command + [str(invalid)])
+    if rejected.returncode != 1 or not rejected.stderr:
+        raise ValueError('current schema validator did not reject invalid contract')
+    return f'{accepted.returncode}\n'.encode()
 
 
 def capture(product, fixture, destination, canonical, runtime):
@@ -167,25 +206,8 @@ def capture(product, fixture, destination, canonical, runtime):
                 shutil.copytree(directory, copied / directory.relative_to(fixture))
             write('template-copy-result', actual_manifest(copied), manifest(templates))
 
-            contract = {'schema': 'domain-contract/v2',
-                        'meta': {'version': '1.0.0', 'status': 'Pending', 'generated_from': ['domain/context-map.md']},
-                        'contexts': [{'name': 'catalog', 'description': 'Catalog', 'terms': [], 'aggregates': []}],
-                        'concepts': [{'id': 'CONCEPT-BOOK', 'name': 'Book', 'context': 'catalog',
-                                      'definition': 'A publication', 'essence': 'Published content',
-                                      'responsibilities': ['Identify publication'], 'evidence': ['domain/context-map.md']}]}
-            valid, invalid = workspace / 'valid.json', workspace / 'invalid.json'
-            valid.write_text(json.dumps(contract), encoding='utf-8')
-            invalid.write_text('{}', encoding='utf-8')
-            shell = shutil.which('pwsh') or shutil.which('powershell')
-            if runtime == 'powershell' and not shell:
-                raise ValueError('PowerShell is required for native twin capture')
-            validator = fixture / 'plugins/sdd-domain/scripts/validate-domain-contract'
-            command = ([shell, '-NoProfile', '-File', str(validator.with_suffix('.ps1'))]
-                       if runtime == 'powershell' else ['bash', str(validator.with_suffix('.sh'))])
-            accepted, rejected = run(command + [str(valid)]), run(command + [str(invalid)])
-            if rejected.returncode != 1 or not rejected.stderr:
-                raise ValueError('current schema validator did not reject invalid contract')
-            write('schema-validator-result', f'{accepted.returncode}\n'.encode())
+            shell = powershell_for(runtime)
+            write('schema-validator-result', schema_validator_result(fixture, workspace, shell, run))
 
             install_root = workspace / 'install-root'
             if runtime == 'powershell':

@@ -1,0 +1,54 @@
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✔ distinguishes help and active comments in a native zsh short for loop (274.671375ms)
+  ✔ distinguishes help and active comments in a native zsh brace for loop (270.462542ms)
+  ✔ distinguishes help and active comments in a native zsh newline brace for loop (276.66425ms)
+  ✔ distinguishes help and active comments in a native zsh literal brace in short for loop (274.913333ms)
+  ✔ distinguishes help and active comments in a native zsh quoted brace in short for loop (271.404625ms)
+  ✔ distinguishes help and active comments in a native zsh parenthesized brace for loop (273.190041ms)
+  ✔ distinguishes help and active comments in a native zsh short in for loop (273.522209ms)
+  ✔ distinguishes help and active comments in a native zsh short for in an outer block loop (271.222209ms)
+  ✔ distinguishes help and active comments in a native zsh repeat do loop (270.802208ms)
+  ✔ distinguishes help and active comments in a native zsh repeat loop (270.052875ms)
+  ✖ rejects a zsh for list with an unmatched closing brace in the word list (164.316917ms)
+  ✔ rejects a zsh for list with an unmatched closing brace after a semicolon (161.313875ms)
+  ✔ rejects a zsh for list with an unmatched closing brace after a newline (159.445875ms)
+  ✔ reports a tool error for invalid shell syntax and an unavailable or damaged parser (661.926792ms)
+✖ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (3874.65ms)
+ℹ tests 14
+ℹ suites 1
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3907.26175
+
+✖ failing tests:
+
+test at tests/v2-spec-drift.test.mjs:598:5
+✖ rejects a zsh for list with an unmatched closing brace in the word list (164.316917ms)
+  AssertionError [ERR_ASSERTION]: {
+    "schema": "sdd-anti-tamper/v1",
+    "status": "CLEAN",
+    "baseRef": "HEAD",
+    "checkedFilesCount": 1,
+    "violations": []
+  }
+
+
+  0 !== 2
+
+      at TestContext.<anonymous> (file:///private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmpigdzz7ow/tests/v2-spec-drift.test.mjs:607:14)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

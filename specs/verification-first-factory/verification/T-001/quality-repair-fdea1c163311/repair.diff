@@ -1,0 +1,13 @@
+diff --git a/docs/adr/0054-verification-first-and-agentic-factory.md b/docs/adr/0054-verification-first-and-agentic-factory.md
+index 689162322..f26f80c5a 100644
+--- a/docs/adr/0054-verification-first-and-agentic-factory.md
++++ b/docs/adr/0054-verification-first-and-agentic-factory.md
+@@ -1,6 +1,7 @@
+ # ADR-0054: Verification-First Guardrails, Self-Verification & Test Consolidation, and Agentic Factory Evolution
+ 
+-- **Status:** Proposed
++- **Status:** Accepted
++- **Decision:** 2026-11-26、リポジトリ所有者が段階導入、形式検証ゲート、検証済みテストの整理方針を承認した。個別テストの廃止は §2 の承認条件に従う。
+ - **Date:** 2026-11-25
+ - **Supersedes / Extends:** Extends [ADR-0051 (Lightweight Guardrails & SDD Core)](https://github.com/aharada54914/sdd-forge/blob/main/docs/adr/0051-lightweight-guardrails-and-sdd-core.md) and [ADR-0052 (MCP Architecture & v2 Consolidation)](https://github.com/aharada54914/sdd-forge/blob/main/docs/adr/0052-mcp-architecture-and-v2-consolidation.md) without breaking changes
+ - **Target Version:** `v2.2.0`+（基準: `v2.1.3`）

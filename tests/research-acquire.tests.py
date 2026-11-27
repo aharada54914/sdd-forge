@@ -569,18 +569,40 @@ print(json.dumps(result))
     def test_cache_inside_repository_or_temp_rejected_before_write(self):
         m, b, t = self.run_acquire()
         with tempfile.TemporaryDirectory() as td:
-            cache = Path(td) / "cache"
+            root = Path(td).resolve()
+            cache = root / "cache"
             with self.assertRaisesRegex(a.Invalid, "cache-export-boundary"):
                 a.save_cache(
                     m,
                     b,
                     t,
                     cache,
-                    repository=td,
+                    repository=root,
                     permission_basis="owner license",
                     expires_at="2099-01-01T00:00:00Z",
                 )
             self.assertFalse(cache.exists())
+
+    @unittest.skipUnless(a.os.name == "posix", "private cache requires POSIX ACL adapter")
+    def test_cache_rejects_linked_parent_before_creating_files(self):
+        metadata, body, extracted = self.run_acquire()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td).resolve()
+            store = root / "store"
+            store.mkdir()
+            alias = root / "alias"
+            alias.symlink_to(store, target_is_directory=True)
+            with self.assertRaisesRegex(a.Invalid, "cache-path-invalid"):
+                a.save_cache(
+                    metadata,
+                    body,
+                    extracted,
+                    alias / "cache",
+                    repository=root / "repo",
+                    permission_basis="fixture permission",
+                    expires_at="2099-01-01T00:00:00Z",
+                )
+            self.assertEqual(list(store.iterdir()), [])
 
     def test_cache_missing_permission_or_expiry_rejected(self):
         m, b, t = self.run_acquire()
@@ -611,7 +633,7 @@ print(json.dumps(result))
     def test_private_cache_retention_expiry_and_revocation(self):
         metadata, body, extracted = self.run_acquire()
         with tempfile.TemporaryDirectory() as td:
-            root = Path(td)
+            root = Path(td).resolve()
             # Model a private store outside both repository and runner temp roots.
             with (
                 mock.patch.object(

@@ -519,11 +519,11 @@ VERDICT: PASS
     }
 
     # --- AC-026 (TEST-026): document conformance -- report template,
-    #     validator, and quality-gate SKILL.md all carry the Model/Effort
+    #     validator, and sdd-gate SKILL.md all carry the Model/Effort
     #     requirement. ----------------------------------------------------
     $template = Join-Path $repoRoot "plugins/sdd-implementation/templates/implementation-report.template.md"
     $validator = Join-Path $repoRoot "plugins/sdd-implementation/scripts/validate-implementation-report.sh"
-    $gateSkill = Join-Path $repoRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+    $gateSkill = Join-Path $repoRoot "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md"
 
     $templateText = Get-Content -Raw -Encoding Utf8 $template
     if (($templateText | Select-String -CaseSensitive -SimpleMatch '- Model: {{model}}') -and
@@ -542,9 +542,9 @@ VERDICT: PASS
 
     $gateSkillText = Get-Content -Raw -Encoding Utf8 $gateSkill
     if ($gateSkillText | Select-String -CaseSensitive -SimpleMatch '`- Model:` / `- Effort:`') {
-        Ok "AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction"
+        Ok "AC-026: sdd-gate SKILL.md documents the Model/Effort Process instruction"
     } else {
-        Fail "AC-026: quality-gate SKILL.md is missing the Model/Effort Process instruction"
+        Fail "AC-026: sdd-gate SKILL.md is missing the Model/Effort Process instruction"
     }
 
     $validatorFixtureDir = Join-Path $work "validator-fixtures"

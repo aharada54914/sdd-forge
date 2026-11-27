@@ -1,0 +1,68 @@
+{
+  "schema": "sdd-agent-lint-rules/v1",
+  "rules": [
+    {
+      "id": "no-empty-catch",
+      "severity": "error",
+      "category": "reliability",
+      "message": "空の catch ブロックが例外を無言で握り潰しています",
+      "remediation_hint": "例外をログ出力・再送出するか、意図的に無視する場合は理由コメントまたは guardrails.yaml の agent_lint.waivers に登録してください"
+    },
+    {
+      "id": "no-eval-or-new-function",
+      "severity": "error",
+      "category": "security",
+      "message": "eval() または new Function() の動的コード実行が検出されました",
+      "remediation_hint": "動的評価を廃止し、静的マッピング・JSON.parse・安全なパーサへ置き換えてください"
+    },
+    {
+      "id": "no-child-process-shell-true",
+      "severity": "error",
+      "category": "security",
+      "message": "shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました",
+      "remediation_hint": "execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください"
+    },
+    {
+      "id": "no-console-log",
+      "severity": "warn",
+      "category": "observability",
+      "message": "プロダクションコードに console.log が残存しています",
+      "remediation_hint": "構造化ロガーまたは process.stdout.write へ置換するか、CLI 出力として guardrails.yaml の agent_lint.waivers に期限付き登録してください"
+    },
+    {
+      "id": "no-deep-nesting",
+      "severity": "warn",
+      "category": "maintainability",
+      "message": "制御構造のネストが max_abstraction_depth を超えています",
+      "remediation_hint": "早期 return（ガード節）またはヘルパー関数抽出でネストを浅くしてください"
+    },
+    {
+      "id": "no-combinatorial-flags",
+      "severity": "error",
+      "category": "maintainability",
+      "message": "同一スコープ内の複数の分岐が同じフラグの組み合わせに依存しています",
+      "remediation_hint": "分岐を明示的な状態または決定表にまとめてください"
+    },
+    {
+      "id": "no-dependency-cycle",
+      "severity": "error",
+      "category": "architecture",
+      "message": "このローカル import が循環依存に参加しています",
+      "remediation_hint": "依存の向きを揃えるか共通処理を独立したモジュールへ抽出してください"
+    },
+    {
+      "id": "no-inline-suppression",
+      "severity": "error",
+      "category": "maintainability",
+      "message": "新しいインライン抑止コメントがあります",
+      "remediation_hint": "理由と期限を agent_lint.waivers に登録してください"
+    },
+    {
+      "id": "syntax-error",
+      "severity": "error",
+      "category": "correctness",
+      "message": "構文解析できない箇所があります",
+      "remediation_hint": "ファイルの言語と構文を確認してください"
+    }
+  ]
+}

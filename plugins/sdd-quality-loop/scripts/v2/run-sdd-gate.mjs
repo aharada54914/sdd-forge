@@ -22,21 +22,227 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkSpecDrift } from './check-spec-drift.mjs';
+import { checkAntiTampering, checkSpecDrift, readProtectedDiff } from './check-spec-drift.mjs';
 import {
   assertValidFeatureName,
   createFsReadonlyIo,
+  loadGuardrailsConfig,
   normalizeNewlines,
   normalizeRelPath,
   resolveExplicitOrAutoRoot,
-  splitSpecAmendments,
   isMainModule,
 } from './guardrails-lib.mjs';
+import { checkWriteScope } from './check-traceability.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
-import { extractScopePaths, isApprovedValue, normalizeRiskTier, taskEvidenceInputs } from './v2-readonly-core.mjs';
-import { globToRegExp } from './v2-pure-lib.mjs';
+import { runAgentLint } from './run-agent-lint.mjs';
+import { runFormalGate } from './run-formal-gate.mjs';
+import { runSecurityGate } from './run-security-gate.mjs';
+import { profilePhase, recordStartup } from './runtime-profile.mjs';
+import { openScanCache } from './scan-cache.mjs';
+import { acquireLock, releaseLock } from './task-lock.mjs';
+import { isApprovedValue, parseTaskBlock, taskEvidenceInputs } from './v2-readonly-core.mjs';
+import { globToRegExp, sha256Text } from './v2-pure-lib.mjs';
+
+/**
+ * Async glob helper powered by Node.js built-in `fs.promises.glob` (ADR-0055).
+ */
+export async function discoverFilesWithGlob(projectRoot, patterns) {
+  const root = path.resolve(projectRoot);
+  const patternList = Array.isArray(patterns) ? patterns : [patterns];
+  const collected = new Set();
+  for (const pattern of patternList) {
+    for await (const entry of fs.promises.glob(pattern, { cwd: root })) {
+      collected.add(normalizeRelPath(entry));
+    }
+  }
+  return [...collected].sort();
+}
+
+/**
+ * Unified single-invocation Git status helper using `--porcelain=v2 -z` (ADR-0055).
+ */
+export function readGitStatusPorcelainV2(projectRoot) {
+  const out = execFileSync('git', ['-C', projectRoot, 'status', '--porcelain=v2', '-z'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  const entries = [];
+  for (const raw of out.split('\0').filter(Boolean)) {
+    if (raw.startsWith('? ')) {
+      entries.push({ kind: 'untracked', path: normalizeRelPath(raw.slice(2)) });
+    } else if (raw.startsWith('1 ') || raw.startsWith('2 ')) {
+      const parts = raw.split(' ');
+      const rel = parts.slice(raw.startsWith('2 ') ? 9 : 8).join(' ');
+      entries.push({ kind: 'tracked', xy: parts[1] || '..', path: normalizeRelPath(rel) });
+    }
+  }
+  return entries;
+}
+
+/**
+ * AbortSignal.timeout()-backed helper for bounded async operations (ADR-0055).
+ */
+export function createTimeoutSignal(timeoutMs = 30000) {
+  return AbortSignal.timeout(Math.max(1, Number(timeoutMs) || 30000));
+}
+
+const SAMPLE_COUNT = 20;
+const DEFAULT_RATIO = 1.10;
+const PROTECTED_INPUTS = ['contracts/**', 'tests/golden/**', 'nfr-budget.json', '**/nfr-budget.json'];
+
+function git(root, args) {
+  return execFileSync('git', ['-c', `core.hooksPath=${os.devNull}`, ...args], {
+    cwd: root, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8',
+  }).trimEnd();
+}
+
+function immutableChanges(projectRoot, baseRef, budgetFile) {
+  const { revision, changedEntries } = readProtectedDiff(projectRoot, baseRef, [...PROTECTED_INPUTS, budgetFile]);
+  const paths = changedEntries.map(entry => entry.relPath).filter(rel =>
+    rel.startsWith('contracts/') || rel.startsWith('tests/golden/') ||
+    path.posix.basename(rel) === 'nfr-budget.json' || rel === budgetFile);
+  return { revision, paths: [...new Set(paths)].sort() };
+}
+
+function readBudget(checkout, rel, explicit) {
+  const file = path.resolve(checkout, rel);
+  if (!explicit && !fs.existsSync(file)) return {};
+  if (fs.realpathSync(file) !== file || !fs.statSync(file).isFile()) throw new Error('Invalid rebuilt NFR budget file');
+  const budget = JSON.parse(fs.readFileSync(file, 'utf8'));
+  if (!budget || typeof budget !== 'object' || Array.isArray(budget)) throw new Error('Invalid NFR budget');
+  for (const key of ['max_duration_ms', 'max_regression_ratio']) {
+    if (key in budget && !(Number.isFinite(budget[key]) && budget[key] > 0)) throw new Error(`Invalid NFR budget: ${key}`);
+  }
+  return budget;
+}
+
+function withFilePair(paths, flags, action) {
+  const first = fs.openSync(paths[0], flags, 0o600);
+  try {
+    const second = fs.openSync(paths[1], flags, 0o600);
+    try {
+      return action(first, second);
+    } finally {
+      fs.closeSync(second);
+    }
+  } finally {
+    fs.closeSync(first);
+  }
+}
+
+function measure(cmd, cwd, deadline, files) {
+  return withFilePair(files, 'w', (stdout, stderr) => {
+    const start = performance.now();
+    if (start >= deadline) throw new Error('Rebuild sampling exceeded its five-minute budget');
+    const res = spawnSync(cmd, {
+      cwd, shell: true, timeout: Math.ceil(Math.min(120000, deadline - start)),
+      stdio: ['ignore', stdout, stderr],
+    });
+    const durationMs = performance.now() - start;
+    if (res.error) throw new Error('Rebuild command execution failed: ' + res.error.message);
+    if (res.status === null) throw new Error('Rebuild command terminated by signal: ' + res.signal);
+    return { durationMs, exitCode: res.status };
+  });
+}
+
+function readBlock(fd, buffer, size) {
+  let offset = 0;
+  while (offset < size) {
+    const count = fs.readSync(fd, buffer, offset, size - offset, null);
+    if (count === 0) throw new Error('Rebuild output ended before the recorded size');
+    offset += count;
+  }
+}
+
+function sameOutput(first, second, deadline) {
+  return withFilePair([first, second], 'r', (a, b) => {
+    const size = fs.fstatSync(a).size;
+    if (size !== fs.fstatSync(b).size) return false;
+    if (size === 0) return true;
+    const left = Buffer.allocUnsafe(Math.min(65536, size));
+    const right = Buffer.allocUnsafe(left.length);
+    for (let offset = 0; offset < size; offset += left.length) {
+      if (performance.now() >= deadline) throw new Error('Rebuild sampling exceeded its five-minute budget');
+      const count = Math.min(left.length, size - offset);
+      readBlock(a, left, count);
+      readBlock(b, right, count);
+      if (!left.subarray(0, count).equals(right.subarray(0, count))) return false;
+    }
+    return true;
+  });
+}
+
+function summarize(durations, exitCode) {
+  const sorted = [...durations].sort((a, b) => a - b);
+  const p95Ms = sorted[Math.ceil(sorted.length * 0.95) - 1];
+  return { exitCode, durationMs: p95Ms, p95Ms, samples: sorted.length };
+}
+
+function compareCommands(baselineCmd, candidateCmd, baselineRoot, projectRoot, budget, temp) {
+  const deadline = performance.now() + 300000;
+  const baselineTimes = [];
+  const candidateTimes = [];
+  const oldFiles = ['baseline.stdout', 'baseline.stderr'].map(name => path.join(temp, name));
+  const newFiles = ['candidate.stdout', 'candidate.stderr'].map(name => path.join(temp, name));
+  let oldRun, newRun, differentialMatched;
+  for (let index = 0; index < SAMPLE_COUNT; index++) {
+    // Alternate order so a systematically warmer second run does not favor one side.
+    if (index % 2 === 0) oldRun = measure(baselineCmd, baselineRoot, deadline, oldFiles);
+    newRun = measure(candidateCmd, projectRoot, deadline, newFiles);
+    if (index % 2 !== 0) oldRun = measure(baselineCmd, baselineRoot, deadline, oldFiles);
+    baselineTimes.push(oldRun.durationMs);
+    candidateTimes.push(newRun.durationMs);
+    differentialMatched = oldRun.exitCode === 0 && newRun.exitCode === 0 &&
+      sameOutput(oldFiles[0], newFiles[0], deadline) && sameOutput(oldFiles[1], newFiles[1], deadline);
+    if (!differentialMatched) break;
+  }
+  const baseline = summarize(baselineTimes, oldRun.exitCode);
+  const candidate = summarize(candidateTimes, newRun.exitCode);
+  const nfrViolations = [];
+  const ratio = budget.max_regression_ratio ?? DEFAULT_RATIO;
+  if (candidate.samples === SAMPLE_COUNT) {
+    if (candidate.p95Ms > baseline.p95Ms * ratio) nfrViolations.push(`Candidate p95 exceeds ${ratio}x baseline`);
+    if (candidate.p95Ms > (budget.max_duration_ms ?? Infinity)) nfrViolations.push('Candidate p95 exceeds max_duration_ms');
+  }
+  const nfrPassed = candidate.samples === SAMPLE_COUNT && nfrViolations.length === 0;
+  return { baseline, candidate, differentialMatched, nfrPassed, nfrViolations, passed: differentialMatched && nfrPassed };
+}
+
+/** Run the old command at the actual Git revision and the new command in the candidate tree. */
+export function runRebuildDifferentialCheck({ projectRoot, baseRef = 'HEAD', baselineCmd, candidateCmd, nfrBudgetPath = null }) {
+  const failure = { passed: false, differentialMatched: false, nfrPassed: false, immutablePaths: [] };
+  if (!baselineCmd || !candidateCmd) return { ...failure, error: 'rebuild mode requires both --baseline-cmd and --candidate-cmd' };
+  try {
+    const budgetPath = path.resolve(projectRoot, nfrBudgetPath || 'nfr-budget.json');
+    const canonicalParent = fs.realpathSync(path.dirname(budgetPath));
+    const rel = path.relative(fs.realpathSync(projectRoot), path.join(canonicalParent, path.basename(budgetPath))).split(path.sep).join('/');
+    if (!rel || rel === '..' || rel.startsWith('../') || path.isAbsolute(rel)) throw new Error('NFR budget must be inside the project');
+    const before = immutableChanges(projectRoot, baseRef || 'HEAD', rel);
+    if (before.paths.length) return { ...failure, immutablePaths: before.paths };
+    const prefix = git(projectRoot, ['rev-parse', '--show-prefix']);
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-rebuild-'));
+    const checkout = path.join(fs.realpathSync(temp), 'baseline');
+    try {
+      git(projectRoot, ['worktree', 'add', '--quiet', '--detach', checkout, before.revision]);
+      try {
+        const baselineRoot = path.join(checkout, prefix);
+        const budget = readBudget(baselineRoot, rel, nfrBudgetPath !== null);
+        const report = compareCommands(baselineCmd, candidateCmd, baselineRoot, projectRoot, budget, temp);
+        const after = immutableChanges(projectRoot, before.revision, rel);
+        return { ...report, immutablePaths: after.paths, passed: report.passed && after.paths.length === 0 };
+      } finally {
+        git(projectRoot, ['worktree', 'remove', '--force', checkout]);
+      }
+    } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
+  } catch (err) {
+    return { ...failure, error: err.message };
+  }
+}
 
 // The detector is itself scanned. Keep the expression distinct from the text it matches.
 const PLACEHOLDER_RE =
@@ -66,33 +272,7 @@ function truncateTail(text) {
   return `...[truncated ${s.length - MAX_OUTPUT_CHARS} chars]...\n${s.slice(-MAX_OUTPUT_CHARS)}`;
 }
 
-export function parseTaskBlock(tasksContent, taskId) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksContent || '');
-  const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
-  const escaped = taskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  // The ID must end at whitespace or end of line, exactly like the planner and
-  // MCP (parseTasksSummary): `T-001` must never match `## T-001.1` (#821).
-  const headerRe = new RegExp(`^##[ \\t]+${escaped}(?:[ \\t].*)?$`, 'im');
-  const match = headerRe.exec(body);
-  if (!match) return null;
-
-  const rest = body.slice(match.index + match[0].length);
-  const nextH2 = /^##[ \t]+\S/m.exec(rest);
-  const block = nextH2 ? rest.slice(0, nextH2.index) : rest;
-
-  const approvalMatch = block.match(/^[ \t]*Approval:[ \t]*(.+)$/m);
-  const statusMatch = block.match(/^[ \t]*Status:[ \t]*(.+)$/m);
-  const riskMatch = block.match(/^[ \t]*Risk:[ \t]*(.+)$/m);
-
-  return {
-    taskId: taskId.toUpperCase(),
-    approval: approvalMatch ? approvalMatch[1].trim() : null,
-    status: statusMatch ? statusMatch[1].trim() : null,
-    // Same tiering as the planner and MCP: legacy `critical` is `high` (#824).
-    risk: normalizeRiskTier(riskMatch ? riskMatch[1] : '', 'standard'),
-    scopePaths: extractScopePaths(block),
-  };
-}
+export { parseTaskBlock };
 
 export function discoverChangedFiles(projectRoot, explicitFiles, { baseRef = null } = {}) {
   if (Array.isArray(explicitFiles) && explicitFiles.length > 0) {
@@ -167,22 +347,142 @@ function isPlaceholderScanTarget(relPath) {
   return true;
 }
 
-function scanPlaceholders(projectRoot, changedFiles) {
+const GIT_PATCH_METADATA = /^(?:index [a-f0-9]+\.\.[a-f0-9]+(?: \d+)?|(?:old|new|new file|deleted file) mode \d+|(?:dis)?similarity index \d+%|(?:rename|copy) (?:from|to) .+)$/;
+
+function unifiedHunkEnd(lines, start) {
+  const hunk = /^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@(?: .*)?$/.exec(lines[start]);
+  if (!hunk) return null;
+  let oldCount = Number(hunk[1] ?? 1);
+  let newCount = Number(hunk[2] ?? 1);
+  if (!oldCount && !newCount) return null;
+  let i = start + 1;
+  while (oldCount > 0 || newCount > 0) {
+    // diff.suppressBlankEmpty allows a physical empty context line. The
+    // final split sentinel after the last newline is not a physical line.
+    const line = lines[i];
+    if ((line === '' && i < lines.length - 1) || line?.startsWith(' ')) {
+      oldCount--;
+      newCount--;
+    } else if (line?.startsWith('-')) {
+      oldCount--;
+    } else if (line?.startsWith('+')) {
+      newCount--;
+    } else {
+      return null;
+    }
+    if (oldCount < 0 || newCount < 0) return null;
+    i++;
+    if (lines[i] === '\\ No newline at end of file') i++;
+  }
+  // Extra prefixed rows belong to this hunk unless a new file header or
+  // the standard mail signature starts here.
+  if (/^[ +-]/.test(lines[i]) && lines[i] !== '-- ' && !isUnifiedFileHeader(lines, i)) return null;
+  return i;
+}
+
+// Git can validate the encoded blocks without applying the patch. Delimit the
+// input first: git apply --numstat by itself also accepts trailing prose.
+function gitBinaryPatchEnd(lines, gitHeader, body) {
+  let end = body + 1;
+  let blocks = 0;
+  while (blocks < 2 && /^(?:literal|delta) \d+$/.test(lines[end])) {
+    const blank = lines.indexOf('', end + 1);
+    if (blank < 0) return null;
+    end = blank + 1;
+    blocks++;
+  }
+  if (!blocks) return null;
+  const input = lines.slice(gitHeader, end).join('\n') + '\n';
+  const check = spawnSync('git', ['apply', '--numstat', '-'], { input, stdio: ['pipe', 'ignore', 'ignore'] });
+  return check.status === 0 ? end : null;
+}
+
+function isUnifiedFileHeader(lines, i) {
+  return /^---\s+\S/.test(lines[i]) && /^\+\+\+\s+\S/.test(lines[i + 1]);
+}
+
+// Keep original physical indexes. Mask each verified hunk independently so
+// malformed or unfamiliar text stays visible without reopening earlier hunks.
+function maskUnchangedPatchLines(lines) {
+  let inFile = false;
+  for (let i = 0; i < lines.length;) {
+    const header = i;
+    if (lines[i].startsWith('diff --git ')) {
+      inFile = false;
+      i++;
+      while (GIT_PATCH_METADATA.test(lines[i])) i++;
+      if (lines[i] === 'GIT binary patch') {
+        const end = gitBinaryPatchEnd(lines, header, i);
+        if (end !== null) {
+          lines.fill('', header, end);
+          i = end;
+        }
+        continue;
+      }
+      if (/^Binary files .+ and .+ differ$/.test(lines[i])) {
+        i++;
+        lines.fill('', header, i);
+        continue;
+      }
+    }
+    if (isUnifiedFileHeader(lines, i)) {
+      inFile = true;
+      i += 2;
+    }
+    const end = inFile ? unifiedHunkEnd(lines, i) : null;
+    if (end === null) {
+      inFile = false;
+      i++;
+      continue;
+    }
+    lines.fill('', header, i + 1);
+    for (i++; i < end; i++) {
+      if (!lines[i].startsWith('+')) lines[i] = '';
+    }
+  }
+}
+
+export function scanPlaceholders(projectRoot, changedFiles, scanCache = null) {
   const findings = [];
+  const scannedFiles = [];
   for (const rel of changedFiles) {
     if (!isPlaceholderScanTarget(rel)) continue;
     const abs = path.join(projectRoot, rel);
-    if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) continue;
-    const lines = normalizeNewlines(fs.readFileSync(abs, 'utf8')).split('\n');
+    if (!fs.existsSync(abs)) continue;
+    const st = fs.statSync(abs);
+    if (!st.isFile()) continue;
+    const cached = scanCache ? scanCache.get('placeholders', rel, st) : null;
+    if (cached !== null) {
+      if (!cached.binary) {
+        scannedFiles.push(rel);
+        findings.push(...cached.findings);
+      }
+      continue;
+    }
+    const bytes = fs.readFileSync(abs);
+    // Git uses a NUL byte in the first 8000 bytes to identify binary content.
+    if (bytes.subarray(0, 8000).includes(0)) {
+      if (scanCache) scanCache.set('placeholders', rel, st, '', { binary: true, findings: [] });
+      continue;
+    }
+    scannedFiles.push(rel);
+    const text = bytes.toString('utf8');
+    const fileFindings = [];
+    const lines = normalizeNewlines(text).split('\n');
+    if (/\.(?:patch|diff)$/i.test(rel)) maskUnchangedPatchLines(lines);
     for (let i = 0; i < lines.length; i += 1) {
       if (PLACEHOLDER_RE.test(lines[i])) {
-        findings.push({ file: rel, line: i + 1, text: lines[i].trim().slice(0, 160) });
+        fileFindings.push({ file: rel, line: i + 1, text: lines[i].trim().slice(0, 160) });
       }
+    }
+    findings.push(...fileFindings);
+    if (scanCache) {
+      scanCache.set('placeholders', rel, st, sha256Text(text), { binary: false, findings: fileFindings });
     }
   }
   return {
     passed: findings.length === 0,
-    scannedFiles: changedFiles.filter(isPlaceholderScanTarget),
+    scannedFiles,
     findings,
   };
 }
@@ -592,7 +892,7 @@ function appendFactoryMetric(projectRoot, record) {
   }
 }
 
-function runVerificationCommands(projectRoot, commands) {
+function runVerificationCommands(projectRoot, commands, failFast) {
   const results = [];
   for (const { label, command } of commands) {
     const start = Date.now();
@@ -614,6 +914,7 @@ function runVerificationCommands(projectRoot, commands) {
       stdout: truncateTail(res.stdout),
       stderr: truncateTail(res.stderr),
     });
+    if (failFast && (exitCode !== 0 || res.error)) break;
   }
   return results;
 }
@@ -627,15 +928,85 @@ function v1Retired(feature) {
     + `${prefix}.md, ${prefix}.json and ${prefix}.approval.json instead`;
 }
 
-function isV1Record(contents, filename) {
-  let raw = contents;
-  if (filename.endsWith('.md')) {
-    const blocks = [...contents.matchAll(/^```json\r?\n([\s\S]*?)^```[ \t]*\r?$/gm)];
-    if (blocks.length !== 1) return false;
-    raw = blocks[0][1];
+const CONCEPT_BLOB_LIMIT = 16 * 1024 * 1024;
+const conceptWindows = process.platform === 'win32';
+const conceptScriptName = `validate-concept-test.${conceptWindows ? 'ps1' : 'sh'}`;
+const SAFE_PLUGIN_VERSION_RE = /^[0-9A-Za-z][0-9A-Za-z._+-]*$/;
+
+function readPluginManifest(pluginDir) {
+  for (const rel of ['.codex-plugin/plugin.json', '.claude-plugin/plugin.json', '.plugin/plugin.json']) {
+    const manifestPath = path.join(pluginDir, rel);
+    if (!fs.existsSync(manifestPath)) continue;
+    try {
+      const parsed = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      const version = typeof parsed?.version === 'string' ? parsed.version.trim() : '';
+      if (parsed && typeof parsed.name === 'string' && SAFE_PLUGIN_VERSION_RE.test(version)) {
+        return { name: parsed.name.trim(), version };
+      }
+    } catch {
+      // Ignore unreadable or malformed manifest candidates and try the next one.
+    }
   }
+  return null;
+}
+
+export function resolveConceptValidatorScript(gateModuleUrl = import.meta.url, scriptName = conceptScriptName) {
+  const sibling = fileURLToPath(new URL(`../../../sdd-domain/scripts/${scriptName}`, gateModuleUrl));
+  if (fs.existsSync(sibling)) return sibling;
+
+  // Per-plugin, per-version cache layout: <cache>/<marketplace>/<plugin>/<version>/scripts/v2/run-sdd-gate.mjs
+  const gateDir = path.dirname(fileURLToPath(gateModuleUrl));
+  const pluginRoot = path.resolve(gateDir, '..', '..');
+  const selfManifest = readPluginManifest(pluginRoot);
+  if (!selfManifest || selfManifest.name !== 'sdd-quality-loop') return sibling;
+
+  const marketplaceRoot = path.resolve(pluginRoot, '..', '..');
+  const candidateDomainRoot = path.join(marketplaceRoot, 'sdd-domain', selfManifest.version);
+  const domainManifest = readPluginManifest(candidateDomainRoot);
+  if (!domainManifest || domainManifest.name !== 'sdd-domain' || domainManifest.version !== selfManifest.version) {
+    return sibling;
+  }
+  const versionedScript = path.join(candidateDomainRoot, 'scripts', scriptName);
+  return fs.existsSync(versionedScript) ? versionedScript : sibling;
+}
+
+const conceptScript = resolveConceptValidatorScript();
+function runConceptValidator(args, options) {
+  return spawnSync(conceptWindows ? 'pwsh' : 'sh', [
+    ...(conceptWindows ? ['-NoProfile', '-File'] : []), conceptScript, ...args,
+  ], { encoding: 'utf8', ...options });
+}
+
+function isV1Record(contents, filename) {
+  if (contents.length > CONCEPT_BLOB_LIMIT) return false;
+  if (fs.existsSync(conceptScript)) {
+    const kind = filename.endsWith('.md') ? 'md' : 'json';
+    const probe = runConceptValidator(['--probe-v1', kind], { input: contents });
+    if (probe.status === 0) return probe.stdout.trim() === 'V1';
+    if (probe.error?.code !== 'ENOENT' && probe.status !== 3) return false;
+  }
+  // A standalone Node install can still identify ordinary, unambiguous UTF-8 proposals.
   try {
-    return JSON.parse(raw)?.schema === 'concept-test/v1';
+    let raw = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(contents);
+    if (filename.endsWith('.md')) {
+      const blocks = [...raw.matchAll(/(?<=^|\n)```json\r?\n([\s\S]*?)(?<=\n)```[ \t]*\r?(?=\n|$)/g)];
+      if (blocks.length !== 1) return false;
+      raw = blocks[0][1];
+    }
+    if (JSON.parse(raw)?.schema !== 'concept-test/v1') return false;
+    // JSON.parse accepts duplicate keys. Check each object's keys before naming a migration.
+    const objects = [];
+    for (const [token, literal, colon] of raw.matchAll(/("(?:[^"\\]|\\.)*")\s*(:)?|[{}]/g)) {
+      if (token === '{') objects.push(new Set());
+      else if (token === '}') objects.pop();
+      else if (colon) {
+        const keys = objects.at(-1);
+        const key = JSON.parse(literal);
+        if (keys.has(key)) return false;
+        keys.add(key);
+      }
+    }
+    return true;
   } catch {
     return false;
   }
@@ -653,7 +1024,7 @@ function conceptRecord(root, feature) {
     // retirement is named even where the validator cannot run (#812).
     const [, json, md] = stats;
     const [rel, stat] = json ? [paths[1], json] : [paths[2], md];
-    const v1 = stat?.isFile() && isV1Record(fs.readFileSync(path.join(root, rel), 'utf8'), rel);
+    const v1 = stat?.isFile() && stat.size <= CONCEPT_BLOB_LIMIT && isV1Record(fs.readFileSync(path.join(root, rel)), rel);
     return v1 ? 'V1' : 'PRESENT';
   }
 
@@ -669,11 +1040,11 @@ function conceptRecord(root, feature) {
       && fs.readdirSync(marker).length === 0) return 'NONE';
   const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
   const git = (...args) => execFileSync('git', ['--no-replace-objects', '--literal-pathspecs', '-C', root, ...args], {
-    encoding: 'utf8', env, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 16 * 1024 * 1024,
+    env, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: CONCEPT_BLOB_LIMIT,
   });
   let index;
   try {
-    index = git('ls-files', '--stage', '-z', '--', ...paths);
+    index = git('ls-files', '--stage', '-z', '--', ...paths).toString('utf8');
   } catch (err) {
     // Git is optional for SDD Core. Records in the working tree were checked above.
     if (err.code === 'ENOENT') return 'GIT_UNAVAILABLE';
@@ -682,12 +1053,14 @@ function conceptRecord(root, feature) {
   const entries = index.split('\0').filter(Boolean);
   if (entries.length === 0) return 'NONE';
   // The validator reads only the working tree, so name a retired v1 record here.
-  const indexedV1 = entries.some(entry => {
-    const [meta, filename] = entry.split('\t');
-    const [mode, oid] = meta.split(' ');
-    return (mode === '100644' || mode === '100755') && isV1Record(git('cat-file', 'blob', oid), filename);
-  });
-  return indexedV1 ? 'INDEXED_V1' : 'PRESENT';
+  // Match the working-tree validator's precedence. A receipt or conflicted stage cannot establish v1.
+  const proposals = entries.filter(entry => entry.endsWith('/concept-test.json'));
+  const candidates = proposals.length ? proposals : entries.filter(entry => entry.endsWith('/concept-test.md'));
+  if (candidates.length !== 1) return 'PRESENT';
+  const [meta, filename] = candidates[0].split('\t');
+  const [mode, oid, stage] = meta.split(' ');
+  const regular = mode === '100644' || mode === '100755';
+  return stage === '0' && regular && isV1Record(git('cat-file', 'blob', oid), filename) ? 'INDEXED_V1' : 'PRESENT';
 }
 
 function checkConceptTest(root, feature) {
@@ -703,22 +1076,19 @@ function checkConceptTest(root, feature) {
         error: `concept-test: BLOCK: ${v1Retired(feature)}. The Git index still holds the v1 record; stage its removal too.`,
       };
     }
-    const win = process.platform === 'win32';
-    const script = fileURLToPath(new URL(`../../../sdd-domain/scripts/validate-concept-test.${win ? 'ps1' : 'sh'}`, import.meta.url));
-    if (!fs.existsSync(script)) {
+    if (!fs.existsSync(conceptScript)) {
       // Codex's per-plugin, per-version cache has no sibling sdd-domain (#812).
       return {
         passed: false,
         status: 'BLOCK',
         error: 'Concept Test runtime not found next to sdd-quality-loop (expected '
-          + path.relative(path.dirname(fileURLToPath(import.meta.url)), script)
+          + path.relative(path.dirname(fileURLToPath(import.meta.url)), conceptScript)
           + '). Per-version plugin caches, such as Codex plugin installs, cannot run the Concept Test yet (#812).'
           + ' For a DDD project, run sdd-gate from the sdd-forge source checkout:'
           + ' node <sdd-forge>/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs.',
       };
     }
-    const args = [...(win ? ['-NoProfile', '-File'] : []), script, '--root', root, '--feature', feature, '--require-v2'];
-    const result = spawnSync(win ? 'pwsh' : 'sh', args, { cwd: root, encoding: 'utf8' });
+    const result = runConceptValidator(['--root', root, '--feature', feature, '--require-v2'], { cwd: root });
     const status = result.stdout?.trim();
     if (result.status === 0 && status === 'CONTINUE') return { passed: true, status };
     if ((result.status === 2 && status === 'DEFER') || (result.status === 3 && status === 'REJECT')) return { passed: false, status };
@@ -740,13 +1110,29 @@ export function runSddGate({
   skipSensors = false,
   outputPath = null,
   rootCausePhase = null,
+  mode = 'standard',
+  role = null,
+  baselineCmd = null,
+  candidateCmd = null,
+  nfrBudgetPath = null,
+  lockOwner = null,
+  enableAntiTamper = false,
+  enableAgentLint = false,
+  enableSecurityGate = false,
+  formalTla = null,
+  formalCfg = null,
+  formalTrace = null,
+  formalRound = 0,
+  failFast = false,
 }) {
   assertValidFeatureName(feature);
+  if (!['standard', 'rebuild'].includes(mode)) throw new Error('Unsupported gate mode');
   if (!taskId || !/^T-[A-Za-z0-9._-]+$/i.test(taskId)) {
     throw new Error(`Invalid task ID: ${taskId}`);
   }
 
   const root = resolveExplicitOrAutoRoot(projectRoot);
+  const config = loadGuardrailsConfig(root);
   const tasksPath = path.join(root, 'specs', feature, 'tasks.md');
   let tasksStat;
   try {
@@ -766,163 +1152,317 @@ export function runSddGate({
     throw new Error(`Task ${taskId} not found in specs/${feature}/tasks.md`);
   }
 
-  const taskCheckErrors = [];
-  if (!isApprovedValue(taskState.approval)) {
-    taskCheckErrors.push(`Task ${taskId} is not Approved (found: ${taskState.approval || 'missing'})`);
+  // Optional fail-closed lock acquisition (NFR-005: task-lock.mjs exit 1 stays untouched)
+  let lockCheck = { checked: false, passed: true, acquired: null };
+  let acquiredLockForRelease = false;
+  if (lockOwner) {
+    const lockRes = acquireLock({ feature, taskId: taskState.taskId, owner: lockOwner, projectRoot: root });
+    lockCheck = { checked: true, passed: Boolean(lockRes.acquired), ...lockRes };
+    acquiredLockForRelease = Boolean(lockRes.acquired && !lockRes.reentrant);
   }
-  if (taskState.status !== 'Implementation Complete' && taskState.status !== 'Done') {
-    taskCheckErrors.push(
-      `Task ${taskId} must be 'Implementation Complete' or 'Done' (found: ${taskState.status || 'missing'})`,
-    );
-  }
-  const taskPrecondition = {
-    passed: taskCheckErrors.length === 0,
-    ...taskState,
-    errors: taskCheckErrors,
-  };
 
-  let specDrift = { skipped: true, passed: true, status: 'SKIPPED' };
-  if (!skipDrift) {
-    try {
-      const report = checkSpecDrift({ feature, projectRoot: root, baselinePath });
-      specDrift = {
+  let outcome;
+  const scanCache = openScanCache(root);
+  try {
+    const taskCheckErrors = [];
+    if (!isApprovedValue(taskState.approval)) {
+      taskCheckErrors.push(`Task ${taskId} is not Approved (found: ${taskState.approval || 'missing'})`);
+    }
+    if (taskState.status !== 'Implementation Complete' && taskState.status !== 'Done') {
+      taskCheckErrors.push(
+        `Task ${taskId} must be 'Implementation Complete' or 'Done' (found: ${taskState.status || 'missing'})`,
+      );
+    }
+    const taskPrecondition = {
+      passed: taskCheckErrors.length === 0,
+      ...taskState,
+      errors: taskCheckErrors,
+    };
+
+    let failFastStoppedAt = null;
+    if (!lockCheck.passed) {
+      failFastStoppedAt = 'lockCheck';
+    } else if (failFast && !taskPrecondition.passed) {
+      failFastStoppedAt = 'taskPrecondition';
+    }
+
+    let specDrift = { skipped: true, passed: true, status: 'SKIPPED' };
+    if (!skipDrift && !failFastStoppedAt) {
+      try {
+        const report = checkSpecDrift({ feature, projectRoot: root, baselinePath });
+        specDrift = {
+          skipped: false,
+          passed: report.status !== 'UNDECLARED_DRIFT' && report.status !== 'UNVERIFIABLE',
+          ...report,
+        };
+      } catch (err) {
+        specDrift = {
+          skipped: false,
+          passed: false,
+          status: 'BASELINE_ERROR',
+          error: err.message,
+        };
+      }
+      if (failFast && !specDrift.passed) failFastStoppedAt = 'specDrift';
+    }
+
+    let antiTamper = { skipped: true, passed: true, status: 'SKIPPED' };
+    if (enableAntiTamper && !failFastStoppedAt) {
+      try {
+        const atReport = checkAntiTampering({ projectRoot: root, baseRef, feature });
+        antiTamper = { skipped: false, passed: atReport.status === 'CLEAN', ...atReport };
+      } catch (err) {
+        antiTamper = { skipped: false, passed: false, status: 'TOOL_ERROR', error: err.message };
+      }
+      if (failFast && !antiTamper.passed) failFastStoppedAt = 'antiTamper';
+    }
+
+    let writeScope = { skipped: true, passed: true };
+    if (role !== null && !failFastStoppedAt) {
+      try {
+        writeScope = { skipped: false, ...checkWriteScope({ projectRoot: root, role, baseRef }) };
+      } catch (err) {
+        writeScope = { skipped: false, passed: false, role, error: err.message };
+      }
+      if (failFast && !writeScope.passed) failFastStoppedAt = 'writeScope';
+    }
+    const explicitFiles = Array.isArray(changedFiles) && changedFiles.length > 0;
+    const resolvedChanged = failFastStoppedAt ? [] : discoverChangedFiles(root, changedFiles, { baseRef });
+
+    let agentLint = { skipped: true, passed: true, status: 'SKIPPED' };
+    if ((enableAgentLint || config.agent_lint?.enabled) && !failFastStoppedAt) {
+      const diffOnly = config.agent_lint.diff_only && (!Array.isArray(changedFiles) || baseRef !== null ||
+        spawnSync('git', ['rev-parse', '--verify', 'HEAD'], { cwd: root, stdio: 'ignore' }).status === 0);
+      const lintReport = runAgentLint({
+        projectRoot: root,
+        // Let lint discover its own hunks so auto-detected paths retain their report and bundle context.
+        files: diffOnly && !explicitFiles ? null : resolvedChanged,
+        baseRef,
+        diffOnly,
+        mode: enableAgentLint ? 'strict' : config.agent_lint?.mode,
+      });
+      agentLint = { skipped: false, passed: lintReport.status !== 'FAIL', ...lintReport };
+      if (failFast && !agentLint.passed) failFastStoppedAt = 'agentLint';
+    }
+
+    let securityGate = { skipped: true, passed: true, status: 'SKIPPED' };
+    if ((enableSecurityGate || config.security_audit?.enabled) && !failFastStoppedAt) {
+      const secReport = runSecurityGate({
+        projectRoot: root,
+        files: resolvedChanged.length > 0 ? resolvedChanged : null,
+        mode: enableSecurityGate ? 'strict' : config.security_audit?.mode,
+      });
+      securityGate = { skipped: false, passed: secReport.exitCode === 0, ...secReport };
+      if (failFast && !securityGate.passed) failFastStoppedAt = 'securityGate';
+    }
+
+    let formalGate = { skipped: true, passed: true, status: 'SKIPPED' };
+    if (formalTla && !failFastStoppedAt) {
+      const fReport = runFormalGate({
+        projectRoot: root,
+        tlaPath: formalTla,
+        cfgPath: formalCfg,
+        tracePath: formalTrace,
+        round: formalRound,
+        risk: taskState.risk,
+        feature,
+        baseRef,
+      });
+      formalGate = { skipped: fReport.status === 'SKIPPED', passed: fReport.exitCode === 0, ...fReport };
+      if (failFast && !formalGate.passed) failFastStoppedAt = 'formalGate';
+    }
+
+    const placeholders = failFastStoppedAt
+      ? { passed: true, skipped: true, scannedFiles: [], findings: [] }
+      : profilePhase('scan', 'placeholders', () => scanPlaceholders(root, resolvedChanged, scanCache), {
+          fileCount: resolvedChanged.length,
+        });
+    if (failFast && !placeholders.passed) failFastStoppedAt = 'placeholders';
+    const nonFunctionalSensors =
+      skipSensors || failFastStoppedAt
+        ? { skipped: true, passed: true, findings: [] }
+        : {
+            skipped: false,
+            ...profilePhase('scan', 'non-functional-sensors', () => scanNonFunctionalSensors(root, resolvedChanged), {
+              fileCount: resolvedChanged.length,
+            }),
+          };
+    if (failFast && !nonFunctionalSensors.passed) failFastStoppedAt = 'nonFunctionalSensors';
+    const openQuestions = failFastStoppedAt
+      ? { passed: true, blocking: false, provisionalCount: 0, provisionalIds: [] }
+      : checkOpenQuestionsGate(root, feature, taskState);
+    if (failFast && !openQuestions.passed) failFastStoppedAt = 'openQuestions';
+    const reviewTickets = failFastStoppedAt
+      ? { passed: true, blocking: [] }
+      : checkReviewTickets(root, feature, taskState);
+    if (failFast && !reviewTickets.passed) failFastStoppedAt = 'reviewTickets';
+
+    const taskScope = taskState.scopePaths;
+    const inScope = (rel) => taskScope.length === 0 || isInTaskScope(rel, taskScope);
+    for (const finding of [...placeholders.findings, ...(nonFunctionalSensors.findings || [])]) {
+      if (finding && typeof finding.file === 'string') finding.inTaskScope = inScope(finding.file);
+    }
+    const scope = {
+      mode: explicitFiles ? 'explicit' : baseRef ? 'base' : 'uncommitted',
+      ...(baseRef ? { baseRef } : {}),
+      taskScope,
+      outOfScopeFiles: resolvedChanged.filter((rel) => !inScope(rel)),
+    };
+    const conceptTest = failFastStoppedAt
+      ? { skipped: true, passed: true, status: 'SKIPPED' }
+      : checkConceptTest(root, feature);
+    if (failFast && !conceptTest.passed) failFastStoppedAt = 'conceptTest';
+    const commandResults =
+      failFastStoppedAt || !conceptTest.passed
+        ? []
+        : profilePhase('exec', 'verification-commands', () => runVerificationCommands(root, commands, failFast), {
+            commandCount: commands.length,
+          });
+    const allCommandsPassed = commandResults.every((r) => r.passed);
+
+    if (failFast && !allCommandsPassed) failFastStoppedAt = 'commands';
+
+    let rebuildDifferential = { skipped: true, passed: true };
+    if (mode === 'rebuild' && !failFastStoppedAt && conceptTest.passed) {
+      rebuildDifferential = {
         skipped: false,
-        passed: report.status !== 'UNDECLARED_DRIFT' && report.status !== 'UNVERIFIABLE',
-        ...report,
-      };
-    } catch (err) {
-      specDrift = {
-        skipped: false,
-        passed: false,
-        status: 'BASELINE_ERROR',
-        error: err.message,
+        ...runRebuildDifferentialCheck({
+          projectRoot: root,
+          baseRef,
+          baselineCmd,
+          candidateCmd,
+          nfrBudgetPath,
+        }),
       };
     }
+
+    const verdict =
+      !failFastStoppedAt &&
+      lockCheck.passed &&
+      taskPrecondition.passed &&
+      specDrift.passed &&
+      antiTamper.passed &&
+      writeScope.passed &&
+      agentLint.passed &&
+      securityGate.passed &&
+      formalGate.passed &&
+      placeholders.passed &&
+      nonFunctionalSensors.passed &&
+      openQuestions.passed &&
+      reviewTickets.passed &&
+      conceptTest.passed &&
+      allCommandsPassed &&
+      rebuildDifferential.passed
+        ? 'PASS'
+        : 'FAIL';
+
+    const coverage = {
+      commandsRun: commandResults.length,
+      specDriftChecked: !specDrift.skipped,
+      sensorsChecked: !nonFunctionalSensors.skipped,
+    };
+    coverage.complete = coverage.commandsRun > 0 && coverage.specDriftChecked && coverage.sensorsChecked;
+    const warnings = [];
+    if (coverage.commandsRun === 0 && mode !== 'rebuild') {
+      warnings.push('NO_VERIFICATION_COMMANDS: no --cmd was run; this PASS does not cover tests, build or lint.');
+    }
+    if (!coverage.specDriftChecked) warnings.push('SPEC_DRIFT_SKIPPED: --skip-drift was set.');
+    if ((specDrift.newlyApprovedTasks || []).includes(taskState.taskId)) {
+      warnings.push(
+        `APPROVED_AFTER_BASELINE: ${taskState.taskId} became Approved after the spec baseline was recorded; confirm a human approved it.`,
+      );
+    }
+    if (!coverage.sensorsChecked) warnings.push('SENSORS_SKIPPED: --skip-sensors was set.');
+    if (scope.outOfScopeFiles.length > 0) {
+      warnings.push(
+        `OUT_OF_SCOPE_CHANGES: ${scope.outOfScopeFiles.length} changed file(s) outside this task's Scope were scanned; ` +
+          'in a shared working tree pass the task\'s own files with --changed-files.',
+      );
+    }
+
+    const result = {
+      schema: 'sdd-gate-execution/v1',
+      runId: crypto.randomUUID(),
+      feature,
+      taskId: taskState.taskId,
+      mode,
+      ...(failFastStoppedAt ? { failFastStoppedAt } : {}),
+      executedAt: new Date().toISOString(),
+      verdict,
+      specInputs: taskEvidenceInputs(createFsReadonlyIo(root), { feature, taskId: taskState.taskId }),
+      coverage,
+      scope,
+      warnings,
+      checks: {
+        lockCheck,
+        taskPrecondition,
+        specDrift,
+        antiTamper,
+        writeScope,
+        agentLint,
+        securityGate,
+        formalGate,
+        placeholders,
+        nonFunctionalSensors,
+        openQuestions,
+        reviewTickets,
+        conceptTest,
+        commands: commandResults,
+        rebuildDifferential,
+      },
+    };
+
+    // Only the lock holder may publish the task's execution report. A denied
+    // contender still returns its diagnostic through the API and CLI stdout.
+    let resolvedOutput = null;
+    if (lockCheck.passed) {
+      resolvedOutput = outputPath
+        ? path.resolve(outputPath)
+        : path.join(root, 'reports', 'quality-gate', `${feature}-${taskState.taskId}.execution.json`);
+      fs.mkdirSync(path.dirname(resolvedOutput), { recursive: true });
+      fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+    }
+
+    appendFactoryMetric(root, {
+      runId: result.runId,
+      timestamp: result.executedAt,
+      feature,
+      taskId: taskState.taskId,
+      risk: taskState.risk,
+      verdict,
+      specDriftStatus: specDrift.status,
+      driftSkipped: Boolean(skipDrift),
+      sensorsSkipped: Boolean(skipSensors),
+      provisionalOqCount: openQuestions.provisionalCount,
+      provisionalOqBlocking: Boolean(openQuestions.blocking),
+      sensorFindingCount: nonFunctionalSensors.findings.length,
+      placeholderFindingCount: placeholders.findings.length,
+      failedCommandCount: commandResults.filter((c) => !c.passed).length,
+      commandsRun: commandResults.length,
+      advisoryFindingCount: (nonFunctionalSensors.advisoryFindings || []).length,
+      ...(rootCausePhase ? { rootCausePhase } : {}),
+      commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),
+    });
+
+    outcome = { result, outputPath: resolvedOutput };
+    return outcome;
+  } finally {
+    try {
+      scanCache.close();
+    } catch {
+      // ignore cache close errors
+    }
+    if (acquiredLockForRelease && lockOwner) {
+      try {
+        const cleanup = releaseLock({ feature, taskId: taskState.taskId, owner: lockOwner, projectRoot: root });
+        if (!cleanup.released) throw new Error([cleanup.message, cleanup.peerIntent].filter(Boolean).join(' '));
+      } catch (err) {
+        const message = `Could not release ${lockCheck.lockPath} for owner '${lockOwner}': ${err.message}`;
+        if (outcome) outcome.lockCleanupError = message;
+        else process.stderr.write(`run-sdd-gate error: ${message}\n`);
+      }
+    }
   }
-
-  const resolvedChanged = discoverChangedFiles(root, changedFiles, { baseRef });
-  const placeholders = scanPlaceholders(root, resolvedChanged);
-  const nonFunctionalSensors = skipSensors
-    ? { skipped: true, passed: true, findings: [] }
-    : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
-  const openQuestions = checkOpenQuestionsGate(root, feature, taskState);
-  const reviewTickets = checkReviewTickets(root, feature, taskState);
-  // Label what lies outside the task's ### Scope (#829). The verdict is not
-  // relaxed: in a shared working tree, pass the task's own files with
-  // --changed-files instead.
-  const taskScope = taskState.scopePaths;
-  const inScope = (rel) => taskScope.length === 0 || isInTaskScope(rel, taskScope);
-  for (const finding of [...placeholders.findings, ...(nonFunctionalSensors.findings || [])]) {
-    if (finding && typeof finding.file === 'string') finding.inTaskScope = inScope(finding.file);
-  }
-  const scope = {
-    mode: Array.isArray(changedFiles) && changedFiles.length > 0 ? 'explicit' : baseRef ? 'base' : 'uncommitted',
-    ...(baseRef ? { baseRef } : {}),
-    taskScope,
-    outOfScopeFiles: resolvedChanged.filter((rel) => !inScope(rel)),
-  };
-  const conceptTest = checkConceptTest(root, feature);
-  const commandResults = conceptTest.passed ? runVerificationCommands(root, commands) : [];
-  const allCommandsPassed = commandResults.every((r) => r.passed);
-
-  const verdict =
-    taskPrecondition.passed &&
-    specDrift.passed &&
-    placeholders.passed &&
-    nonFunctionalSensors.passed &&
-    openQuestions.passed &&
-    reviewTickets.passed &&
-    conceptTest.passed &&
-    allCommandsPassed
-      ? 'PASS'
-      : 'FAIL';
-
-  // What this run actually verified (#825). A mechanical PASS with zero
-  // verification commands or skipped drift/sensor checks is not Done evidence;
-  // consumers must read `coverage.complete` before treating PASS as such.
-  const coverage = {
-    commandsRun: commandResults.length,
-    specDriftChecked: !specDrift.skipped,
-    sensorsChecked: !nonFunctionalSensors.skipped,
-  };
-  coverage.complete = coverage.commandsRun > 0 && coverage.specDriftChecked && coverage.sensorsChecked;
-  const warnings = [];
-  if (coverage.commandsRun === 0) {
-    warnings.push('NO_VERIFICATION_COMMANDS: no --cmd was run; this PASS does not cover tests, build or lint.');
-  }
-  if (!coverage.specDriftChecked) warnings.push('SPEC_DRIFT_SKIPPED: --skip-drift was set.');
-  if ((specDrift.newlyApprovedTasks || []).includes(taskState.taskId)) {
-    // A staged human approval and a shell edit look the same in the file; the
-    // independent evaluator must confirm a human approved this task.
-    warnings.push(
-      `APPROVED_AFTER_BASELINE: ${taskState.taskId} became Approved after the spec baseline was recorded; confirm a human approved it.`,
-    );
-  }
-  if (!coverage.sensorsChecked) warnings.push('SENSORS_SKIPPED: --skip-sensors was set.');
-  if (scope.outOfScopeFiles.length > 0) {
-    warnings.push(
-      `OUT_OF_SCOPE_CHANGES: ${scope.outOfScopeFiles.length} changed file(s) outside this task's Scope were scanned; ` +
-        'in a shared working tree pass the task\'s own files with --changed-files.',
-    );
-  }
-
-  const result = {
-    schema: 'sdd-gate-execution/v1',
-    // Identifies this attempt so a later record-attribution --run-id for the
-    // same failure is counted once, not twice (#844).
-    runId: crypto.randomUUID(),
-    feature,
-    taskId: taskState.taskId,
-    executedAt: new Date().toISOString(),
-    verdict,
-    // The spec inputs this run verified; a later change to them makes the
-    // verdict stale for Done readiness (#831).
-    specInputs: taskEvidenceInputs(createFsReadonlyIo(root), { feature, taskId: taskState.taskId }),
-    coverage,
-    scope,
-    warnings,
-    checks: {
-      taskPrecondition,
-      specDrift,
-      placeholders,
-      nonFunctionalSensors,
-      openQuestions,
-      reviewTickets,
-      conceptTest,
-      commands: commandResults,
-    },
-  };
-
-  const resolvedOutput = outputPath
-    ? path.resolve(outputPath)
-    : path.join(root, 'reports', 'quality-gate', `${feature}-${taskState.taskId}.execution.json`);
-  fs.mkdirSync(path.dirname(resolvedOutput), { recursive: true });
-  fs.writeFileSync(resolvedOutput, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
-
-  appendFactoryMetric(root, {
-    runId: result.runId,
-    timestamp: result.executedAt,
-    feature,
-    taskId: taskState.taskId,
-    risk: taskState.risk,
-    verdict,
-    specDriftStatus: specDrift.status,
-    driftSkipped: Boolean(skipDrift),
-    sensorsSkipped: Boolean(skipSensors),
-    provisionalOqCount: openQuestions.provisionalCount,
-    provisionalOqBlocking: Boolean(openQuestions.blocking),
-    sensorFindingCount: nonFunctionalSensors.findings.length,
-    // execution.json is overwritten per task; the per-attempt breakdown the
-    // retrospective needs is kept here (#838).
-    placeholderFindingCount: placeholders.findings.length,
-    failedCommandCount: commandResults.filter((c) => !c.passed).length,
-    commandsRun: commandResults.length,
-    advisoryFindingCount: (nonFunctionalSensors.advisoryFindings || []).length,
-    ...(rootCausePhase ? { rootCausePhase } : {}),
-    commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),
-  });
-
-  return { result, outputPath: resolvedOutput };
 }
 
 function parseArgs(argv) {
@@ -938,6 +1478,17 @@ function parseArgs(argv) {
     skipDrift: false,
     skipSensors: false,
     rootCausePhase: null,
+    mode: 'standard',
+    baselineCmd: null,
+    candidateCmd: null,
+    nfrBudgetPath: null,
+    lockOwner: null,
+    enableAntiTamper: false,
+    enableAgentLint: false,
+    enableSecurityGate: false,
+    formalTla: null,
+    formalCfg: null,
+    failFast: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -957,6 +1508,34 @@ function parseArgs(argv) {
       opts.changedFiles = argv[++i].split(',').map((s) => s.trim()).filter(Boolean);
     } else if (arg === '--base' && argv[i + 1]) {
       opts.baseRef = argv[++i];
+    } else if (arg === '--role') {
+      opts.role = argv[++i] || '';
+    } else if (arg === '--mode' && argv[i + 1]) {
+      opts.mode = argv[++i];
+    } else if (arg === '--baseline-cmd' && argv[i + 1]) {
+      opts.baselineCmd = argv[++i];
+    } else if (arg === '--candidate-cmd' && argv[i + 1]) {
+      opts.candidateCmd = argv[++i];
+    } else if (arg === '--nfr-budget' && argv[i + 1]) {
+      opts.nfrBudgetPath = argv[++i];
+    } else if (arg === '--lock-owner' && argv[i + 1]) {
+      opts.lockOwner = argv[++i];
+    } else if (arg === '--anti-tamper') {
+      opts.enableAntiTamper = true;
+    } else if (arg === '--agent-lint') {
+      opts.enableAgentLint = true;
+    } else if (arg === '--security-gate') {
+      opts.enableSecurityGate = true;
+    } else if (arg === '--formal-tla' && argv[i + 1]) {
+      opts.formalTla = argv[++i];
+    } else if (arg === '--formal-trace' && argv[i + 1]) {
+      opts.formalTrace = argv[++i];
+    } else if (arg === '--formal-round' && argv[i + 1]) {
+      opts.formalRound = Number(argv[++i]);
+    } else if (arg === '--formal-cfg' && argv[i + 1]) {
+      opts.formalCfg = argv[++i];
+    } else if (arg === '--fail-fast') {
+      opts.failFast = true;
     } else if (arg === '--cmd' && argv[i + 1]) {
       const raw = argv[++i];
       const eq = raw.indexOf('=');
@@ -975,15 +1554,20 @@ function parseArgs(argv) {
 }
 
 function main() {
-  const opts = parseArgs(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  if (argv.includes('--warmup')) {
+    process.exit(0);
+  }
+  recordStartup('run-sdd-gate');
+  const opts = parseArgs(argv);
   if (!opts.feature || !opts.taskId) {
     process.stderr.write(
-      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>] [--output <path>] [--skip-drift] [--skip-sensors]\n',
+      'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>] [--role implementer] [--mode standard|rebuild] [--baseline-cmd <cmd> --candidate-cmd <cmd>] [--nfr-budget <path>] [--lock-owner <id>] [--anti-tamper] [--agent-lint] [--security-gate] [--formal-tla <path> --formal-cfg <path> --formal-trace <path> --formal-round <n>] [--fail-fast] [--output <path>] [--skip-drift] [--skip-sensors]\n',
     );
     process.exit(2);
   }
   try {
-    const { result, outputPath } = runSddGate({
+    const { result, outputPath, lockCleanupError } = runSddGate({
       feature: opts.feature,
       taskId: opts.taskId,
       projectRoot: opts.root || process.cwd(),
@@ -995,9 +1579,27 @@ function main() {
       skipSensors: opts.skipSensors,
       outputPath: opts.outputPath,
       rootCausePhase: opts.rootCausePhase,
+      mode: opts.mode,
+      role: opts.role,
+      baselineCmd: opts.baselineCmd,
+      candidateCmd: opts.candidateCmd,
+      nfrBudgetPath: opts.nfrBudgetPath,
+      lockOwner: opts.lockOwner,
+      enableAntiTamper: opts.enableAntiTamper,
+      enableAgentLint: opts.enableAgentLint,
+      enableSecurityGate: opts.enableSecurityGate,
+      formalTla: opts.formalTla,
+      formalCfg: opts.formalCfg,
+      formalTrace: opts.formalTrace,
+      formalRound: opts.formalRound,
+      failFast: opts.failFast,
     });
-    process.stdout.write(`${JSON.stringify({ ...result, outputPath }, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify({ ...result, outputPath, lockCleanupError }, null, 2)}\n`);
     for (const warning of result.warnings) process.stderr.write(`run-sdd-gate warning: ${warning}\n`);
+    if (lockCleanupError) {
+      process.stderr.write(`run-sdd-gate error: ${lockCleanupError}\n`);
+      process.exit(2);
+    }
     process.exit(result.verdict === 'PASS' ? 0 : 1);
   } catch (err) {
     process.stderr.write(`run-sdd-gate error: ${err.message}\n`);

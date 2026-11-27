@@ -138,9 +138,24 @@ function createV2TestRepo(feature = 'demo-api') {
     [GATE_SCRIPT, '--feature', feature, '--task', 'T-001', '--root', repo, '--cmd', 'test=node -e "process.exit(0)"'],
     { encoding: 'utf8' },
   );
+const VALID_GATE_REPORT = [
+  '# SDD Gate Report',
+  '',
+  '- **VERDICT**: PASS',
+  '',
+  '## Independent Review Findings',
+  '',
+  '- **G1 (AC / Done When & Anti-Mock)**: PASS — AC-001 verified by unit test.',
+  '- **G2 (Spec Amendments & Scope)**: PASS — Spec drift CLEAN; scope matches src/health.mjs.',
+  '- **G3 (Regression & Error Handling)**: PASS — Existing checks pass without regression.',
+  '- **G4 (Security, Non-Functional & Rollback)**: N/A (read-only health endpoint without secrets or migrations)',
+  '- **G5 (Domain & Design System)**: N/A (no domain/ or design-system/ directory in fixture)',
+  '',
+].join('\n');
+
   fs.writeFileSync(
     path.join(repo, 'reports', 'quality-gate', `${feature}-T-001.md`),
-    '# SDD Gate Report\n\n- **VERDICT**: PASS\n',
+    VALID_GATE_REPORT,
     'utf8',
   );
   return repo;
@@ -184,6 +199,7 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
 
   it('serves contract-valid v2 overview, feature state, gate audit, dashboard snapshot, and rejects extra/traversal args', () => {
     const repo = createV2TestRepo();
+    fs.appendFileSync(path.join(repo, 'sdd/guardrails.yaml'), 'agent_lint:\n  enabled: true\n  mode: strict\n');
     const responses = callMcp(repo, [
       { method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: true } } },
       {
@@ -207,6 +223,9 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     assert.equal(overview.data.activeFeatures[0].driftStatus, 'CLEAN');
     assert.equal(overview.data.activeFeatures[0].nextAction.phase, 'sdd-gate');
     assert.ok(['CLEAN', 'WARN', 'NG'].includes(overview.data.doctor.status));
+    assert.deepEqual(overview.data.doctor.v2_2_gates.agent_lint, { enabled: true, mode: 'strict', waiver_count: 0 });
+    const [, compact] = callMcp(repo, [{ method: 'tools/call', params: { name: 'sdd_project_overview', arguments: { includeDoctor: false } } }]);
+    assert.equal(JSON.parse(compact.result.content[0].text).data.doctor, undefined);
 
     const featureState = JSON.parse(responses[2].result.content[0].text);
     assert.equal(featureState.ok, true);
@@ -408,8 +427,19 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
     assert.equal(nextPhase(), 'spec-check', 'The high-risk Draft requires its pre-implementation review');
     const reviewDir = path.join(repoC, 'reports', 'spec-check');
     fs.mkdirSync(reviewDir, { recursive: true });
+    // V-05: Legacy PASS without Review-Inputs-SHA256 is not accepted as fresh for high-risk Draft.
     fs.writeFileSync(path.join(reviewDir, 'verdict-test.md'), '# Spec Check Report: verdict-test\n\n- **Verdict**: PASS\n');
-    assert.equal(nextPhase(), 'approval-gate', 'The reviewed Draft still needs approval even when the other task is Done');
+    assert.equal(nextPhase(), 'spec-check', 'Legacy spec-check PASS without Review-Inputs-SHA256 must not satisfy high-risk review');
+    const reviewHash = execFileSync(
+      process.execPath,
+      [path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs'), '--feature', 'verdict-test', '--root', repoC, '--format', 'review-hash'],
+      { encoding: 'utf8' },
+    ).trim();
+    fs.writeFileSync(
+      path.join(reviewDir, 'verdict-test.md'),
+      `# Spec Check Report: verdict-test\n\n- **Verdict**: PASS\n- **Review-Inputs-SHA256**: ${reviewHash}\n`,
+    );
+    assert.equal(nextPhase(), 'approval-gate', 'The reviewed Draft with matching Review-Inputs-SHA256 advances to approval-gate');
   });
 
   it('D5: requires design.md alongside requirements.md and tasks.md in both sdd_project_overview and sdd_feature_state before guiding to approval-gate', () => {
@@ -501,7 +531,10 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
       fs.mkdirSync(implDir, { recursive: true });
       fs.writeFileSync(path.join(implDir, 'T-001.md'), '# Implementation report\nTask ID: T-001\n');
       const gateDir = path.join(repo, 'reports', 'quality-gate');
-      fs.writeFileSync(path.join(gateDir, feature + '-T-001.md'), '# SDD Gate Report\nTask ID: T-001\nVERDICT: PASS\n');
+      fs.writeFileSync(
+        path.join(gateDir, feature + '-T-001.md'),
+        '# SDD Gate Report\nTask ID: T-001\nVERDICT: PASS\n\n## Independent Review Findings\n- **G1**: PASS — verified\n- **G2**: PASS — verified\n- **G3**: PASS — verified\n- **G4**: N/A (no security impact)\n- **G5**: N/A (no domain/design contract)\n',
+      );
       const executionPath = path.join(gateDir, feature + '-T-001.execution.json');
       const pass = fs.readFileSync(executionPath, 'utf8');
 
@@ -730,16 +763,26 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
   });
 
   it('#835: a Done task with a mechanical PASS but a failing or missing independent verdict shows as failed', () => {
+    const g1ToG5 = [
+      '',
+      '## Independent Review Findings',
+      '- **G1**: PASS — AC-001 verified',
+      '- **G2**: PASS — scope clean',
+      '- **G3**: PASS — no regressions',
+      '- **G4**: N/A (read-only endpoint without secrets)',
+      '- **G5**: N/A (no domain/ or design-system/ contract)',
+      '',
+    ].join('\n');
     const cases = [
       ['NEEDS_WORK', '# SDD Gate Report\n\n- **Task ID**: T-001\nVERDICT: NEEDS_WORK\n', false],
       ['BLOCKED', '# SDD Gate Report\n\n- **Task ID**: T-001\n- **VERDICT**: BLOCKED\n', false],
       ['missing', null, false],
-      ['PASS', '# SDD Gate Report\n\n- **Task ID**: T-001\n- **VERDICT**: PASS\n', true],
+      ['PASS', '# SDD Gate Report\n\n- **Task ID**: T-001\n- **VERDICT**: PASS\n' + g1ToG5, true],
       // Review findings on the first #835 fix: legitimate PASS reports must stay PASS.
-      ['round history', '# Report\n\nTask ID: T-001\nVERDICT: PASS\n\n## Round 1\n> VERDICT: NEEDS_WORK\n', true],
-      ['fenced evaluator block only', '# Report\n\nTask ID: T-001\n\n```\nVERDICT: PASS\n```\n', true],
-      ['rules prose', '# Report\n\nTask ID: T-001\nVERDICT: PASS\n\n- verdict: fail if any Major remains\n', true],
-      ['first plain verdict wins', '# Report\n\nTask ID: T-001\nVERDICT: NEEDS_WORK\n\n## Earlier draft\nVERDICT: PASS\n', false],
+      ['round history', '# Report\n\nTask ID: T-001\nVERDICT: PASS\n' + g1ToG5 + '\n## Round 1\n> VERDICT: NEEDS_WORK\n', true],
+      ['fenced evaluator block only', '# Report\n\nTask ID: T-001\n\n```\nVERDICT: PASS\n```\n' + g1ToG5, true],
+      ['rules prose', '# Report\n\nTask ID: T-001\nVERDICT: PASS\n' + g1ToG5 + '\n- verdict: fail if any Major remains\n', true],
+      ['first plain verdict wins', '# Report\n\nTask ID: T-001\nVERDICT: NEEDS_WORK\n' + g1ToG5 + '\n## Earlier draft\nVERDICT: PASS\n', false],
     ];
     for (const [label, report, expectPass] of cases) {
       const repo = createV2TestRepo('nw-check');
@@ -767,28 +810,43 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
   it(
     'install.sh places dashboard CLI runtime by default without registering MCPs, rejects conflicting flags, and supports --with-mcp',
     { skip: process.platform === 'win32' },
-    () => {
-      // 1. Default install: places sdd-forge-mcp/dist/index.js for /sdd-ship:status (C-4), does NOT place local-env/ci-mcp, and skips MCP registration
-      const defaultRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-optin-default-'));
-      const resDefault = spawnSync(
-        'bash',
-        [
-          path.join(REPO_ROOT, 'install.sh'),
-          '--source-directory',
-          REPO_ROOT,
-          '--install-root',
-          defaultRoot,
-          '--target',
-          'FilesOnly',
-          '--skip-agent-install',
-        ],
-        { cwd: REPO_ROOT, encoding: 'utf8' },
-      );
+    (t) => {
+      const sandbox = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-optin-')));
+      t.after(() => fs.rmSync(sandbox, { recursive: true, force: true }));
+      const bin = path.join(sandbox, 'bin');
+      const profile = path.join(sandbox, '.codex');
+      const config = path.join(profile, 'config.toml');
+      const initialConfig = '# isolated Codex profile\n';
+      fs.mkdirSync(bin);
+      fs.mkdirSync(profile);
+      fs.writeFileSync(config, initialConfig);
+      // Codex plugins use the host CLI; MCP registration writes its config.toml directly.
+      fs.writeFileSync(path.join(bin, 'codex'), '#!/bin/sh\n[ "$1" = plugin ]\n', { mode: 0o755 });
+      const defaultRoot = path.join(sandbox, 'install');
+      function installForCodex(...flags) {
+        return spawnSync('bash', [
+          path.join(REPO_ROOT, 'install.sh'), '--source-directory', REPO_ROOT,
+          '--install-root', defaultRoot, '--target', 'Codex', ...flags,
+        ], {
+          cwd: REPO_ROOT, encoding: 'utf8',
+          env: { ...process.env, HOME: sandbox, SDD_CODEX_HOME: profile, PATH: bin + path.delimiter + process.env.PATH },
+        });
+      }
+
+      const resDefault = installForCodex();
       assert.equal(resDefault.status, 0, resDefault.stderr);
+      assert.equal(fs.readFileSync(config, 'utf8'), initialConfig);
       assert.equal(fs.existsSync(path.join(defaultRoot, 'mcp/sdd-forge-mcp/dist/index.js')), true);
       assert.equal(fs.existsSync(path.join(defaultRoot, 'mcp/local-env-mcp')), false);
       assert.equal(fs.existsSync(path.join(defaultRoot, 'mcp/ci-mcp')), false);
       assert.match(resDefault.stdout, /--with-mcp/);
+
+      const optIn = installForCodex('--with-mcp');
+      assert.equal(optIn.status, 0, optIn.stderr);
+      const registered = fs.readFileSync(config, 'utf8');
+      assert.deepEqual(registered.match(/^\[mcp_servers\..*\]$/gm), ['[mcp_servers.sdd-forge-mcp]']);
+      const entry = path.join(defaultRoot, 'mcp/sdd-forge-mcp/dist/index.js');
+      assert.ok(registered.includes(`[mcp_servers.sdd-forge-mcp]\ncommand = "node"\nargs = [${JSON.stringify(entry)}]`));
 
       // 2. Conflicting --skip-mcp --with-mcp rejected explicitly (M-4)
       const resConflict = spawnSync(
@@ -800,7 +858,7 @@ describe('ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & 
       assert.match(resConflict.stderr, /cannot be combined/);
 
       // 3. Explicit --mcp local-env-mcp warns deprecated
-      const depRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-optin-dep-'));
+      const depRoot = path.join(sandbox, 'deprecated');
       const resDep = spawnSync(
         'bash',
         [
@@ -941,7 +999,11 @@ describe('#831/#832 gate evidence is bound to the spec inputs it verified', () =
     execFileSync(process.execPath, [BASELINE_SCRIPT, '--feature', 'demo-api', '--root', repo, '--rerecord'], { encoding: 'utf8' });
     runGate(repo, 'T-001');
     runGate(repo, 'T-002');
-    fs.writeFileSync(path.join(repo, 'reports', 'quality-gate', 'demo-api-T-002.md'), '# SDD Gate Report\n\n- **VERDICT**: PASS\n', 'utf8');
+    fs.writeFileSync(
+      path.join(repo, 'reports', 'quality-gate', 'demo-api-T-002.md'),
+      '# SDD Gate Report\n\n- **VERDICT**: PASS\n\n## Independent Review Findings\n- **G1**: PASS — AC-002 verified\n- **G2**: PASS — scope clean\n- **G3**: PASS — no regressions\n- **G4**: N/A (read-only HEAD check)\n- **G5**: N/A (no domain or design contract)\n',
+      'utf8',
+    );
     fs.writeFileSync(tasksPath, fs.readFileSync(tasksPath, 'utf8').replaceAll('Status: Implementation Complete', 'Status: Done'), 'utf8');
     assert.equal(overviewAction(repo).phase, 'done');
 
@@ -1070,5 +1132,172 @@ describe('#972 review 3: heading-style IDs and failed review verdicts', () => {
     fs.writeFileSync(path.join(repo, 'reports', 'quality-gate', 'demo-api-T-001.md'), '# SDD Gate Report\n\nVERDICT: FAIL\n', 'utf8');
     const action = tool(repo, 'sdd_project_overview', {}).activeFeatures[0].nextAction;
     assert.equal(action.phase, 'blocked', JSON.stringify(action));
+  });
+});
+
+describe('V-05 & V-06: spec-check freshness and independent G1-G5 review completeness', () => {
+  const VIEW_SCRIPT = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs');
+  const tool = (repo, name, args) => {
+    const [, res] = callMcp(repo, [{ method: 'tools/call', params: { name, arguments: args } }]);
+    return JSON.parse(res.result.content[0].text).data;
+  };
+
+  it('V-05: sdd_feature_state distinguishes legacy, current, and stale spec-check across standard and high risk (6 conditions)', (t) => {
+    for (const risk of ['standard', 'high']) {
+      const repo = fs.mkdtempSync(path.join(os.tmpdir(), `sdd-mcp-v05-${risk}-`));
+      t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+      fs.mkdirSync(path.join(repo, 'specs', 'line-count'), { recursive: true });
+      fs.mkdirSync(path.join(repo, 'reports', 'spec-check'), { recursive: true });
+      fs.writeFileSync(path.join(repo, 'AGENTS.md'), '# AGENTS\n\n## Active Spec Directories\n- `specs/line-count/`\n', 'utf8');
+      fs.writeFileSync(
+        path.join(repo, 'specs', 'line-count', 'requirements.md'),
+        '# 要件: line-count\n- **REQ-001**: Count non-blank lines.\n- **AC-001** (REQ-001): Returns integer count.\n',
+        'utf8',
+      );
+      fs.writeFileSync(path.join(repo, 'specs', 'line-count', 'design.md'), '# 設計: line-count\nSingle module.\n', 'utf8');
+      fs.writeFileSync(
+        path.join(repo, 'specs', 'line-count', 'tasks.md'),
+        `# タスク: line-count\n\n## T-001 Implement counter\nApproval: Draft\nStatus: Planned\nRisk: ${risk}\n\n### Scope\n- \`src/count.mjs\`\n\n### Done When\n- AC-001\n\n### Blockers\n- None\n`,
+        'utf8',
+      );
+      const reportPath = path.join(repo, 'reports', 'spec-check', 'line-count.md');
+
+      // 1. Legacy format (no Review-Inputs-SHA256) -> spec-check required, Decision View shows freshness unconfirmed
+      fs.writeFileSync(reportPath, '# Spec Check Report: line-count\n\n- **Verdict**: PASS\n', 'utf8');
+      const legacy = tool(repo, 'sdd_feature_state', { feature: 'line-count', includeDecisionViewMarkdown: true });
+      assert.equal(legacy.nextAction.phase, 'spec-check', `${risk} legacy must require spec-check`);
+      assert.match(legacy.decisionViewMarkdown, /Recorded PASS \(freshness unconfirmed\)/);
+
+      // 2. Current format (matching Review-Inputs-SHA256) -> advances to approval-gate, Decision View shows PASS
+      const currentHash = execFileSync(
+        process.execPath,
+        [VIEW_SCRIPT, '--feature', 'line-count', '--root', repo, '--format', 'review-hash'],
+        { encoding: 'utf8' },
+      ).trim();
+      fs.writeFileSync(
+        reportPath,
+        `# Spec Check Report: line-count\n\n- **Verdict**: PASS\n- **Review-Inputs-SHA256**: ${currentHash}\n`,
+        'utf8',
+      );
+      const current = tool(repo, 'sdd_feature_state', { feature: 'line-count', includeDecisionViewMarkdown: true });
+      assert.equal(current.nextAction.phase, 'approval-gate', `${risk} current must reach approval-gate`);
+      assert.match(current.decisionViewMarkdown, /\| 着工前 spec-check \| `PASS` \|/);
+
+      // 3. Spec edited after review -> Stale (previous PASS), returns to spec-check
+      fs.writeFileSync(
+        path.join(repo, 'specs', 'line-count', 'design.md'),
+        '# 設計: line-count\nUpdated design contract.\n',
+        'utf8',
+      );
+      const stale = tool(repo, 'sdd_feature_state', { feature: 'line-count', includeDecisionViewMarkdown: true });
+      assert.equal(stale.nextAction.phase, 'spec-check', `${risk} stale must require spec-check`);
+      assert.match(stale.decisionViewMarkdown, /Stale \(previous PASS\)/);
+    }
+  });
+
+  it('V-06: sdd_gate_audit rejects 5 incomplete/invalid review reports and accepts 2 complete independent reports', (t) => {
+    const repo = createV2TestRepo('line-count');
+    t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+    const reportPath = path.join(repo, 'reports', 'quality-gate', 'line-count-T-001.md');
+
+    const negativeCases = [
+      [
+        'missing all G1-G5 perspectives (self-assessed PASS)',
+        '# SDD Gate Report: line-count / T-001\n\n- **VERDICT**: PASS\n\n## Independent Review Findings\n- **Reviewed Scope**: src/health.mjs\n',
+      ],
+      [
+        'missing G5 perspective',
+        [
+          '# SDD Gate Report',
+          '- **VERDICT**: PASS',
+          '- **G1**: PASS — AC-001 verified',
+          '- **G2**: PASS — scope clean',
+          '- **G3**: PASS — edge cases tested',
+          '- **G4**: PASS — no security defects',
+        ].join('\n'),
+      ],
+      [
+        'contains a FAIL perspective despite top-level VERDICT: PASS',
+        [
+          '# SDD Gate Report',
+          '- **VERDICT**: PASS',
+          '- **G1**: PASS — AC-001 verified',
+          '- **G2**: PASS — scope clean',
+          '- **G3**: FAIL — missing TypeError check',
+          '- **G4**: PASS — no security defects',
+          '- **G5**: N/A (no domain/ or design-system/ contract)',
+        ].join('\n'),
+      ],
+      [
+        'contains unsubstantiated N/A without reason',
+        [
+          '# SDD Gate Report',
+          '- **VERDICT**: PASS',
+          '- **G1**: PASS — AC-001 verified',
+          '- **G2**: PASS — scope clean',
+          '- **G3**: PASS — edge cases tested',
+          '- **G4**: PASS — no security defects',
+          '- **G5**: N/A',
+        ].join('\n'),
+      ],
+      [
+        'unfilled template placeholders',
+        [
+          '# SDD Gate Report',
+          '- **VERDICT**: PASS',
+          '- **G1 (AC / Done When & Anti-Mock)**: PASS | FAIL — <根拠>',
+          '- **G2 (Spec Amendments & Scope)**: PASS | FAIL | N/A (<理由>) — <根拠>',
+          '- **G3 (Regression & Error Handling)**: PASS | FAIL | N/A (<理由>) — <根拠>',
+          '- **G4 (Security, Non-Functional & Rollback)**: PASS | FAIL | N/A (<理由>) — <根拠>',
+          '- **G5 (Domain & Design System)**: PASS | FAIL | N/A (<理由>) — <根拠>',
+        ].join('\n'),
+      ],
+    ];
+
+    for (const [label, body] of negativeCases) {
+      fs.writeFileSync(reportPath, body, 'utf8');
+      const task = tool(repo, 'sdd_gate_audit', { feature: 'line-count', taskId: 'T-001' }).tasks[0];
+      assert.equal(task.reviewReport.verdict, 'PASS', `verdict line still parsed as PASS for: ${label}`);
+      assert.equal(task.readyForDone, false, `readyForDone must be false for: ${label}`);
+    }
+
+    const positiveCases = [
+      [
+        'Codex markdown table format with G1-G5',
+        [
+          '# SDD Gate Report: line-count / T-001',
+          '- **VERDICT**: PASS',
+          '',
+          '| ID | Perspective | Result | Evidence |',
+          '|---|---|---|---|',
+          '| G1 | AC / Done When | PASS | 4/4 tests pass, 100% coverage |',
+          '| G2 | Spec Amendments & Scope | PASS | Drift CLEAN, scope matches |',
+          '| G3 | Regression & Error Handling | PASS | TypeError on non-string verified |',
+          '| G4 | Security & Non-Functional | PASS | Zero external dependencies |',
+          '| G5 | Domain / Design System | N/A | No domain/ or design-system/ in repo |',
+        ].join('\n'),
+      ],
+      [
+        'Claude sdd-evaluator bullet format (G1-G4 PASS, G5 N/A with reason)',
+        [
+          '# SDD Gate Report: line-count / T-001',
+          '- **VERDICT**: PASS',
+          '',
+          '## Independent Review Findings',
+          '- **G1 (AC / Done When & Anti-Mock)**: PASS — 9/9 tests passed with 100% line/branch/function coverage.',
+          '- **G2 (Spec Amendments & Scope)**: PASS — Spec Drift is CLEAN and changes remain in scope.',
+          '- **G3 (Regression & Error Handling)**: PASS — Empty string, whitespace, CRLF, and TypeError paths covered.',
+          '- **G4 (Security, Non-Functional & Rollback)**: PASS — Pure function with no external I/O or secrets.',
+          '- **G5 (Domain & Design System)**: N/A（ドメイン・デザイン契約が存在しない案件のため対象外）',
+        ].join('\n'),
+      ],
+    ];
+
+    for (const [label, body] of positiveCases) {
+      fs.writeFileSync(reportPath, body, 'utf8');
+      const task = tool(repo, 'sdd_gate_audit', { feature: 'line-count', taskId: 'T-001' }).tasks[0];
+      assert.equal(task.reviewReport.verdict, 'PASS', label);
+      assert.equal(task.readyForDone, true, `readyForDone must be true for: ${label}`);
+    }
   });
 });

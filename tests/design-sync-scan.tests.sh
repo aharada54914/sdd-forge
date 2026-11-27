@@ -847,12 +847,13 @@ t003_section_between() {
 }
 
 DSL_FLAT="$(t003_flatten_file "$DSL")"
+DSL_CONSENT_STEP="$(t003_section_between "$DSL" '^3[.] [*][*]Resolve Egress Consent' '^[0-9]+[.] ')"
 DSL_LOOP_SECTION="$(t003_section_between "$DSL" '^## Loop$' '^## ')"
 DSL_LOOP_FLAT="$(printf '%s\n' "$DSL_LOOP_SECTION" | tr '\n' ' ' | tr -s '[:space:]' ' ')"
 
 # First line number (1-based, within $DSL_LOOP_SECTION) matching regex $1.
 t003_loop_line_of() {
-    printf '%s\n' "$DSL_LOOP_SECTION" | grep -n -iE "$1" | head -1 | cut -d: -f1
+    { grep -nim1 -E "$1" <<< "$DSL_LOOP_SECTION" || [ "$?" -eq 1 ]; } | cut -d: -f1
 }
 
 echo ""
@@ -879,11 +880,8 @@ fi
 
 echo ""
 echo "=== TEST-033 (AC-018, SKILL.md half): the skill text states the check is egress-hygiene-only, no quality judgment ==="
-if printf '%s' "$DSL_FLAT" | grep -Fiq 'egress hygiene' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'no assessment of mockup quality' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'design fidelity' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'accessibility' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'design-system'; then
+if grep -Fq 'この検査の対象は送信する HTML 内の仮置き表現、機密情報・個人情報に似た文字列に限る。' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq 'モックアップの品質、デザインの再現度、アクセシビリティ、デザインシステムへの適合性は評価しない。' <<< "$DSL_CONSENT_STEP"; then
     ok "TEST-033: SKILL.md states the check is limited to egress hygiene and makes no quality/fidelity/accessibility/design-system judgment"
 else
     fail "TEST-033: SKILL.md must state the egress-hygiene-only boundary in its own words"
@@ -911,32 +909,28 @@ fi
 
 echo ""
 echo "=== TEST-036 (AC-020): an explicit override affordance is stated; absent it, no push occurs -- silence/non-response/agent judgment is not an override ==="
-if printf '%s' "$DSL_FLAT" | grep -Fiq 'explicit human override' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'Absent an explicit override' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'silence' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'non-response' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq "own judgment" \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'never an override' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'no push occurs'; then
+if grep -Fq '終了1の `review` なら、`findings` を利用者に示して回答を待つ。' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq 'この `identity` の上書きを利用者が明示的に承認するまで送信しない。' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq '沈黙・無回答・エージェント自身の判断を承認として扱わない。' <<< "$DSL_CONSENT_STEP"; then
     ok "TEST-036: an explicit override affordance is stated; silence, non-response, or agent judgment is never an override, and absent it no push occurs"
 else
     fail "TEST-036: the override affordance and its negative (no explicit approval -> no push) must both be stated"
 fi
 
 echo ""
-echo "=== TEST-037 (AC-021.1): a fresh scan after regeneration requires its own override decision -- a prior override does not carry forward ==="
-if printf '%s' "$DSL_FLAT" | grep -Fq 'fresh scan after any regeneration requires its own override decision'; then
-    ok "TEST-037: a fresh scan after any regeneration is stated to require its own override decision"
+echo "=== TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused ==="
+if python3 "$REPO_ROOT/tests/fixtures/design-sync-scan/override_cases.py" sh TEST-037; then
+    ok "TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused"
 else
-    fail "TEST-037: step 5 must state that a fresh scan after regeneration requires its own override decision"
+    fail "TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused"
 fi
 
 echo ""
-echo "=== TEST-038 (AC-021.2): this holds even when the new scan reproduces IDENTICAL findings -- recurrence is not evidence the human need not be asked again ==="
-if printf '%s' "$DSL_FLAT" | grep -Fq 'reproduces findings identical to the ones already overridden'; then
-    ok "TEST-038: the no-carry-forward rule is stated to hold even for identical findings, not only different ones"
+echo "=== TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override ==="
+if python3 "$REPO_ROOT/tests/fixtures/design-sync-scan/override_cases.py" sh TEST-038; then
+    ok "TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override"
 else
-    fail "TEST-038: step 5 must state the no-carry-forward rule holds even when findings are identical to a prior override"
+    fail "TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override"
 fi
 
 echo ""
@@ -957,7 +951,7 @@ fi
 
 echo ""
 echo "=== TEST-041 (AC-023, clean value): Egress-Scan-At (ISO-8601) is stated for the clean branch ==="
-if printf '%s' "$DSL_FLAT" | grep -Eq 'Egress-Scan: clean.{0,120}ISO-8601'; then
+if python3 "$REPO_ROOT/tests/fixtures/design-sync-scan/override_cases.py" sh TEST-041; then
     ok "TEST-041: the clean branch states Egress-Scan-At as an ISO-8601 timestamp"
 else
     fail "TEST-041: the clean branch must state Egress-Scan-At (ISO-8601)"
@@ -965,7 +959,7 @@ fi
 
 echo ""
 echo "=== TEST-064 (AC-023, overridden value): Egress-Scan-At (ISO-8601) is stated for the overridden branch too, not only the exceptional one ==="
-if printf '%s' "$DSL_FLAT" | grep -Eq 'Egress-Scan: overridden.{0,120}ISO-8601'; then
+if python3 "$REPO_ROOT/tests/fixtures/design-sync-scan/override_cases.py" sh TEST-064; then
     ok "TEST-064: the overridden branch also states Egress-Scan-At as an ISO-8601 timestamp"
 else
     fail "TEST-064: the overridden branch must state Egress-Scan-At (ISO-8601), not only the clean branch"
@@ -981,28 +975,26 @@ assert_field_row_present() {
         fail "${label}: expected the unmodified field row ${row} in ${DSL}"
     fi
 }
-assert_field_row_present "TEST-042 (Egress-Consent)"          '| `Egress-Consent` |'
+assert_field_row_present "TEST-042 (Egress-Consent)"          '| `Egress-Consent` | 送信同意の判断（`granted`、`not-permitted`、`withdrawn`） |'
 assert_field_row_present "TEST-065 (Egress-Consent-Scope)"    '| `Egress-Consent-Scope` |'
 assert_field_row_present "TEST-066 (Egress-Consent-Subject)"  '| `Egress-Consent-Subject` |'
-assert_field_row_present "TEST-067 (Egress-Destination)"      '| `Egress-Destination` |'
+assert_field_row_present "TEST-067 (Egress-Destination)"      '| `Egress-Destination` | `claude-design` で実際に `claude.ai/design` を使う場合、手順1で選んだプロジェクトの ID |'
 assert_field_row_present "TEST-068 (Egress-Consent-Expiry)"   '| `Egress-Consent-Expiry` |'
 
 echo ""
 echo "=== TEST-043 (AC-025): on decline, no push, nothing written to Design-Source as an override, remediate before rescan -- distinguished from Egress-Consent's decline/withdrawal ==="
-if printf '%s' "$DSL_FLAT" | grep -Fq 'nothing is written to' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'Design-Source' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'as an override' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'remediates the flagged mockups' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'distinct from' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq "decline or withdrawal"; then
-    ok "TEST-043: the decline outcome (no push, nothing written as override, remediate) is stated and distinguished from Egress-Consent's own decline/withdrawal vocabulary"
+if grep -Fq '上書きを辞退したら送信を止め' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq '`Design-Source` に `Egress-Scan: overridden` を記録しない' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq '指摘されたモックアップを修正してから再検査する' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq 'この辞退は今回の検査結果だけに適用し、送信同意 `Egress-Consent` の辞退や撤回としては扱わない' <<< "$DSL_CONSENT_STEP"; then
+    ok "TEST-043: declining an override stops upload, leaves no override record, and requires remediation before rescan without changing upload consent"
 else
-    fail "TEST-043: the decline outcome must be stated in full and distinguished from Egress-Consent's decline/withdrawal vocabulary"
+    fail "TEST-043: declining an override stops upload, leaves no override record, and requires remediation before rescan without changing upload consent"
 fi
 
 echo ""
 echo "=== TEST-044 (AC-026): step 5 remains the single named point -- not duplicated, not relocated relative to steps 4 and 6 ==="
-t044_count=$(grep -cE '^5\. \*\*Pre-upload check point' "$DSL")
+t044_count=$(grep -cE '^5\. \*\*Pre-upload check point' "$DSL" || [ "$?" -eq 1 ])
 t044_s4=$(t003_loop_line_of '^4\. \*\*Obtain informed consent')
 t044_s5=$(t003_loop_line_of '^5\. \*\*Pre-upload check point')
 t044_s6=$(t003_loop_line_of '^6\. \*\*Push')
@@ -1062,10 +1054,8 @@ fi
 
 echo ""
 echo "=== TEST-055 (AC-037): the skill states the exit-2 branch is unconditionally blocking, with no override affordance offered at all ==="
-if printf '%s' "$DSL_FLAT" | grep -Fiq 'unconditionally blocking' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'no override affordance' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'offered at all' \
-    && printf '%s' "$DSL_FLAT" | grep -Fiq 'tool failure'; then
+if grep -Fq '終了2または異常終了は検査ツールの失敗として報告する。' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq 'この場合は上書き承認を提示せず、入力またはツールを復旧して再検査するまで送信しない。' <<< "$DSL_CONSENT_STEP"; then
     ok "TEST-055: the exit-2 branch is stated as unconditionally blocking with no override affordance offered at all, worded as a tool failure"
 else
     fail "TEST-055: the exit-2 branch must state it is unconditionally blocking with no override affordance at all"
@@ -1088,7 +1078,7 @@ fi
 # assertion content, so calling it here does not modify that block.
 # ============================================================================
 
-CDW="${REPO_ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+CDW="${REPO_ROOT}/plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 
 CDW_FLAT="$(t003_flatten_file "$CDW")"
 

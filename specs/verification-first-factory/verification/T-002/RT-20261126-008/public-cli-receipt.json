@@ -1,0 +1,336 @@
+{
+  "ticket": "RT-20261126-008",
+  "task": "T-002",
+  "run_id": "391bf049-0cec-4463-b6a6-5d5819b5bcb6",
+  "base": "1ea38d9ec7fa13879220e288581d7cd074cfc48f",
+  "product": "627f511d71d24190c91a5779b65363b85df080fc",
+  "platform": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "versions": {
+    "zsh": "zsh 5.9 (arm64-apple-darwin26.0)",
+    "/bin/bash": "GNU bash, version 3.2.57(1)-release (arm64-apple-darwin26)",
+    "/opt/homebrew/bin/bash": "GNU bash, version 5.3.9(1)-release (aarch64-apple-darwin25.1.0)",
+    "node": "v24.13.0"
+  },
+  "argv": [
+    "node",
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+    "--anti-tamper",
+    "--root",
+    "<isolated-git-fixture>",
+    "--feature",
+    "demo"
+  ],
+  "baseline": {
+    "short-for": {
+      "help_only": {
+        "source": "for item (one) cat <<'HELP'\n# sdd-lint-disable shown\nHELP\n\nprint -r -- '# sdd-lint-disable quoted'\n",
+        "exit": 2,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 0,
+        "stderr": "check-spec-drift --anti-tamper error: Cannot parse shell source help.zsh: 1:1: `for foo` must be followed by `in`, `do`, `;`, or a newline"
+      },
+      "active_comments": {
+        "source": "for item (one) cat <<'HELP' # sdd-lint-disable inner\n# sdd-lint-disable shown\nHELP\n\nprint -r -- '# sdd-lint-disable quoted'\n# sdd-lint-disable after\n",
+        "exit": 2,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 0,
+        "stderr": "check-spec-drift --anti-tamper error: Cannot parse shell source help.zsh: 1:1: `for foo` must be followed by `in`, `do`, `;`, or a newline"
+      }
+    },
+    "brace-for": {
+      "help_only": {
+        "source": "for item in one; { cat <<'HELP'\n# sdd-lint-disable shown\nHELP\n}\nprint -r -- '# sdd-lint-disable quoted'\n",
+        "exit": 2,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 0,
+        "stderr": "check-spec-drift --anti-tamper error: Cannot parse shell source help.zsh: 1:18: for loops with braces are a bash/mksh feature; tried parsing as zsh"
+      },
+      "active_comments": {
+        "source": "for item in one; { cat <<'HELP' # sdd-lint-disable inner\n# sdd-lint-disable shown\nHELP\n}\nprint -r -- '# sdd-lint-disable quoted'\n# sdd-lint-disable after\n",
+        "exit": 2,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 0,
+        "stderr": "check-spec-drift --anti-tamper error: Cannot parse shell source help.zsh: 1:18: for loops with braces are a bash/mksh feature; tried parsing as zsh"
+      }
+    },
+    "repeat": {
+      "help_only": {
+        "source": "#!/usr/bin/env zsh\nrepeat 1 { cat <<'HELP'\n# sdd-lint-disable shown\nHELP\n}\nprint -r -- '# sdd-lint-disable quoted'\n",
+        "exit": 2,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 0,
+        "stderr": "check-spec-drift --anti-tamper error: Cannot parse shell source help.sh: 5:1: `}` can only be used to close a block"
+      },
+      "active_comments": {
+        "source": "#!/usr/bin/env zsh\nrepeat 1 { cat <<'HELP' # sdd-lint-disable inner\n# sdd-lint-disable shown\nHELP\n}\nprint -r -- '# sdd-lint-disable quoted'\n# sdd-lint-disable after\n",
+        "exit": 2,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 0,
+        "stderr": "check-spec-drift --anti-tamper error: Cannot parse shell source help.sh: 5:1: `}` can only be used to close a block"
+      }
+    }
+  },
+  "candidate": {
+    "short-for": {
+      "help_only": {
+        "source": "for item (one) cat <<'HELP'\n# sdd-lint-disable shown\nHELP\n\nprint -r -- '# sdd-lint-disable quoted'\n",
+        "exit": 0,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 0,
+        "status": "CLEAN",
+        "violations": []
+      },
+      "active_comments": {
+        "source": "for item (one) cat <<'HELP' # sdd-lint-disable inner\n# sdd-lint-disable shown\nHELP\n\nprint -r -- '# sdd-lint-disable quoted'\n# sdd-lint-disable after\n",
+        "exit": 4,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 1,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.zsh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable inner"
+          },
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.zsh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable after"
+          }
+        ],
+        "openQuestion": {
+          "id": "OQ-001",
+          "path": "reports/verification/demo/anti-tampering/OQ-001.json"
+        },
+        "persisted_oq": {
+          "id": "OQ-001",
+          "violations": [
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "help.zsh"
+            },
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "help.zsh"
+            }
+          ]
+        }
+      }
+    },
+    "brace-for": {
+      "help_only": {
+        "source": "for item in one; { cat <<'HELP'\n# sdd-lint-disable shown\nHELP\n}\nprint -r -- '# sdd-lint-disable quoted'\n",
+        "exit": 0,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 0,
+        "status": "CLEAN",
+        "violations": []
+      },
+      "active_comments": {
+        "source": "for item in one; { cat <<'HELP' # sdd-lint-disable inner\n# sdd-lint-disable shown\nHELP\n}\nprint -r -- '# sdd-lint-disable quoted'\n# sdd-lint-disable after\n",
+        "exit": 4,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 1,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.zsh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable inner"
+          },
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.zsh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable after"
+          }
+        ],
+        "openQuestion": {
+          "id": "OQ-001",
+          "path": "reports/verification/demo/anti-tampering/OQ-001.json"
+        },
+        "persisted_oq": {
+          "id": "OQ-001",
+          "violations": [
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "help.zsh"
+            },
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "help.zsh"
+            }
+          ]
+        }
+      }
+    },
+    "repeat": {
+      "help_only": {
+        "source": "#!/usr/bin/env zsh\nrepeat 1 { cat <<'HELP'\n# sdd-lint-disable shown\nHELP\n}\nprint -r -- '# sdd-lint-disable quoted'\n",
+        "exit": 0,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 0,
+        "status": "CLEAN",
+        "violations": []
+      },
+      "active_comments": {
+        "source": "#!/usr/bin/env zsh\nrepeat 1 { cat <<'HELP' # sdd-lint-disable inner\n# sdd-lint-disable shown\nHELP\n}\nprint -r -- '# sdd-lint-disable quoted'\n# sdd-lint-disable after\n",
+        "exit": 4,
+        "native_stdout": "# sdd-lint-disable shown\n# sdd-lint-disable quoted\n",
+        "native_exit": 0,
+        "oq_files": 1,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable inner"
+          },
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable after"
+          }
+        ],
+        "openQuestion": {
+          "id": "OQ-001",
+          "path": "reports/verification/demo/anti-tampering/OQ-001.json"
+        },
+        "persisted_oq": {
+          "id": "OQ-001",
+          "violations": [
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "help.sh"
+            },
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "help.sh"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "suites": {
+    "local_shell_cli": {
+      "argv": [
+        "node",
+        "--test",
+        "--test-reporter=spec",
+        "--test-name-pattern=shell|zsh|Bash|native sh delimiter|zsh parser",
+        "tests/v2-spec-drift.test.mjs"
+      ],
+      "exit": 0,
+      "summary": {
+        "tests": 15,
+        "pass": 15,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdout": "▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ accepts the shell here-document help example without a diagnostic or OQ (182.804833ms)\n  ✔ distinguishes help from active comments in nested shell command substitutions (349.532792ms)\n  ✔ parses compound shell grammar around captured help and its actual comments (611.6865ms)\n  ✔ distinguishes help and active comments in a native zsh short for loop (304.000291ms)\n  ✔ distinguishes help and active comments in a native zsh brace for loop (302.732625ms)\n  ✔ distinguishes help and active comments in a native zsh parenthesized brace for loop (301.263166ms)\n  ✔ distinguishes help and active comments in a native zsh short in for loop (297.813917ms)\n  ✔ distinguishes help and active comments in a native zsh repeat do loop (303.115041ms)\n  ✔ distinguishes help and active comments in a native zsh repeat loop (302.719ms)\n  ✔ keeps repeat an ordinary command in Bash and POSIX shells (296.458833ms)\n  ✔ matches the native sh delimiter when both dialect spellings occur in the body (188.856541ms)\n  ✔ reports a tool error for invalid shell syntax and an unavailable or damaged parser (743.256958ms)\n  ✔ matches Bash dollar-quoted here-document delimiters and preserves the following directive (339.873875ms)\n  ✔ uses the declared shell and preserves a literal-dollar terminator in generic sh (454.25825ms)\n  ✔ reports only active shell comments before, beside and after queued here-documents (196.713709ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (5175.871459ms)\nℹ tests 15\nℹ suites 1\nℹ pass 15\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 5210.230625\n"
+    },
+    "system_bash_compound": {
+      "argv": [
+        "node",
+        "--test",
+        "--test-reporter=spec",
+        "--test-name-pattern=parses compound shell grammar",
+        "tests/v2-spec-drift.test.mjs"
+      ],
+      "exit": 0,
+      "summary": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdout": "▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ parses compound shell grammar around captured help and its actual comments (589.001167ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (589.495417ms)\nℹ tests 1\nℹ suites 1\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 620.567083\n"
+    },
+    "formal_mapping": {
+      "argv": [
+        "node",
+        "--test",
+        "--test-reporter=spec",
+        "--test-name-pattern=validates TaskLock.tla and GateLifecycle",
+        "tests/v2-formal-gate.test.mjs"
+      ],
+      "exit": 0,
+      "summary": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdout": "▶ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle)\n  ✔ validates TaskLock.tla and GateLifecycle.tla structure, invariants, and NDJSON traces (2.138583ms)\n✔ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle) (2.39275ms)\nℹ tests 1\nℹ suites 1\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 43.880875\n"
+    }
+  },
+  "original_ticket": {
+    "at_commit": "627f511d71d24190c91a5779b65363b85df080fc",
+    "source_path": "docs/review-tickets/RT-20261126-008.yml",
+    "snapshot_path": "specs/verification-first-factory/verification/T-002/RT-20261126-008/original-ticket.yml",
+    "sha256": "92b133d45bff27e01e3117e9bf8600c1f17847310650987963b3f52ac6c4d9f6"
+  },
+  "worker_runs": {
+    "red": {
+      "execution_context": "implementation worker worktree",
+      "command": "rtk proxy env PATH=/usr/bin:/bin:/opt/homebrew/bin:/Users/jrmag/.nvm/versions/node/v24.13.0/bin /Users/jrmag/.nvm/versions/node/v24.13.0/bin/node --test --test-name-pattern='compound shell grammar|native zsh' tests/v2-spec-drift.test.mjs",
+      "stdout_and_stderr": "▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✖ parses compound shell grammar around captured help and its actual comments (55.543291ms)\n  ✖ distinguishes help and active comments in a native zsh short for loop (158.662042ms)\n  ✖ distinguishes help and active comments in a native zsh brace for loop (159.400833ms)\n  ✖ distinguishes help and active comments in a native zsh repeat loop (158.045666ms)\n✖ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (532.183709ms)\nℹ tests 4\nℹ suites 1\nℹ pass 0\nℹ fail 4\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 563.50775\n\n✖ failing tests:\n\ntest at tests/v2-spec-drift.test.mjs:503:3\n✖ parses compound shell grammar around captured help and its actual comments (55.543291ms)\n  AssertionError [ERR_ASSERTION]: help.sh: command substitution: line 6: syntax error near unexpected token `newline'\n  help.sh: command substitution: line 6: `help'\n  help.sh: line 5: for: command not found\n  help.sh: line 7: HELP: command not found\n  help.sh: line 8: syntax error near unexpected token `;;'\n  help.sh: line 8: `;;'\n  \n  \n  2 !== 0\n  \n      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:522:16)\n      at Test.runInAsyncScope (node:async_hooks:214:14)\n      at Test.run (node:internal/test_runner/test:1106:25)\n      at Test.start (node:internal/test_runner/test:1003:17)\n      at node:internal/test_runner/test:1516:71\n      at node:internal/per_context/primordials:466:82\n      at new Promise (<anonymous>)\n      at new SafePromise (node:internal/per_context/primordials:435:3)\n      at node:internal/per_context/primordials:466:9\n      at Array.map (<anonymous>) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 2,\n    expected: 0,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/v2-spec-drift.test.mjs:548:5\n✖ distinguishes help and active comments in a native zsh short for loop (158.662042ms)\n  AssertionError [ERR_ASSERTION]: check-spec-drift --anti-tamper error: Cannot parse shell source help.zsh: 1:1: `for foo` must be followed by `in`, `do`, `;`, or a newline\n  \n  \n  2 !== 0\n  \n      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:566:14)\n      at Test.runInAsyncScope (node:async_hooks:214:14)\n      at Test.run (node:internal/test_runner/test:1106:25)\n      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)\n      at Test.postRun (node:internal/test_runner/test:1235:19)\n      at Test.run (node:internal/test_runner/test:1163:12)\n      at async Promise.all (index 4)\n      at async Suite.run (node:internal/test_runner/test:1518:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 2,\n    expected: 0,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/v2-spec-drift.test.mjs:548:5\n✖ distinguishes help and active comments in a native zsh brace for loop (159.400833ms)\n  AssertionError [ERR_ASSERTION]: check-spec-drift --anti-tamper error: Cannot parse shell source help.zsh: 1:18: for loops with braces are a bash/mksh feature; tried parsing as zsh\n  \n  \n  2 !== 0\n  \n      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:566:14)\n      at Test.runInAsyncScope (node:async_hooks:214:14)\n      at Test.run (node:internal/test_runner/test:1106:25)\n      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)\n      at Test.postRun (node:internal/test_runner/test:1235:19)\n      at Test.run (node:internal/test_runner/test:1163:12)\n      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 2,\n    expected: 0,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/v2-spec-drift.test.mjs:548:5\n✖ distinguishes help and active comments in a native zsh repeat loop (158.045666ms)\n  AssertionError [ERR_ASSERTION]: check-spec-drift --anti-tamper error: Cannot parse shell source help.sh: 5:1: `}` can only be used to close a block\n  \n  \n  2 !== 0\n  \n      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:566:14)\n      at Test.runInAsyncScope (node:async_hooks:214:14)\n      at Test.run (node:internal/test_runner/test:1106:25)\n      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)\n      at Test.postRun (node:internal/test_runner/test:1235:19)\n      at Test.run (node:internal/test_runner/test:1163:12)\n      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 2,\n    expected: 0,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+      "summary": {
+        "tests": 4,
+        "pass": 0,
+        "fail": 4,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    "green": {
+      "execution_context": "implementation worker worktree",
+      "command": "rtk proxy env PATH=/usr/bin:/bin:/opt/homebrew/bin:/Users/jrmag/.nvm/versions/node/v24.13.0/bin /Users/jrmag/.nvm/versions/node/v24.13.0/bin/node --test tests/v2-spec-drift.test.mjs",
+      "stdout_and_stderr": "▶ record-spec-baseline.mjs & check-spec-drift.mjs\n  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (104.241167ms)\n  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (69.037542ms)\n  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (101.89425ms)\n✔ record-spec-baseline.mjs & check-spec-drift.mjs (275.547583ms)\n▶ #820 AMENDED names the changed IDs no amendment entry mentions\n  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (214.365875ms)\n✔ #820 AMENDED names the changed IDs no amendment entry mentions (214.44ms)\n▶ #818 staged human approval is not spec drift\n  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (133.969792ms)\n  ✔ a baseline recorded before this change keeps its old comparison (102.053875ms)\n✔ #818 staged human approval is not spec drift (236.131542ms)\n▶ #834 unreadable spec files are reported apart from deletions\n  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (82.52325ms)\n✔ #834 unreadable spec files are reported apart from deletions (82.60175ms)\n▶ #972 review: unreadable and newly approved are visible and enforced\n  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (204.950291ms)\n  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (165.546541ms)\n✔ #972 review: unreadable and newly approved are visible and enforced (370.587542ms)\n▶ #972 re-review: text added to an Approval line is drift\n  ✔ only a bare approval value is normalized (71.528ms)\n✔ #972 re-review: text added to an Approval line is drift (71.579083ms)\n▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (264.790417ms)\n  ✔ allows documentation and quoted examples of inline lint directives without opening an OQ (163.664625ms)\n  ✔ accepts the shell here-document help example without a diagnostic or OQ (170.048125ms)\n  ✔ distinguishes help from active comments in nested shell command substitutions (313.016208ms)\n  ✔ parses compound shell grammar around captured help and its actual comments (587.437042ms)\n  ✔ distinguishes help and active comments in a native zsh short for loop (285.565083ms)\n  ✔ distinguishes help and active comments in a native zsh brace for loop (286.784583ms)\n  ✔ distinguishes help and active comments in a native zsh parenthesized brace for loop (272.159958ms)\n  ✔ distinguishes help and active comments in a native zsh short in for loop (268.54725ms)\n  ✔ distinguishes help and active comments in a native zsh repeat do loop (265.715167ms)\n  ✔ distinguishes help and active comments in a native zsh repeat loop (263.336958ms)\n  ✔ keeps repeat an ordinary command in Bash and POSIX shells (261.147125ms)\n  ✔ matches the native sh delimiter when both dialect spellings occur in the body (161.100833ms)\n  ✔ reports a tool error for invalid shell syntax and an unavailable or damaged parser (646.676167ms)\n  ✔ matches Bash dollar-quoted here-document delimiters and preserves the following directive (288.664958ms)\n  ✔ uses the declared shell and preserves a literal-dollar terminator in generic sh (373.384ms)\n  ✔ reports only active shell comments before, beside and after queued here-documents (187.753583ms)\n  ✔ reports added lint directives in source comments with a persisted OQ (148.474333ms)\n  ✔ allows renaming an already skipped test and editing existing skip reasons (158.229875ms)\n  ✔ counts active Node options across layout changes alongside prior Python and Go directives (545.491208ms)\n  ✔ counts Node test context calls using the callback parameter, including subtests (431.004ms)\n  ✔ distinguishes an entire TRUE definition from conjunctions and their continuations (511.703458ms)\n  ✔ ignores Python and Go documentation while counting executable skip directives (215.769292ms)\n  ✔ preserves an existing question with invalid JSON and records a valid replacement (291.792583ms)\n  ✔ preserves an existing question with wrong id and records a valid replacement (291.781167ms)\n  ✔ preserves an existing question with wrong feature and records a valid replacement (292.593833ms)\n  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (226.727208ms)\n  ✔ requires a nonempty retirement reason in the trusted manifest (158.895708ms)\n  ✔ requires a nonempty retirement approved_by in the trusted manifest (159.114583ms)\n  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (250.237125ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (8742.2225ms)\nℹ tests 40\nℹ suites 7\nℹ pass 40\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 10031.252875\n",
+      "summary": {
+        "tests": 40,
+        "pass": 40,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    "bash5": {
+      "execution_context": "implementation worker worktree",
+      "command": "rtk proxy node --test --test-name-pattern='compound shell grammar|native zsh|ordinary command|unavailable or damaged' tests/v2-spec-drift.test.mjs",
+      "stdout_and_stderr": "▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest\n  ✔ parses compound shell grammar around captured help and its actual comments (608.248375ms)\n  ✔ distinguishes help and active comments in a native zsh short for loop (296.075125ms)\n  ✔ distinguishes help and active comments in a native zsh brace for loop (295.315709ms)\n  ✔ distinguishes help and active comments in a native zsh parenthesized brace for loop (289.481041ms)\n  ✔ distinguishes help and active comments in a native zsh short in for loop (289.607375ms)\n  ✔ distinguishes help and active comments in a native zsh repeat do loop (289.043833ms)\n  ✔ distinguishes help and active comments in a native zsh repeat loop (292.331833ms)\n  ✔ keeps repeat an ordinary command in Bash and POSIX shells (294.881334ms)\n  ✔ reports a tool error for invalid shell syntax and an unavailable or damaged parser (706.584833ms)\n✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (3362.237208ms)\nℹ tests 9\nℹ suites 1\nℹ pass 9\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3396.918708\n",
+      "summary": {
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    }
+  },
+  "manifest_sha256": "43a19847c625f2101e1f71a589d98780bf6b9aa1df3803fc30672ea36e808fa7",
+  "manifest_check": {
+    "exit": 0,
+    "stdout": "TASK_INPUT_OK"
+  }
+}

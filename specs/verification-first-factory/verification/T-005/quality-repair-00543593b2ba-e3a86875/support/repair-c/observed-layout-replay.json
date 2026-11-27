@@ -1,0 +1,23 @@
+{
+  "observed_sha256": "1f56f5d16059503f02d4200d486fe29861d5f31e0a966779f7d3e4a427192bef",
+  "results": [
+    {
+      "layout": "inline",
+      "cfg": "CONSTANT LOCK = TRUE\nSPECIFICATION Spec\nINVARIANT OneAccepted\nCHECK_DEADLOCK FALSE\n",
+      "status": "PASS",
+      "checker": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+      "baseline_exit": 0,
+      "replay_exit": 12,
+      "replay_violation": "TraceIncomplete"
+    },
+    {
+      "layout": "multiline",
+      "cfg": "CONSTANT\n  LOCK = TRUE\nSPECIFICATION Spec\nINVARIANT OneAccepted\nCHECK_DEADLOCK FALSE\n",
+      "status": "PASS",
+      "checker": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+      "baseline_exit": 0,
+      "replay_exit": 12,
+      "replay_violation": "TraceIncomplete"
+    }
+  ]
+}

@@ -23,9 +23,91 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { assertValidFeatureName, normalizeNewlines, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 
+const require = createRequire(import.meta.url);
+
 export const VALID_ROOT_CAUSES = Object.freeze(['requirements', 'design', 'code', 'test', 'harness', 'unknown']);
+
+/**
+ * SQLite-backed in-memory aggregation for factory-metrics JSONL records (ADR-0055).
+ * Computes exact pass/fail counts, avg/p95 command durations, and root-cause totals
+ * using built-in `node:sqlite` (`DatabaseSync(':memory:')`) while preserving JSONL format.
+ */
+export function summarizeMetricsWithSqlite(records) {
+  const { DatabaseSync } = require('node:sqlite');
+  const db = new DatabaseSync(':memory:');
+  try {
+    db.exec(`
+      CREATE TABLE gate_runs (
+        verdict TEXT,
+        duration_ms REAL,
+        sensor_findings INTEGER,
+        placeholder_findings INTEGER
+      );
+      CREATE TABLE attributions (
+        root_cause TEXT
+      );
+    `);
+    const insertGate = db.prepare(
+      'INSERT INTO gate_runs (verdict, duration_ms, sensor_findings, placeholder_findings) VALUES (?, ?, ?, ?)',
+    );
+    const insertAttr = db.prepare('INSERT INTO attributions (root_cause) VALUES (?)');
+    for (const r of records || []) {
+      if (!r || typeof r !== 'object') continue;
+      if (r.kind === 'attribution') {
+        insertAttr.run(String(r.rootCausePhase || 'unknown').toLowerCase());
+      } else if (r.kind !== 'final-verdict' && (r.verdict === 'PASS' || r.verdict === 'FAIL')) {
+        insertGate.run(
+          r.verdict,
+          Number.isFinite(r.totalDurationMs) ? Number(r.totalDurationMs) : null,
+          Number(r.sensorFindingCount || 0),
+          Number(r.placeholderFindingCount || 0),
+        );
+      }
+    }
+    const agg = db
+      .prepare(
+        `SELECT
+           COUNT(*) AS total,
+           COALESCE(SUM(CASE WHEN verdict = 'PASS' THEN 1 ELSE 0 END), 0) AS pass_count,
+           COALESCE(SUM(CASE WHEN verdict = 'FAIL' THEN 1 ELSE 0 END), 0) AS fail_count,
+           COALESCE(AVG(duration_ms), 0) AS avg_ms,
+           COALESCE(SUM(sensor_findings), 0) AS sensor_total,
+           COALESCE(SUM(placeholder_findings), 0) AS placeholder_total
+         FROM gate_runs`,
+      )
+      .get();
+    const durations = db
+      .prepare('SELECT duration_ms FROM gate_runs WHERE duration_ms IS NOT NULL ORDER BY duration_ms ASC')
+      .all()
+      .map((row) => Number(row.duration_ms));
+    const p95DurationMs =
+      durations.length > 0 ? Math.round(durations[Math.min(durations.length - 1, Math.floor(durations.length * 0.95))]) : 0;
+    const causeRows = db
+      .prepare('SELECT root_cause, COUNT(*) AS cnt FROM attributions GROUP BY root_cause')
+      .all();
+    const rootCauseBreakdown = Object.fromEntries(VALID_ROOT_CAUSES.map((c) => [c, 0]));
+    for (const row of causeRows) {
+      const key = VALID_ROOT_CAUSES.includes(row.root_cause) ? row.root_cause : 'unknown';
+      rootCauseBreakdown[key] = (rootCauseBreakdown[key] || 0) + Number(row.cnt || 0);
+    }
+    return {
+      engine: 'node:sqlite',
+      total: Number(agg.total || 0),
+      pass: Number(agg.pass_count || 0),
+      fail: Number(agg.fail_count || 0),
+      avgDurationMs: Math.round(Number(agg.avg_ms || 0)),
+      p95DurationMs,
+      sensorFindingsTotal: Number(agg.sensor_total || 0),
+      placeholderFindingsTotal: Number(agg.placeholder_total || 0),
+      rootCauseBreakdown,
+    };
+  } finally {
+    db.close();
+  }
+}
 
 function readJsonl(filePath) {
   if (!fs.existsSync(filePath)) return { records: [], parseErrors: 0 };
@@ -254,6 +336,55 @@ export function formatFactoryMetricsMarkdown(summary) {
   return `${lines.join('\n')}\n`;
 }
 
+export function buildOtelGenAiTelemetry(summary, { collectPromptBody = false } = {}) {
+  const s = summary || {};
+  const gate = s.gateRuns || {};
+  return {
+    schema: 'sdd-otel-genai/v1',
+    generatedAt: s.generatedAt || new Date().toISOString(),
+    privacy: {
+      collect_prompt_body: Boolean(collectPromptBody),
+      prompt_body_redacted: true,
+    },
+    resource: {
+      'service.name': 'sdd-forge',
+      'gen_ai.system': 'sdd-forge',
+      'sdd.feature': s.feature || 'all',
+    },
+    metrics: [
+      {
+        name: 'sdd.gate.runs.total',
+        unit: '{runs}',
+        value: Number(gate.total || 0),
+        attributes: {
+          'gen_ai.operation.name': 'sdd.quality_gate',
+          'sdd.gate.pass_count': Number(gate.pass || 0),
+          'sdd.gate.fail_count': Number(gate.fail || 0),
+        },
+      },
+      {
+        name: 'sdd.gate.duration.avg',
+        unit: 'ms',
+        value: Number(gate.avgDurationMs || 0),
+        attributes: { 'gen_ai.operation.name': 'sdd.quality_gate' },
+      },
+      {
+        name: 'sdd.gate.duration.p95',
+        unit: 'ms',
+        value: Number(gate.p95DurationMs || 0),
+        attributes: { 'gen_ai.operation.name': 'sdd.quality_gate' },
+      },
+      {
+        name: 'sdd.factory.human_interventions',
+        unit: '{events}',
+        value: Number(s.humanInterventions || 0),
+        attributes: { 'sdd.guard.auto_denials': Number(s.guardAutoDenials || 0) },
+      },
+    ],
+    rootCauseBreakdown: s.rootCauseBreakdown || {},
+  };
+}
+
 function parseArgs(argv) {
   const sub = argv[0] === 'record-attribution' || argv[0] === 'record-final-verdict' ? argv[0] : null;
   const start = sub ? 1 : 0;
@@ -328,9 +459,13 @@ if (isMain) {
       process.exit(0);
     }
     const summary = summarizeFactoryMetrics({ projectRoot: opts.root, feature: opts.feature });
-    process.stdout.write(
-      opts.format === 'markdown' ? formatFactoryMetricsMarkdown(summary) : `${JSON.stringify(summary, null, 2)}\n`,
-    );
+    if (opts.format === 'markdown') {
+      process.stdout.write(formatFactoryMetricsMarkdown(summary));
+    } else if (opts.format === 'otel') {
+      process.stdout.write(`${JSON.stringify(buildOtelGenAiTelemetry(summary), null, 2)}\n`);
+    } else {
+      process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+    }
     process.exit(0);
   } catch (err) {
     process.stderr.write(`factory-metrics error: ${err.message}\n`);

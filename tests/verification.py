@@ -321,14 +321,15 @@ def main():
     parser.add_argument('--shard-index', type=int, default=0)
     parser.add_argument('--shard-count', type=int, default=1)
     parser.add_argument('--jobs', type=int, default=None)
-    parser.add_argument('--receipt', type=Path)
+    parser.add_argument('--receipt', type=Path, help='run and write the execution receipt unless --plan or --list is explicit')
     parser.add_argument('--powershell')
     parser.add_argument('--checklist', type=Path, default=ROOT / 'docs/workflow-improvements/retention-checklist.md')
     parser.add_argument('--measure-dir', type=Path)
     parser.add_argument('--measure-parent')
     args = parser.parse_args()
+    run = args.run or (args.receipt is not None and not (args.plan or args.list))
     try:
-        if (args.measure_dir or args.measure_parent) and not args.run:
+        if (args.measure_dir or args.measure_parent) and not run:
             raise ValueError('measurement requires run')
         catalog = load_catalog(args.catalog, ROOT)
         retention = None
@@ -356,7 +357,7 @@ def main():
             if selected:
                 print('\n'.join(selected))
             return 0
-        if not args.run:
+        if not run:
             print(json.dumps({'schema': 'verification-plan/v1', 'profile': args.profile,
                               'selected': selected, 'shard_index': args.shard_index,
                               'shard_count': args.shard_count,

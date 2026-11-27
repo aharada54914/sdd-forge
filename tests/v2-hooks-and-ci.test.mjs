@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { countReleaseHeadings } from '../.github/scripts/changelog-version.mjs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
@@ -67,6 +68,18 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.match(owners, /\/contracts\/guardrails\.schema\.json/);
   });
 
+  it('validates release membership and public cloud packages', () => {
+    const check = spawnSync(process.execPath, ['tests/lib/check-cloud-release.mjs'], {
+      cwd: REPO_ROOT, encoding: 'utf8',
+    });
+    assert.equal(check.status, 0, check.error?.message || check.stderr || check.stdout);
+  });
+
+  it('keeps the installed managed model entry in the release source', () => {
+    const entry = 'plugins/sdd-implementation/scripts/managed-model-entry.py';
+    assert.ok(fs.statSync(path.join(REPO_ROOT, entry)).isFile(), entry);
+  });
+
   it(
     'install.sh --target FilesOnly succeeds end-to-end and installs v2 guardrail scripts',
     { skip: process.platform === 'win32' },
@@ -112,6 +125,8 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
         fs.existsSync(path.join(installRoot, 'plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs')),
         true,
       );
+      const managedEntry = 'plugins/sdd-implementation/scripts/managed-model-entry.py';
+      assert.deepEqual(fs.readFileSync(path.join(installRoot, managedEntry)), fs.readFileSync(path.join(REPO_ROOT, managedEntry)));
       assert.equal(fs.existsSync(path.join(installRoot, 'plugins/sdd-lite')), false);
       assert.equal(fs.existsSync(path.join(installRoot, 'sdd/guardrails.example.yaml')), true);
       assert.equal(fs.existsSync(path.join(installRoot, 'docs/non-interactive-factory.md')), true);
@@ -335,10 +350,12 @@ describe('Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer', 
     assert.match(expected, /^[0-9]+\.[0-9]+\.[0-9]+$/);
 
     const readme = fs.readFileSync(path.join(REPO_ROOT, 'README.md'), 'utf8');
-    assert.match(readme, new RegExp(`^v${expected.replace(/\./g, '\\.')}[^0-9]`, 'm'));
+    const heading = readme.split(/\r?\n/, 5).find(line => /^v[0-9]/.test(line));
+    assert.ok(heading?.startsWith(`v${expected} — `), `README.md current release must be v${expected}`);
 
     const changelog = fs.readFileSync(path.join(REPO_ROOT, 'CHANGELOG.md'), 'utf8');
-    assert.match(changelog, new RegExp(`^## v${expected.replace(/\./g, '\\.')}( |$)`, 'm'));
+    const headingCount = countReleaseHeadings(changelog, expected);
+    assert.equal(headingCount, 1, `CHANGELOG.md must contain exactly one ## v${expected} heading (found ${headingCount})`);
 
     for (const entry of fs.readdirSync(path.join(REPO_ROOT, 'plugins'), { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
@@ -408,6 +425,104 @@ describe('#850 the committed ruleset, the CI jobs and the threat model agree', (
     assert.equal(rule('pull_request').parameters.require_code_owner_review, false);
     for (const rel of ['docs/THREAT-MODEL.md', 'README.md']) {
       assert.doesNotMatch(read(rel), /オーナー(の PR )?レビュー(を)?必須/, rel);
+    }
+  });
+});
+
+describe('Shadow CI scanner evidence', () => {
+  const workflow = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/sdd-guardrails.yml'), 'utf8');
+  const steps = workflow.split(/^      - name: /m);
+  const scan = steps.find(step => step.startsWith('Scan the reviewed range'));
+  const script = scan.split('        run: |\n')[1].replace(/^          /gm, '').trimEnd();
+  const base = 'a'.repeat(40);
+  const head = 'b'.repeat(40);
+  const leak = { RuleID: 'sample-rule', Commit: head, File: 'src/sample.txt', StartLine: 2, Match: 'omit detail' };
+  const finding = { check_id: 'sample.rule', path: 'src/sample.js', start: { line: 3 }, extra: { message: 'omit detail' } };
+  const clean = { results: [], errors: [] };
+
+  it('runs independently of prior checks and uploads only a completed, sanitized scan', () => {
+    const install = steps.find(step => step.startsWith('Install pinned review scanners'));
+    const upload = steps.find(step => step.startsWith('Retain shadow review evidence'));
+    assert.match(install, /id: scanners\n/);
+    assert.match(install, /if: "!cancelled\(\) && steps.review.outcome == 'success'"/);
+    assert.match(scan, /id: shadow\n/);
+    assert.match(scan, /if: "!cancelled\(\) && steps.scanners.outcome == 'success'"/);
+    assert.match(upload, /if: "!cancelled\(\) && steps.shadow.outcome == 'success'"/);
+    assert.match(upload, /^          path: \$\{\{ runner.temp \}\}\/shadow-findings\.json$/m);
+    for (const step of [install, scan, upload]) assert.doesNotMatch(step, /continue-on-error/);
+  });
+
+  it('executes the workflow projection with zero, nonzero and incomplete scanner reports', { skip: process.platform === 'win32' }, t => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shadow-evidence-'));
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(dir, 'semgrep-venv/bin'), { recursive: true });
+    for (const [binary, status] of [['gitleaks', 'LEAK_STATUS'], ['semgrep-venv/bin/semgrep', 'SAST_STATUS']]) {
+      fs.writeFileSync(path.join(dir, binary), `#!/bin/sh\nexit "$${status}"\n`, { mode: 0o755 });
+    }
+
+    const artifact = path.join(dir, 'shadow-findings.json');
+    const summary = path.join(dir, 'summary.md');
+    function run(leaks, sast, leakStatus, sastStatus = 0, revision = head, seconds = 0) {
+      fs.rmSync(artifact, { force: true });
+      fs.rmSync(summary, { force: true });
+      for (const [filename, report] of [['gitleaks.json', leaks], ['semgrep.json', sast]]) {
+        fs.writeFileSync(path.join(dir, filename), typeof report === 'string' ? report : JSON.stringify(report));
+      }
+      return spawnSync('bash', ['-eo', 'pipefail', '-c', script], {
+        cwd: REPO_ROOT, encoding: 'utf8',
+        env: { ...process.env, GITHUB_WORKSPACE: REPO_ROOT, RUNNER_TEMP: dir, BASE: base, GITHUB_SHA: revision,
+          GITHUB_STEP_SUMMARY: summary, SECONDS: String(seconds), LEAK_STATUS: String(leakStatus), SAST_STATUS: String(sastStatus) },
+      });
+    }
+    for (const [leaks, results, status] of [[[], [], 0], [[leak], [finding], 42]]) {
+      const proc = run(leaks, { results, errors: [] }, status);
+      assert.equal(proc.status, 0, proc.stderr);
+      const { gitleaks_seconds, semgrep_seconds, ...other } = JSON.parse(fs.readFileSync(artifact));
+      assert.deepEqual(other, { base, head,
+        gitleaks: leaks.map(() => ({ rule: leak.RuleID, commit: head, path: leak.File, line: 2 })),
+        semgrep: results.map(() => ({ rule: finding.check_id, path: finding.path, line: 3 })),
+      });
+      for (const seconds of [gitleaks_seconds, semgrep_seconds]) assert.ok(Number.isInteger(seconds) && seconds >= 0);
+      assert.match(fs.readFileSync(summary, 'utf8'), new RegExp(`Gitleaks ${leaks.length}, Semgrep ${results.length}`));
+    }
+    const file = 'notes/改行\nタブ\t.txt';
+    const pathOnly = { ...leak, File: file, StartLine: 0, EndLine: 0, StartColumn: 0, EndColumn: 0,
+      Match: `file detected: ${file}` };
+    const redacted = ['REDACTED', ...Array.from(pathOnly.Match, char => char + 'REDACTED')].join('');
+    const located = run(
+      [pathOnly, { ...pathOnly, Match: redacted }, ...[3, 9].map(StartColumn => ({ ...leak, File: '  ', StartColumn }))],
+      { results: [3, 9].map(col => ({ ...finding, path: file, start: { line: 3, col } })), errors: [] }, 42,
+    );
+    assert.equal(located.status, 0, located.stderr);
+    const evidence = JSON.parse(fs.readFileSync(artifact));
+    const fileLocation = { rule: leak.RuleID, commit: head, path: file, line: 0, location: 'file' };
+    assert.deepEqual(evidence.gitleaks, [fileLocation, fileLocation,
+      ...[3, 9].map(column => ({ rule: leak.RuleID, commit: head, path: '  ', line: 2, column }))]);
+    assert.deepEqual(evidence.semgrep, [3, 9].map(column => ({ rule: finding.check_id, path: file, line: 3, column })));
+    const invalid = [
+      ['', clean, 0], ['[]\n[]', clean, 0], [null, clean, 0], [{}, clean, 0],
+      [[], clean, 42], [[leak], clean, 0], [[], clean, 2], [[], clean, 0, 2],
+      [[], '', 0], [[], {}, 0], [[], { results: {}, errors: [] }, 0],
+      [[], { results: [] }, 0], [[], { results: [], errors: [{}] }, 0], [[], { results: [], errors: null }, 0],
+      [[], clean, 0, 0, 'invalid-sha'], [[], clean, 0, 0, head, -30],
+    ];
+    for (const field of [{ RuleID: '' }, { File: null }, { Commit: 'short' }, { StartLine: 0 }, { StartColumn: 0 }, { StartColumn: null }]) {
+      invalid.push([[{ ...leak, ...field }], clean, 42]);
+    }
+    for (const field of [{ check_id: ' ' }, { path: '' }, { start: {} }, { start: { line: 2.5 } }, { start: { line: 3, col: -2 } }]) {
+      invalid.push([[], { results: [{ ...finding, ...field }], errors: [] }, 0]);
+    }
+    for (const field of [{ EndLine: 1 }, { StartColumn: 1 }, { Match: 'other' }, { Match: null }]) {
+      invalid.push([[{ ...pathOnly, ...field }], clean, 42]);
+    }
+    for (const filename of ['bad\0name', '../file.txt', '/file.txt', './']) {
+      invalid.push([[{ ...leak, File: filename }], clean, 42]);
+      invalid.push([[], { results: [{ ...finding, path: filename }], errors: [] }, 0]);
+    }
+    for (const [index, args] of invalid.entries()) {
+      assert.notEqual(run(...args).status, 0, `invalid report case ${index} succeeded`);
+      assert.equal(fs.existsSync(artifact), false, `invalid case ${index} left an artifact`);
+      assert.equal(fs.existsSync(summary), false, `invalid case ${index} published a count`);
     }
   });
 });

@@ -1,0 +1,2 @@
+{"step":0,"action":"Init","state":{"accepted":[]}}
+{"step":1,"action":"Publish","actor":1,"state":{"accepted":[1,2]}}

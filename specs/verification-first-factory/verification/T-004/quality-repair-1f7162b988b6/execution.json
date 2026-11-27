@@ -1,0 +1,202 @@
+{
+  "schema": "sdd-gate-execution/v1",
+  "runId": "38faad75-9f02-4e7a-86f1-de53648d9e40",
+  "feature": "verification-first-factory",
+  "taskId": "T-004",
+  "mode": "standard",
+  "executedAt": "2026-11-26T00:11:52.590Z",
+  "verdict": "PASS",
+  "specInputs": {
+    "schema": "sdd-task-evidence-inputs/v2",
+    "task": "13fd0c872dece952d6e97d59e7f0103a13e2a851ee1642f63837e2bbf2431c12",
+    "ids": {
+      "AC-007": "818eabf9fe3e06a52c8d1eacef876d0d0d895b7debc72b4c0165c39f8d605d29",
+      "NFR-002": "85f4c8a891d4d1a1eb8c41e84613ffa53390091af492a25986a8a713fbc27841",
+      "NFR-004": "70e47d76ac214f58ee64f798e9667f7a2e11ae449b80d9d82b8c7bc1101058ab",
+      "REQ-007": "a9c78100b9095712d841f7726e3cc726187fb88be61cc419a345e2da2f992320",
+      "REQ-008": "8cfd8b301935ecce797fb4825d7c92ba9e06eddbc86346996527b493ec27caa2",
+      "SELF-AC-005": "de3b25f7b5d9908717ff17ce1ed9a383a4eea455b2238e26b5734fc7b1f83feb",
+      "SELF-REQ-005": "5c9556662b5e71338d23885e8ff507289261002e941b0a4c63798a94a0e9d342"
+    },
+    "design": "d4179bdef77f2f7b2734db853cad1850f2df7b890a378beed5ca7c731927085f"
+  },
+  "coverage": {
+    "commandsRun": 4,
+    "specDriftChecked": true,
+    "sensorsChecked": true,
+    "complete": true
+  },
+  "scope": {
+    "mode": "explicit",
+    "taskScope": [
+      "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+      "plugins/sdd-quality-loop/rules/**",
+      "tests/fixtures/agent-lint/**"
+    ],
+    "outOfScopeFiles": [
+      ".github/workflows/sdd-guardrails.yml",
+      "tests/v2-agent-lint-bundle.test.mjs",
+      "tests/v2-agent-lint.test.mjs"
+    ]
+  },
+  "warnings": [
+    "OUT_OF_SCOPE_CHANGES: 3 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
+  ],
+  "checks": {
+    "lockCheck": {
+      "checked": false,
+      "passed": true,
+      "acquired": null
+    },
+    "taskPrecondition": {
+      "passed": true,
+      "taskId": "T-004",
+      "approval": "Approved",
+      "status": "Implementation Complete",
+      "risk": "standard",
+      "scopePaths": [
+        "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+        "plugins/sdd-quality-loop/rules/**",
+        "tests/fixtures/agent-lint/**"
+      ],
+      "errors": []
+    },
+    "specDrift": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-spec-drift/v1",
+      "feature": "verification-first-factory",
+      "status": "CLEAN",
+      "baselineRecordedAt": "2026-11-25T16:43:30.106Z",
+      "baselineGitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
+      "changedFiles": [],
+      "deletedFiles": [],
+      "addedFiles": [],
+      "removedIdentifiers": [],
+      "modifiedIdentifiers": [],
+      "addedIdentifiers": [],
+      "amendments": [
+        {
+          "file": "specs/verification-first-factory/requirements.md",
+          "text": "*(承認後の仕様変更時は、日付・理由・影響IDをここに追記する。テスト廃止の例外承認はここではなく `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "*(承認後の仕様・タスク変更時は、日付・理由・影響タスクをここに追記する。テスト廃止の例外承認は `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "- 2026-11-26（所有者承認、T-003・T-004）。AC-007 の Layer 1 基準を上流の677行に更新。上限700行、差分ゼロ、外部依存ゼロを維持する。過去の663行の記述に対する適用範囲と照合手順は [基準変更の記録](verification/T-004/approved-layer1-baseline.md) に示す。"
+        }
+      ],
+      "baselineAmendmentCount": 2,
+      "changedIdsWithoutAmendment": [],
+      "revokedApprovals": [],
+      "newlyApprovedTasks": [],
+      "unreadableFiles": []
+    },
+    "antiTamper": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "writeScope": {
+      "skipped": true,
+      "passed": true
+    },
+    "agentLint": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "securityGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "formalGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "placeholders": {
+      "passed": true,
+      "scannedFiles": [
+        ".github/workflows/sdd-guardrails.yml",
+        "plugins/sdd-quality-loop/rules/agent-lint-ast.mjs",
+        "plugins/sdd-quality-loop/rules/lint-diff.mjs",
+        "plugins/sdd-quality-loop/rules/local-module-graph.mjs",
+        "plugins/sdd-quality-loop/rules/rebuilt-catches.mjs",
+        "plugins/sdd-quality-loop/rules/source-ast.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs"
+      ],
+      "findings": []
+    },
+    "nonFunctionalSensors": {
+      "skipped": false,
+      "passed": true,
+      "findings": [],
+      "advisoryFindings": []
+    },
+    "openQuestions": {
+      "passed": true,
+      "blocking": false,
+      "provisionalCount": 0,
+      "provisionalIds": []
+    },
+    "reviewTickets": {
+      "passed": true,
+      "blocking": []
+    },
+    "conceptTest": {
+      "passed": true,
+      "status": "NOT_APPLICABLE"
+    },
+    "commands": [
+      {
+        "label": "check-1",
+        "command": "node plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs --format json",
+        "exitCode": 0,
+        "durationMs": 27,
+        "passed": true,
+        "error": null,
+        "stdout": "{\n  \"schema\": \"sdd-agent-lint/v1\",\n  \"mode\": \"off\",\n  \"status\": \"SKIPPED\",\n  \"scannedFiles\": 0,\n  \"durationMs\": 1,\n  \"findings\": [],\n  \"waived\": [],\n  \"expiredWaivers\": [],\n  \"invalidWaivers\": []\n}\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-2",
+        "command": "node plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs --format json --mode shadow --diff-only --base-ref dc009c70d629bca4acd8484937e7a1a2d6f1bef1",
+        "exitCode": 0,
+        "durationMs": 1947,
+        "passed": true,
+        "error": null,
+        "stdout": "{\n  \"schema\": \"sdd-agent-lint/v1\",\n  \"mode\": \"shadow\",\n  \"status\": \"WARN\",\n  \"scannedFiles\": 51,\n  \"durationMs\": 1918,\n  \"findings\": [\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs\",\n      \"line\": 96,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-console-log\",\n      \"severity\": \"warn\",\n      \"category\": \"observability\",\n      \"path\": \"plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs\",\n      \"line\": 22,\n      \"message\": \"プロダクションコードに console.log が残存しています\",\n      \"remediation_hint\": \"構造化ロガーまたは process.stdout.write へ置換するか、CLI 出力として guardrails.yaml の agent_lint.waivers に期限付き登録してください\",\n      \"snippet\": \"console.log\"\n    },\n    {\n      \"rule\": \"no-console-log\",\n      \"severity\": \"warn\",\n      \"category\": \"observability\",\n      \"path\": \"plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs\",\n      \"line\": 473,\n      \"message\": \"プロダクションコードに console.log が残存しています\",\n      \"remediation_hint\": \"構造化ロガーまたは process.stdout.write へ置換するか、CLI 出力として guardrails.yaml の agent_lint.waivers に期限付き登録してください\",\n      \"snippet\": \"console.log\"\n    },\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs\",\n      \"line\": 572,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs\",\n      \"line\": 96,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs\",\n      \"line\": 726,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-empty-catch\",\n      \"severity\": \"error\",\n      \"category\": \"reliability\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 4,\n      \"message\": \"空の catch ブロックが例外を無言で握り潰しています\",\n      \"remediation_hint\": \"例外をログ出力・再送出するか、意図的に無視する場合は理由コメントまたは guardrails.yaml の agent_lint.waivers に登録してください\",\n      \"snippet\": \"catch (err) {}\"\n    },\n    {\n      \"rule\": \"no-eval-or-new-function\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 8,\n      \"message\": \"eval() または new Function() の動的コード実行が検出されました\",\n      \"remediation_hint\": \"動的評価を廃止し、静的マッピング・JSON.parse・安全なパーサへ置き換えてください\",\n      \"snippet\": \"eval\"\n    },\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 12,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-console-log\",\n      \"severity\": \"warn\",\n      \"category\": \"observability\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 16,\n      \"message\": \"プロダクションコードに console.log が残存しています\",\n      \"remediation_hint\": \"構造化ロガーまたは process.stdout.write へ置換するか、CLI 出力として guardrails.yaml の agent_lint.waivers に期限付き登録してください\",\n      \"snippet\": \"console.log\"\n    }\n  ],\n  \"waived\": [],\n  \"expiredWaivers\": [],\n  \"invalidWaivers\": []\n}\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-3",
+        "command": "node --test tests/v2-agent-lint.test.mjs tests/v2-wave3-integration.test.mjs tests/v2-sdd-doctor.test.mjs",
+        "exitCode": 0,
+        "durationMs": 9678,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers\n  ✔ passes cleanly on clean fixture and catches violations with remediation_hint in strict vs shadow mode (63.269042ms)\n  ✔ honors active built-in guardrails.yaml waivers and fails on expired waivers in strict mode (1.913917ms)\n  ✔ checks waiver calendar dates through the CLI in strict, shadow and warn modes (180.860375ms)\n  ✔ reports changed lines, untracked files and changed local imports on a clean branch checkout (166.876584ms)\n  ✔ applies the production console rule to source while retaining other checks in test and reporting tools (2.820917ms)\n  ✔ uses TS syntax, scoped flag groups, configured control depth and comment nodes (1.321333ms)\n  ✔ NFR-004 performance budget: lints 100 files in <= 3000ms (15.934667ms)\n✔ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers (433.524083ms)\n▶ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)\n  ✔ passes cleanly on the sdd-forge repository itself with explicit Non-checks (222.466584ms)\n  ✔ detects skill description > 1024 chars as NG (prevents silent host drop) (8.213917ms)\n  ✔ detects raw ASCII control character corruption in specs/ as NG without modifying files (1.3785ms)\n  ✔ warns on non-ASCII .ps1 without UTF-8 BOM, unbaselined approved specs, and AGENT_STOP (2.244ms)\n  ✔ detects invalid guardrails.yaml mode and broken hook JSON as NG (29.080583ms)\n  ✔ verifies Zenn §8-§12 template & skill contracts (Alternatives Rejected, Non-checks, rules-first retrospective) (0.446542ms)\n  ✔ normalizes inline extension mappings, including nested options and quoted commas (72.41225ms)\n  ✔ continues reporting configured adapters when the checker jar cannot be inspected (81.853291ms)\n  ✔ reports an invalid checker jar path as a JSON configuration finding (111.832833ms)\n  ✔ ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2 (74.688958ms)\n✔ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI) (605.19ms)\n▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2\n  ✔ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (1331.919375ms)\n  ✔ T-008 rebuild compares large binary streams and preserves command exit codes (1716.840708ms)\n  ✔ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (162.122208ms)\n  ✔ T-008 resolves the baseline command against the committed implementation (297.263541ms)\n  ✔ T-008 stops at the first failing verification command in fail-fast mode (162.888958ms)\n  ✔ T-008 rebuild measures default p95 and absolute budgets independently from exact output (3853.884792ms)\n  ✔ T-008 rebuild rechecks immutable inputs after running the candidate (914.276625ms)\n  ✔ T-008 enforces implementer write scope through both public CLIs using the Git diff (303.869459ms)\n  ✔ T-008 resolves a nested project’s protected paths from its committed policy (184.023583ms)\n  ✔ reports a failed lock release after saving a completed gate execution (186.884667ms)\n  ✔ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (184.300416ms)\n  ✔ T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor (319.607167ms)\n✔ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (9618.540084ms)\nℹ tests 29\nℹ suites 3\nℹ pass 29\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 9654.743583\n",
+        "stderr": ""
+      },
+      {
+        "label": "check-4",
+        "command": "node --test tests/v2-agent-lint-bundle.test.mjs",
+        "exitCode": 0,
+        "durationMs": 556,
+        "passed": true,
+        "error": null,
+        "stdout": "✔ an independently rebuilt bundle preserves only the documented source catch (355.850916ms)\n✔ an input map pointing to a different documented catch cannot clear a finding (140.339584ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 532.116084\n",
+        "stderr": ""
+      }
+    ],
+    "rebuildDifferential": {
+      "skipped": true,
+      "passed": true
+    }
+  }
+}

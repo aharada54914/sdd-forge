@@ -1,0 +1,272 @@
+{
+  "schema": "formal-mode-diagnostic/v1",
+  "date": "2026-11-26",
+  "key": "formal_verification.mode",
+  "decision": "hold",
+  "task": "verification-first-factory T-011 (Draft)",
+  "candidate": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+  "pr": {
+    "number": 976,
+    "url": "https://github.com/aharada54914/sdd-forge/pull/976",
+    "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+    "head": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb"
+  },
+  "configuration": {
+    "defaults": {
+      "enabled": false,
+      "mode": "shadow",
+      "checker": "tlc"
+    },
+    "consumer_opt_in": {
+      "formal_verification": {
+        "enabled": true
+      }
+    },
+    "default_adapter_runs": "No --mode or --adapter supplied. CFG, negative CFG and mapping inferred by CLI.",
+    "alternative_adapter": "--adapter apalache, default bound 10."
+  },
+  "environment": {
+    "platform": "macOS 27.2.1 arm64",
+    "node": "24.13.0",
+    "java": "Temurin 21.0.13.1+2",
+    "tlc": {
+      "version": "TLC2 2.19 (5a47802), tla2tools release v1.7.4",
+      "jar_sha256": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
+    },
+    "apalache": {
+      "version": "0.63.0 (67b8ec6)",
+      "jar_sha256": "f2d43f2e279a657be50b2ecec3a013ba2915266008a2562b38412c3269347dc9"
+    }
+  },
+  "command": "node plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs --base-ref <pr.base> --feature self-verification --run-id <run_id> --risk high --tla <model_path> --trace <trace_path> [--adapter apalache]",
+  "model_root": "specs/self-verification/formal",
+  "trace_root": "specs/verification-first-factory/verification/T-006/3d72bf09-a546-4283-9ce2-8fe5fdb02fb5",
+  "inputs": {
+    "TaskLock": {
+      "specs/self-verification/formal/TaskLock.tla": "b668e0db4933a4e1114318afcb2f5a0effb8207a721227781ae2794bde365e99",
+      "specs/self-verification/formal/TaskLock.cfg": "01a71771afe5bd21535978e7c205489d2698ec93d442ae1c63c62714570d7a45",
+      "specs/self-verification/formal/TaskLock.negative.cfg": "ec1003fd3d1b89af8ac596da2c8ece520a2da8cdb8a3e44089f68c4968d55586",
+      "specs/self-verification/formal/mapping.json": "0d987baea488bdf6fca0ab7587eb80b1487ccecb7b9780cfa62954ee692ba0f4",
+      "specs/verification-first-factory/verification/T-006/3d72bf09-a546-4283-9ce2-8fe5fdb02fb5/lock-observed.ndjson": "5fc7014028e21fe4dd2d37f1531e7fec8cf2a81e9fcd106cc607ec903743e9c2"
+    },
+    "GateLifecycle": {
+      "specs/self-verification/formal/GateLifecycle.tla": "594b2a9f18a78fd0f991cc5af923842a74338badca78c0fe4c7a72438b5d69a9",
+      "specs/self-verification/formal/GateLifecycle.cfg": "6b41f039f41d76abd5831c13a7a46c735cd5c697aaa37a9b2562d5994150c1e1",
+      "specs/self-verification/formal/GateLifecycle.negative.cfg": "d29b2867058dc810db88bf68417e8ee68bf177fae6c875272384d209980f9154",
+      "specs/self-verification/formal/mapping.json": "0d987baea488bdf6fca0ab7587eb80b1487ccecb7b9780cfa62954ee692ba0f4",
+      "specs/verification-first-factory/verification/T-006/3d72bf09-a546-4283-9ce2-8fe5fdb02fb5/pass-observed.ndjson": "3ec27d0490e682c4cd5484607532513b2993fffcb145d3e14a2bcfc2bdc108c7"
+    }
+  },
+  "runs": [
+    {
+      "run_id": "pr976-d4fb-apalache-GateLifecycle",
+      "adapter": "apalache",
+      "model": "GateLifecycle",
+      "mode": "shadow",
+      "status": "PASS",
+      "exit_code": 0,
+      "replayed_observations": 5,
+      "phases": {
+        "baseline": {
+          "status": 0,
+          "ok": true,
+          "length": 10
+        },
+        "negative": {
+          "status": 12,
+          "ok": true,
+          "violatedInvariant": "DoneRequiresGatePass",
+          "length": 10
+        },
+        "replay": {
+          "status": 12,
+          "ok": true,
+          "violatedInvariant": "TraceIncomplete",
+          "length": 10
+        }
+      }
+    },
+    {
+      "run_id": "pr976-d4fb-apalache-TaskLock",
+      "adapter": "apalache",
+      "model": "TaskLock",
+      "mode": "shadow",
+      "status": "PASS",
+      "exit_code": 0,
+      "replayed_observations": 4,
+      "phases": {
+        "baseline": {
+          "status": 0,
+          "ok": true,
+          "length": 10
+        },
+        "negative": {
+          "status": 12,
+          "ok": true,
+          "violatedInvariant": "SingleOwner",
+          "length": 10
+        },
+        "replay": {
+          "status": 12,
+          "ok": true,
+          "violatedInvariant": "TraceIncomplete",
+          "length": 10
+        }
+      }
+    },
+    {
+      "run_id": "pr976-d4fb-tlc-GateLifecycle",
+      "adapter": "tlc",
+      "model": "GateLifecycle",
+      "mode": "shadow",
+      "status": "PASS",
+      "exit_code": 0,
+      "replayed_observations": 5,
+      "phases": {
+        "baseline": {
+          "status": 0,
+          "ok": true,
+          "distinctStates": 38,
+          "depth": 12
+        },
+        "negative": {
+          "status": 12,
+          "ok": true,
+          "violatedInvariant": "DoneRequiresGatePass",
+          "distinctStates": 17,
+          "depth": 5
+        },
+        "replay": {
+          "status": 12,
+          "ok": true,
+          "violatedInvariant": "TraceIncomplete",
+          "distinctStates": 5,
+          "depth": 5
+        }
+      }
+    },
+    {
+      "run_id": "pr976-d4fb-tlc-TaskLock",
+      "adapter": "tlc",
+      "model": "TaskLock",
+      "mode": "shadow",
+      "status": "PASS",
+      "exit_code": 0,
+      "replayed_observations": 4,
+      "phases": {
+        "baseline": {
+          "status": 0,
+          "ok": true,
+          "distinctStates": 5,
+          "depth": 3
+        },
+        "negative": {
+          "status": 12,
+          "ok": true,
+          "violatedInvariant": "SingleOwner",
+          "distinctStates": 4,
+          "depth": 3
+        },
+        "replay": {
+          "status": 12,
+          "ok": true,
+          "violatedInvariant": "TraceIncomplete",
+          "distinctStates": 4,
+          "depth": 4
+        }
+      }
+    }
+  ],
+  "hosted_corroboration": {
+    "run_id": 45753279046,
+    "job_id": 139685851098,
+    "artifact_id": 15087270275,
+    "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45753279046",
+    "tap_sha256": "4be9a14de1a91ae427e0cb7b18699fff5f7186420a7d423a8a5411388db21ab5",
+    "tests": 22,
+    "passed": 22,
+    "failed": 0,
+    "skipped": 0,
+    "scope": "Hosted model self-tests, independent of local consumer CLI runs; not additional PR findings."
+  },
+  "diagnostic_mode_controls": [
+    {
+      "name": "default-disabled",
+      "settings": null,
+      "explicit_mode": null,
+      "mode": "off",
+      "status": "SKIPPED",
+      "exit_code": 0,
+      "reason": "mode=off"
+    },
+    {
+      "name": "enabled-implicit-shadow",
+      "settings": {
+        "enabled": true
+      },
+      "explicit_mode": null,
+      "mode": "shadow",
+      "status": "FAIL",
+      "exit_code": 0,
+      "reason": [
+        "Step 1: SingleOwner"
+      ]
+    },
+    {
+      "name": "configured-strict",
+      "settings": {
+        "enabled": true,
+        "mode": "strict"
+      },
+      "explicit_mode": null,
+      "mode": "strict",
+      "status": "FAIL",
+      "exit_code": 1,
+      "reason": [
+        "Step 1: SingleOwner"
+      ]
+    },
+    {
+      "name": "explicit-shadow-on-strict",
+      "settings": {
+        "enabled": true,
+        "mode": "strict"
+      },
+      "explicit_mode": "shadow",
+      "mode": "shadow",
+      "status": "FAIL",
+      "exit_code": 0,
+      "reason": [
+        "Step 1: SingleOwner"
+      ]
+    },
+    {
+      "name": "rolled-back-shadow",
+      "settings": {
+        "enabled": true,
+        "mode": "shadow"
+      },
+      "explicit_mode": null,
+      "mode": "shadow",
+      "status": "FAIL",
+      "exit_code": 0,
+      "reason": [
+        "Step 1: SingleOwner"
+      ]
+    }
+  ],
+  "findings": {
+    "scope": "Final PR #976 candidate, two designated models, candidate-tracked implementation traces replayed locally. This is one real PR head, not a multi-PR corpus or freshly captured workload.",
+    "unique_eligible": 0,
+    "unclassified": 0,
+    "false_positives": 0,
+    "denominator": 0,
+    "false_positive_rate": null,
+    "excluded": "Deliberate negative controls, expected TraceIncomplete witnesses, duplicate adapter runs and synthetic mode-control traces."
+  },
+  "promotion_limitations": [
+    "Zero denominator precludes <5% determination.",
+    "An explicit strict setting tests exit handling only. No candidate with a strict default was evaluated.",
+    "This diagnostic does not establish candidate-wide profile or added-time budgets."
+  ]
+}

@@ -142,7 +142,7 @@ def completed_host_proof(check, trace, record, decided):
     keys(proof, {'schema', 'aggregate', 'records_dir', 'artifacts', 'stdout'}, 'signed host proof receipt')
     # Execute only this installed tool's reviewed code, never code supplied by an evidence pack.
     scripts = 'plugins/sdd-quality-loop/scripts/'
-    for name in ('validate-live-host-proof.py', 'check-hook-activation-handshake.py', 'canonicalize-sdd-yaml.py'):
+    for name in ('validate-live-host-proof.py', *PROOF.REPLAY_CODE_INPUTS.values()):
         require(check.read(scripts + name) == (SOURCE / scripts / name).read_bytes(), 'current proof verifier differs from this tool')
     relative = record['proof_records_dir']
     require(isinstance(relative, str) and (relative == 'tests/hook-activation-live-proof' or relative.endswith('/tests/hook-activation-live-proof')),

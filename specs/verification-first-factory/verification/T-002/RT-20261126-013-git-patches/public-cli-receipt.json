@@ -1,0 +1,30 @@
+{
+  "ticket": "RT-20261126-013",
+  "before": "207622f8b433fb9f58f13d2a9b3ed5518a0f71ec",
+  "after": "0a4e6052da81fe494c0dd00ff4a898a17ea6e3c2",
+  "regression_test_from": "0a4e6052da81fe494c0dd00ff4a898a17ea6e3c2",
+  "runs": [
+    {
+      "command": "node --test --test-reporter=spec --test-name-pattern='scans Git-generated text additions' tests/v2-sdd-core-flow.test.mjs",
+      "result": {
+        "tests": 5,
+        "pass": 0,
+        "fail": 5,
+        "skipped": 0
+      },
+      "log": "red.log",
+      "sha256": "9b13b5f92d83b69e823c0a96f84d53ee24cffb9327534fceecc810a11706b04b"
+    },
+    {
+      "command": "node --test --test-reporter=spec tests/v2-sdd-core-flow.test.mjs tests/v2-spec-drift.test.mjs",
+      "result": {
+        "tests": 73,
+        "pass": 73,
+        "fail": 0,
+        "skipped": 0
+      },
+      "log": "green.log",
+      "sha256": "7d4c1e94b16965261b01b81286f2999b59b672ff231f0aa4151d0c9fd9c6c6ce"
+    }
+  ]
+}

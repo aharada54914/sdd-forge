@@ -20,7 +20,7 @@ function New-FakeCommands {
     )
 
     New-Item -ItemType Directory -Path $BinRoot -Force | Out-Null
-    foreach ($command in @("codex", "claude", "copilot")) {
+    foreach ($command in @("codex", "claude", "copilot", "agy", "gemini")) {
         if ($command -eq $OmitCommand) { continue }
         if ($isWindowsPlatform) {
             $commandPath = Join-Path $BinRoot "$command.cmd"
@@ -151,6 +151,7 @@ function Invoke-UninstallScenario {
     }
 }
 
+$runScenarios = {
 # ---------------------------------------------------------------------------
 # Scenario (a): full uninstall
 # ---------------------------------------------------------------------------
@@ -790,3 +791,22 @@ try {
 }
 
 Write-Host "uninstall.tests.ps1: all scenarios passed."
+}
+
+# Use private client directories even when the caller provides its own overrides.
+$configRoot = Join-Path ([IO.Path]::GetTempPath()) ("sdd-test-clients-" + [guid]::NewGuid())
+$savedEnvironment = @{}
+try {
+    foreach ($name in @('SDD_CURSOR_DIR', 'SDD_VSCODE_USER_DIR', 'SDD_GEMINI_DIR', 'SDD_ANTIGRAVITY_CONFIG_DIR', 'SDD_CODEX_HOME')) {
+        $savedEnvironment[$name] = [Environment]::GetEnvironmentVariable($name)
+        Set-Item "Env:$name" (Join-Path $configRoot $name)
+    }
+    & $runScenarios
+}
+finally {
+    foreach ($name in $savedEnvironment.Keys) {
+        if ($null -eq $savedEnvironment[$name]) { Remove-Item "Env:$name" -ErrorAction SilentlyContinue }
+        else { Set-Item "Env:$name" $savedEnvironment[$name] }
+    }
+    if (Test-Path -LiteralPath $configRoot) { Remove-Item -LiteralPath $configRoot -Recurse -Force }
+}

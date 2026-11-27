@@ -1,0 +1,4 @@
+#!/bin/sh
+cat <<'HELP'
+# sdd-lint-disable example-rule
+HELP

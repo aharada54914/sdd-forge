@@ -1,0 +1,14 @@
+{
+  "revision": "2673fb9bf5e7ef55557f4fc631be676e1bb43b0c",
+  "entrypoint": "mcp/sdd-forge-mcp/src/index.ts",
+  "build_arguments": [
+    "src/index.ts",
+    "--bundle",
+    "--platform=node",
+    "--format=esm"
+  ],
+  "input_count": 275,
+  "checker_in_graph": false,
+  "generated_sha256": "bce07ec7a875ee7c1f01e7724b9c78022c59aa6e7fc96ca37b2ea27c2e76663b",
+  "tracked_sha256": "bce07ec7a875ee7c1f01e7724b9c78022c59aa6e7fc96ca37b2ea27c2e76663b"
+}

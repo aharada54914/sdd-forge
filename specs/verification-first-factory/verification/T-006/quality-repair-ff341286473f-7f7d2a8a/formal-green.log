@@ -1,0 +1,64 @@
+▶ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate
+  ✔ checks literal TRUE only for invariants selected by the active CFG (1.808459ms)
+  ✔ stops a disabled formal gate in CI and honors an explicit checker mode (95.407583ms)
+  ✔ respects disabled formal configuration in the integrated gate (20.414042ms)
+  ✔ AC-003: discovers formal verification triggers from Risk: high and state-machine signals (1.166917ms)
+  ✔ AC-004/AC-005: builds Windows-safe direct java commands (shell: false, no .cmd/.bat) for tlc & apalache and reserves lean4 (0.255333ms)
+  ✔ AC-004/AC-006: validates canonical Reservation.tla baseline + negative (OneAccepted) + NDJSON trace (4.421292ms)
+✔ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate (123.866209ms)
+▶ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle)
+  ✔ validates TaskLock.tla and GateLifecycle.tla structure, invariants, and NDJSON traces (1.126792ms)
+✔ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle) (1.176834ms)
+▶ checker verdicts match the observed failure
+  ✔ does not accept a tool error mentioning the invariant as a negative control (1.483625ms)
+  ✔ defers a missing tool locally and fails CI (1.888ms)
+  ✔ rejects a gate pass with undeclared drift and an unapproved completion (0.330875ms)
+✔ checker verdicts match the observed failure (3.770875ms)
+✔ TaskLock Release preserves an unreadable owner and its lease until explicitly forced (354.912792ms)
+✔ scan finds related compound branches and graph validation fails on unreachable states (51.487875ms)
+✔ skips an unchanged model and mapped sources only; fails timed-out checks and persists an OQ in the decision view (93.500083ms)
+✔ retains a between-phase budget timeout and raises the repair-limit OQ in the decision view (4.067959ms)
+✔ TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas (4100.265208ms)
+✔ TLC checks reservation, lock and gate baselines and named mutants, and replays implementation traces (25035.47075ms)
+ℹ Reservation baseline no violation exit=0 states=15 depth=8
+ℹ Reservation negative OneAccepted exit=12 states=25 depth=7
+ℹ TaskLock baseline no violation exit=0 states=5 depth=3
+ℹ TaskLock negative SingleOwner exit=12 states=4 depth=3
+ℹ TaskLock replay TraceIncomplete exit=12 states=4 depth=4
+ℹ TaskLock baseline no violation exit=0 states=null depth=null
+ℹ TaskLock negative SingleOwner exit=12 states=null depth=null
+ℹ TaskLock replay TraceIncomplete exit=12 states=null depth=null
+ℹ APALACHE version: 0.63.0 | build: 67b8ec6 TaskLock baseline, negative, and projection: length=10
+ℹ TaskLock baseline no violation exit=0 states=5 depth=3
+ℹ TaskLock negative SingleOwner exit=12 states=4 depth=3
+ℹ TaskLock replay no violation exit=0 states=1 depth=1
+ℹ TaskLockMutation baseline no violation exit=0 states=54 depth=7
+ℹ TaskLockMutation negative OneWriter exit=12 states=27 depth=5
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+ℹ GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+ℹ GateLifecycle replay no violation exit=0 states=2 depth=2
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+ℹ GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+ℹ GateLifecycle replay no violation exit=0 states=2 depth=2
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative RetryBound exit=12 states=35 depth=12
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative EscalationRequiresOQ exit=12 states=8 depth=5
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative NoTamperRepair exit=12 states=13 depth=6
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative NoDriftPass exit=12 states=6 depth=5
+ℹ tests 16
+ℹ suites 3
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29811.500833

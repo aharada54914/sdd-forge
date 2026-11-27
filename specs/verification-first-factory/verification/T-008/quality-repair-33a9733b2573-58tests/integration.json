@@ -1,0 +1,44 @@
+{
+  "revision": "33a9733b2573660a1380e41263ce45093eae39ff",
+  "task": "T-008",
+  "clean": {
+    "command": [
+      "node",
+      "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "--root",
+      "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/t002-t008-readmission-vuervw__/T-008/repo",
+      "--task",
+      "T-008",
+      "--feature",
+      "verification-first-factory",
+      "--base",
+      "33a9733b2573660a1380e41263ce45093eae39ff",
+      "--changed-files",
+      "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs,plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs,plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs,plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs,tests/v2-sdd-core-flow.test.mjs,tests/v2-spec-drift.test.mjs,tests/v2-wave3-integration.test.mjs,plugins/sdd-ship/skills/ship/SKILL.md",
+      "--anti-tamper",
+      "--output",
+      "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/t002-t008-readmission-vuervw__/T-008/execution.json",
+      "--cmd",
+      "task-tests=node --test tests/v2-wave3-integration.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-spec-drift.test.mjs"
+    ],
+    "exit": 0,
+    "run": "f61488ac-b3e9-400e-a83b-c89f01fdb637",
+    "verdict": "PASS",
+    "antiTamper": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-anti-tamper/v1",
+      "status": "CLEAN",
+      "baseRef": "33a9733b2573660a1380e41263ce45093eae39ff",
+      "checkedFilesCount": 0,
+      "violations": []
+    },
+    "coverage": {
+      "commandsRun": 1,
+      "specDriftChecked": true,
+      "sensorsChecked": true,
+      "complete": true
+    },
+    "specDrift": "CLEAN"
+  }
+}

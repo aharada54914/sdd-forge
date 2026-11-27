@@ -1,0 +1,111 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "verification-first-factory",
+  "task_id": "T-001",
+  "run_id": "7025477b-47bf-4f1d-8264-def256d8d105",
+  "host_session_id": "01a213f1-2a97-7cc2-a276-8ac9cc24ff81",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "d59d4206c10233f47bfcf98db61fae5e0883a1027636d0d76cf16d89ad378c7d",
+  "previous_record_sha256": "10de7af20b2f2edd8b92545607486164fe48e9a18897c9ff8ec8955ddd9d3fdb",
+  "sequence": 1199,
+  "implementation_manifest": {
+    "path": "specs/verification-first-factory/verification/T-001/30292d05-0eff-49c5-b841-fe98262bdf59/task-input-manifest.json",
+    "sha256": "4df1799d9b1b5151be099a441d0d753d7c7e50ffde84364e578ee6d96bf3f134"
+  },
+  "supplemental_delivery_declaration": {
+    "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/supplemental-delivery-declaration.json",
+    "sha256": "14140d85b9d68a1be1ca82fa64bb7020085328e9d6edecaf22f74e1e1cba05e1"
+  },
+  "allowed_input_manifest": [
+    {
+      "path": "reports/implementation/verification-first-factory/T-001.md",
+      "sha256": "1d14fc976834c1e09d51b3e55d7fc2d1d1c0304404e33e4753f868fc565ee67e"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/30292d05-0eff-49c5-b841-fe98262bdf59/task-input-manifest.json",
+      "sha256": "4df1799d9b1b5151be099a441d0d753d7c7e50ffde84364e578ee6d96bf3f134"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/supplemental-delivery-declaration.json",
+      "sha256": "14140d85b9d68a1be1ca82fa64bb7020085328e9d6edecaf22f74e1e1cba05e1"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "916ba0e56a0b2e57607684aafd2b06c866d11692a1d6782a6ca4d64bab66b648"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02"
+    },
+    {
+      "path": "tests/v2-sdd-doctor.test.mjs",
+      "sha256": "c4ffda7890149ad1d6f3bf818de816a7d85ab34549253e1946b05b67732545eb"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "4329f816a9abdb8f8c601d6aaf6911bf4586379bd5db59717c0ec9775c91a28e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+      "sha256": "028735ca86edccad1a8e6eda26d588c14f9c2105d4278650b4507b50ac87ec5d"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/task-scoped.diff",
+      "sha256": "3dc60ce6eea01401780d98f2afd8a631a1d2b88ec236e318559f8310cb68ffed"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/source-inputs.json",
+      "sha256": "e42bbba8b77c397bda235db586d04ef6ce1d65452f585df9d746000d0c02c733"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/legacy-config-comparison.json",
+      "sha256": "338ab263c9de376ca79c13aa931e29b5377f1cd2dca51a7805c88bafda0bb233"
+    },
+    {
+      "path": "docs/adr/0054-verification-first-and-agentic-factory.md",
+      "sha256": "1edd1fbc81afcba7863bc67e5637dad3ff8333276c8414bc14c4c29f26212053"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "592fbdc3d43c64c81596c14efafc6d2fc07bf8311f703e4b98c5e20ddb63341a"
+    },
+    {
+      "path": "sdd/guardrails.example.yaml",
+      "sha256": "3bfb11b809dde42e200f9ca36ff7668b70de8a42a69128a01b2bdbdc2ba93a76"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+      "sha256": "9729ceab134dfa0302a30289be7d6594cf703e4c507f96eea0cc9e868a2ddf68"
+    },
+    {
+      "path": "reports/quality-gate/verification-first-factory-T-001.execution.json",
+      "sha256": "5ac28af270c35dd40217966c4a9d2d3df4fb8786b206e6f633c4c1063a4f30fe"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/previous-implementation-report.md",
+      "sha256": "6e3a1ee1655814c3332eea9cc5ad7c375cc699d2fdad85038a63552010626dac"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/30292d05-0eff-49c5-b841-fe98262bdf59/doctor-test.log",
+      "sha256": "82aed1a423d63c02c46845afd74606b67b65d228d7bbea994c5cf199d436f7ca"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    }
+  ],
+  "scratch_root": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-evaluator-rx91vjpl"
+}

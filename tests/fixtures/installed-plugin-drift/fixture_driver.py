@@ -249,6 +249,9 @@ def wrapper_contract_checks(runtime: str, checker: Path, base: Path) -> None:
 
 
 def main() -> int:
+    sys.dont_write_bytecode = True
+    from registration_lifecycle import check_registration_lifecycle
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--runtime", choices=("sh", "ps1"), required=True)
     parser.add_argument("--checker", type=Path, required=True)
@@ -265,6 +268,11 @@ def main() -> int:
             wrapper_contract_checks(args.runtime, checker, base / "wrapper-contract")
         except Exception as exc:
             failures.append(f"contract-mismatch-self-check: {exc}")
+        try:
+            check_registration_lifecycle(REPO, base / "registration", args.runtime,
+                                         lambda root: command_for(args.runtime, checker, root, "verify"))
+        except Exception as exc:
+            failures.append(f"registration lifecycle: {exc}")
         missing = base / "not-installed"
         missing_codex = base / "not-installed-codex"
         for mode, expected_exit in (("preflight", 0), ("verify", 1)):
@@ -290,12 +298,12 @@ def main() -> int:
         drift_codex = base / "drift-codex"
         install_snapshot(drift, drift_codex)
         claude = drift / HOOKS / "claude-hooks.json"
-        hooks = drift / HOOKS / "hooks.json"
+        hooks = drift / HOOKS / "codex-hooks.json"
         copilot = drift / HOOKS / "copilot-hooks.json"
         claude.unlink()
         hooks.write_bytes(hooks.read_bytes() + b"\ninstalled-cache-mutation\n")
         copilot.unlink()
-        copilot.symlink_to("hooks.json")
+        copilot.symlink_to("codex-hooks.json")
         installed_only = drift / "plugins" / "installed-only.txt"
         installed_only.write_bytes(b"installed only\n")
         config = drift_codex / "config.toml"
@@ -313,9 +321,9 @@ def main() -> int:
             report_entry("file", (HOOKS / "copilot-hooks.json").as_posix(),
                          (HOOKS / "copilot-hooks.json").as_posix(), "type-changed",
                          node_bytes(copilot), (REPO / HOOKS / "copilot-hooks.json").read_bytes()),
-            report_entry("file", (HOOKS / "hooks.json").as_posix(),
-                         (HOOKS / "hooks.json").as_posix(), "modified",
-                         hooks.read_bytes(), (REPO / HOOKS / "hooks.json").read_bytes()),
+            report_entry("file", (HOOKS / "codex-hooks.json").as_posix(),
+                         (HOOKS / "codex-hooks.json").as_posix(), "modified",
+                         hooks.read_bytes(), (REPO / HOOKS / "codex-hooks.json").read_bytes()),
             report_entry("file", "plugins/installed-only.txt", "plugins/installed-only.txt",
                          "removed", installed_only.read_bytes(), None),
             report_entry("delimited-region", "install.sh#register_codex_mcp/ci-mcp",
@@ -358,14 +366,14 @@ def main() -> int:
                                checker, lifecycle, lifecycle_codex, "verify", 0,
                                "installed_synced")
             assert initial["diverged"] == []
-            target = lifecycle / HOOKS / "hooks.json"
+            target = lifecycle / HOOKS / "codex-hooks.json"
             target.write_bytes(target.read_bytes() + b"\npost-install mutation\n")
             report = run_case("TEST-022 negative lifecycle detects later mutation",
                               args.runtime, checker, lifecycle, lifecycle_codex,
                               "verify", 1, "installed_drifted")
-            expected_one = report_entry("file", (HOOKS / "hooks.json").as_posix(),
-                                        (HOOKS / "hooks.json").as_posix(), "modified",
-                                        target.read_bytes(), (REPO / HOOKS / "hooks.json").read_bytes())
+            expected_one = report_entry("file", (HOOKS / "codex-hooks.json").as_posix(),
+                                        (HOOKS / "codex-hooks.json").as_posix(), "modified",
+                                        target.read_bytes(), (REPO / HOOKS / "codex-hooks.json").read_bytes())
             assert report["diverged"] == [expected_one]
         except Exception as exc:
             failures.append(f"negative-lifecycle: {exc}")

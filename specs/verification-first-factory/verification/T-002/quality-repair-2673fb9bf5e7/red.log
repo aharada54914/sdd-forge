@@ -1,0 +1,108 @@
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✖ allows documentation and quoted examples of inline lint directives without opening an OQ (168.527209ms)
+  ✖ reports added lint directives in source comments with a persisted OQ (165.950625ms)
+✖ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (334.881084ms)
+ℹ tests 2
+ℹ suites 1
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 365.686167
+
+✖ failing tests:
+
+test at tests/v2-spec-drift.test.mjs:409:3
+✖ allows documentation and quoted examples of inline lint directives without opening an OQ (168.527209ms)
+  AssertionError [ERR_ASSERTION]: {
+    "schema": "sdd-anti-tamper/v1",
+    "status": "TAMPER_DETECTED",
+    "baseRef": "HEAD",
+    "checkedFilesCount": 2,
+    "openQuestion": {
+      "id": "OQ-001",
+      "path": "reports/verification/demo/anti-tampering/OQ-001.json"
+    },
+    "violations": [
+      {
+        "code": "LINT_DISABLE_ADDED",
+        "path": "README.md",
+        "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: The sdd-lint-disable directive is forbidden."
+      },
+      {
+        "code": "LINT_DISABLE_ADDED",
+        "path": "README.md",
+        "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: // sdd-lint-disable example"
+      },
+      {
+        "code": "LINT_DISABLE_ADDED",
+        "path": "tests/sample.test.mjs",
+        "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: const inline = \"// sdd-lint-disable example\";"
+      },
+      {
+        "code": "LINT_DISABLE_ADDED",
+        "path": "tests/sample.test.mjs",
+        "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: const block = '/* sdd-lint-disable example */';"
+      },
+      {
+        "code": "LINT_DISABLE_ADDED",
+        "path": "tests/sample.test.mjs",
+        "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: // sdd-lint-disable example"
+      },
+      {
+        "code": "LINT_DISABLE_ADDED",
+        "path": "tests/sample.test.mjs",
+        "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: // Explain the sdd-lint-disable directive."
+      }
+    ]
+  }
+  
+  
+  4 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:425:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at node:internal/test_runner/test:1516:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 4,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-spec-drift.test.mjs:430:3
+✖ reports added lint directives in source comments with a persisted OQ (165.950625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  -   'tests/extra.py',
+  -   'tests/extra.ts',
+      'tests/sample.test.mjs'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:445:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Promise.all (index 1)
+      at async Suite.run (node:internal/test_runner/test:1518:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'tests/sample.test.mjs' ],
+    expected: [ 'tests/extra.py', 'tests/extra.ts', 'tests/sample.test.mjs' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

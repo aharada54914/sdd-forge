@@ -1,0 +1,145 @@
+{
+  "candidate": "0091c0ca81e7dd3646c81244a8ec89eb8f19c189",
+  "pr": 976,
+  "runs": [
+    {
+      "id": 45758640992,
+      "name": "Test (SDD Forge v2)",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45758640992",
+      "jobs": [
+        {
+          "id": 139703156984,
+          "name": "installers (macos-latest)",
+          "started": "2026-11-26T04:59:32Z",
+          "ended": "2026-11-26T05:04:37Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139703157176,
+          "name": "installers (ubuntu-latest)",
+          "started": "2026-11-26T04:59:32Z",
+          "ended": "2026-11-26T05:01:20Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139703157191,
+          "name": "cloud-and-ddd (ubuntu-latest / JST)",
+          "started": "2026-11-26T04:59:32Z",
+          "ended": "2026-11-26T05:09:44Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139703157227,
+          "name": "mcp-tests (ci-mcp)",
+          "started": "2026-11-26T04:59:31Z",
+          "ended": "2026-11-26T04:59:50Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139703157319,
+          "name": "mcp-tests (sdd-forge-mcp)",
+          "started": "2026-11-26T04:59:32Z",
+          "ended": "2026-11-26T04:59:48Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139703157327,
+          "name": "test (macos-latest)",
+          "started": "2026-11-26T04:59:32Z",
+          "ended": "2026-11-26T05:07:01Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139703157365,
+          "name": "mcp-tests (local-env-mcp)",
+          "started": "2026-11-26T04:59:32Z",
+          "ended": "2026-11-26T04:59:57Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139703157420,
+          "name": "test (ubuntu-latest)",
+          "started": "2026-11-26T04:59:32Z",
+          "ended": "2026-11-26T05:02:18Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139703157561,
+          "name": "test (windows-latest)",
+          "started": "2026-11-26T04:59:32Z",
+          "ended": "2026-11-26T05:04:31Z",
+          "outcome": "success"
+        },
+        {
+          "id": 139706718005,
+          "name": "required-checks",
+          "started": "2026-11-26T05:09:47Z",
+          "ended": "2026-11-26T05:09:49Z",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "id": 45758641132,
+      "name": "SDD Guardrails (v2)",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45758641132",
+      "jobs": [
+        {
+          "id": 139703157145,
+          "name": "Lightweight Guardrails & Spec Drift Check",
+          "started": "2026-11-26T04:59:32Z",
+          "ended": "2026-11-26T05:03:27Z",
+          "outcome": "success"
+        }
+      ]
+    }
+  ],
+  "executed_jobs": 11,
+  "started": "2026-11-26T04:59:31Z",
+  "completed": "2026-11-26T05:09:49Z",
+  "span_seconds": 618,
+  "baseline": {
+    "runs": [
+      {
+        "databaseId": 45730069535,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45730069535",
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "a24b0c6b00302445c1f9750b82b55b5b06d33af2"
+      },
+      {
+        "databaseId": 45730069549,
+        "url": "https://github.com/aharada54914/sdd-forge/actions/runs/45730069549",
+        "conclusion": "success",
+        "status": "completed",
+        "headSha": "a24b0c6b00302445c1f9750b82b55b5b06d33af2"
+      }
+    ],
+    "executed_jobs": 11,
+    "completed": true,
+    "all_success": true,
+    "first_started_utc": "2026-11-26T00:37:39Z",
+    "last_completed_utc": "2026-11-26T00:46:32Z",
+    "span_seconds": 533,
+    "longest_job": {
+      "name": "cloud-and-ddd (ubuntu-latest / JST)",
+      "duration_seconds": 518
+    }
+  },
+  "delta_seconds": 85,
+  "threshold_seconds": 120,
+  "within_budget": true,
+  "shadow": {
+    "artifact": 15089245452,
+    "archive_digest": "sha256:10a6e03acb49f9b30280711c3558e9130d6449fd66bac6a434d301ce9a12015a",
+    "report_sha256": "e38b6b6a8054c0ce863686265ae9a8893f239898c365722916b0c50bfd2cc7b3",
+    "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+    "merge": "9b3592dd0fea059e93877d31e07ad4a47895d628",
+    "parents": [
+      "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "0091c0ca81e7dd3646c81244a8ec89eb8f19c189"
+    ],
+    "gitleaks": 0,
+    "semgrep": 0
+  }
+}

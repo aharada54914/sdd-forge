@@ -15,6 +15,8 @@ import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getNextSddCommand, type NextCommandData } from "../../src/next-command.js";
+import { createGuardedIo } from "../../src/path-guard.js";
+import { computeSpecReviewInputsHash } from "../../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
 import type { Result } from "../../src/envelope.js";
 import { resolveRoot } from "../../src/root.js";
 import { makeTempSddRoot, writeFile, type TempSddRoot } from "../test-helpers.js";
@@ -286,7 +288,12 @@ test("done: every Approved task is Done", () => {
     ]));
     const pending = assertOkPhase(getNextSddCommand(tempRoot.root, "feat-done"), "spec-check");
     assert.match(pending.rationale, /NEEDS_FIX/);
-    writeFile(tempRoot.dir, "reports/spec-check/feat-done.md", "- **Verdict**: PASS_WITH_NOTES\n");
+    const specHash = computeSpecReviewInputsHash(createGuardedIo(tempRoot.root), { feature: "feat-done" });
+    writeFile(
+      tempRoot.dir,
+      "reports/spec-check/feat-done.md",
+      `- **Verdict**: PASS_WITH_NOTES\n- **Review-Inputs-SHA256**: ${specHash}\n`,
+    );
     assertOkPhase(getNextSddCommand(tempRoot.root, "feat-done"), "approval-gate");
   } finally {
     tempRoot.cleanup();

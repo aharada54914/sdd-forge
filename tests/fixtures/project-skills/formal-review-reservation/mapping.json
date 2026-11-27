@@ -1,9 +1,9 @@
 {
   "source": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
-  "source_sha256": "f79e5a35a9e6106f3493a57cfda5cb9c3f3d456f9cb925ea5a80971bdc1be0e8",
+  "source_sha256": "51e6bd3fc2704d038903fec9468a5d0873ff7f788394f48f075529cd9ccc50d7",
   "property": "At most one contender with the same pre-reservation ledger hash is accepted.",
   "mapping": {
-    "Acquire": "atomic mkdir identity-ledger.json.lock; failure refuses reservation",
+    "Acquire": "Python os.mkdir of identity-ledger.json.lock; only a successful OS directory creation grants the reservation",
     "Check": "sha256_file ledger equals bound_ledger_sha256 after acquisition",
     "Publish": "jq staged append followed by mv temp_ledger ledger",
     "Release": "rmdir lock and EXIT cleanup"
@@ -22,8 +22,23 @@
     "Windows behavior",
     "entire application correctness"
   ],
-  "previous_source_sha256": "50d1ae0ac38b0e269366af7b993a7fb8453db63c99bd480b1d83215dd10ffd0d",
-  "reservation_tail_sha256": "099073aafef9082cab371bfab889a19afe4e40a3f9d791739ceb820052a4a92c",
-  "mapping_recheck": "Compared with bd94f864: #743 exact quality delivery declaration admission was added/refactored before conditional design/domain paths; no ledger writer, lock, post-lock hash check, staged publish or release changed. The full reservation transaction remains byte-identical (reservation_tail_sha256). Current-source six-test baseline/mutation replay and pinned TLC baseline/negative model are re-run separately in the archived evidence at https://github.com/aharada54914/sdd-forge/tree/78a84dcad51709ee6881eba44ed162369ae048fb/reports/verification/all-features-20261114/inventory/formal-reservation. Scope/assumptions/exclusions unchanged.",
-  "source_sync_commit": "3f5521b01f63570460adf85cc2511cc0143fa98f"
+  "previous_source_sha256": "3aa2fe5b3209a9d1a06692523fbce23eabb7c71fe2e317e18468fedb8d0b761a",
+  "reservation_tail_sha256": "91a91e8728c5ea71d0d86003672c2b0f67b9a60ec0dff33a0eed61f508c74615",
+  "mapping_recheck": "Acquire uses the mkdir syscall result directly, preserving the model's exclusive acquisition on Ubuntu 26.04. The replay holds the winner inside Check until its peer has attempted acquisition and compares critical-section entry, process status and the published ledger record. The mutation removes Acquire and Release and must admit both contenders.",
+  "previous_source_commit": "dc86a706cf3fe3b93ea5d9af3eec885e3290a769",
+  "expected_violated_invariant": "OneAccepted",
+  "sources": [
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+  ],
+  "trace": {
+    "fields": [
+      "accepted"
+    ],
+    "actor_actions": [
+      "Acquire",
+      "Check",
+      "Publish",
+      "Release"
+    ]
+  }
 }

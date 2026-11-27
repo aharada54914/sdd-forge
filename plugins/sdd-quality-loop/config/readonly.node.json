@@ -1,0 +1,16 @@
+{
+  "$schema": "https://nodejs.org/schemas/node-config.json",
+  "description": "Read-only role profile for sdd-doctor and sdd-forge-mcp (ADR-0055). Enforces Node.js Permission Model read-only boundary, disables string code generation and __proto__, and enables read-only portable Compile Cache.",
+  "role": "readonly",
+  "nodeOptions": {
+    "permission": true,
+    "allow-fs-read": ["*"],
+    "disallow-code-generation-from-strings": true,
+    "disable-proto": "throw",
+    "env-file-if-exists": ".sdd/env"
+  },
+  "env": {
+    "NODE_COMPILE_CACHE_PORTABLE": "1",
+    "NODE_COMPILE_CACHE_READONLY": "1"
+  }
+}

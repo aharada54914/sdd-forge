@@ -16,6 +16,7 @@
  *   node sync-knowledge.mjs extract --feature <slug> [--root <dir>] [--write]
  */
 import fs from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import {
   assertValidFeatureName,
@@ -200,6 +201,125 @@ export function extractKnowledgeProposal({ projectRoot = null, feature, write = 
   };
 }
 
+function countKnowledgeSources(io, start) {
+  const pending = [start];
+  const seen = new Set();
+  let files = 0;
+  let entries = 0;
+  while (pending.length) {
+    const dir = pending.pop();
+    const real = io.canonicalRelPath(dir);
+    if (real === null || seen.has(real) || (real !== start && !real.startsWith(start + '/'))) continue;
+    seen.add(real);
+    for (const entry of io.listDir(dir)) {
+      if (entry.isDirectory) pending.push(dir + '/' + entry.name);
+      else if (entry.isFile && /\.(md|json|ya?ml)$/i.test(entry.name)) {
+        const content = io.readText(dir + '/' + entry.name);
+        if (content === null) continue;
+        files++;
+        const records = start === '.learnings' ? /^## \[(?:ERR|LRN|FEAT)-[^\]]+\]/gm : /^(?:#{1,3} | *- id: )/gm;
+        entries += [...content.matchAll(records)].length;
+      }
+    }
+  }
+  return { files, entries };
+}
+
+function writeMetaAnalysis(root, data) {
+  const reports = path.join(fs.realpathSync(root), 'reports');
+  fs.mkdirSync(reports, { recursive: true });
+  if (fs.realpathSync(reports) !== reports) throw new Error('reports must be a project directory');
+  const tmp = path.join(reports, '.spec-meta-analysis-' + randomUUID());
+  try {
+    fs.writeFileSync(tmp, data, { flag: 'wx' });
+    fs.renameSync(tmp, path.join(reports, 'spec-meta-analysis.json'));
+  } finally {
+    fs.rmSync(tmp, { force: true });
+  }
+}
+
+export function runMetaAnalyze({ projectRoot = null, feature = null } = {}) {
+  const root = resolveExplicitOrAutoRoot(projectRoot);
+  const io = createFsReadonlyIo(root);
+
+  const driftEvents = [];
+  const driftRaw = io.readText('.sdd/drift-events.jsonl');
+  if (driftRaw) {
+    for (const line of driftRaw.split(/\r?\n/)) {
+      if (!line.trim()) continue;
+      try {
+        const event = JSON.parse(line);
+        if (event && typeof event === 'object') driftEvents.push(event);
+      } catch {
+        // skip malformed lines
+      }
+    }
+  }
+
+  const denials = driftEvents.filter(
+    (e) => e.decision === 'deny' || e.action === 'strict_deny' || e.action === 'confirm_soft_deny',
+  );
+  const byReason = new Map();
+  for (const d of denials) {
+    const key = String(d.reason || d.action || 'unspecified');
+    byReason.set(key, (byReason.get(key) || 0) + 1);
+  }
+  const recurringTriggers = [...byReason.entries()]
+    .filter(([, count]) => count >= 2)
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([reason, count]) => ({ reason, count }));
+
+  if (feature) assertValidFeatureName(feature);
+  const features = feature ? [feature] : io.listDir('specs')
+    .filter(entry => entry.isDirectory && io.exists('specs/' + entry.name + '/requirements.md'))
+    .map(entry => entry.name);
+  let provisionalOqs = 0;
+  let confirmedOqs = 0;
+  for (const slug of features) {
+    const view = buildDecisionViewDataCore(io, { feature: slug });
+    provisionalOqs += view.counts.openQuestionsProvisional;
+    confirmedOqs += view.openQuestions.filter(q => q.confirmed).length;
+  }
+  const learnings = countKnowledgeSources(io, '.learnings');
+  const knowledge = countKnowledgeSources(io, 'sdd/knowledge');
+  const inputs = {
+    learningFiles: learnings.files,
+    knowledgeFiles: knowledge.files,
+    features: features.length,
+  };
+
+  const reframingRecommended = recurringTriggers.length > 0 || provisionalOqs >= 3;
+  const recommendations = [];
+  if (recurringTriggers.length > 0) {
+    recommendations.push(
+      `同一ガード拒否が 2 回以上発生しています（${recurringTriggers.map((r) => `${r.reason} x${r.count}`).join(', ')}）。プロンプト修正ではなくルール・仕様の再定義（Reframing）または決定論ガード更新を検討してください。`,
+    );
+  }
+  if (provisionalOqs >= 3) {
+    recommendations.push(
+      `未確定事項（Provisional OQ）が ${provisionalOqs} 件残っています。実装前に問題の前提・境界を Reframing して OQ を確定してください。`,
+    );
+  }
+  if (recommendations.length === 0) {
+    recommendations.push('現時点で反復的なガード拒否や未確定論点の滞留は検出されていません。');
+  }
+
+  return {
+    schema: 'sdd-meta-analyze/v1',
+    feature: feature || null,
+    inputs,
+    learningRecords: learnings.entries,
+    knowledgeHeadingsAndRules: knowledge.entries,
+    confirmedOqs,
+    driftEventCount: driftEvents.length,
+    denialCount: denials.length,
+    recurringTriggers,
+    provisionalOqs,
+    reframingRecommended,
+    recommendations,
+  };
+}
+
 function parseArgs(argv) {
   const cmd = argv[0] || '';
   const opts = { cmd, root: null, feature: null, write: false };
@@ -235,8 +355,18 @@ if (isMain) {
       }
       process.exit(0);
     }
+    if (opts.cmd === 'meta-analyze') {
+      const res = runMetaAnalyze({
+        projectRoot: opts.root,
+        feature: opts.feature,
+      });
+      const json = `${JSON.stringify(res, null, 2)}\n`;
+      writeMetaAnalysis(resolveExplicitOrAutoRoot(opts.root), json);
+      process.stdout.write(json);
+      process.exit(0);
+    }
     process.stderr.write(
-      'Usage: node sync-knowledge.mjs <init|extract --feature <slug> [--write]> [--root <dir>]\n',
+      'Usage: node sync-knowledge.mjs <init|extract --feature <slug> [--write]|meta-analyze [--feature <slug>]> [--root <dir>]\n',
     );
     process.exit(2);
   } catch (err) {

@@ -358,3 +358,775 @@ describe('#972 re-review: text added to an Approval line is drift', () => {
     assert.equal(res.status, 'UNDECLARED_DRIFT');
   });
 });
+
+describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest', () => {
+  function initGitRepoWithTests() {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-anti-tamper-'));
+    const git = (...args) =>
+      spawnSync('git', args, { cwd: dir, encoding: 'utf8', shell: false });
+    assert.equal(git('init').status, 0);
+    assert.equal(git('config', 'user.email', 'test@example.com').status, 0);
+    assert.equal(git('config', 'user.name', 'Test User').status, 0);
+
+    fs.mkdirSync(path.join(dir, 'tests'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'specs', 'demo', 'formal'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'sdd'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'tests', 'sample.test.mjs'), 'import { it } from "node:test";\nit("ok", () => {});\n', 'utf8');
+    fs.writeFileSync(path.join(dir, 'specs', 'demo', 'formal', 'Model.tla'), '---- MODULE Model ----\nInv == x >= 0\n====\n', 'utf8');
+    fs.writeFileSync(path.join(dir, 'sdd', 'approved-test-retirements.json'), JSON.stringify({ schema: 'sdd-approved-test-retirements/v1', retirements: [] }, null, 2), 'utf8');
+    assert.equal(git('add', '.').status, 0);
+    assert.equal(git('commit', '-m', 'init').status, 0);
+    return { dir, git };
+  }
+
+  it('exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening', () => {
+    const { dir } = initGitRepoWithTests();
+    const clean = spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir], { encoding: 'utf8' });
+    assert.equal(clean.status, 0, clean.stderr);
+    assert.equal(JSON.parse(clean.stdout).status, 'CLEAN');
+
+    // Construct markers dynamically (WFI-012)
+    const skipCall = ['it', '.skip("tampered", () => {});'].join('');
+    const disableComment = ['// ', 'sdd-lint', '-disable next-line'].join('');
+    fs.writeFileSync(path.join(dir, 'tests', 'sample.test.mjs'), `import { it } from "node:test";\n${skipCall}\n${disableComment}\n`, 'utf8');
+    fs.writeFileSync(path.join(dir, 'specs', 'demo', 'formal', 'Model.tla'), '---- MODULE Model ----\nInv == TRUE\n====\n', 'utf8');
+
+    const tampered = spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir], { encoding: 'utf8' });
+    assert.equal(tampered.status, 4);
+    const report = JSON.parse(tampered.stdout);
+    assert.equal(report.status, 'TAMPER_DETECTED');
+    const codes = new Set(report.violations.map((v) => v.code));
+    assert.ok(codes.has('TEST_SKIP_ADDED'), JSON.stringify(report.violations));
+    assert.ok(codes.has('LINT_DISABLE_ADDED'), JSON.stringify(report.violations));
+    assert.ok(codes.has('FORMAL_INVARIANT_WEAKENED'), JSON.stringify(report.violations));
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  function runAntiTamper(dir) {
+    return spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
+  }
+
+  // Commit the files, remove them in the worktree, then authorize the exact
+  // detected paths and blobs on the baseline. Controls stay deleted throughout.
+  function checkRetirements({ dir, git }, tests, controls) {
+    const files = [...tests, ...controls];
+    assert.equal(git('add', '--', ...files).status, 0);
+    assert.equal(git('commit', '-m', 'record discovery fixtures').status, 0);
+    const retirements = tests.map(file => ({
+      path: file, git_blob_sha: git('rev-parse', 'HEAD:' + file).stdout.trim(),
+      reason: 'covered by replacement', approved_by: 'fixture-owner',
+    }));
+    for (const file of files) fs.unlinkSync(path.join(dir, file));
+    const rejected = runAntiTamper(dir);
+    assert.equal(rejected.status, 4, rejected.stderr || rejected.stdout);
+    const report = JSON.parse(rejected.stdout);
+    assert.equal(report.status, 'TAMPER_DETECTED');
+    const expected = [...tests].sort().map(path => ({ code: 'UNAUTHORIZED_TEST_DELETION', path }));
+    assert.deepEqual(report.violations.map(({ code, path }) => ({ code, path })), expected);
+    const question = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
+    assert.deepEqual(question.violations, expected);
+
+    const manifest = 'sdd/approved-test-retirements.json';
+    fs.writeFileSync(path.join(dir, manifest), JSON.stringify({ schema: 'sdd-approved-test-retirements/v1', retirements }));
+    assert.equal(git('add', manifest).status, 0);
+    assert.equal(git('commit', '-m', 'authorize fixture retirements').status, 0);
+    const accepted = runAntiTamper(dir);
+    assert.equal(accepted.status, 0, accepted.stderr || accepted.stdout);
+    const clean = JSON.parse(accepted.stdout);
+    assert.equal(clean.status, 'CLEAN');
+    assert.deepEqual(clean.violations, []);
+    assert.equal(clean.openQuestion, undefined);
+  }
+
+  it('checks retirements of Python modules found by default unittest discovery', (t) => {
+    const repo = initGitRepoWithTests();
+    t.after(() => fs.rmSync(repo.dir, { recursive: true, force: true }));
+    const ordinary = ['test_checkout.py', 'testTotals.py'];
+    const mixedCase = ['TestInvoice.py', 'tEsTBalance.py', 'testRefund.Py', 'TeSTCredit.PY'];
+    const controls = ['checkout.py', 'test-data.py', 'Test-Currency.py', 'testPrice.pyi', 'TeſtLabel.py'];
+    const files = [...ordinary, ...mixedCase, ...controls];
+    for (const [index, file] of files.entries()) {
+      fs.writeFileSync(path.join(repo.dir, file),
+        'import unittest\nclass Checkout(unittest.TestCase):\n    def test_amount_' + index + '(self):\n        self.assertEqual(2 + 2, 4)\n');
+    }
+    const python = process.platform === 'win32' ? 'python' : 'python3';
+    const native = spawnSync(python, ['-B', '-m', 'unittest', 'discover', '-v'], { cwd: repo.dir, encoding: 'utf8' });
+    assert.equal(native.status, 0, native.error?.message || native.stderr);
+    const identifiers = new Set([...native.stderr.matchAll(/\btest_amount_(\d+)\b/g)].map(match => Number(match[1])));
+    const discovered = files.filter((_, index) => identifiers.has(index));
+    t.diagnostic(`${process.platform} unittest discovered ${discovered.join(', ')}`);
+    assert.deepEqual(discovered, process.platform === 'win32' ? [...ordinary, ...mixedCase] : ordinary);
+    checkRetirements(repo, discovered, files.filter(file => !discovered.includes(file)));
+  });
+
+  it('checks retirements of files found by default Node test discovery', (t) => {
+    const repo = initGitRepoWithTests();
+    t.after(() => fs.rmSync(repo.dir, { recursive: true, force: true }));
+    const tests = ['packages/catalog/test/rounding.mjs', 'packages/catalog/test/units/cents.mjs',
+      'test.mjs', 'packages/catalog/test-price.mjs', 'packages/catalog/price-test.mjs'];
+    const controls = ['packages/catalog/contest/rounding.mjs', 'packages/catalog/test/notes.txt',
+      'packages/catalog/test/component.jsx', 'packages/catalog/test/component.tsx'];
+    // Node 20's directory walk and newer Node versions' default glob differ.
+    // Ask the installed runner which of these files it actually executes.
+    const runtimeCases = ['lib/test/demo.CJS', 'tools/TEST/demo.cjs', 'app/TEST-price.CJS',
+      'app/TEST.JS', 'app/cost-TEST.CJS', '.internal/test/money.cjs',
+      'types/test/price.ts', 'types/test/amount.cts', 'types/test/currency.mts'];
+    const files = [...tests, ...controls, ...runtimeCases];
+    for (const [index, file] of files.entries()) {
+      const fullPath = path.join(repo.dir, file);
+      fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+      fs.writeFileSync(fullPath, 'import("node:test").then(({ test }) => test("catalog [' + index + ']", () => {}));\n');
+    }
+    const env = { ...process.env };
+    delete env.NODE_TEST_CONTEXT;
+    const native = spawnSync(process.execPath, ['--test', '--test-reporter=tap'], { cwd: repo.dir, encoding: 'utf8', env });
+    assert.equal(native.status, 0, native.stderr || native.stdout);
+    const discovered = files.filter((_, index) => native.stdout.includes('catalog [' + index + ']'));
+    assert.ok(tests.every(file => discovered.includes(file)), native.stdout);
+    assert.ok(controls.every(file => !discovered.includes(file)), native.stdout);
+    checkRetirements(repo, discovered, files.filter(file => !discovered.includes(file)));
+  });
+
+  it('checks retirements using exact directory segments in literal Git paths', (t) => {
+    const repo = initGitRepoWithTests();
+    t.after(() => fs.rmSync(repo.dir, { recursive: true, force: true }));
+    const tests = ['test/amount.mjs'];
+    const controls = [' test/amount.mjs'];
+    if (process.platform !== 'win32') controls.push('src\\tests\\amount.mjs');
+    for (const file of [...tests, ...controls]) {
+      const fullPath = path.join(repo.dir, file);
+      fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+      fs.writeFileSync(fullPath, 'export const amount = 1;\n');
+    }
+    checkRetirements(repo, tests, controls);
+  });
+
+  it('allows documentation and quoted examples of inline lint directives without opening an OQ', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const marker = ['sdd-lint', '-disable'].join('');
+    fs.writeFileSync(path.join(dir, 'README.md'), [
+      'The ' + marker + ' directive is forbidden.',
+      '```js', '// ' + marker + ' example', '```',
+    ].join('\n'));
+    assert.equal(git('add', 'README.md').status, 0);
+    fs.appendFileSync(path.join(dir, 'tests/sample.test.mjs'), [
+      'const inline = "// ' + marker + ' example";',
+      "const block = '/* " + marker + " example */';",
+      'const multiline = `', '// ' + marker + ' example', '`;',
+      '// Explain the ' + marker + ' directive.',
+    ].join('\n'));
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 0, result.stdout);
+    assert.deepEqual(JSON.parse(result.stdout).violations, []);
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+  });
+
+  const shellMarker = ['# sdd-lint', '-disable'].join('');
+  const helpExample = "#!/bin/sh\ncat <<'HELP'\n" + shellMarker + ' example-rule\nHELP\n';
+
+  it('accepts the shell here-document help example without a diagnostic or OQ', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    fs.writeFileSync(path.join(dir, 'help.sh'), helpExample);
+    const shown = spawnSync('sh', ['help.sh'], { cwd: dir, encoding: 'utf8' });
+    assert.equal(shown.status, 0, shown.stderr);
+    assert.equal(shown.stdout, shellMarker + ' example-rule\n');
+
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 0, result.stdout);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.status, 'CLEAN');
+    assert.deepEqual(report.violations, []);
+    assert.equal(report.openQuestion, undefined);
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+  });
+
+  it('distinguishes help from active comments in nested shell command substitutions', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'help.sh');
+    const example = shellMarker + ' shown-rule';
+    const document = ['Use " for inches.', example, 'HELP'];
+    const script = [
+      '#!/bin/sh',
+      'help_text="$(cat <<\'HELP\'', ...document, ')"',
+      'printf \'%s\\n\' "$help_text"',
+      'printf \'%s\\n\' "$(printf \'%s\' "$(cat <<-\\HELP',
+      ...document.map(line => '\t' + line), ')")"',
+      "help_text=$( ( cat <<'HELP'", ...document, ') )',
+      'printf \'%s\\n\' "$help_text"',
+      'help_text="$(case help in help) cat <<\'HELP\'', ...document, ';; esac)"',
+      'printf \'%s\\n\' "$help_text"',
+      // Two pending redirects belong to different command substitutions.
+      'cat 3<<OUTER "$(printf \'/dev/%s\' "$(cat <<INNER',
+      'null', 'INNER', ')")"', example, 'OUTER',
+      ''
+    ].join('\n');
+    const expected = (document.slice(0, -1).join('\n') + '\n').repeat(4);
+    fs.writeFileSync(file, script);
+    // Older macOS /bin/bash rejects the unpaired quote in this otherwise
+    // literal body. The CLI assertions below apply on every host.
+    const shells = [];
+    if (spawnSync('bash', ['-c', 'v="$(cat <<EOF\n"\nEOF\n)"']).status === 0) shells.push('bash');
+    if (!spawnSync('dash', ['-c', ':']).error) shells.push('dash');
+    for (const shell of shells) {
+      const shown = spawnSync(shell, ['help.sh'], { cwd: dir, encoding: 'utf8' });
+      assert.equal(shown.status, 0, shown.stderr);
+      assert.equal(shown.stderr, '');
+      assert.equal(shown.stdout, expected);
+    }
+    const clean = runAntiTamper(dir);
+    assert.equal(clean.status, 0, clean.stderr + clean.stdout);
+    assert.deepEqual(JSON.parse(clean.stdout).violations, []);
+    assert.equal(JSON.parse(clean.stdout).status, 'CLEAN');
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+
+    const activeSource = script.replace('cat <<', 'true ' + shellMarker + ' inner-rule\ncat <<')
+      + shellMarker + ' outer-rule\n';
+    fs.writeFileSync(file, activeSource);
+    const active = runAntiTamper(dir);
+    assert.equal(active.status, 4, active.stdout);
+    const report = JSON.parse(active.stdout);
+    assert.equal(report.status, 'TAMPER_DETECTED');
+    assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner-rule', ' outer-rule']);
+    assert.ok(report.violations.every(v => v.code === 'LINT_DISABLE_ADDED' && v.path === 'help.sh'));
+    const question = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
+    assert.deepEqual(question.violations, report.violations.map(({ code, path }) => ({ code, path })));
+  });
+
+  it('parses compound shell grammar around captured help and its actual comments', (t) => {
+    for (const [shell, prefix, suffix] of [
+      ['bash', 'time case help in', 'esac'],
+      ['dash', 'for arg do case "$arg" in', 'esac; done'],
+    ]) {
+      const { dir } = initGitRepoWithTests();
+      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+      const file = path.join(dir, 'help.sh');
+      const body = 'Use " for inches.\n' + shellMarker + ' shown';
+      const script = [
+        '#!/bin/' + shell, 'set -- help', 'value="$(' + prefix,
+        "help) cat <<'HELP'", body, 'HELP', ';;', suffix, ')"',
+        'printf \'%s\\n\' "$value"', ''
+      ].join('\n');
+      // System Bash 3.2 needs balanced parentheses in the case arm and
+      // balanced quotes in the captured here-document. Keep the original
+      // native oracle on newer shells and the original CLI fixture everywhere.
+      const oldBash = shell === 'bash' && spawnSync(shell, ['-c', '(( BASH_VERSINFO[0] <= 3 ))']).status === 0;
+      const nativeBody = oldBash ? body.replace('"', '"inches"') : body;
+      const nativeScript = oldBash ? script.replace('help)', '(help)').replace(body, nativeBody) : script;
+      const native = spawnSync(shell, [], { cwd: dir, input: nativeScript, encoding: 'utf8' });
+      if (native.error?.code !== 'ENOENT') {
+        assert.equal(native.status, 0, native.stderr);
+        assert.equal(native.stdout, nativeBody + '\n');
+      }
+      fs.writeFileSync(file, script + ': > would-run\n');
+      const clean = runAntiTamper(dir);
+      assert.equal(clean.status, 0, clean.stderr + clean.stdout);
+      assert.deepEqual(JSON.parse(clean.stdout).violations, []);
+      assert.equal(fs.existsSync(path.join(dir, 'would-run')), false);
+      assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+
+      fs.writeFileSync(file, script.replace(';;', shellMarker + ' inner\n;;')
+        + 'printf \'%s\\n\' \'' + shellMarker + ' quoted\' \\#literal\n' + shellMarker + ' after\n');
+      const detected = runAntiTamper(dir);
+      assert.equal(detected.status, 4, detected.stdout + detected.stderr);
+      const { violations, openQuestion } = JSON.parse(detected.stdout);
+      assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner', ' after']);
+      const oq = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
+      assert.deepEqual(oq.violations, violations.map(({ code, path }) => ({ code, path })));
+    }
+  });
+
+  for (const [name, header, footer] of [
+    ['short for', 'for item (one) ', ''],
+    ['brace for', 'for item in one; { ', '}'],
+    ['newline brace for', 'for item in one\n{ ', '}'],
+    ['literal brace in short for', 'for item in {; ', ''],
+    ['quoted brace in short for', "for item in '}'; ", ''],
+    ['parenthesized brace for', 'for v (one two) { ', '}'],
+    ['short in for', 'for item in one; ', ''],
+    ['short for in an outer block', '{ for item in one; ', '}'],
+    ['repeat do', 'repeat 1 do ', 'done'],
+    ['repeat', 'repeat 1 { ', '}'],
+  ]) {
+    it('distinguishes help and active comments in a native zsh ' + name + ' loop', (t) => {
+      const { dir } = initGitRepoWithTests();
+      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+      // Test both extension dispatch and an explicit zsh shebang on a .sh file.
+      const file = name === 'repeat' ? 'help.sh' : 'help.zsh';
+      const script = [
+        ...(file.endsWith('.sh') ? ['#!/usr/bin/env zsh'] : []),
+        header + "print -r -- '" + shellMarker + " quoted'" + (footer ? '; ' + footer : ''),
+        header + "cat <<'HELP'", shellMarker + ' shown', 'HELP', footer, '',
+      ].join('\n');
+      const native = spawnSync('zsh', ['-f'], { input: script, encoding: 'utf8' });
+      if (native.error?.code !== 'ENOENT') {
+        assert.equal(native.status, 0, native.stderr);
+        const iterations = name === 'parenthesized brace for' ? 2 : 1;
+        assert.equal(native.stdout, (shellMarker + ' quoted\n').repeat(iterations) + (shellMarker + ' shown\n').repeat(iterations));
+      }
+      const target = path.join(dir, file);
+      fs.writeFileSync(target, script + ': > would-run\n');
+      const clean = runAntiTamper(dir);
+      assert.equal(clean.status, 0, clean.stderr + clean.stdout);
+      assert.equal(JSON.parse(clean.stdout).status, 'CLEAN');
+      assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+      assert.equal(fs.existsSync(path.join(dir, 'would-run')), false);
+
+      fs.writeFileSync(target, script.replace("cat <<'HELP'", "cat <<'HELP' " + shellMarker + ' inner')
+        + shellMarker + ' after\n');
+      const flagged = runAntiTamper(dir);
+      assert.equal(flagged.status, 4, flagged.stderr + flagged.stdout);
+      const report = JSON.parse(flagged.stdout);
+      assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner', ' after']);
+      const oq = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
+      assert.deepEqual(oq.violations, [{ code: 'LINT_DISABLE_ADDED', path: file }, { code: 'LINT_DISABLE_ADDED', path: file }]);
+    });
+  }
+
+  for (const [name, ending] of [
+    ['in the word list', ' }'],
+    ['after a semicolon', '; }'],
+    ['after a newline', '\n}'],
+  ]) {
+    it('rejects a zsh for list with an unmatched closing brace ' + name, (t) => {
+      const { dir } = initGitRepoWithTests();
+      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+      const file = path.join(dir, 'help.zsh');
+      const script = "for item in a b { print -r -- '" + shellMarker + " shown'" + ending + '\n';
+      const native = spawnSync('zsh', ['-fn'], { input: script, encoding: 'utf8' });
+      if (native.error?.code !== 'ENOENT') assert.equal(native.status, 1, native.stderr);
+      fs.writeFileSync(file, script);
+      const result = runAntiTamper(dir);
+      assert.equal(result.status, 2, result.stderr + result.stdout);
+      assert.match(result.stderr, /Cannot parse shell source help\.zsh/);
+      assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+    });
+  }
+
+  it('keeps repeat an ordinary command in Bash and POSIX shells', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    for (const shell of ['bash', 'dash']) {
+      fs.writeFileSync(path.join(dir, 'help.sh'), '#!/bin/' + shell + "\nrepeat() { printf '%s\\n' \"$1\"; }\n"
+        + "repeat '" + shellMarker + " quoted' " + shellMarker + ' active\n');
+      const result = runAntiTamper(dir);
+      assert.equal(result.status, 4, result.stderr + result.stdout);
+      assert.deepEqual(JSON.parse(result.stdout).violations.map(v => v.detail.split(shellMarker).at(-1)), [' active']);
+    }
+  });
+
+  it('matches the native sh delimiter when both dialect spellings occur in the body', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'help.sh');
+    // The other dialect's terminator also forms a harmless command after the document.
+    fs.writeFileSync(file, ["#!/bin/sh", 'true=:', "cat <<$'true'", '$true',
+      shellMarker + ' between', 'true', shellMarker + ' after', ''].join('\n'));
+    const native = spawnSync('/bin/sh', ['help.sh'], { cwd: dir, encoding: 'utf8' });
+    if (!native.error) assert.equal(native.status, 0, native.stderr);
+    const betweenIsData = native.error ? true : native.stdout.includes(shellMarker + ' between');
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 4, result.stdout + result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout).violations.map(v => v.detail.split(shellMarker).at(-1)),
+      betweenIsData ? [' after'] : [' between', ' after']);
+  });
+
+  it('reports a tool error for invalid shell syntax and an unavailable or damaged parser', (t) => {
+    const { dir } = initGitRepoWithTests();
+    const copy = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-parser-copy-'));
+    t.after(() => { for (const temp of [dir, copy]) fs.rmSync(temp, { recursive: true, force: true }); });
+    const file = path.join(dir, 'help.sh');
+    fs.writeFileSync(file, "#!/bin/bash\necho 'unclosed\n" + shellMarker + ' sample\n');
+    const invalid = runAntiTamper(dir);
+    assert.equal(invalid.status, 2, invalid.stdout + invalid.stderr);
+    assert.match(invalid.stderr, /Cannot parse shell source help\.sh/);
+
+    for (const invalidZsh of ["repeat 1 { print 'unclosed", 'for v (one two', 'repeat 1 do print ok']) {
+      fs.writeFileSync(file, '#!/bin/zsh\n' + invalidZsh + '\n' + shellMarker + ' active\n');
+      const invalid = runAntiTamper(dir);
+      assert.equal(invalid.status, 2, invalid.stdout + invalid.stderr);
+      assert.match(invalid.stderr, /Cannot parse shell source help\.sh/);
+    }
+    fs.cpSync(path.dirname(CHECK_SCRIPT), copy, { recursive: true });
+    // This valid zsh loop still requires the authenticated parser artifact.
+    fs.writeFileSync(file, '#!/bin/zsh\nfor v (one two) { print ok; }\n' + shellMarker + ' active\n');
+    const asset = path.join(copy, 'shell-parser/parser.wasm.gz');
+    for (const damaged of [true, false]) {
+      if (damaged) fs.appendFileSync(asset, 'damaged');
+      else fs.unlinkSync(asset);
+      const result = spawnSync(process.execPath, [path.join(copy, path.basename(CHECK_SCRIPT)),
+        '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
+      assert.equal(result.status, 2, result.stdout + result.stderr);
+      assert.match(result.stderr, /parser\.wasm\.gz/);
+      assert.doesNotMatch(result.stdout, /CLEAN/);
+    }
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+  });
+
+  it('matches Bash dollar-quoted here-document delimiters and preserves the following directive', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const cases = [
+      ["$'HELP'", 'HELP'],
+      [String.raw`PRE$'\x48\105'LP`, 'PREHELP'],
+      [String.raw`$'single\'quote'$"END"`, "single'quoteEND"],
+      [String.raw`$'A\t\cI\102\x43'`, 'A\t\tBC'],
+      [String.raw`$'\xC3'$'\xA9'`, 'é'],
+      [String.raw`$'A\0tail'B`, 'AB'],
+      [String.raw`$"DOC"$'\\'END`, 'DOC\\END'],
+      [String.raw`\$'PLAIN'`, '$PLAIN'],
+    ];
+    const file = path.join(dir, 'help.bash');
+    const body = shellMarker + ' shown-rule';
+    fs.writeFileSync(file, cases.map(([word, end]) => ['cat <<' + word, body, end, ''].join('\n')).join(''));
+    const shown = spawnSync('bash', ['--noprofile', '--norc', 'help.bash'], {
+      cwd: dir, encoding: 'utf8', env: { ...process.env, BASH_ENV: '', LC_ALL: 'C' },
+    });
+    assert.equal(shown.status, 0, shown.stderr);
+    assert.equal(shown.stderr, '');
+    assert.equal(shown.stdout, (body + '\n').repeat(cases.length));
+
+    const clean = runAntiTamper(dir);
+    assert.equal(clean.status, 0, clean.stderr + clean.stdout);
+    const report = JSON.parse(clean.stdout);
+    assert.equal(report.status, 'CLEAN');
+    assert.deepEqual(report.violations, []);
+    assert.equal(report.openQuestion, undefined);
+    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+
+    fs.appendFileSync(file, shellMarker + ' active-rule\n');
+    const active = runAntiTamper(dir);
+    assert.equal(active.status, 4, active.stdout);
+    const { status, violations, openQuestion } = JSON.parse(active.stdout);
+    assert.equal(status, 'TAMPER_DETECTED');
+    assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' active-rule']);
+    const question = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
+    assert.deepEqual(question.violations, [{ code: 'LINT_DISABLE_ADDED', path: 'help.bash' }]);
+    assert.equal(question.id, openQuestion.id);
+  });
+
+  it('uses the declared shell and preserves a literal-dollar terminator in generic sh', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'help.sh');
+    for (const [shebang, bodyLine, end] of [
+      ['#!/usr/bin/env bash', '$HELP', 'HELP'],
+      ['#!/bin/dash', 'HELP', '$HELP'],
+      ['#!/bin/sh', 'example', '$HELP'],
+    ]) {
+      fs.writeFileSync(file, [shebang, "cat <<$'HELP'", bodyLine, shellMarker + ' shown', end, shellMarker + ' active', ''].join('\n'));
+      const result = runAntiTamper(dir);
+      assert.equal(result.status, 4, result.stdout);
+      const report = JSON.parse(result.stdout);
+      assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' active']);
+      assert.ok(fs.existsSync(path.join(dir, report.openQuestion.path)));
+    }
+  });
+
+  it('reports only active shell comments before, beside and after queued here-documents', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'help.bash');
+    // The existing redirect is outside the added-line hunk.
+    fs.writeFileSync(file, "cat <<'HELP'\nunchanged\nHELP\n");
+    assert.equal(git('add', 'help.bash').status, 0);
+    assert.equal(git('commit', '-m', 'initial shell help').status, 0);
+    fs.writeFileSync(file, [
+      "cat <<'HELP'", shellMarker + ' existing-body', 'unchanged', 'HELP',
+      "printf '%s' '<<FAKE' \\#literal # <<FAKE",
+      'echo "$((1 << 2))" <<<"here-string"; (( number = 1 << 3 ))',
+      shellMarker + ' before',
+      'cat <<FIRST 3<<-"SEC OND" 4<<\\LAST ' + shellMarker + ' beside',
+      shellMarker + ' first-body', "unmatched ' in help text", 'FIRST',
+      '\t' + shellMarker + ' second-body', '\tSEC OND',
+      shellMarker + ' last-body', 'LAST',
+      'true ' + shellMarker + ' after', '',
+    ].join('\n'));
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 4, result.stdout);
+    const { status, violations, openQuestion } = JSON.parse(result.stdout);
+    assert.equal(status, 'TAMPER_DETECTED');
+    assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' before', ' beside', ' after']);
+    assert.ok(violations.every(v => v.code === 'LINT_DISABLE_ADDED' && v.path === 'help.bash'));
+    const question = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
+    assert.equal(question.id, openQuestion.id);
+    assert.equal(question.status, 'Provisional');
+    assert.deepEqual(question.violations, violations.map(({ code, path }) => ({ code, path })));
+  });
+
+  it('reports added lint directives in source comments with a persisted OQ', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const marker = ['sdd-lint', '-disable'].join('');
+    for (const [file, source] of [
+      ['tests/sample.test.mjs', 'const x = 1; // ' + marker + ' rule-a\n'],
+      ['tests/extra.ts', '/**\n * ' + marker + ' rule-b\n */\n'],
+      ['tests/extra.py', 'x = 1  # ' + marker + ' rule-c\n'],
+    ]) {
+      fs.writeFileSync(path.join(dir, file), source);
+    }
+    const result = runAntiTamper(dir);
+    assert.equal(result.status, 4, result.stdout);
+    const { violations, openQuestion } = JSON.parse(result.stdout);
+    const expected = ['tests/extra.py', 'tests/extra.ts', 'tests/sample.test.mjs'];
+    assert.deepEqual(violations.map(v => v.path).sort(), expected);
+    assert.ok(violations.every(v => v.code === 'LINT_DISABLE_ADDED'));
+    const persisted = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
+    assert.deepEqual(persisted.violations, violations.map(({ code, path }) => ({ code, path })));
+  });
+
+  it('allows renaming an already skipped test and editing existing skip reasons', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'tests/sample.test.mjs');
+    const skipped = ['it', '.skip'].join('');
+    fs.writeFileSync(file, skipped + '("old description", () => {});\n');
+    assert.equal(git('commit', '-am', 'record existing test state').status, 0);
+    fs.writeFileSync(file, skipped + '("new description", () => {});\n');
+    const report = runAntiTamper(dir);
+    assert.equal(report.status, 0, report.stdout);
+  });
+
+  it('counts active Node options across layout changes alongside prior Python and Go directives', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'tests/sample.test.mjs');
+    const option = ['sk', 'ip'].join('');
+    function source(values) {
+      return ['const metadata = { ' + option + ': true };',
+        ...values.map((value, index) => 'test("case ' + index + '", {\n  timeout: 100,\n  "' + option + '": ' + value + ',\n}, () => {});')].join('\n');
+    }
+    fs.writeFileSync(file, source(['"old reason"', 'false']));
+    assert.equal(git('commit', '-am', 'record conditional test options').status, 0);
+    fs.writeFileSync(file, source(['"new reason"', 'false']));
+    assert.equal(runAntiTamper(dir).status, 0);
+    fs.writeFileSync(file, source(['"new reason"', 'true']));
+    const increased = runAntiTamper(dir);
+    assert.equal(increased.status, 4, increased.stdout);
+    assert.deepEqual(JSON.parse(increased.stdout).violations.map(v => v.code), ['TEST_SKIP_ADDED']);
+    fs.writeFileSync(file, source(['false']));
+    assert.equal(runAntiTamper(dir).status, 0);
+    fs.writeFileSync(file, ['test({ ' + option + ': true }, () => {});',
+      'it("conditional", { ' + option + ': process.env.CI }, () => {});'].join('\n'));
+    assert.equal(runAntiTamper(dir).status, 4);
+    fs.writeFileSync(file, source(['false']));
+    for (const [name, marker] of [['sample_test.py', ['@pytest.mark.', 'skip'].join('')],
+      ['sample_test.go', ['t.', 'Skip'].join('')]]) {
+      fs.writeFileSync(path.join(dir, 'tests', name), marker + '("reason")\n');
+      assert.equal(git('add', 'tests/' + name).status, 0);
+    }
+    assert.deepEqual(JSON.parse(runAntiTamper(dir).stdout).violations.map(v => v.path).sort(),
+      ['tests/sample_test.go', 'tests/sample_test.py']);
+  });
+
+  it('counts Node test context calls using the callback parameter, including subtests', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'tests/sample.test.mjs');
+    const method = ['sk', 'ip'].join('');
+    const existing = 'test("context", async (ctx) => { ctx.' + method + '("platform"); });\n';
+    fs.writeFileSync(file, existing);
+    assert.equal(git('commit', '-am', 'record one platform-specific test').status, 0);
+    const renamed = existing.replace('platform', 'optional fixture');
+    fs.writeFileSync(file, renamed + 'test("metadata", () => { list.' + method + '(2); });\n');
+    assert.equal(runAntiTamper(dir).status, 0);
+    for (const call of [
+      'it("feature", t => t.' + method + '("optional"));',
+      'test("feature", function (context) { context.' + method + '(); });',
+      'test("parent", async parent => { await parent.test("child", child => child.' + method + '()); });',
+    ]) {
+      fs.writeFileSync(file, renamed + call);
+      const added = runAntiTamper(dir);
+      assert.equal(added.status, 4, added.stdout);
+      assert.deepEqual(JSON.parse(added.stdout).violations.map(v => v.code), ['TEST_SKIP_ADDED']);
+    }
+  });
+
+  it('distinguishes an entire TRUE definition from conjunctions and their continuations', (t) => {
+    const { dir } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const file = path.join(dir, 'specs/demo/formal/Model.tla');
+    function writeBody(body) {
+      fs.writeFileSync(file, '---- MODULE Model ----\nVARIABLE x\nInv == ' + body + '\n====\n');
+    }
+    for (const body of ['TRUE /\\ x = 1', 'TRUE\n     /\\ x = 1', 'TRUE (* checked below *)\n     /\\ x = 1']) {
+      writeBody(body);
+      const result = runAntiTamper(dir);
+      assert.equal(result.status, 0, result.stdout);
+    }
+    for (const body of ['TRUE', '\n    TRUE \\* constant predicate']) {
+      writeBody(body);
+      const result = runAntiTamper(dir);
+      assert.equal(result.status, 4, result.stdout);
+      assert.deepEqual(JSON.parse(result.stdout).violations.map(v => v.code), ['FORMAL_INVARIANT_WEAKENED']);
+    }
+  });
+
+  it('ignores Python and Go documentation while counting executable skip directives', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const py = path.join(dir, 'tests/sample_test.py');
+    const go = path.join(dir, 'tests/sample_test.go');
+    const decorator = ['unittest', '.skip'].join('');
+    const goMethod = ['t.', 'Skip'].join('');
+    fs.writeFileSync(py, '# ' + decorator + ' is used for platform exclusions\n' +
+      '"""\nAn example is @' + decorator + '("reason").\n"""\n' +
+      'message = "' + decorator + '"\n');
+    fs.writeFileSync(go, 'package sample\n// ' + goMethod + '("optional")\n' +
+      '/* ' + goMethod + '("old") */\nconst doc = `' + goMethod + '("demo")`\n');
+    assert.equal(git('add', 'tests').status, 0);
+    const docs = runAntiTamper(dir);
+    assert.equal(docs.status, 0, docs.stdout);
+    fs.appendFileSync(py, '@' + decorator + '("requires device")\ndef test_device():\n    pass\n');
+    fs.appendFileSync(go, 'func TestDevice(t *testing.T) { ' + goMethod + '("requires device") }\n');
+    const added = runAntiTamper(dir);
+    assert.equal(added.status, 4, added.stdout);
+    assert.deepEqual(JSON.parse(added.stdout).violations.map(v => v.path).sort(),
+      ['tests/sample_test.go', 'tests/sample_test.py']);
+  });
+
+  for (const defect of ['invalid JSON', 'wrong id', 'wrong feature']) {
+    it('preserves an existing question with ' + defect + ' and records a valid replacement', (t) => {
+      const { dir } = initGitRepoWithTests();
+      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+      fs.appendFileSync(path.join(dir, 'sdd/approved-test-retirements.json'), '\n');
+      const first = JSON.parse(runAntiTamper(dir).stdout).openQuestion;
+      const filename = path.join(dir, first.path);
+      const question = JSON.parse(fs.readFileSync(filename));
+      const old = defect === 'invalid JSON' ? '{' : JSON.stringify({
+        ...question, [defect === 'wrong id' ? 'id' : 'feature']: 'other',
+      });
+      fs.writeFileSync(filename, old);
+      const next = runAntiTamper(dir);
+      assert.equal(next.status, 4, next.stderr);
+      const replacement = JSON.parse(next.stdout).openQuestion;
+      assert.equal(replacement.id, 'OQ-002');
+      assert.equal(fs.readFileSync(filename, 'utf8'), old);
+      const replacementFile = path.join(dir, replacement.path);
+      const persisted = JSON.parse(fs.readFileSync(replacementFile));
+      assert.equal(persisted.id, replacement.id);
+      assert.equal(persisted.feature, 'demo');
+      fs.writeFileSync(replacementFile, JSON.stringify({ ...persisted, status: 'Confirmed' }));
+      assert.deepEqual(JSON.parse(runAntiTamper(dir).stdout).openQuestion, replacement);
+    });
+  }
+
+  it('uses committed retirement approvals and mandatory protection; records a repeatable OQ', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+    const testPath = 'tests/sample.test.mjs';
+    const row = { path: testPath, git_blob_sha: git('rev-parse', 'HEAD:' + testPath).stdout.trim(),
+      reason: 'superseded', approved_by: 'fixture-owner' };
+    const manifest = 'sdd/approved-test-retirements.json';
+    fs.writeFileSync(path.join(dir, 'sdd', 'guardrails.json'), JSON.stringify({
+      anti_tampering: { retirements_manifest: 'sdd/other.json', protected_repo_paths: ['custom/**'] },
+    }));
+    fs.writeFileSync(path.join(dir, 'sdd', 'other.json'), JSON.stringify({ retirements: [row] }));
+    fs.writeFileSync(path.join(dir, manifest), JSON.stringify({ retirements: [row] }));
+    fs.rmSync(path.join(dir, testPath));
+    function run() {
+      return spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir, '--feature', 'demo'], { encoding: 'utf8' });
+    }
+    const first = run();
+    assert.equal(first.status, 4, first.stdout);
+    const report = JSON.parse(first.stdout);
+    assert.ok(report.violations.some(v => v.code === 'PROTECTED_PATH_MODIFIED' && v.path === manifest));
+    assert.ok(report.violations.some(v => v.code === 'UNAUTHORIZED_TEST_DELETION' && v.path === testPath));
+    assert.match(report.openQuestion.id, /^OQ-[0-9]{3,}$/);
+    const persisted = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path), 'utf8'));
+    assert.equal(persisted.id, report.openQuestion.id);
+    assert.equal(persisted.status, 'Provisional');
+    assert.deepEqual(persisted.violations, report.violations.map(({ code, path }) => ({code, path})));
+    assert.deepEqual(JSON.parse(run().stdout).openQuestion, report.openQuestion);
+  });
+
+  for (const field of ['reason', 'approved_by']) {
+    it('requires a nonempty retirement ' + field + ' in the trusted manifest', (t) => {
+      const { dir, git } = initGitRepoWithTests();
+      t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+      const file = 'tests/sample.test.mjs';
+      const entry = { path: file, git_blob_sha: git('rev-parse', 'HEAD:' + file).stdout.trim(),
+        reason: 'replaced', approved_by: 'owner', [field]: '  ' };
+      fs.writeFileSync(path.join(dir, 'sdd/approved-test-retirements.json'), JSON.stringify({
+        schema: 'sdd-approved-test-retirements/v1', retirements: [entry],
+      }));
+      assert.equal(git('add', 'sdd/approved-test-retirements.json').status, 0);
+      assert.equal(git('commit', '-m', 'fixture metadata').status, 0);
+      fs.rmSync(path.join(dir, file));
+      const result = spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir], { encoding: 'utf8' });
+      assert.equal(result.status, 4, result.stdout);
+    });
+  }
+
+  it('rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0)', () => {
+    const { dir, git } = initGitRepoWithTests();
+    const blobSha = git('rev-parse', 'HEAD:tests/sample.test.mjs').stdout.trim();
+    fs.rmSync(path.join(dir, 'tests', 'sample.test.mjs'));
+
+    const unapproved = spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir], { encoding: 'utf8' });
+    assert.equal(unapproved.status, 4);
+    assert.ok(JSON.parse(unapproved.stdout).violations.some((v) => v.code === 'UNAUTHORIZED_TEST_DELETION'));
+
+    // Commit human-approved retirement manifest on base commit, then delete test file
+    git('checkout', '--', 'tests/sample.test.mjs');
+    fs.writeFileSync(
+      path.join(dir, 'sdd', 'approved-test-retirements.json'),
+      JSON.stringify({
+        schema: 'sdd-approved-test-retirements/v1',
+        retirements: [{ path: 'tests/sample.test.mjs', git_blob_sha: blobSha, approved_by: '@aharada54914', reason: 'Superseded' }],
+      }, null, 2),
+      'utf8',
+    );
+    assert.equal(git('add', 'sdd/approved-test-retirements.json').status, 0);
+    assert.equal(git('commit', '-m', 'approve retirement').status, 0);
+
+    fs.rmSync(path.join(dir, 'tests', 'sample.test.mjs'));
+    const approved = spawnSync(process.execPath, [CHECK_SCRIPT, '--anti-tamper', '--root', dir], { encoding: 'utf8' });
+    assert.equal(approved.status, 0, approved.stdout);
+    assert.equal(JSON.parse(approved.stdout).status, 'CLEAN');
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('checks retirement approvals for complete __tests__ directory segments at root and nested levels', (t) => {
+    const { dir, git } = initGitRepoWithTests();
+    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+    const approved = ['__tests__/old.mjs', 'pkg/__tests__/old.mjs'];
+    const unapproved = ['__tests__/current.mjs', 'pkg/__tests__/current.mjs'];
+    const ordinary = ['__tests__helpers/old.mjs', 'pkg/my__tests__/old.mjs'];
+    const files = [...approved, ...unapproved, ...ordinary];
+    for (const file of files) {
+      fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+      fs.writeFileSync(path.join(dir, file), 'export const fixture = true;\n');
+    }
+    assert.equal(git('add', ...files).status, 0);
+    assert.equal(git('commit', '-m', 'add fixture files').status, 0);
+    // All fixtures share a blob. Approval for a sibling path must not carry over.
+    const blobSha = git('rev-parse', 'HEAD:' + approved[0]).stdout.trim();
+    const retirements = approved.map(file => ({
+      path: file, git_blob_sha: blobSha, approved_by: 'fixture-owner', reason: 'superseded',
+    }));
+    // The nested current file has a path approval for a different blob.
+    const otherBlobSha = git('rev-parse', 'HEAD:tests/sample.test.mjs').stdout.trim();
+    retirements.push({ ...retirements[0], path: unapproved[1], git_blob_sha: otherBlobSha });
+    const manifest = 'sdd/approved-test-retirements.json';
+    fs.writeFileSync(path.join(dir, manifest), JSON.stringify({ schema: 'sdd-approved-test-retirements/v1', retirements }));
+    assert.equal(git('add', manifest).status, 0);
+    assert.equal(git('commit', '-m', 'approve fixture retirements').status, 0);
+
+    for (const file of files) fs.unlinkSync(path.join(dir, file));
+    const rejected = runAntiTamper(dir);
+    assert.equal(rejected.status, 4, rejected.stderr || rejected.stdout);
+    assert.deepEqual(
+      JSON.parse(rejected.stdout).violations.map(({ code, path }) => ({ code, path })),
+      unapproved.map(path => ({ code: 'UNAUTHORIZED_TEST_DELETION', path })),
+    );
+
+    assert.equal(git('restore', '--', ...unapproved).status, 0);
+    const accepted = runAntiTamper(dir);
+    assert.equal(accepted.status, 0, accepted.stderr || accepted.stdout);
+    assert.deepEqual(JSON.parse(accepted.stdout).violations, []);
+  });
+});

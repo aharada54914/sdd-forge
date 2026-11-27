@@ -20,6 +20,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+$Mcp = @($Mcp | ForEach-Object { $_.ToLowerInvariant() })
 
 # ADR-0052: MCP client registration is opt-in by default for local CLI plugins.
 # Reject conflicting -SkipMcp with -WithMcp or explicit -Mcp (parity with install.sh).
@@ -324,6 +325,48 @@ function Install-CodexPlugins {
         Invoke-IdempotentPluginCommand "Codex plugin '$plugin'" "codex" @("plugin", "add", "$plugin@sdd-plugins")
     }
     $script:CodexRegistrationStatus = "registered"
+
+    # V-01: Detect retired v1 plugin registrations/caches (e.g. sdd-lite@sdd-plugins)
+    # that survive an in-place upgrade in Codex.
+    $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
+    $retiredPlugins = @("sdd-lite")
+    $retiredDetected = [System.Collections.Generic.List[string]]::new()
+    foreach ($retired in $retiredPlugins) {
+        $retiredId = "$retired@sdd-plugins"
+        $configToml = Join-Path $codexHome "config.toml"
+        $hasConfig = $false
+        if (Test-Path -LiteralPath $configToml -PathType Leaf) {
+            $configText = Get-Content -LiteralPath $configToml -Raw -ErrorAction SilentlyContinue
+            if ($configText -and ($configText -match ('\[plugins\."' + [regex]::Escape($retiredId) + '"\]'))) {
+                $hasConfig = $true
+            }
+        }
+        $cachePaths = @(
+            (Join-Path $codexHome "plugins/cache/sdd-plugins/$retired"),
+            (Join-Path $codexHome "cache/sdd-plugins/$retired")
+        ) | Where-Object { Test-Path -LiteralPath $_ }
+        if ($hasConfig -or $cachePaths.Count -gt 0) {
+            try { & codex plugin remove $retiredId 2>$null | Out-Null } catch { }
+            $stillConfig = $false
+            if (Test-Path -LiteralPath $configToml -PathType Leaf) {
+                $configTextAfter = Get-Content -LiteralPath $configToml -Raw -ErrorAction SilentlyContinue
+                if ($configTextAfter -and ($configTextAfter -match ('\[plugins\."' + [regex]::Escape($retiredId) + '"\]'))) {
+                    $stillConfig = $true
+                }
+            }
+            $stillCache = @($cachePaths | Where-Object { Test-Path -LiteralPath $_ })
+            if ($stillConfig -or $stillCache.Count -gt 0) {
+                $details = [System.Collections.Generic.List[string]]::new()
+                if ($stillConfig) { $details.Add("config.toml entry [plugins.`"$retiredId`"]") }
+                if ($stillCache.Count -gt 0) { $details.Add("cache ($($stillCache -join ', '))") }
+                $retiredDetected.Add("${retiredId}: $($details -join ' and ')")
+            }
+        }
+    }
+    if ($retiredDetected.Count -gt 0) {
+        Write-Warning ("Retired v1 Codex plugin residue detected: $($retiredDetected -join '; '). " +
+            "To remove stale v1 registrations cleanly, back up your Codex settings and run: ./uninstall.ps1 -Target Codex, then re-run ./install.ps1.")
+    }
 }
 
 function Install-CopilotPlugins {
@@ -539,29 +582,107 @@ function Register-CodexMcp {
         $markerBegin = "# >>> $name (managed by sdd-forge installer; do not edit by hand) >>>"
         $markerEnd = "# <<< $name <<<"
         $existingLines = @(Get-Content -LiteralPath $configToml)
-        $filtered = [System.Collections.Generic.List[string]]::new()
-        $skip = $false
-        foreach ($line in $existingLines) {
-            if ($line -eq $markerBegin) {
-                if ($skip) { throw "Malformed managed MCP markers in $configToml; file unchanged for $name." }
-                $skip = $true; continue
-            }
-            if ($line -eq $markerEnd) {
-                if (-not $skip) { throw "Malformed managed MCP markers in $configToml; file unchanged for $name." }
-                $skip = $false; continue
-            }
-            if (-not $skip) { $filtered.Add($line) }
-        }
-        if ($skip) { throw "Malformed managed MCP markers in $configToml; file unchanged for $name." }
         $entryPointToml = ($entryPoint -replace '\\', '/') | ConvertTo-Json -Compress
         $entryPointToml = $entryPointToml.Replace([string][char]127, '\u007f')
-        $filtered.Add("")
-        $filtered.Add($markerBegin)
-        $filtered.Add("[mcp_servers.$name]")
-        $filtered.Add('command = "node"')
-        $filtered.Add("args = [$entryPointToml]")
-        $filtered.Add($markerEnd)
-        Set-Content -LiteralPath $configToml -Value $filtered
+
+        # Validate markers first (reject missing end, nested begin, orphan end, duplicate blocks)
+        # without modifying the file.
+        $beginIdx = -1
+        $endIdx = -1
+        $inBlock = $false
+        $blockCount = 0
+        for ($i = 0; $i -lt $existingLines.Count; $i++) {
+            $line = $existingLines[$i]
+            if ([string]::Equals($line, $markerBegin, [System.StringComparison]::OrdinalIgnoreCase)) {
+                if ($inBlock -or $blockCount -ge 1) {
+                    throw "Malformed managed MCP markers in $configToml; file unchanged for $name."
+                }
+                $inBlock = $true
+                $beginIdx = $i
+                continue
+            }
+            if ([string]::Equals($line, $markerEnd, [System.StringComparison]::OrdinalIgnoreCase)) {
+                if (-not $inBlock) {
+                    throw "Malformed managed MCP markers in $configToml; file unchanged for $name."
+                }
+                $inBlock = $false
+                $endIdx = $i
+                $blockCount++
+                continue
+            }
+        }
+        if ($inBlock) {
+            throw "Malformed managed MCP markers in $configToml; file unchanged for $name."
+        }
+
+        $output = [System.Collections.Generic.List[string]]::new()
+        if ($blockCount -eq 0) {
+            foreach ($line in $existingLines) { $output.Add($line) }
+            $output.Add("")
+            $output.Add($markerBegin)
+            $output.Add("[mcp_servers.$name]")
+            $output.Add('command = "node"')
+            $output.Add("args = [$entryPointToml]")
+            $output.Add($markerEnd)
+        } else {
+            # Update the existing managed block in place, preserving its position,
+            # extra keys, and any Codex-managed sub-tables such as [mcp_servers.<name>.tools].
+            for ($i = 0; $i -lt $beginIdx; $i++) { $output.Add($existingLines[$i]) }
+            $output.Add($existingLines[$beginIdx])
+
+            $targetHeaderPattern = '^\s*\[mcp_servers\.(?:"' + [regex]::Escape($name) + '"|' + [regex]::Escape($name) + ')\]\s*(#.*)?$'
+            $inTargetTable = $false
+            $sawTargetTable = $false
+            $sawCommand = $false
+            $sawArgs = $false
+
+            for ($i = $beginIdx + 1; $i -lt $endIdx; $i++) {
+                $line = $existingLines[$i]
+                if ($line -match '^\s*\[') {
+                    if ($inTargetTable) {
+                        if (-not $sawCommand) { $output.Add('command = "node"'); $sawCommand = $true }
+                        if (-not $sawArgs) { $output.Add("args = [$entryPointToml]"); $sawArgs = $true }
+                        $inTargetTable = $false
+                    }
+                    if ($line -match $targetHeaderPattern) {
+                        $inTargetTable = $true
+                        $sawTargetTable = $true
+                    }
+                    $output.Add($line)
+                    continue
+                }
+                if ($inTargetTable) {
+                    if ($line -match '^\s*command\s*=') {
+                        if (-not $sawCommand) {
+                            $output.Add('command = "node"')
+                            $sawCommand = $true
+                        }
+                        continue
+                    }
+                    if ($line -match '^\s*args\s*=') {
+                        if (-not $sawArgs) {
+                            $output.Add("args = [$entryPointToml]")
+                            $sawArgs = $true
+                        }
+                        continue
+                    }
+                }
+                $output.Add($line)
+            }
+
+            if ($inTargetTable) {
+                if (-not $sawCommand) { $output.Add('command = "node"'); $sawCommand = $true }
+                if (-not $sawArgs) { $output.Add("args = [$entryPointToml]"); $sawArgs = $true }
+            } elseif (-not $sawTargetTable) {
+                $output.Add("[mcp_servers.$name]")
+                $output.Add('command = "node"')
+                $output.Add("args = [$entryPointToml]")
+            }
+
+            $output.Add($existingLines[$endIdx])
+            for ($i = $endIdx + 1; $i -lt $existingLines.Count; $i++) { $output.Add($existingLines[$i]) }
+        }
+        Set-Content -LiteralPath $configToml -Value $output
     }
 }
 
@@ -709,7 +830,8 @@ function Install-SingleMcpPayload {
     param(
         [Parameter(Mandatory)][string]$SourceRootPath,
         [Parameter(Mandatory)][string]$InstallRootPath,
-        [Parameter(Mandatory)][string]$Name
+        [Parameter(Mandatory)][string]$Name,
+        [string]$DestinationName = $Name
     )
     $srcMcp = Join-Path $SourceRootPath "mcp"
     $srcDir = Join-Path $srcMcp $Name
@@ -721,11 +843,69 @@ function Install-SingleMcpPayload {
         -not (Test-PlainItem $srcIndex) -or -not (Test-PlainItem $srcPkg)) {
         return
     }
-    $destDir = Join-Path (Join-Path $InstallRootPath "mcp") $Name
+    $destDir = Join-Path (Join-Path $InstallRootPath "mcp") $DestinationName
     $destDist = Join-Path $destDir "dist"
     New-Item -ItemType Directory -Path $destDist -Force | Out-Null
     Copy-Item -LiteralPath $srcIndex -Destination (Join-Path $destDist "index.js") -Force
     Copy-Item -LiteralPath $srcPkg -Destination (Join-Path $destDir "package.json") -Force
+}
+
+$codexReceiptName = ".sdd-codex-mcp-registration"
+$script:CodexReceiptNames = ""
+function Copy-CodexRegistrationReceipt {
+    param([string]$PreviousRoot, [string]$Stage)
+    $previous = Join-Path $PreviousRoot $codexReceiptName
+    $staged = Join-Path $Stage $codexReceiptName
+    $prior = ""
+    $item = Get-Item -Force -LiteralPath $previous -ErrorAction SilentlyContinue
+    if ($null -ne $item) {
+        $format = '\A(ready|pending|legacy) codex-mcp/v1(?i:( sdd-forge-mcp)?( local-env-mcp)?( ci-mcp)?)\n\z'
+        if (-not ($item -is [IO.FileInfo]) -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw "Invalid Codex MCP registration receipt; install stopped."
+        }
+        $prior = [Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes($previous))
+        if ($prior -cnotmatch $format) { throw "Invalid Codex MCP registration receipt; install stopped." }
+        [IO.File]::Copy($previous, $staged)
+    }
+    $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
+    $config = Join-Path $codexHome "config.toml"
+    $hasConfig = Test-Path -LiteralPath $config -PathType Leaf
+    $knownNames = @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")
+    $targetCodex = $Target -in @("Codex", "All")
+    $oldMcps = Join-Path $PreviousRoot "mcp"
+    $previousInstall = (Test-Path -LiteralPath (Join-Path $PreviousRoot "plugins") -PathType Container) -or (Test-Path -LiteralPath $oldMcps -PathType Container)
+    if ($targetCodex -and $prior.StartsWith("legacy ")) { $prior = "" }
+    $previousNames = @()
+    if ($prior) {
+        $previousNames = $prior.TrimEnd().Split(' ') | Select-Object -Skip 2
+    } elseif (-not $targetCodex -and $previousInstall) {
+        $previousNames = @(Get-ChildItem -LiteralPath $oldMcps -Directory -ErrorAction SilentlyContinue |
+            Where-Object { [IO.File]::Exists((Join-Path $_.FullName "dist/index.js")) } |
+            ForEach-Object { $_.Name })
+    } elseif ($hasConfig) {
+        $previousNames = @(foreach ($line in Get-Content -LiteralPath $config) {
+            if ($line -cmatch '^# >>> ([a-zA-Z-]+) \(managed by sdd-forge installer; do not edit by hand\) >>>$') { $Matches[1] }
+        })
+    }
+    foreach ($name in $knownNames) {
+        if ($targetCodex -and $name -cne "sdd-forge-mcp" -and ($SkipMcp -or $Mcp -notcontains $name)) { continue }
+        $entry = Join-Path $Stage "mcp/$name/dist/index.js"
+        if ($targetCodex -and $script:McpNodeOk -and $hasConfig -and $Mcp -contains $name -and [IO.File]::Exists($entry)) {
+            $registered = $name
+        } else {
+            $registered = $previousNames | Where-Object { $_ -ieq $name } | Select-Object -First 1
+            if (-not $registered) { continue }
+            $entry = Join-Path $Stage "mcp/$registered/dist/index.js"
+            if (-not [IO.File]::Exists($entry)) {
+                Install-SingleMcpPayload -SourceRootPath $sourceRoot -InstallRootPath $Stage -Name $name -DestinationName $registered
+                if (-not [IO.File]::Exists($entry)) { throw "Missing payload for retained Codex registration: $registered" }
+            }
+        }
+        $script:CodexReceiptNames += " $registered"
+    }
+    if (-not $targetCodex -and $prior) { return }
+    $phase = if ($targetCodex) { "pending" } else { "legacy" }
+    [IO.File]::WriteAllText($staged, "$phase codex-mcp/v1$script:CodexReceiptNames`n")
 }
 
 $script:McpNodeOk = $false
@@ -1010,6 +1190,10 @@ function Get-RequiredPaths {
         "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
         "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
         "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz",
+        "plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs",
+        "plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.Go",
+        "plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.mvdan-sh",
         "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
         "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
         "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
@@ -1214,6 +1398,7 @@ $newInstallPlaced = $false
 $registrationStarted = $false
 $mutex = $null
 $mutexAcquired = $false
+$posixLock = $null
 try {
     $isLocalSource = -not [string]::IsNullOrWhiteSpace($SourceDirectory)
     if ($SourceDirectory) {
@@ -1340,6 +1525,46 @@ try {
     }
     if (-not $mutexAcquired) {
         throw "another sdd-forge install is in progress (mutex: $mutexName). Retry later."
+    }
+
+    # On Unix install.sh and install.ps1 can target the same root. Use its
+    # atomic mkdir/PID protocol in addition to the Windows-compatible mutex.
+    if (-not $useZipArchive) {
+        $lock = "$InstallRoot.sdd-install.lock"
+        $deadline = [DateTime]::UtcNow.AddSeconds($mutexTimeoutSeconds)
+        $staleSeconds = if ($env:SDD_INSTALL_LOCK_STALE) { [int]$env:SDD_INSTALL_LOCK_STALE } else { 600 }
+        if ($staleSeconds -lt 0) { throw "SDD_INSTALL_LOCK_STALE must be non-negative." }
+        do {
+            & /bin/mkdir $lock 2>$null
+            if ($LASTEXITCODE -eq 0) {
+                $posixLock = $lock
+                [IO.File]::WriteAllText((Join-Path $lock "pid"), "$PID`n")
+                break
+            }
+            # A process may die between mkdir and publishing its PID. Observe
+            # the age of an ownerless directory again after claiming it.
+            $owner = [string](Get-Content -LiteralPath (Join-Path $lock "pid") -ErrorAction SilentlyContinue)
+            $staleBefore = [DateTime]::UtcNow.AddSeconds(-$staleSeconds)
+            $ownerlessStale = -not $owner -and [IO.Directory]::GetLastWriteTimeUtc($lock) -lt $staleBefore
+            $ownerDead = $owner -cmatch '\A[1-9][0-9]{0,8}\z' -and -not (Get-Process -Id $owner -ErrorAction SilentlyContinue)
+            if ($ownerDead -or $ownerlessStale) {
+                $claim = "$lock.reclaim.$([guid]::NewGuid())"
+                try { [IO.Directory]::Move($lock, $claim) } catch [IO.IOException] {
+                    if ([DateTime]::UtcNow -ge $deadline) { throw "another sdd-forge install is in progress (lock: $lock). Retry later." }
+                    continue
+                }
+                $claimedOwner = [string](Get-Content -LiteralPath (Join-Path $claim "pid") -ErrorAction SilentlyContinue)
+                if ($claimedOwner -ceq $owner -and (($ownerDead -and -not (Get-Process -Id $owner -ErrorAction SilentlyContinue)) -or
+                    ($ownerlessStale -and [IO.Directory]::GetLastWriteTimeUtc($claim) -lt $staleBefore))) {
+                    [IO.Directory]::Delete($claim, $true)
+                } else {
+                    [IO.Directory]::Move($claim, $lock)
+                }
+                continue
+            }
+            if ([DateTime]::UtcNow -ge $deadline) { throw "another sdd-forge install is in progress (lock: $lock). Retry later." }
+            Start-Sleep -Milliseconds 250
+        } while ($true)
     }
 
     $stagingRoot = Join-Path $installParent ("sdd-plugins-staging-" + [guid]::NewGuid())
@@ -1487,6 +1712,55 @@ try {
         }
     }
 
+    # V-07 (#812): Materialize self-contained Concept Test runtime inside sdd-domain
+    # so per-plugin, per-version host caches (Codex / Claude) can execute
+    # validate-concept-test without sibling sdd-quality-loop or shared contracts/.
+    if (Test-Path -LiteralPath (Join-Path $stagingRoot "plugins/sdd-domain") -PathType Container) {
+        $domainRuntime = Join-Path $stagingRoot "plugins/sdd-domain/runtime"
+        foreach ($directory in @("lib", "scripts", "contracts")) {
+            New-Item -ItemType Directory -Path (Join-Path $domainRuntime $directory) -Force | Out-Null
+        }
+        foreach ($libFile in @("py-dispatch.ps1", "py-dispatch.sh", "native-arguments.ps1")) {
+            $src = Join-Path $stagingRoot "plugins/sdd-quality-loop/scripts/lib/$libFile"
+            if (-not (Test-Path -LiteralPath $src -PathType Leaf)) {
+                throw "Required staged domain Concept Test runtime file is missing: plugins/sdd-quality-loop/scripts/lib/$libFile"
+            }
+            Copy-Item -LiteralPath $src -Destination (Join-Path $domainRuntime "lib/$libFile")
+        }
+        foreach ($pyFile in @("validate-approval-sidecar.py", "review-conditional-inputs.py", "canonicalize-sdd-yaml.py")) {
+            $src = Join-Path $stagingRoot "plugins/sdd-quality-loop/scripts/$pyFile"
+            if (-not (Test-Path -LiteralPath $src -PathType Leaf)) {
+                throw "Required staged domain Concept Test runtime file is missing: plugins/sdd-quality-loop/scripts/$pyFile"
+            }
+            Copy-Item -LiteralPath $src -Destination (Join-Path $domainRuntime "scripts/$pyFile")
+        }
+        foreach ($schema in @(
+            "concept-test.v1.schema.json",
+            "concept-test.v2.schema.json",
+            "concept-test-decision.v1.schema.json",
+            "domain-contract.v2.schema.json",
+            "approval-sidecar.schema.json",
+            "approver-registry.schema.json"
+        )) {
+            $src = Join-Path $stagingRoot "contracts/$schema"
+            if (-not (Test-Path -LiteralPath $src -PathType Leaf)) {
+                throw "Required staged domain Concept Test schema is missing: contracts/$schema"
+            }
+            Copy-Item -LiteralPath $src -Destination (Join-Path $domainRuntime "contracts/$schema")
+        }
+    }
+
+    Install-McpServersIfSelected -SourceRootPath $sourceRoot -InstallRootPath $stagingRoot
+    Copy-CodexRegistrationReceipt -PreviousRoot $InstallRoot -Stage $stagingRoot
+
+    # Stage 2 hybrid pre-generated portable Node.js Compile Cache (ADR-0055).
+    $compileCacheScript = Join-Path $stagingRoot "plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs"
+    if (($env:SDD_SKIP_COMPILE_CACHE -ne "1") -and (Get-Command "node" -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath $compileCacheScript -PathType Leaf)) {
+        try {
+            & node $compileCacheScript --root $stagingRoot --cache-dir (Join-Path $stagingRoot ".sdd-compile-cache") 2>$null | Out-Null
+        } catch { }
+    }
+
     if (Test-Path -LiteralPath $InstallRoot) {
         $backupRoot = Join-Path $installParent ("sdd-plugins-backup-" + [guid]::NewGuid())
         Move-Item -LiteralPath $InstallRoot -Destination $backupRoot
@@ -1496,10 +1770,6 @@ try {
     $newInstallPlaced = $true
 
     $resolvedInstallRoot = (Resolve-Path -LiteralPath $InstallRoot).Path
-
-    # MCP placement mirrors plugin file placement: it happens regardless of
-    # -Target and is controlled only by -SkipMcp / -Mcp.
-    Install-McpServersIfSelected -SourceRootPath $sourceRoot -InstallRootPath $resolvedInstallRoot
 
     # Everything below registers the placed tree with external CLIs. A failure
     # from here on must not revert the install root — see the catch block
@@ -1525,6 +1795,13 @@ try {
         Install-GeminiExtension $resolvedInstallRoot
     }
     Register-McpServers -InstallRootPath $resolvedInstallRoot
+    if ($Target -in @("Codex", "All")) {
+        $receipt = Join-Path $resolvedInstallRoot $codexReceiptName
+        $ready = "$receipt.$([guid]::NewGuid())"
+        [IO.File]::WriteAllText($ready, "ready codex-mcp/v1$script:CodexReceiptNames`n")
+        [IO.File]::Replace($ready, $receipt, "$ready.bak")
+        [IO.File]::Delete("$ready.bak")
+    }
 
     Write-InstallSummary $resolvedInstallRoot
 
@@ -1598,6 +1875,7 @@ finally {
     if ($temporaryRoot -and (Test-Path -LiteralPath $temporaryRoot)) {
         Remove-Item -LiteralPath $temporaryRoot -Recurse -Force
     }
+    if ($posixLock) { [IO.Directory]::Delete($posixLock, $true) }
     # Release the exclusive mutex if we acquired it.
     if ($mutexAcquired -and $mutex) {
         try { $mutex.ReleaseMutex() } catch { }

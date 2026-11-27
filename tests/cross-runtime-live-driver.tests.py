@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise the live driver with isolated executable doubles, never native hosts."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -57,6 +58,20 @@ else:
   elif mode=='routing-only': print(json.dumps({'type':'session.auto_mode_resolved','data':{'chosenModel':actual}}))
   else: print(json.dumps({'type':'model.call_final_result','data':{'model':actual}}))
 '''
+
+
+def historical_activation(project):
+    """Create a presence-only distribution tree in a fresh fixture repository."""
+    if (project / '.git').exists():
+        raise ValueError('activation fixture requires a fresh repository')
+    subprocess.run(['git', 'init', '-q', str(project)], check=True)
+    git = ['git', '-C', str(project)]
+    blob = subprocess.check_output(git + ['hash-object', '-w', '--stdin'],
+                                   input=b'# Historical activation path fixture.\n').decode().strip()
+    for suffix in ('py', 'sh', 'ps1'):
+        path = 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.' + suffix
+        subprocess.run(git + ['update-index', '--add', '--cacheinfo', '100644', blob, path], check=True)
+    return subprocess.check_output(git + ['write-tree'], text=True).strip()
 
 
 def run(runtime):
@@ -118,9 +133,7 @@ def proof_cases(runtime, temp, environment):
         references.mkdir(parents=True)
         for source, name in ((fixture.registry, 'a8-trusted-signers.json'), (fixture.manifest, 'a8-expected-hook-config-digests.json'), (ROOT / 'plugins/sdd-review-loop/references/a8-skip-allowlist.json', 'a8-skip-allowlist.json')):
             shutil.copyfile(source, references / name)
-        subprocess.run(['git', 'init', '-q', str(project)], check=True)
-        subprocess.run(['git', 'add', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1'], cwd=project, check=True)
-        subprocess.run(['git', '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'synthetic activation fixture'], cwd=project, check=True)
+        activation_ref = historical_activation(project)
         tasks = project / 'tasks.md'
         tasks.write_text('## T-005 fixture\nStatus: In Progress\n', encoding='utf-8')
         proof_records = fixture.records
@@ -153,7 +166,7 @@ def proof_cases(runtime, temp, environment):
             registry.write_text(json.dumps(data))
         trace = project / 'trace.json'
         env = {**environment, 'SDD_A8_COPILOT_MODEL': 'auto', 'SDD_STUB_MODE': 'good',
-               'SDD_CROSS_RUNTIME_TASKS_PATH': str(tasks), 'SDD_CROSS_RUNTIME_MAIN_REF': 'HEAD'}
+               'SDD_CROSS_RUNTIME_TASKS_PATH': str(tasks), 'SDD_CROSS_RUNTIME_MAIN_REF': activation_ref}
         if runtime == 'bash':
             command = ['bash', str(ROOT / 'tests/cross-runtime-handoff.tests.sh'), '--live-e2e', '--trace-file', str(trace)]
         else:
@@ -169,6 +182,12 @@ def proof_cases(runtime, temp, environment):
             proof = data['canary_case']['proof']
             assert proof['schema'] == 'cross-runtime-live-proof/v1' and proof['aggregate'] == 'discharged'
             assert len([a for a in proof['artifacts'] if a['kind'] == 'record']) == 5
+            for kind, name in (('validator', 'validate-live-host-proof.py'),
+                               ('canonicalizer', 'canonicalize-sdd-yaml.py')):
+                relative = 'plugins/sdd-quality-loop/scripts/' + name
+                assert [a for a in proof['artifacts'] if a['kind'] == kind] == [{
+                    'kind': kind, 'ref': relative,
+                    'sha256': 'sha256:' + hashlib.sha256((project / relative).read_bytes()).hexdigest()}]
             assert all(not Path(a['ref']).is_absolute() for a in proof['artifacts'])
             ledger = proof_records / 'nonce-ledger.json'
             assert all(e['consumed_by_record'] for e in json.loads(ledger.read_text())['entries'])
@@ -176,7 +195,9 @@ def proof_cases(runtime, temp, environment):
             helper = importlib.util.module_from_spec(helper_spec)
             helper_spec.loader.exec_module(helper)
             before = ledger.read_bytes()
+            captured = helper.snapshot(proof_records)
             verified = helper.read_only_proof(project, proof_records)
+            assert helper.snapshot(proof_records) == captured, 'read-only verification changed the capture'
             assert verified == {key: value for key, value in proof.items() if key != 'stdout'}
             assert ledger.read_bytes() == before, 'read-only verification changed the ledger'
             relocated = temp / (mode + '-transport')
@@ -203,5 +224,11 @@ def proof_cases(runtime, temp, environment):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--runtime', required=True)
-    run(parser.parse_args().runtime)
+    commands = parser.add_mutually_exclusive_group(required=True)
+    commands.add_argument('--runtime')
+    commands.add_argument('--activation-fixture', type=Path)
+    args = parser.parse_args()
+    if args.activation_fixture:
+        print(historical_activation(args.activation_fixture))
+    else:
+        run(args.runtime)

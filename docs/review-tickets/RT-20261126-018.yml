@@ -1,0 +1,24 @@
+ticket_id: RT-20261126-018
+status: resolved
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "Node test discovery includes nested test/ directories that the retirement check omits"
+problem: |
+  Node's default test runner discovered a benign test at packages/catalog/test/rounding.mjs.
+  Without a retirement approval its deletion returned CLEAN (0) and did not create an open question.
+  The same test in the root test/ directory triggered TAMPER_DETECTED (4).
+expected_fix:
+  - Align selection of changes and classification of nested test/ paths with the supported Node test discovery convention.
+  - Check unapproved and path-and-blob approved deletions and a similarly named ordinary directory through the public command.
+references:
+  - plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+  - tests/v2-spec-drift.test.mjs
+  - reports/review-context/verification-first-factory-T-002-d4b6ea01-d525-4908-924d-703245ea551e-invocation.json
+owner_decision: "2026-11-26、所有者が RT-017・018・019 の追加修正と独立レビューを1回承認。"
+resolution:
+  owner_decision: "2026-11-26、所有者が RT-017・018・019 の追加修正と独立レビューを1回承認。"
+  commit: fe80ed6fd0da6c35c0f714137a7e5a14d8007a21
+  evidence: specs/verification-first-factory/verification/T-002/RT-20261126-017-019/public-cli-receipt.json

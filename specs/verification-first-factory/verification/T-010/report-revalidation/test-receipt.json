@@ -1,0 +1,53 @@
+{
+  "revision": "725eb86c5ec64d7c3465db5bee24123e9fbe2712",
+  "run_id": "7d3c742a-5175-45d2-8e2e-f32d86a08f0c",
+  "input_manifest_sha256": "245684f2071f4287bbb01025f19678e5148e320d9cd6e1abda55b956dfd77f76",
+  "commands": [
+    {
+      "argv": [
+        "/tmp/sdd-ci-t010.YINA8zmr/actionlint",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "1.7.12\ninstalled by downloading from release page\nbuilt with go1.26.1 compiler for darwin/arm64\n"
+    },
+    {
+      "argv": [
+        "/tmp/sdd-ci-t010.YINA8zmr/actionlint",
+        ".github/workflows/sdd-guardrails.yml",
+        ".github/workflows/test.yml"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "argv": [
+        "node",
+        "--test",
+        "tests/v2-hooks-and-ci.test.mjs"
+      ],
+      "exit_code": 0,
+      "output": "▶ Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer\n  ✔ all 4 host hook manifests parse as valid JSON and wire to v2/sdd-soft-guard.mjs (1.123917ms)\n  ✔ deprecated hard-lock scripts, 3-loop reviews, and sdd-lite plugin are removed (0.169833ms)\n  ✔ CI workflow and CODEOWNERS cover Layer 3 guardrails boundary (0.134458ms)\n  ✔ install.sh --target FilesOnly succeeds end-to-end and installs v2 guardrail scripts (3185.4635ms)\n  ✔ v1.26.1 (#789): session-model-start.py emits valid UTF-8 JSON under ASCII stdout across 3 AI hosts (102.660833ms)\n  ✔ #852: Spec Drift CI reports its coverage and lists approved features without a baseline (0.321541ms)\n  ✔ #861: Bash and PowerShell installers require the same Cloud entry files (0.740541ms)\n  ✔ publish-release cuts a tag only by manual dispatch on main, never moving an existing tag (0.487792ms)\n  ✔ #869: every v2 CLI behaves the same when launched through a symlink (534.122292ms)\n  ✔ #869 review: a CLI embedded under another file name (a bundle) never runs its main() (27.391667ms)\n  ✔ no node_modules entry (directory or symlink) is ever tracked (11.738667ms)\n  ✔ #858: every workflow and distributed CI template pins third-party actions to a commit SHA (1.71425ms)\n  ✔ #855: Claude never auto-loads a second hooks/hooks.json next to a manifest-declared hooks file (0.429959ms)\n  ✔ #851/#801: required-checks aggregates every dependency result and installers job runs install suites (0.148834ms)\n  ✔ all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version (2.511792ms)\n✔ Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer (3869.806958ms)\n▶ #862 the verification catalog report matches what CI runs\n  ✔ a suite counts as run only when a current test.yml job names it; the committed report is current (3.040125ms)\n✔ #862 the verification catalog report matches what CI runs (3.085167ms)\nℹ tests 16\nℹ suites 2\nℹ pass 16\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3910.5865\n"
+    },
+    {
+      "argv": [
+        "shasum",
+        "-a",
+        "256",
+        "/tmp/sdd-ci-t010.YINA8zmr/local-posix.log",
+        "/tmp/sdd-ci-t010.YINA8zmr/remaining.json"
+      ],
+      "exit_code": 0,
+      "output": "f98c593f97d71b5ca7f83f6a89ef6968f0d4eb7e24f97a88657046c3962c0568  /tmp/sdd-ci-t010.YINA8zmr/local-posix.log\n45b8fb123d4dccb1a039739d6b554d95ca3dc870ccf27b9c6824d70000cee300  /tmp/sdd-ci-t010.YINA8zmr/remaining.json\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "-c",
+        "import collections,json,pathlib; r=json.loads(pathlib.Path('/tmp/sdd-ci-t010.YINA8zmr/remaining.json').read_bytes()); print(r['revision'],dict(collections.Counter(x['status'] for x in r['results']))); assert len(set(r['selected'])) == len(r['results']) == 13 and set(r['selected']) == {x['suite'] for x in r['results']}"
+      ],
+      "exit_code": 0,
+      "output": "fc166bd1a8b8303531c0445ff78965897ea59c61 {'passed': 4, 'failed': 9}\n"
+    }
+  ]
+}

@@ -41,15 +41,47 @@ class Reservation(unittest.TestCase):
         self.assertEqual(
             mapping["source_sha256"], hashlib.sha256(P.SOURCE.read_bytes()).hexdigest()
         )
-        self.assertIn(P.ACQUIRE, P.reservation_tail())
+        tail = P.reservation_tail()
+        self.assertEqual(mapping["reservation_tail_sha256"], hashlib.sha256(tail.encode()).hexdigest())
+        self.assertIn(P.ACQUIRE, tail)
+
+    def test_negative_model_requires_a_completed_invariant_violation(self):
+        message = "Error: Invariant OneAccepted is violated.\n"
+        result = subprocess.CompletedProcess([], 12, stdout=message)
+        self.assertTrue(P.expected_tlc_result(result, True))
+        result.returncode = 1
+        self.assertFalse(P.expected_tlc_result(result, True))
+
+    def test_successful_reservation_must_publish_the_winning_actor(self):
+        replay = {
+            "calls": [{"actor": "a", "exit_code": 0}, {"actor": "b", "exit_code": 1,
+                       "stderr": "IDENTITY canonical identity ledger reservation is already in progress"}],
+            "entered": ["a"],
+            "ledger": {"records": []},
+        }
+        self.assertFalse(P.expected_replay(replay, False))
+        replay["ledger"]["records"] = [{"run_id": "b"}]
+        self.assertFalse(P.expected_replay(replay, False))
+        replay["ledger"]["records"] = [{"run_id": "a"}]
+        self.assertTrue(P.expected_replay(replay, False))
+        replay["entered"].append("b")
+        self.assertFalse(P.expected_replay(replay, False))
 
     @unittest.skipUnless(
         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),
         "POSIX jq/sha256sum replay only",
     )
     def test_mutation_and_baseline(self):
-        self.assertEqual(P.real_race(True)["accepted"], 2)
-        self.assertEqual(P.real_race(False)["accepted"], 1)
+        for mutated in (True, False):
+            replay = P.real_race(mutated)
+            self.assertTrue(P.expected_replay(replay, mutated), replay)
+            if not mutated:
+                events = replay["trace"]
+                winner = {"a": 1, "b": 2}[replay["entered"][0]]
+                self.assertEqual([e["action"] for e in events], ["Init", "Acquire", "Check", "Publish", "Release"])
+                self.assertEqual([e.get("actor") for e in events], [None] + [winner] * 4)
+                self.assertEqual([e["state"]["accepted"] for e in events], [[], [], [], [winner], [winner]])
+                self.assertEqual([e["step"] for e in events], list(range(5)))
 
     @unittest.skipUnless(
         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),

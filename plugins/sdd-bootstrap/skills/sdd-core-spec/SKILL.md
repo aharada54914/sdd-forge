@@ -22,7 +22,7 @@ user-invocable: false
    - 出典（Issue URL の場合は `gh issue view` / 要件テキスト / `investigation.md` / `reports/diagnosis/*.md`）と関連コードを確認する。
    - `sdd/knowledge/INDEX.md`（および `sdd/knowledge/review-perspectives.yaml`）が存在する場合は作業前に参照し、既存仕様・ルール・プロダクト固有の観点をコンテキストへ取り込む。
    - 重要な設計分岐や曖昧な要件は推測せず、2〜3 案の比較表と推奨案を提示して人間へ確認する（未決事項は 4 分類の `Open Questions` に残す）。
-   - `domain/` がプロジェクトルートに存在する場合のみ、`concept-test` を先に実行し、その後 `domain-sync` で承認済みコンテキスト・用語を同期する。`concept-test` の検証は `domain/context-map.md`（`Domain-Model-Status:`）と `domain/domain-contract.json`（`meta.status`）の**両方が `Approved`** でなければ `BLOCK` となり、仕様生成はそこで停止する（片側だけの承認・未承認・提案の入力変更も停止）。`domain-sync` の「仕様生成を止めない」は `concept-test` が `CONTINUE` した後の注入段階だけの説明である。`domain/` 不在時は両方をオーバーヘッドゼロでスキップする（`domain-sync skipped: no domain/ directory`）。`design-system/` が存在する場合も既存規約へ整合させる。SQL / DB 変更を含む場合は `sdd-implementation` の `sql-develop` 参照ポリシーを確認する。
+   - `domain/` がプロジェクトルートに存在する場合のみ、`concept-test` を先に実行し、その後 `domain-sync` で承認済みコンテキスト・用語を同期する。`concept-test` の検証は `domain/context-map.md`（`Domain-Model-Status:`）と `domain/domain-contract.json`（`meta.status`）の**両方が `Approved`** でなければ `BLOCK` となり、仕様生成はそこで停止する（片側だけの承認・未承認・提案の入力変更も停止）。`domain-sync` の「仕様生成を止めない」は `concept-test` が `CONTINUE` した後の注入段階だけの説明である。`domain/` 不在時は両方をオーバーヘッドゼロでスキップする（`domain-sync skipped: no domain/ directory` を1行記録する）。`design-system/` が存在する場合も既存規約へ整合させる。SQL / DB 変更を含む場合は `sdd-implementation` の `sql-develop` 参照ポリシーを確認する。
 
 2. **タスク単位のリスク判定と試作/本番昇格モード（`--proto` / `--harden`）**:
    - `--risk` 指定があればそれを優先（`--lite` / `--proto` → `low`、`--full` / `--harden` → `high` または既存確定仕様を引き継いだ `standard|high`）。
@@ -37,10 +37,34 @@ user-invocable: false
    - `templates/requirements.md` → `specs/<feature>/requirements.md`:
      全 `REQ-NNN` に観測・テスト可能な `AC-NNN` を紐付け、末尾に `## Spec Amendments` を置く。
    - `templates/design.md` → `specs/<feature>/design.md`:
+     `node <sdd-bootstrap>/scripts/render-design-template.mjs --risk <確定したリスク>` の標準出力を使う。利用者の明示した `--reframe` があれば同じ引数を付ける。問題設定の再検証欄には、案件固有の前提、二案それぞれの実現費用と制約、採用理由を書く。
      **SSoT はソースコード**（詳細設計をソースと二重管理しない）。概要設計として方針・変更ファイル・モジュール跨ぎ契約・**採らなかった設計（Alternatives Rejected）**・影響範囲・テスト方針・`## Spec Amendments` のみを記載する（`Risk: high` を含む場合はセキュリティ・移行・ロールバック方針を明記し、必要に応じ `docs/adr/` へ ADR を作成）。
      コンテナ構成図が必要な場合は `templates/c4-container.template.md` を使用し、設計上のコンテナと確認済みコンテキスト・概念の対応根拠を記録する。
    - `templates/tasks.md` → `specs/<feature>/tasks.md`:
      各タスクに `Approval: Draft`、`Status: Planned`、`Risk: low|standard|high`、`### Scope`（実装ファイルおよび対応テストファイル）、`### Done When`（対応 `AC-NNN` 参照）、`### Blockers`、末尾に `## Spec Amendments` を記載する。
+   - **公式パーサー準拠の記法例（厳守）**:
+     `check-traceability.mjs` と `render-decision-view.mjs` が確実に抽出できるよう、以下の正規書式を使う（`## T-001:` のコロン付き見出しや `AC-001-A` のような枝番、箇条書き付きの `- Approval: Draft` は使わない）:
+     ```markdown
+     <!-- requirements.md -->
+     - **REQ-001**: <主体>として<目的>のために<機能>ができること
+     - **AC-001** (REQ-001): Given <前提>, When <操作>, Then <検証可能な結果>
+
+     <!-- tasks.md -->
+     ## T-001 <タスク名>
+     Approval: Draft
+     Status: Planned
+     Risk: standard
+
+     ### Scope
+     - `src/example.mjs`
+     - `tests/example.test.mjs`
+
+     ### Done When
+     - AC-001 が自動テストで合格する
+
+     ### Blockers
+     - None
+     ```
 
 ## Boundaries
 
@@ -50,4 +74,4 @@ user-invocable: false
 
 ## Handoff
 
-生成パス、各タスクの `Risk:`、未解決の `Open Questions` を `bootstrap` へ返す。
+生成パス、各タスクの `Risk:`、未解決の `Open Questions` を `bootstrap` へ返す。この内部スキルの完了時点で応答を終了せず、同一セッションのまま親工程（`bootstrap`）の残りステップ（`check-traceability.mjs --strict` → 必要に応じた `spec-check` → `render-decision-view.mjs --require-traceability` 提示）をそのまま続行する。

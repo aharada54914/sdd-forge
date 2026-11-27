@@ -28,6 +28,11 @@
 
 ## Independent Review Findings
 
+- **G1 (AC / Done When & Anti-Mock)**: PASS | FAIL — <根拠>
+- **G2 (Spec Amendments & Scope)**: PASS | FAIL | N/A (<理由>) — <根拠>
+- **G3 (Regression & Error Handling)**: PASS | FAIL | N/A (<理由>) — <根拠>
+- **G4 (Security, Non-Functional & Rollback)**: PASS | FAIL | N/A (<理由>) — <根拠>
+- **G5 (Domain & Design System)**: PASS | FAIL | N/A (<理由>) — <根拠>
 - **Reviewed Scope**: <確認した差分・関連回帰範囲>
 - **Spec Amendments Check**: <AMENDED 時の理由妥当性、CLEAN 時は N/A>
 - **Blocking Issues**: None（または修正必須項目）

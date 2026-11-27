@@ -1,0 +1,125 @@
+// Overlay for the pinned mvdan shell syntax package. See zsh's Shell Grammar
+// sections 6.3–6.4 and the par_for and par_repeat productions in Src/parse.c.
+package syntax
+
+import (
+	"strings"
+	"unicode"
+)
+
+// Zsh shell grammar 6.3–6.4: both loop forms accept do/done, braces, or
+// a single sublist. Parse that sublist in its original lexical context so
+// nested substitutions, redirects and pending here-documents remain intact.
+func (p *Parser) zshLoop(s *Stmt, repeat bool) {
+	fc := &ForClause{ForPos: p.pos}
+	s.Cmd = fc
+	p.next()
+	if repeat {
+		fc.RepeatCount = p.getWord()
+		if fc.RepeatCount == nil {
+			p.followErr(fc.ForPos, "repeat", noQuote("a word"))
+			return
+		}
+	} else if p.tok == dblLeftParen {
+		fc.Loop = p.loop(fc.ForPos)
+	} else {
+		fc.Loop = p.zshForWords(fc.ForPos)
+	}
+	if p.err != nil {
+		return
+	}
+	for p.got(semicolon) || p.got(_Newl) {
+	}
+	s.Comments = append(s.Comments, p.accComs...)
+	p.accComs = nil
+	fc.DoPos = p.pos
+	end := "done"
+	if _, ok := p.gotRsrv("{"); ok {
+		fc.Braces = true
+		end = "}"
+	} else if _, ok := p.gotRsrv("do"); !ok {
+		fc.ShortEnd = p.pos
+		if stmt := p.getStmt(false, false, false); stmt != nil {
+			fc.Do = []*Stmt{stmt}
+			fc.ShortEnd = stmt.End()
+		}
+		return
+	}
+	fc.Do, fc.DoLast = p.stmtList(end)
+	fc.DonePos = p.stmtEnd(fc, "loop", end)
+}
+
+func (p *Parser) zshForWords(start Pos) *WordIter {
+	wi := &WordIter{}
+	if p.tok != _LitWord || !zshIteratorName(p.val) {
+		p.followErr(start, "for", noQuote("a variable name"))
+		return wi
+	}
+	wi.Name = p.getLit()
+	// Multiple names bind successive values. Extra names are literals and
+	// have no expansions or comments inside them.
+	for p.tok == _LitWord && p.val != "in" && !zshLoopKeyword(p.val) && zshIteratorName(p.val) {
+		p.next()
+	}
+	afterNewline := p.tok == _Newl
+	for p.got(_Newl) {
+	}
+	if pos, ok := p.gotRsrv("in"); ok {
+		wi.InPos = pos
+		// In an in-list, { is a value. A standalone unquoted } ends
+		// the list token stream and cannot supply its required separator.
+		for !p.stopToken() && !(p.tok == _LitWord && p.val == "}") {
+			word := p.getWord()
+			if word == nil {
+				p.curErr("expected a word in for list")
+				return wi
+			}
+			wi.Items = append(wi.Items, word)
+		}
+		if p.tok != _Newl && p.tok != semicolon && p.tok != _EOF {
+			p.curErr("expected a separator after for list")
+		}
+	} else if !afterNewline && p.tok == leftParen {
+		left := p.pos
+		p.next()
+		for p.tok != rightParen && p.tok != _EOF {
+			if p.got(_Newl) || p.got(semicolon) {
+				continue
+			}
+			word := p.getWord()
+			if word == nil {
+				p.curErr("expected a word in parenthesized for list")
+				return wi
+			}
+			wi.Items = append(wi.Items, word)
+		}
+		p.matched(left, leftParen, rightParen)
+	} else if !afterNewline && p.tok != semicolon && p.tok != _EOF &&
+		!(p.tok == _LitWord && zshLoopKeyword(p.val)) {
+		p.curErr("expected a for list or loop separator")
+	}
+	return wi
+}
+
+func zshIteratorName(name string) bool {
+	if name == "" {
+		return false
+	}
+	if strings.Trim(name, "0123456789") == "" {
+		return true
+	}
+	for i, c := range name {
+		if c != '_' && !unicode.IsLetter(c) && !(i > 0 && unicode.IsDigit(c)) {
+			return false
+		}
+	}
+	return true
+}
+
+func zshLoopKeyword(word string) bool {
+	switch word {
+	case "repeat", "{}", "always", "elif", "foreach", "end", "nocorrect", "declare", "export", "float", "integer", "local", "readonly", "typeset":
+		return true
+	}
+	return IsKeyword(word)
+}

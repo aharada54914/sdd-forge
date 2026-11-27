@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+    # Subtest: checks retirements of Python modules found by default unittest discovery
+    ok 1 - checks retirements of Python modules found by default unittest discovery
+      ---
+      duration_ms: 327.646417
+      type: 'test'
+      ...
+    # Subtest: checks retirements of files found by default Node test discovery
+    ok 2 - checks retirements of files found by default Node test discovery
+      ---
+      duration_ms: 609.687375
+      type: 'test'
+      ...
+    # Subtest: checks retirements using exact directory segments in literal Git paths
+    ok 3 - checks retirements using exact directory segments in literal Git paths
+      ---
+      duration_ms: 286.518875
+      type: 'test'
+      ...
+    # Subtest: checks retirement approvals for complete __tests__ directory segments at root and nested levels
+    ok 4 - checks retirement approvals for complete __tests__ directory segments at root and nested levels
+      ---
+      duration_ms: 317.914542
+      type: 'test'
+      ...
+    1..4
+ok 1 - ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ---
+  duration_ms: 1542.388625
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1573.299459

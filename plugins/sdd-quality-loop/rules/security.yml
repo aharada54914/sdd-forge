@@ -1,0 +1,6 @@
+rules:
+  - id: tls-certificate-check-disabled
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Verify TLS certificates before sending data.
+    pattern: '{..., rejectUnauthorized: false, ...}'

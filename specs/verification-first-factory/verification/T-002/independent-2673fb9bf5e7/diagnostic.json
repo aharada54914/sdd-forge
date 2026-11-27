@@ -1,0 +1,17 @@
+{
+  "schema": "sdd-anti-tamper/v1",
+  "status": "TAMPER_DETECTED",
+  "baseRef": "HEAD",
+  "checkedFilesCount": 1,
+  "openQuestion": {
+    "id": "OQ-001",
+    "path": "reports/verification/example/anti-tampering/OQ-001.json"
+  },
+  "violations": [
+    {
+      "code": "LINT_DISABLE_ADDED",
+      "path": "help.sh",
+      "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable example-rule"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+▶ Software Factory v2.x (SQL + AWS + Azure + Software SDLC)
+  ✔ Phase A-1: sql-develop skill, policy, and contract template align cleanly with SDD Core v2 (0.553708ms)
+  ✔ Phase A-2 & A-3: render-decision-view.mjs skips GFM aligned separators, isolates feature gates, and escapes HTML/MD (49.868958ms)
+  ✔ Phase A-3 (fail-closed OQ): handles escaped pipes, bold/backtick IDs, JP commas, and non-Confirmed statuses (124.1765ms)
+  ✔ Phase B-1: check-traceability.mjs propagates transitive Blockers, ignores Spec Amendments, and matches Scopes accurately (36.794ms)
+  ✔ I2: scopeEntriesOverlap & --plan-batches serialize wildcard/directory & wildcard-pair overlaps (including uncreated files) while keeping disjoint top dirs parallel (65.115833ms)
+  ✔ Phase B-2: SQL & Cloud IaC sensors catch multiline/untracked real-world issues without comment false positives (250.820083ms)
+  ✔ Phase C: sdd-doctor.mjs walks nested sdd/knowledge/**/INDEX.md with CRLF-normalized 3,000-char limit (12.602333ms)
+  ✔ parseAlternativesRejected skips aligned separators and handles escaped pipes (0.123375ms)
+  ✔ D6: Decision View reflects missing, NEEDS_FIX, and PASS spec-check without claiming unobserved checks ran (2.427167ms)
+✔ Software Factory v2.x (SQL + AWS + Azure + Software SDLC) (543.068916ms)
+▶ #817 invalid Blockers are reported and never scheduled
+  ✔ unknown and self dependencies are listed apart from cycles, excluded with their downstream, and fail --strict (59.269209ms)
+✔ #817 invalid Blockers are reported and never scheduled (59.342792ms)
+▶ #817 review: only bare Blocker IDs are declared dependencies
+  ✔ prose mentioning the own ID or a range does not block; cycles stay visible next to invalid tasks (61.6275ms)
+✔ #817 review: only bare Blocker IDs are declared dependencies (61.694209ms)
+▶ #816 overlapping Scopes never share a wave
+  ✔ same file through a symlink, prose bullets, notes and braces serialize; empty Scope runs alone; independent paths stay parallel (269.420167ms)
+✔ #816 overlapping Scopes never share a wave (269.470083ms)
+▶ #815 CLI locks are held by their owner, not by the exiting CLI process
+  ✔ ship acquires, the child re-acquires with the same owner, others are refused, and the owner releases (152.725459ms)
+  ✔ an expired owner lock is stale and recoverable; a CLI acquire without --owner is refused (127.465125ms)
+✔ #815 CLI locks are held by their owner, not by the exiting CLI process (280.262166ms)
+▶ #830 one approval grammar for the gate, the decision view and MCP
+  ✔ Approved with an optional (note) is approved; other case and trailing words are not (166.216959ms)
+✔ #830 one approval grammar for the gate, the decision view and MCP (166.268208ms)
+▶ #972 review: Scope literals and lock renewal races
+  ✔ a backtick path keeps parentheses that belong to the path (route groups) (0.34875ms)
+  ✔ a concurrent release and acquire cannot remove a newly acquired lock (135.132208ms)
+  ✔ a process exit during acquisition does not strand an intent or publish partial data (24.786ms)
+  ✔ renewal never overwrites a lock another worker took after it was read (1.23475ms)
+✔ #972 review: Scope literals and lock renewal races (161.603666ms)
+▶ #972 review: bounded braces and owner renewal after expiry
+  ✔ a Scope whose brace expansion is too large is treated as touching everything (0.155291ms)
+  ✔ the owner of an expired lock renews it without --break-stale; another owner still cannot (1.594833ms)
+✔ #972 review: bounded braces and owner renewal after expiry (1.78425ms)
+▶ #972 re-review: nested braces, bare route groups, lease renewal
+  ✔ nested brace lists are bounded by what they actually expand to (0.129667ms)
+  ✔ a bare path keeps a route group between slashes and drops a trailing note (0.164042ms)
+  ✔ renewal never leaves a moment where another owner can take a live lock (1.215417ms)
+  ✔ a renewed lease keeps an otherwise expired lock active; a lease for an older lock is ignored (1.63375ms)
+✔ #972 re-review: nested braces, bare route groups, lease renewal (3.194875ms)
+▶ Wave task plans in CLI and read-only views
+  ✔ resolves real H3 metadata, scope and blockers with the same task boundaries as the gate (0.271625ms)
+  ✔ binds fenced bytes and task references while normalizing a real lifecycle transition (0.792167ms)
+✔ Wave task plans in CLI and read-only views (1.097667ms)
+▶ #972 review 4: wrapped prose, table cells, filesystems without hard links
+  ✔ a wrapped line that starts with an ID stays part of its entry (0.44975ms)
+  ✔ a table row whose first cell starts with the ID is that ID's entry (0.109208ms)
+  ✔ locking still works where hard links are not supported (0.713625ms)
+✔ #972 review 4: wrapped prose, table cells, filesystems without hard links (1.308584ms)
+▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2
+  ✔ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (1382.035459ms)
+  ✔ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (169.707583ms)
+  ✔ T-008 resolves the baseline command against the committed implementation (320.659292ms)
+  ✔ T-008 stops at the first failing verification command in fail-fast mode (157.71625ms)
+  ✔ T-008 rebuild measures default p95 and absolute budgets independently from exact output (3816.050625ms)
+  ✔ T-008 rebuild rechecks immutable inputs after running the candidate (876.595333ms)
+  ✔ T-008 enforces implementer write scope through both public CLIs using the Git diff (292.986625ms)
+  ✔ T-008 resolves a nested project’s protected paths from its committed policy (185.621916ms)
+  ✔ reports a failed lock release after saving a completed gate execution (184.978ms)
+  ✔ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (176.100458ms)
+  ✔ T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor (282.313875ms)
+✔ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (7845.39225ms)
+ℹ tests 41
+ℹ suites 12
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7886.682

@@ -1,0 +1,88 @@
+{
+  "branch_head": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+  "ci_merge": "124c57a18ae3a9c04930012b6130d601cd0567a2",
+  "common_tree": "1cec1f4a4416edd99e984a3ce80ecfd6084dcbdc",
+  "base": "2db182ad22706c86734b85a00e4263f23fda03f0",
+  "command": "node plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs --diff-only --base-ref 2db182ad22706c86734b85a00e4263f23fda03f0 --mode shadow --format json",
+  "execution": "local replay of hosted checkout tree and base",
+  "status": "WARN",
+  "scanned_files": 48,
+  "duration_ms": 1964,
+  "active_waived": 0,
+  "expired_waivers": 0,
+  "findings": [
+    {
+      "rule": "no-child-process-shell-true",
+      "severity": "error",
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "line": 96,
+      "file_sha256": "10932749cfa4e9742e89e1270184caed2624f5aec05dc2ef84d34513b2cb7501",
+      "role": "production",
+      "syntax_confirmed": true
+    },
+    {
+      "rule": "no-child-process-shell-true",
+      "severity": "error",
+      "path": "specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "line": 572,
+      "file_sha256": "5d5ca52334a0126c6fdcd0803327819ecb35a3aa861e7c2bbee661cc1cd730af",
+      "role": "historical-evidence-copy",
+      "syntax_confirmed": true
+    },
+    {
+      "rule": "no-child-process-shell-true",
+      "severity": "error",
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "line": 96,
+      "file_sha256": "a0e7158ab4298502b14d05375f3694184dca6fa6c118a68f0bb6e56bde8d9498",
+      "role": "historical-evidence-copy",
+      "syntax_confirmed": true
+    },
+    {
+      "rule": "no-child-process-shell-true",
+      "severity": "error",
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "line": 726,
+      "file_sha256": "a0e7158ab4298502b14d05375f3694184dca6fa6c118a68f0bb6e56bde8d9498",
+      "role": "historical-evidence-copy",
+      "syntax_confirmed": true
+    },
+    {
+      "rule": "no-empty-catch",
+      "severity": "error",
+      "path": "tests/fixtures/agent-lint/violations.mjs",
+      "line": 4,
+      "file_sha256": "8fc84e054eec4a8db2af31c2bac8d8109a3a1fc68f1d4915116907ac17899744",
+      "role": "intentional-test-control",
+      "syntax_confirmed": true
+    },
+    {
+      "rule": "no-eval-or-new-function",
+      "severity": "error",
+      "path": "tests/fixtures/agent-lint/violations.mjs",
+      "line": 8,
+      "file_sha256": "8fc84e054eec4a8db2af31c2bac8d8109a3a1fc68f1d4915116907ac17899744",
+      "role": "intentional-test-control",
+      "syntax_confirmed": true
+    },
+    {
+      "rule": "no-child-process-shell-true",
+      "severity": "error",
+      "path": "tests/fixtures/agent-lint/violations.mjs",
+      "line": 12,
+      "file_sha256": "8fc84e054eec4a8db2af31c2bac8d8109a3a1fc68f1d4915116907ac17899744",
+      "role": "intentional-test-control",
+      "syntax_confirmed": true
+    },
+    {
+      "rule": "no-console-log",
+      "severity": "warn",
+      "path": "tests/fixtures/agent-lint/violations.mjs",
+      "line": 16,
+      "file_sha256": "8fc84e054eec4a8db2af31c2bac8d8109a3a1fc68f1d4915116907ac17899744",
+      "role": "intentional-test-control",
+      "syntax_confirmed": true
+    }
+  ],
+  "raw_stdout_sha256": "35672f7b29facc9826f6ba7811a2ccc5972722b0035aeebccdfeb343771348c7"
+}

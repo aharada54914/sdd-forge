@@ -1,0 +1,47 @@
+{
+  "schema": "supplemental-delivery-declaration/v1",
+  "feature": "verification-first-factory",
+  "task_id": "T-001",
+  "implementation_report": {
+    "path": "reports/implementation/verification-first-factory/T-001.md",
+    "sha256": "1d14fc976834c1e09d51b3e55d7fc2d1d1c0304404e33e4753f868fc565ee67e"
+  },
+  "artifacts": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "916ba0e56a0b2e57607684aafd2b06c866d11692a1d6782a6ca4d64bab66b648"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02"
+    },
+    {
+      "path": "tests/v2-sdd-doctor.test.mjs",
+      "sha256": "c4ffda7890149ad1d6f3bf818de816a7d85ab34549253e1946b05b67732545eb"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "4329f816a9abdb8f8c601d6aaf6911bf4586379bd5db59717c0ec9775c91a28e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+      "sha256": "028735ca86edccad1a8e6eda26d588c14f9c2105d4278650b4507b50ac87ec5d"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/task-scoped.diff",
+      "sha256": "3dc60ce6eea01401780d98f2afd8a631a1d2b88ec236e318559f8310cb68ffed"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/source-inputs.json",
+      "sha256": "e42bbba8b77c397bda235db586d04ef6ce1d65452f585df9d746000d0c02c733"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/legacy-config-comparison.json",
+      "sha256": "338ab263c9de376ca79c13aa931e29b5377f1cd2dca51a7805c88bafda0bb233"
+    }
+  ]
+}

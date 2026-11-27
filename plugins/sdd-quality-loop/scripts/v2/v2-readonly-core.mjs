@@ -11,13 +11,14 @@ import path from 'node:path';
 import {
   assertValidFeatureName,
   canonicalSpecContractText,
-  countPrimaryApprovals,
   extractAmendmentEntries,
   extractSpecIdentifiers,
   globToRegExp,
   isApprovedValue,
   matchProtectedSpecRelPath,
+  markdownLines,
   normalizeGuardrailsConfig,
+  normalizeTaskFields,
   normalizeNewlines,
   normalizeRelPath,
   parseSimpleYaml,
@@ -25,9 +26,12 @@ import {
   sha256Text,
   splitSpecAmendments,
   stripYamlComment,
+  taskField,
+  taskHeading,
   VALID_MODES,
   VALID_PRE_IMPL,
   VALID_RISK_TIERS,
+  validateGuardrailsExtensions,
 } from './v2-pure-lib.mjs';
 
 const CONFIRMED_STATUS_RE = /^(?:confirmed|resolved|closed|確定)$/i;
@@ -130,25 +134,7 @@ export function loadGuardrailsConfigFromIo(io) {
 }
 
 export function stripFencedCodeBlocks(text) {
-  const lines = normalizeNewlines(text || '').split('\n');
-  const out = [];
-  let inFence = false;
-  let fenceChar = '';
-  for (const line of lines) {
-    const m = line.match(/^[ \t]*(`{3,}|~{3,})/);
-    if (m) {
-      if (!inFence) {
-        inFence = true;
-        fenceChar = m[1][0];
-      } else if (m[1][0] === fenceChar) {
-        inFence = false;
-        fenceChar = '';
-      }
-      continue;
-    }
-    if (!inFence) out.push(line);
-  }
-  return out.join('\n');
+  return [...markdownLines(text)].filter(({ fenced }) => !fenced).map(({ line }) => line).join('\n');
 }
 
 export function splitMarkdownTableRow(line) {
@@ -375,11 +361,12 @@ function extractDeclaredBlockers(taskBlock) {
 }
 
 export function extractScopePaths(taskBlock) {
+  const inline = taskBlock.split('\n').map(taskField).find((field) => field?.name === 'scope' && field.raw);
   const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
-  if (!scopeMatch) return [];
-  const rest = taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
+  if (!inline && !scopeMatch) return [];
+  const rest = inline ? '' : taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
   const nextSub = /^###[ \t]+\S/m.exec(rest);
-  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
+  const section = inline ? `- ${stripScopeNote(inline.raw)}` : (nextSub ? rest.slice(0, nextSub.index) : rest);
   const paths = [];
   for (const line of section.split('\n')) {
     const trimmed = line.trim();
@@ -419,6 +406,14 @@ function stripScopeNote(token) {
   let out = '';
   for (let i = 0; i < text.length; i += 1) {
     const ch = text[i];
+    if (ch === '`') {
+      const end = text.indexOf('`', i + 1);
+      if (end !== -1) {
+        out += text.slice(i, end + 1);
+        i = end;
+        continue;
+      }
+    }
     if (ch !== '(' && ch !== '（') {
       out += ch;
       continue;
@@ -496,46 +491,62 @@ export function normalizeRiskTier(raw, fallback = 'standard') {
   return fallback;
 }
 
-export function parseTasksSummary(tasksText) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksText || '');
-  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments);
-  const tasks = [];
-  const h2Re = /^##[ \t]+(.+)$/gm;
-  const headings = [...body.matchAll(h2Re)];
-
-  for (let i = 0; i < headings.length; i += 1) {
-    const h = headings[i];
-    const titleLine = h[1].trim();
-    const taskMatch = titleLine.match(/^(T-[A-Za-z0-9._-]+)(?:[ \t]+(.*))?$/);
-    if (!taskMatch) continue;
-
-    const start = h.index + h[0].length;
-    const end = i + 1 < headings.length ? headings[i + 1].index : body.length;
-    const block = body.slice(start, end);
-
-    const approval = (block.match(/^[ \t]*Approval:[ \t]*(.+)$/m) || [])[1]?.trim() || 'Draft';
-    const status = (block.match(/^[ \t]*Status:[ \t]*(.+)$/m) || [])[1]?.trim() || 'Planned';
-    const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], 'standard');
-    const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
-    const taskId = taskMatch[1].toUpperCase();
-    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
-    const declaredBlockers = extractDeclaredBlockers(block);
-    const selfBlocked = declaredBlockers.includes(taskId);
-
-    tasks.push({
-      selfBlocked,
-      declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
-      id: taskId,
-      title: (taskMatch[2] || '').trim(),
-      approval,
-      status,
-      risk,
-      acRefs,
-      blockers,
-      block,
-    });
+// One structural scan for the CLI, public read-only views and evidence hashing.
+function taskSections(text) {
+  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text || '');
+  const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
+  const sections = [];
+  let current = null;
+  for (const { line, fenced } of markdownLines(body)) {
+    const heading = !fenced && taskHeading(line);
+    if (heading) {
+      current = { id: heading[1].toUpperCase(), title: (heading[2] || '').trim(), raw: [line], body: [], fields: {} };
+      sections.push(current);
+    } else if (!fenced && /^##[ \t]+\S/.test(line)) {
+      current = null;
+    } else if (current) {
+      current.raw.push(line);
+      if (fenced) continue;
+      current.body.push(line);
+      const field = taskField(line);
+      if (field?.value && !(field.name in current.fields)) current.fields[field.name] = field.value;
+    }
   }
-  return tasks;
+  return sections;
+}
+
+export function parseTaskBlock(tasksContent, taskId) {
+  const section = taskSections(tasksContent).find(({ id }) => id === taskId.toUpperCase());
+  if (!section) return null;
+  const { approval = null, status = null, risk } = section.fields;
+  return { taskId: section.id, approval, status, risk: normalizeRiskTier(risk), scopePaths: extractScopePaths(section.body.join('\n')) };
+}
+
+function taskSummary({ id: taskId, title, body, fields }) {
+  const block = body.join('\n');
+  const { approval = 'Draft', status = 'Planned' } = fields;
+  const risk = normalizeRiskTier(fields.risk);
+  const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
+  const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+  const declaredBlockers = extractDeclaredBlockers(block);
+  const selfBlocked = declaredBlockers.includes(taskId);
+
+  return {
+    selfBlocked,
+    declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
+    id: taskId,
+    title,
+    approval,
+    status,
+    risk,
+    acRefs,
+    blockers,
+    block,
+  };
+}
+
+export function parseTasksSummary(tasksText) {
+  return taskSections(tasksText).map(taskSummary);
 }
 
 export function detectDomains(combinedText) {
@@ -677,42 +688,20 @@ function isTestPath(relPath) {
   );
 }
 
-// Only a line that is exactly an approval value is normalized; any other text
-// on the line (a waiver, a scope note) stays part of the contract hash.
-const APPROVAL_FIELD_RE = /^([ \t]*Approval:[ \t]*)(?:Approved(?:[ \t]*\([^()\n]*\))?|Draft)[ \t]*$/gm;
-
 // An IO may cap reads (MCP: 2 MiB). Ask it whether a null read means "there
 // but unreadable"; IOs without the method fall back to exists().
 function existsButUnreadable(io, relPath) {
   return typeof io.existsButUnreadable === 'function' ? io.existsButUnreadable(relPath) : io.exists(relPath);
 }
 
-// Raw text of each task section in tasks.md, fenced code included (the
-// parsed task block drops fences, but a command in a fence is a spec too).
-function rawTaskSections(tasksRaw) {
-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(normalizeNewlines(tasksRaw || ''));
-  const lines = (afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments).split('\n');
-  const sections = new Map();
-  let fence = false;
-  let current = null;
-  for (const line of lines) {
-    if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
-    const heading = !fence && /^##[ \t]+(\S+)/.exec(line);
-    if (heading) {
-      current = /^T-[A-Za-z0-9._-]+$/i.test(heading[1]) ? heading[1].toUpperCase() : null;
-      if (current && !sections.has(current)) sections.set(current, [line]);
-      else if (current) current = null; // a repeated heading keeps the first section
-      continue;
-    }
-    if (current) sections.get(current).push(line);
-  }
-  return new Map([...sections].map(([id, body]) => [id, body.join('\n')]));
-}
+// Bind complete identifiers. A self-verification AC can have the same numeric
+// suffix as a distinct product AC in the same feature.
+const EVIDENCE_ID = String.raw`(?:(?:SELF-)?(?:REQ|AC)|NFR)-\d+`;
+const EVIDENCE_TABLE_ROW_RE = new RegExp(String.raw`^[ \t]*\|[ \t]*(?:\*\*)?(${EVIDENCE_ID})\b`, 'i');
+const ENTRY_HEAD_RE = new RegExp(String.raw`^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?(${EVIDENCE_ID})\b`, 'i');
+const LIST_ENTRY_HEAD_RE = new RegExp(String.raw`^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?${EVIDENCE_ID}\b`, 'i');
 
-const ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
-const LIST_ENTRY_HEAD_RE = /^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?(?:REQ|AC)-\d+\b/i;
-
-// Every line that defines a REQ/AC: its bullet line with the indented
+// Every line that defines an evidence ID: its bullet line with the indented
 // continuation lines under it, and table rows whose first cell is the ID.
 function specEntries(text) {
   const entries = new Map();
@@ -727,7 +716,7 @@ function specEntries(text) {
     const line = lines[i];
     if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
     if (fence) continue;
-    const row = /^[ \t]*\|[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i.exec(line);
+    const row = EVIDENCE_TABLE_ROW_RE.exec(line);
     if (row) {
       add(row[1], line);
       continue;
@@ -751,7 +740,8 @@ function specEntries(text) {
 /**
  * What a gate run verifies for each task of a feature (#831): the task's raw
  * section (fences included) with bare Status / Approval values normalized,
- * every REQ/AC entry it depends on (its ACs, the REQs those ACs and the task
+ * every AC, REQ and NFR entry it depends on (including SELF-prefixed ACs
+ * and REQs, plus requirements referenced by its ACs and by the task
  * name; bullet lines with their continuation lines and table rows, from
  * requirements.md and acceptance-tests.md), and design.md without its
  * amendment log. The spec files are read once per feature. Changing an input
@@ -779,24 +769,27 @@ export function featureEvidenceInputs(io, { feature }) {
   // still makes the evidence stale (fail closed); only an ID found nowhere is
   // 'missing'.
   const fallbackHash = (id) => {
-    const re = new RegExp(`\\b${id}\\b`, 'i');
+    const re = new RegExp(`(?<![\\w-])${id}\\b`, 'i');
     const hits = contracts.filter((c) => re.test(c.contract));
     return hits.length === 0 ? 'missing' : sha256Text(hits.map((c) => `${c.name}:\n${c.contract}`).join('\n'));
   };
   const designRaw = io.readText(`specs/${feature}/design.md`);
   const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, 'design.md'));
-  const sections = rawTaskSections(tasksRaw);
-  const reqsIn = (text) => (String(text || '').match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
-  for (const task of parseTasksSummary(tasksRaw)) {
-    const wanted = new Set(task.acRefs);
-    for (const req of reqsIn(task.block)) wanted.add(req);
-    for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join('\n'))) wanted.add(req);
+  const refsIn = (text) => [...text.matchAll(new RegExp(String.raw`(?<![\w-])${EVIDENCE_ID}\b`, 'gi'))]
+    .map(([id]) => id.toUpperCase());
+  for (const section of taskSections(tasksRaw)) {
+    if (byTask.has(section.id)) continue;
+    const task = taskSummary(section);
+    const wanted = new Set(refsIn(task.block));
+    for (const ac of [...wanted].filter((id) => /^(?:SELF-)?AC-/.test(id))) {
+      for (const ref of refsIn((entries.get(ac) || []).join('\n'))) {
+        if (!/^(?:SELF-)?AC-/.test(ref)) wanted.add(ref);
+      }
+    }
     const ids = {};
     for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join('\n')) : fallbackHash(key);
-    const section = (sections.get(task.id) || task.block)
-      .replace(/^[ \t]*Status:[ \t]*.*$/gm, '<NORMALIZED>')
-      .replace(APPROVAL_FIELD_RE, '<NORMALIZED>');
-    byTask.set(task.id, { schema: 'sdd-task-evidence-inputs/v2', task: sha256Text(section.trim()), ids, design });
+    const normalized = normalizeTaskFields(section.raw.join('\n'), { approval: true, evidence: true });
+    byTask.set(task.id, { schema: 'sdd-task-evidence-inputs/v2', task: sha256Text(normalized.trim()), ids, design });
   }
   return byTask;
 }
@@ -830,7 +823,7 @@ export function diffEvidenceInputs(recorded, current) {
  */
 export function taskApprovalBaseline(rawText, fileName) {
   if (String(fileName || '').toLowerCase() !== 'tasks.md') return null;
-  const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, 'Approval: <NORMALIZED>');
+  const contract = normalizeTaskFields(canonicalSpecContractText(rawText, fileName), { approval: true });
   const taskApprovals = {};
   for (const t of parseTasksSummary(rawText)) taskApprovals[t.id] = t.approval;
   return { approvalContractSha256: sha256Text(contract), taskApprovals };
@@ -897,7 +890,8 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
     // older comparison, where any Approval: edit changes the file.
     const approvalView = typeof baseInfo?.approvalContractSha256 === 'string' ? taskApprovalBaseline(rawText, fileName) : null;
     if (approvalView) {
-      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256) {
+      // Older baselines used a narrower grammar. Identical raw bytes always match.
+      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256 && sha256Text(rawText) !== baseInfo.rawSha256) {
         changedFiles.push(safeRel);
       }
       for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {
@@ -906,7 +900,7 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
         if (isApprovedValue(was) && !isApprovedValue(now)) revokedApprovals.push(id);
         else if (!isApprovedValue(was) && isApprovedValue(now)) newlyApprovedTasks.push(id);
       }
-    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
+    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256 && sha256Text(rawText) !== baseInfo?.rawSha256) {
       changedFiles.push(safeRel);
     }
 
@@ -1536,6 +1530,102 @@ export function buildReviewPerspectiveMatrix({
   return matrix;
 }
 
+export function computeSpecReviewInputsHash(io, { feature }) {
+  assertValidFeatureName(feature);
+  const featureDirRel = `specs/${feature}`;
+  const files = ['requirements.md', 'design.md', 'tasks.md'].map((name) => {
+    const raw = io.readText(`${featureDirRel}/${name}`);
+    if (raw === null) return { name, present: false, sha256: null };
+    let normalized = normalizeNewlines(raw);
+    if (name === 'tasks.md') {
+      normalized = normalizeTaskFields(normalized, { approval: true });
+    }
+    return { name, present: true, sha256: sha256Text(normalized.trim()) };
+  });
+  return sha256Text(JSON.stringify({ schema: 'sdd-spec-review-inputs/v1', feature, files }));
+}
+
+export function evaluateSpecCheckReport(specCheckRaw, currentInputsHash) {
+  if (specCheckRaw === null || specCheckRaw === undefined) {
+    return {
+      rawVerdict: null,
+      recordedHash: null,
+      freshness: 'not-run',
+      displayVerdict: 'Not Run',
+      confirmed: false,
+    };
+  }
+  const header = stripFencedCodeBlocks(String(specCheckRaw)).split(/^##[ \t]/m, 1)[0] ?? '';
+  const verdictMatches = [...header.matchAll(/^[ \t]*(?:-[ \t]+)?\*\*Verdict\*\*:[ \t]*([^\r\n]*)$/gm)];
+  const rawVerdict = verdictMatches.length === 1 ? verdictMatches[0][1].trim() : null;
+  const validVerdict = rawVerdict === 'PASS' || rawVerdict === 'PASS_WITH_NOTES' || rawVerdict === 'NEEDS_FIX';
+
+  const hashMatches = [
+    ...header.matchAll(/^[ \t]*(?:-[ \t]+)?(?:\*\*)?Review-Inputs-SHA256(?:\*\*)?:[ \t]*([^\r\n]*)$/gm),
+  ];
+  let recordedHash = null;
+  let hashInvalid = false;
+  if (hashMatches.length === 1) {
+    const candidate = hashMatches[0][1].trim().replace(/^[`]+|[`]+$/g, '');
+    if (/^[0-9a-fA-F]{64}$/.test(candidate)) {
+      recordedHash = candidate.toLowerCase();
+    } else {
+      hashInvalid = true;
+    }
+  } else if (hashMatches.length > 1) {
+    hashInvalid = true;
+  }
+
+  if (!validVerdict || hashInvalid) {
+    return {
+      rawVerdict: validVerdict ? rawVerdict : null,
+      recordedHash,
+      freshness: 'invalid',
+      displayVerdict: 'Recorded',
+      confirmed: false,
+    };
+  }
+
+  if (rawVerdict === 'PASS' || rawVerdict === 'PASS_WITH_NOTES') {
+    if (recordedHash === null) {
+      return {
+        rawVerdict,
+        recordedHash: null,
+        freshness: 'unconfirmed',
+        displayVerdict: `Recorded ${rawVerdict} (freshness unconfirmed)`,
+        confirmed: false,
+      };
+    }
+    if (recordedHash === currentInputsHash) {
+      return {
+        rawVerdict,
+        recordedHash,
+        freshness: 'current',
+        displayVerdict: rawVerdict,
+        confirmed: true,
+      };
+    }
+    return {
+      rawVerdict,
+      recordedHash,
+      freshness: 'stale',
+      displayVerdict: `Stale (previous ${rawVerdict})`,
+      confirmed: false,
+    };
+  }
+
+  // rawVerdict === 'NEEDS_FIX'
+  const freshness =
+    recordedHash === null ? 'unconfirmed' : recordedHash === currentInputsHash ? 'current' : 'stale';
+  return {
+    rawVerdict,
+    recordedHash,
+    freshness,
+    displayVerdict: freshness === 'stale' ? 'Stale (previous NEEDS_FIX)' : 'NEEDS_FIX',
+    confirmed: false,
+  };
+}
+
 export function buildDecisionViewDataCore(io, { feature, config = null }) {
   assertValidFeatureName(feature);
   const featureDirRel = `specs/${feature}`;
@@ -1558,7 +1648,24 @@ export function buildDecisionViewDataCore(io, { feature, config = null }) {
   const designText = designRaw || '';
   const tasksText = tasksRaw || '';
 
+  const formalDir = `reports/verification/${feature}/formal-questions`;
+  const formalQuestions = io.listDir(formalDir)
+    .filter((entry) => entry.isFile && /^OQ-\d+\.json$/.test(entry.name))
+    .map((entry) => {
+      const sourceFile = formalDir + '/' + entry.name;
+      const q = JSON.parse(io.readText(sourceFile));
+      if (q.feature !== feature || q.id + '.json' !== entry.name ||
+          typeof q.fact !== 'string' || typeof q.evidence !== 'string') {
+        throw new Error('Invalid formal question: ' + sourceFile);
+      }
+      return {
+        id: q.id, status: q.status, confirmed: isOpenQuestionConfirmed(q.status), category: '形式検証',
+        fact: q.fact, reason: q.evidence, question: '反例とモデル・実装の対応を確認してください。',
+        impactedTasks: [], sourceFile, sourceRef: sourceFile,
+      };
+    });
   const openQuestions = mergeOpenQuestions(
+    formalQuestions,
     parseOpenQuestions(reqText, reqRel),
     parseOpenQuestions(designText, designRel),
   );
@@ -1570,11 +1677,10 @@ export function buildDecisionViewDataCore(io, { feature, config = null }) {
   const domains = detectDomains(`${reqText}\n${designText}\n${tasksText}`);
 
   const specCheckRel = `reports/spec-check/${feature}.md`;
-  let specCheckVerdict = 'Not Run';
+  const specReviewInputsHash = computeSpecReviewInputsHash(io, { feature });
   const specCheckRaw = io.readText(specCheckRel);
-  if (specCheckRaw !== null) {
-    specCheckVerdict = (specCheckRaw.match(/\*\*Verdict\*\*:\s*([A-Z_]+)/) || [])[1] || 'Recorded';
-  }
+  const specCheckEvaluation = evaluateSpecCheckReport(specCheckRaw, specReviewInputsHash);
+  const specCheckVerdict = specCheckEvaluation.displayVerdict;
 
   const gateResults = [];
   for (const entry of io.listDir('reports/quality-gate')) {
@@ -2078,6 +2184,9 @@ export function runDoctorCore(
     if (maxRounds !== undefined && (!Number.isInteger(maxRounds) || maxRounds < 0 || maxRounds > 10)) {
       addFinding(findings, 'NG', 'config', `不正な limits.max_auto_fix_rounds: ${maxRounds}`, configRel, '0〜10 の整数を指定してください');
     }
+    for (const extErr of validateGuardrailsExtensions(parsed)) {
+      addFinding(findings, 'NG', 'config', extErr.message, configRel, extErr.action);
+    }
   }
 
   // 4. Hooks & Skills (CLI full repo mode only; MCP stays strictly inside allowlist)
@@ -2236,8 +2345,9 @@ export function runDoctorCore(
     const content = io.readText(relTasks);
     if (content === null) continue;
 
-    const approvedCount = countPrimaryApprovals(content);
-    const hasActiveTask = /^[ \t]*Status:[ \t]*(?:Planned|In Progress|Implementation Complete|Blocked)\b/im.test(content);
+    const tasks = parseTasksSummary(content);
+    const approvedCount = tasks.filter((task) => isApprovedValue(task.approval)).length;
+    const hasActiveTask = tasks.some((task) => /^(?:Planned|In Progress|Implementation Complete|Blocked)$/.test(task.status));
     const baselineRel = `specs/${entry.name}/.spec-baseline.json`;
 
     if (approvedCount > 0 && hasActiveTask && !io.exists(baselineRel)) {
@@ -2251,7 +2361,7 @@ export function runDoctorCore(
       );
     }
 
-    if (/^[ \t]*Status:[ \t]*In Progress\b/im.test(content)) {
+    if (tasks.some((task) => task.status === 'In Progress')) {
       const mtimeMs = io.statMtimeMs(relTasks);
       if (mtimeMs !== null && nowMs - mtimeMs > staleMs) {
         const ageDays = Math.floor((nowMs - mtimeMs) / (24 * 60 * 60 * 1000));
@@ -2343,6 +2453,7 @@ export function runDoctorCore(
     info: findings.filter((f) => f.severity === 'INFO').length,
   };
 
+  const normalizedCfg = normalizeGuardrailsConfig(parsed, configRel);
   const result = {
     schema: 'sdd-doctor/v1',
     checked_at: new Date().toISOString(),
@@ -2350,6 +2461,27 @@ export function runDoctorCore(
     summary,
     non_checks: [...NON_CHECKS],
     findings,
+    v2_2_gates: {
+      formal_verification: {
+        enabled: normalizedCfg.formal_verification.enabled,
+        mode: normalizedCfg.formal_verification.mode,
+        adapter: normalizedCfg.formal_verification.checker.adapter,
+      },
+      agent_lint: {
+        enabled: normalizedCfg.agent_lint.enabled,
+        mode: normalizedCfg.agent_lint.mode,
+        waiver_count: normalizedCfg.agent_lint.waivers.length,
+      },
+      security_audit: {
+        enabled: normalizedCfg.security_audit.enabled,
+        mode: normalizedCfg.security_audit.mode,
+        enabled_adapters: normalizedCfg.security_audit.enabled_adapters,
+      },
+      anti_tampering: {
+        enabled: normalizedCfg.anti_tampering.enabled,
+        mode: normalizedCfg.anti_tampering.mode,
+      },
+    },
   };
   if (rootLabel !== null) {
     result.root = rootLabel;

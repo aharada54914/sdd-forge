@@ -1,0 +1,271 @@
+{
+  "ticket": "RT-20261126-004",
+  "before": "585feab2f825f62a155dd90509635c68cc073279",
+  "after": "6f26285c901c8a92260bdb7680acc1281833a76e",
+  "command": "node check-spec-drift.mjs --anti-tamper --root <fresh-git-repo> --feature demo",
+  "platform": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "runtime": "v24.13.0",
+  "cases": [
+    {
+      "shell": "bash",
+      "active_comments": false,
+      "source": "#!/bin/bash\nset -- help\nvalue=\"$(time case help in\nhelp) cat <<'HELP'\nUse \" for inches.\n# sdd-lint-disable shown\nHELP\n;;\nesac\n)\"\nprintf '%s\\n' \"$value\"\n",
+      "native_exit": 0,
+      "native_stdout": "Use \" for inches.\n# sdd-lint-disable shown\n",
+      "before": {
+        "exit": 4,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable shown"
+          }
+        ],
+        "persisted_oq": "OQ-001",
+        "oq_files": 1
+      },
+      "after": {
+        "exit": 0,
+        "status": "CLEAN",
+        "violations": [],
+        "persisted_oq": null,
+        "oq_files": 0
+      }
+    },
+    {
+      "shell": "bash",
+      "active_comments": true,
+      "source": "#!/bin/bash\nset -- help\nvalue=\"$(time case help in\nhelp) cat <<'HELP'\nUse \" for inches.\n# sdd-lint-disable shown\nHELP\n# sdd-lint-disable inner\n;;\nesac\n)\"\nprintf '%s\\n' \"$value\"\n# sdd-lint-disable after\n",
+      "native_exit": 0,
+      "native_stdout": "Use \" for inches.\n# sdd-lint-disable shown\n",
+      "before": {
+        "exit": 4,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable shown"
+          },
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable inner"
+          }
+        ],
+        "persisted_oq": "OQ-001",
+        "oq_files": 1
+      },
+      "after": {
+        "exit": 4,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable inner"
+          },
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable after"
+          }
+        ],
+        "persisted_oq": "OQ-001",
+        "oq_files": 1
+      }
+    },
+    {
+      "shell": "dash",
+      "active_comments": false,
+      "source": "#!/bin/dash\nset -- help\nvalue=\"$(for arg do case \"$arg\" in\nhelp) cat <<'HELP'\nUse \" for inches.\n# sdd-lint-disable shown\nHELP\n;;\nesac; done\n)\"\nprintf '%s\\n' \"$value\"\n",
+      "native_exit": 0,
+      "native_stdout": "Use \" for inches.\n# sdd-lint-disable shown\n",
+      "before": {
+        "exit": 4,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable shown"
+          }
+        ],
+        "persisted_oq": "OQ-001",
+        "oq_files": 1
+      },
+      "after": {
+        "exit": 0,
+        "status": "CLEAN",
+        "violations": [],
+        "persisted_oq": null,
+        "oq_files": 0
+      }
+    },
+    {
+      "shell": "dash",
+      "active_comments": true,
+      "source": "#!/bin/dash\nset -- help\nvalue=\"$(for arg do case \"$arg\" in\nhelp) cat <<'HELP'\nUse \" for inches.\n# sdd-lint-disable shown\nHELP\n# sdd-lint-disable inner\n;;\nesac; done\n)\"\nprintf '%s\\n' \"$value\"\n# sdd-lint-disable after\n",
+      "native_exit": 0,
+      "native_stdout": "Use \" for inches.\n# sdd-lint-disable shown\n",
+      "before": {
+        "exit": 4,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable shown"
+          },
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable inner"
+          }
+        ],
+        "persisted_oq": "OQ-001",
+        "oq_files": 1
+      },
+      "after": {
+        "exit": 4,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable inner"
+          },
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable after"
+          }
+        ],
+        "persisted_oq": "OQ-001",
+        "oq_files": 1
+      }
+    }
+  ],
+  "installed_cli": {
+    "sh": {
+      "target": "FilesOnly",
+      "help": {
+        "exit": 0,
+        "status": "CLEAN",
+        "violations": [],
+        "persisted_oq": null,
+        "oq_files": 0
+      },
+      "genuine": {
+        "exit": 4,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable after"
+          }
+        ],
+        "persisted_oq": "OQ-001",
+        "oq_files": 1
+      },
+      "assets_match": true
+    },
+    "ps": {
+      "target": "FilesOnly",
+      "help": {
+        "exit": 0,
+        "status": "CLEAN",
+        "violations": [],
+        "persisted_oq": null,
+        "oq_files": 0
+      },
+      "genuine": {
+        "exit": 4,
+        "status": "TAMPER_DETECTED",
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable after"
+          }
+        ],
+        "persisted_oq": "OQ-001",
+        "oq_files": 1
+      },
+      "assets_match": true
+    }
+  },
+  "cold_cli": {
+    "before": {
+      "runs_ms": [
+        82.5,
+        81.8,
+        81.4,
+        83.0,
+        83.0
+      ],
+      "median_ms": 82.5
+    },
+    "after": {
+      "runs_ms": [
+        112.6,
+        107.9,
+        109.2,
+        108.7,
+        108.5
+      ],
+      "median_ms": 108.7
+    }
+  },
+  "runtime_assets": {
+    "LICENSE.Go": {
+      "bytes": 1453,
+      "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+    },
+    "LICENSE.mvdan-sh": {
+      "bytes": 1488,
+      "sha256": "ce63850f77649f00d1394045e2794ffb09a5596beabac51c9548edd958845d7c"
+    },
+    "parser.wasm.gz": {
+      "bytes": 1006739,
+      "sha256": "8d4529039652d0258776efde1ea0cc3cc10e4a70689d5de2c009fcea00b34d06"
+    },
+    "wasm_exec.cjs": {
+      "bytes": 16992,
+      "sha256": "0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14"
+    }
+  },
+  "regression": {
+    "command": "node --test tests/v2-spec-drift.test.mjs",
+    "runs": [
+      {
+        "os": "macOS arm64",
+        "node": "20.20.2",
+        "tests": 33,
+        "pass": 33,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "os": "macOS arm64",
+        "node": "24.13.0",
+        "tests": 33,
+        "pass": 33,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "os": "Ubuntu 24.04.5 arm64",
+        "node": "20.20.2",
+        "tests": 33,
+        "pass": 33,
+        "fail": 0,
+        "skipped": 0
+      }
+    ],
+    "formal_mapping_tests_passed": 1,
+    "windows_native": "not run"
+  }
+}

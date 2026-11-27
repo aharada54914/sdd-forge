@@ -39,6 +39,8 @@ TIMEOUT = 900
 MANIFEST = "install-payload.txt"
 MCP = ["sdd-forge-mcp", "local-env-mcp", "ci-mcp"]
 ALWAYS_PLACED_MCP = "sdd-forge-mcp"
+# FilesOnly and an empty Codex profile produce this exact local registration baseline.
+EMPTY_CODEX_RECEIPT = {".sdd-codex-mcp-registration": hashlib.sha256(b"legacy codex-mcp/v1\n").hexdigest()}
 RUNTIME_DIRS = (".agents/", ".claude-plugin/", ".codex/agents/", "plugins/", "contracts/",
                 "templates/cloud/", "skills/adversarial-review/")
 EXCLUDED = frozenset([".git", "node_modules", "__pycache__", ".pytest_cache", ".mypy_cache",
@@ -207,6 +209,22 @@ def symlinks_ok():
 # ---------------------------------------------------------------------------
 # Source fixture
 # ---------------------------------------------------------------------------
+DOMAIN_CONCEPT_RUNTIME = {
+    "plugins/sdd-domain/runtime/lib/py-dispatch.ps1": "plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1",
+    "plugins/sdd-domain/runtime/lib/py-dispatch.sh": "plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh",
+    "plugins/sdd-domain/runtime/lib/native-arguments.ps1": "plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1",
+    "plugins/sdd-domain/runtime/scripts/validate-approval-sidecar.py": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+    "plugins/sdd-domain/runtime/scripts/review-conditional-inputs.py": "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+    "plugins/sdd-domain/runtime/scripts/canonicalize-sdd-yaml.py": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+    "plugins/sdd-domain/runtime/contracts/concept-test.v1.schema.json": "contracts/concept-test.v1.schema.json",
+    "plugins/sdd-domain/runtime/contracts/concept-test.v2.schema.json": "contracts/concept-test.v2.schema.json",
+    "plugins/sdd-domain/runtime/contracts/concept-test-decision.v1.schema.json": "contracts/concept-test-decision.v1.schema.json",
+    "plugins/sdd-domain/runtime/contracts/domain-contract.v2.schema.json": "contracts/domain-contract.v2.schema.json",
+    "plugins/sdd-domain/runtime/contracts/approval-sidecar.schema.json": "contracts/approval-sidecar.schema.json",
+    "plugins/sdd-domain/runtime/contracts/approver-registry.schema.json": "contracts/approver-registry.schema.json",
+}
+
+
 class Fixture:
     """Bounded runtime copy of the repository + FAKE development content, as a Git worktree."""
 
@@ -219,9 +237,18 @@ class Fixture:
         self.tracked = [rel for rel in self.git("ls-files", "-z").stdout.split("\0") if rel]
         self.has_manifest = (self.path / MANIFEST).is_file()
         entries = self.entries()
-        self.expected = None if not self.has_manifest else {
-            rel: sha256(self.path / rel) for rel in self.tracked
-            if (self.path / rel).is_file() and not (self.path / rel).is_symlink() and admitted(rel, entries)}
+        if not self.has_manifest:
+            self.expected = None
+        else:
+            expected = {
+                rel: sha256(self.path / rel) for rel in self.tracked
+                if (self.path / rel).is_file() and not (self.path / rel).is_symlink() and admitted(rel, entries)
+            }
+            if any(rel.startswith("plugins/sdd-domain/") for rel in expected):
+                for dest, src in DOMAIN_CONCEPT_RUNTIME.items():
+                    if src in expected:
+                        expected[dest] = expected[src]
+            self.expected = expected
 
     def close(self):
         rmtree(self.base)
@@ -404,18 +431,18 @@ class Bash:
 
 
 class PowerShell:
-    WRAPPER = (
-        "$ErrorActionPreference = 'Stop'\n"
+    ARCHIVE_DOWNLOAD = (
         "function global:Invoke-WebRequest {\n"
         "    param([string]$Uri, $Headers, [string]$OutFile)\n"
         f"    if ($Uri -ne '{ARCHIVE_URL.replace('/tarball/', '/zipball/') if os.name == 'nt' else ARCHIVE_URL}') {{ throw \"Unexpected download URI: $Uri\" }}\n"
         f"    if ($Headers['Authorization'] -ne 'Bearer {TEST_TOKEN}') {{ throw 'Unexpected authorization header' }}\n"
         "    Copy-Item -LiteralPath $env:PAYLOAD_TEST_ARCHIVE -Destination $OutFile -Force\n"
-        "}\n"
+        "}\n")
+    INSTALL = (
         "$params = @{}\n"
         "foreach ($property in (ConvertFrom-Json $env:PAYLOAD_TEST_PARAMS).PSObject.Properties) { $params[$property.Name] = $property.Value }\n"
         "& $env:PAYLOAD_TEST_INSTALLER @params\n"
-        "exit 0\n")
+        "if (-not $?) { exit 1 }\n")
 
     def __init__(self):
         self.pwsh = os.environ.get("PWSH") or shutil.which("pwsh")
@@ -426,26 +453,31 @@ class PowerShell:
     def install(self, tmp, root, *, source=None, archive=None, skip_mcp=False, mcp=(), plugins=()):
         base = [self.pwsh, "-NoLogo", "-NoProfile", "-NonInteractive", "-File"]
         installer, env = str(REPO / "install.ps1"), scenario_env(tmp)
+        if not archive and len(mcp) <= 1 and len(plugins) <= 1:
+            argv = base + [installer, "-InstallRoot", str(root), "-Target", "FilesOnly",
+                           "-SkipPluginInstall", "-SkipAgentInstall"]
+            argv += ["-SourceDirectory", str(source)] if source else []
+            argv += ["-SkipMcp"] if skip_mcp else []
+            argv += ["-Mcp", mcp[0]] if mcp else []
+            argv += ["-Plugins", plugins[0]] if plugins else []
+            return run(argv, cwd=str(tmp), env=env)
+        # Native -File binds each parameter once. Use a real PowerShell array
+        # for multi-server installs, as the archive fixture already does.
+        params = {"InstallRoot": str(root), "Target": "FilesOnly", "SkipPluginInstall": True,
+                  "SkipAgentInstall": True, **({"SkipMcp": True} if skip_mcp else {}),
+                  **({"Mcp": list(mcp)} if mcp else {}), **({"Plugins": list(plugins)} if plugins else {})}
+        script = self.INSTALL
         if archive:
             if os.name == "nt" and not zipfile.is_zipfile(archive):
                 archive = windows_zip_archive(archive, tmp / "source.zip")
-            params = {"InstallRoot": str(root), "Target": "FilesOnly", "SkipPluginInstall": True,
-                      "SkipAgentInstall": True, **({"SkipMcp": True} if skip_mcp else {}),
-                      **({"Mcp": list(mcp)} if mcp else {}), **({"Plugins": list(plugins)} if plugins else {})}
-            wrapper = tmp / "archive-wrapper.ps1"
-            wrapper.write_text(self.WRAPPER)
-            env.update(GH_TOKEN=TEST_TOKEN, PAYLOAD_TEST_ARCHIVE=str(archive), PAYLOAD_TEST_INSTALLER=installer,
-                       PAYLOAD_TEST_PARAMS=json.dumps(params))
-            return run(base + [str(wrapper)], cwd=str(tmp), env=env)
-        argv = base + [installer, "-InstallRoot", str(root), "-Target", "FilesOnly",
-                       "-SkipPluginInstall", "-SkipAgentInstall"]
-        argv += ["-SourceDirectory", str(source)] if source else []
-        argv += ["-SkipMcp"] if skip_mcp else []
-        for name in mcp:  # -File passes one value per use; tests select one MCP at a time
-            argv += ["-Mcp", name]
-        for name in plugins:
-            argv += ["-Plugins", name]
-        return run(argv, cwd=str(tmp), env=env)
+            env.update(GH_TOKEN=TEST_TOKEN, PAYLOAD_TEST_ARCHIVE=str(archive))
+            script = self.ARCHIVE_DOWNLOAD + script
+        elif source:
+            params["SourceDirectory"] = str(source)
+        wrapper = tmp / "payload-installer.ps1"
+        wrapper.write_text("$ErrorActionPreference = 'Stop'\n" + script)
+        env.update(PAYLOAD_TEST_INSTALLER=installer, PAYLOAD_TEST_PARAMS=json.dumps(params))
+        return run(base + [str(wrapper)], cwd=str(tmp), env=env)
 
 
 # ---------------------------------------------------------------------------
@@ -518,13 +550,16 @@ class PayloadChecks(unittest.TestCase):
         want_mcp = {k: v for name in names for k, v in self.fx.mcp_expected(name).items()}
         self.assertEqual({k: v for k, v in actual.items() if k.startswith("mcp/")}, want_mcp,
                          "mcp/ must hold exactly dist/index.js and package.json of the selected servers")
-        rest = {k: v for k, v in actual.items() if not k.startswith("mcp/")}
+        rest = {k: v for k, v in actual.items() if not k.startswith("mcp/") and not k.startswith(".sdd-compile-cache/")}
         self.assertEqual([rel for rel in CLOSURE if rel not in rest], [], "runtime closure missing from the install")
         if self.fx.expected is None:  # no manifest in the source: installed bytes must still be source bytes
-            changed = [k for k, v in rest.items() if not (self.fx.path / k).is_file() or sha256(self.fx.path / k) != v]
+            self.assertEqual({k: rest.get(k) for k in EMPTY_CODEX_RECEIPT}, EMPTY_CODEX_RECEIPT)
+            changed = [k for k, v in rest.items() if k not in EMPTY_CODEX_RECEIPT and
+                       (not (self.fx.path / DOMAIN_CONCEPT_RUNTIME.get(k, k)).is_file()
+                        or sha256(self.fx.path / DOMAIN_CONCEPT_RUNTIME.get(k, k)) != v)]
             self.assertEqual(changed, [], "installed files differ from the source")
         else:
-            want = self.fx.expected
+            want = {**self.fx.expected, **EMPTY_CODEX_RECEIPT}
             diff = (sorted(set(rest) - set(want))[:10], sorted(set(want) - set(rest))[:10],
                     sorted(k for k in set(rest) & set(want) if rest[k] != want[k])[:10])
             self.assertEqual(diff, ([], [], []), "installed set differs from the manifest (unexpected, missing, changed)")
@@ -840,8 +875,11 @@ class PayloadChecks(unittest.TestCase):
             root = self.root_for("crlf-manifest")
             with manifest_bytes(self.fx, crlf):
                 self.install_ok(root, source=self.fx.path, skip_mcp=True)
-            self.assertEqual(installed_files(root), {**self.fx.expected, **self.fx.mcp_expected(ALWAYS_PLACED_MCP),
-                                                     MANIFEST: hashlib.sha256(crlf).hexdigest()})
+            self.assertEqual(
+                {k: v for k, v in installed_files(root).items() if not k.startswith(".sdd-compile-cache/")},
+                {**self.fx.expected, **EMPTY_CODEX_RECEIPT, **self.fx.mcp_expected(ALWAYS_PLACED_MCP),
+                 MANIFEST: hashlib.sha256(crlf).hexdigest()},
+            )
 
 
 def main():

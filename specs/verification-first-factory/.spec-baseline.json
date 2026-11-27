@@ -1,0 +1,154 @@
+{
+  "schema": "sdd-spec-baseline/v1",
+  "feature": "verification-first-factory",
+  "recordedAt": "2026-11-25T16:43:30.106Z",
+  "gitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
+  "amendmentCount": 2,
+  "files": {
+    "specs/verification-first-factory/design.md": {
+      "fileName": "design.md",
+      "rawSha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083",
+      "contractSha256": "d4179bdef77f2f7b2734db853cad1850f2df7b890a378beed5ca7c731927085f",
+      "identifiers": {},
+      "amendmentCount": 0
+    },
+    "specs/verification-first-factory/requirements.md": {
+      "fileName": "requirements.md",
+      "rawSha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c",
+      "contractSha256": "a6a4f447f4adf522eaf7b6261f75fefbd7c5442c162176a07ae2ecd43f8c0eec",
+      "identifiers": {
+        "REQ-001": {
+          "line": "- **REQ-001（リスク連動型 Problem Reframing）**: `/sdd-bootstrap:bootstrap` は `standard` / `high`（または `--reframe`）時、`design.md` に「暗黙の前提」「案A：最小変更案」「案B：構造簡素化・抜本解決案」を必須出力する（`low` は既定スキップ、[Martin Fowler: Understanding SDD](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html)）。",
+          "hash": "4c3710d03ff2819918b5ffdf6b955b19db1217870f1ad14b52dc0544eb3e1dfe"
+        },
+        "REQ-002": {
+          "line": "- **REQ-002（決定論的 Knowledge メタ分析）**: `sync-knowledge.mjs meta-analyze` は `.learnings/`・`sdd/knowledge/`・`specs/`・`OQ-NNN` 履歴を集計し、`reports/spec-meta-analysis.json` を出力する。",
+          "hash": "a5885595ae9da834dd73a3e779be1fc988a0353e532178ed955003b6a72daeb1"
+        },
+        "REQ-003": {
+          "line": "- **REQ-003（決定論的状態機械シグナル抽出＆グラフ検証）**: `discover-state-machines.mjs`（`--scan` / `--validate`）を提供する。",
+          "hash": "0b818f0737ef7000153a9390c7b9baff3b12b6dabd7eee0a31e7e918a490e089"
+        },
+        "REQ-004": {
+          "line": "- **REQ-004（チェッカー非依存・Windows 互換の多層形式検証ゲート）**: `run-formal-gate.mjs` は `formal_verification.checker.adapter`（`\"tlc\" | \"apalache\" | \"lean4\" | \"none\"`）を介し、`git diff` 未変更スキップ＋CI `actions/cache`、有界制御（`timeout_sec: 120`, `pr_total_budget_sec: 300`, `on_timeout: \"fail\"`）、TLA+ `baseline`＋`negative`（`expected_violated_invariant` 照合）、ローカル未導入時終了コード `10`（CI 時 `1`）を実行する。Windows（Node 20.12+ / CVE-2024-27980）対応として、JVM ツールは `java` バイナリを直接 `execFile('java', [...], { shell: false })` で起動し、`.cmd`/`.bat` ラッパーへ依存しないこと。",
+          "hash": "805b5e915cce0f0d3881431ed7d5ea6178d99320d1c101b98aba17ee487ed8fb"
+        },
+        "REQ-005": {
+          "line": "- **REQ-005（Spec-to-Code Conformance Bridge）**: `high` リスクで形式検証有効時、Trace Validation（NDJSON 照合、[SEFM 2024](https://sefm-conference.github.io/2024/acceptedpapers/)）または PBT/MBT スイート通過（[Anthropic: PBT](https://www.anthropic.com/research/property-based-testing)）の最低1つを必須とする。",
+          "hash": "91092c042f272142f27cca498691d76f8ef06b501ec1fd818d98ccb39d094fa4"
+        },
+        "REQ-006": {
+          "line": "- **REQ-006（CEGIS 反例フィードバック＆Human-on-the-Loop 可視化）**: 反例（`_TTrace_*.tla` / `lean4` ゴール要約）を `reports/verification/<run-id>/` へ保存し、`max_auto_fix_rounds` 超過時は `OQ-NNN` を起票して `render-decision-view.mjs --format html` に描画する。",
+          "hash": "a0d468737dca7429201caea72071fef529f8c426207b2f1e68077c6b7e305253"
+        },
+        "REQ-007": {
+          "line": "- **REQ-007（Layer 2/3 専用 AST Agent-Strict Lint）**: `run-agent-lint.mjs` は `diff_only: true` で変更ハンクのみ検査し（Phase 1 公式 AST: JS/TS/MJS＋`ast-grep`）、`max_abstraction_depth`・同一スコープ組み合わせ分岐ブール群・循環依存を検証し、`remediation_hint` を付与する（[OpenAI: Harness Engineering](https://openai.com/index/harness-engineering/)）。",
+          "hash": "f057969344c9d20ff5802a890ca935b7c5d60205f526216b948a2b70f8c64365"
+        },
+        "REQ-008": {
+          "line": "- **REQ-008（内蔵・期限付き Waiver ＆ インライン抑止禁止）**: インライン抑止コメント新規追加を禁止し、例外は `sdd/guardrails.yaml` の `agent_lint.waivers`（期限切れ自動 `FAIL`）でのみ許可する。",
+          "hash": "0a2c8ff8ecc46dc211e28508c87a817836f7e03db44d9c3c21b3342a55791228"
+        },
+        "REQ-009": {
+          "line": "- **REQ-009（固定アローリスト Security Gate・Windows バイナリ解決・Slopsquatting 防御）**: `run-security-gate.mjs` は `command` キーをスキーマ禁止し、固定アローリストIDのみを実バイナリ（`.exe` / ELF / Mach-O または `node`＋JS エントリポイント）解決のうえ `execFile(..., { shell: false })` で起動する（`.cmd`/`.bat` 直起動禁止）。CI・`high_risk_paths` で fail-closed とし、Slopsquatting 検査（[CSA Research (Apr 2026)](https://labs.cloudsecurityalliance.org/research/csa-research-note-slopsquatting-ai-supply-chain-20260419-csa/)）およびシークレット全出力マスクを行う。",
+          "hash": "8623e14ca778b89f593d2077d812f639b09e3581b1bf948638502c2fb0fe7467"
+        },
+        "REQ-010": {
+          "line": "- **REQ-010（Git diff ベース Anti-Tampering）**: Layer 2 の `git diff <base_ref>` 解析で無承認保護パス改変・無承認テスト削除/`skip` 増・抑止コメント追加・`.tla` `== TRUE` 化を検知時、終了コード `4`（`TAMPER_DETECTED`）で即時停止・`OQ-NNN` エスカレーションする。例外除外は `CODEOWNERS` 保護ファイル `sdd/approved-test-retirements.json` の `path`＋`git_blob_sha` 一致のみ許可する。",
+          "hash": "c9f8e654bccce6742134e7b3626c3996d9022edf1f015af73d9b31f09db92bfe"
+        },
+        "REQ-011": {
+          "line": "- **REQ-011（Differential & NFR Rebuild モード）**: `/sdd-ship:ship --mode rebuild` で契約・ゴールデン・`nfr-budget.json` の不変性を `git diff` 検証し、旧実装との Differential Testing および NFR 回帰検証（既定上限 `+10%`）を実行する。",
+          "hash": "ce20d5eee1a9434ee04dfbbea33d3ca5eaae031ca0706c94001d765a572041f5"
+        },
+        "REQ-012": {
+          "line": "- **REQ-012（Write-Scope・ロック連携・OTel / MCP v2 統合）**: `check-traceability.mjs` の `git diff` Write-Scope、既存 `task-lock.mjs:345`（`exit 1` 不変）の JSON `acquired: false` 読み取り連携、`v2-readonly-core.mjs` / `sdd-forge-mcp`（既定 OFF・4ツール維持）オプショナル集約、`factory-metrics.mjs` [OpenTelemetry GenAI](https://opentelemetry.io/blog/2026/genai-observability/) メタデータ（本文非収集）、`sdd-doctor.mjs` アダプタ診断を提供する。",
+          "hash": "d97e199e3b57e23d5ae5c47e6860bdfd89f87fcddb1d6df773a477c4e4b0c21a"
+        }
+      },
+      "amendmentCount": 1
+    },
+    "specs/verification-first-factory/tasks.md": {
+      "fileName": "tasks.md",
+      "rawSha256": "accb5eec84813566cb2c1565a84f28996fb7fd003a356bcf0e716148a2f823a0",
+      "contractSha256": "0f30df5a7a53ed68334e3402f667c2d3b1048168a8a89e9afcce640e0a78f0d7",
+      "identifiers": {},
+      "amendmentCount": 1,
+      "approvalContractSha256": "d14d0d1b084a66e749a6ccf7af6b939d5111ce20799c301ce44c2446ae4b3c83",
+      "taskApprovals": {
+        "T-001": "Approved",
+        "T-002": "Approved",
+        "T-003": "Approved",
+        "T-004": "Approved",
+        "T-005": "Approved",
+        "T-006": "Approved",
+        "T-007": "Approved",
+        "T-008": "Approved",
+        "T-009": "Approved",
+        "T-010": "Approved"
+      }
+    }
+  },
+  "identifiers": {
+    "REQ-001": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-001（リスク連動型 Problem Reframing）**: `/sdd-bootstrap:bootstrap` は `standard` / `high`（または `--reframe`）時、`design.md` に「暗黙の前提」「案A：最小変更案」「案B：構造簡素化・抜本解決案」を必須出力する（`low` は既定スキップ、[Martin Fowler: Understanding SDD](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html)）。",
+      "hash": "4c3710d03ff2819918b5ffdf6b955b19db1217870f1ad14b52dc0544eb3e1dfe"
+    },
+    "REQ-002": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-002（決定論的 Knowledge メタ分析）**: `sync-knowledge.mjs meta-analyze` は `.learnings/`・`sdd/knowledge/`・`specs/`・`OQ-NNN` 履歴を集計し、`reports/spec-meta-analysis.json` を出力する。",
+      "hash": "a5885595ae9da834dd73a3e779be1fc988a0353e532178ed955003b6a72daeb1"
+    },
+    "REQ-003": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-003（決定論的状態機械シグナル抽出＆グラフ検証）**: `discover-state-machines.mjs`（`--scan` / `--validate`）を提供する。",
+      "hash": "0b818f0737ef7000153a9390c7b9baff3b12b6dabd7eee0a31e7e918a490e089"
+    },
+    "REQ-004": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-004（チェッカー非依存・Windows 互換の多層形式検証ゲート）**: `run-formal-gate.mjs` は `formal_verification.checker.adapter`（`\"tlc\" | \"apalache\" | \"lean4\" | \"none\"`）を介し、`git diff` 未変更スキップ＋CI `actions/cache`、有界制御（`timeout_sec: 120`, `pr_total_budget_sec: 300`, `on_timeout: \"fail\"`）、TLA+ `baseline`＋`negative`（`expected_violated_invariant` 照合）、ローカル未導入時終了コード `10`（CI 時 `1`）を実行する。Windows（Node 20.12+ / CVE-2024-27980）対応として、JVM ツールは `java` バイナリを直接 `execFile('java', [...], { shell: false })` で起動し、`.cmd`/`.bat` ラッパーへ依存しないこと。",
+      "hash": "805b5e915cce0f0d3881431ed7d5ea6178d99320d1c101b98aba17ee487ed8fb"
+    },
+    "REQ-005": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-005（Spec-to-Code Conformance Bridge）**: `high` リスクで形式検証有効時、Trace Validation（NDJSON 照合、[SEFM 2024](https://sefm-conference.github.io/2024/acceptedpapers/)）または PBT/MBT スイート通過（[Anthropic: PBT](https://www.anthropic.com/research/property-based-testing)）の最低1つを必須とする。",
+      "hash": "91092c042f272142f27cca498691d76f8ef06b501ec1fd818d98ccb39d094fa4"
+    },
+    "REQ-006": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-006（CEGIS 反例フィードバック＆Human-on-the-Loop 可視化）**: 反例（`_TTrace_*.tla` / `lean4` ゴール要約）を `reports/verification/<run-id>/` へ保存し、`max_auto_fix_rounds` 超過時は `OQ-NNN` を起票して `render-decision-view.mjs --format html` に描画する。",
+      "hash": "a0d468737dca7429201caea72071fef529f8c426207b2f1e68077c6b7e305253"
+    },
+    "REQ-007": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-007（Layer 2/3 専用 AST Agent-Strict Lint）**: `run-agent-lint.mjs` は `diff_only: true` で変更ハンクのみ検査し（Phase 1 公式 AST: JS/TS/MJS＋`ast-grep`）、`max_abstraction_depth`・同一スコープ組み合わせ分岐ブール群・循環依存を検証し、`remediation_hint` を付与する（[OpenAI: Harness Engineering](https://openai.com/index/harness-engineering/)）。",
+      "hash": "f057969344c9d20ff5802a890ca935b7c5d60205f526216b948a2b70f8c64365"
+    },
+    "REQ-008": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-008（内蔵・期限付き Waiver ＆ インライン抑止禁止）**: インライン抑止コメント新規追加を禁止し、例外は `sdd/guardrails.yaml` の `agent_lint.waivers`（期限切れ自動 `FAIL`）でのみ許可する。",
+      "hash": "0a2c8ff8ecc46dc211e28508c87a817836f7e03db44d9c3c21b3342a55791228"
+    },
+    "REQ-009": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-009（固定アローリスト Security Gate・Windows バイナリ解決・Slopsquatting 防御）**: `run-security-gate.mjs` は `command` キーをスキーマ禁止し、固定アローリストIDのみを実バイナリ（`.exe` / ELF / Mach-O または `node`＋JS エントリポイント）解決のうえ `execFile(..., { shell: false })` で起動する（`.cmd`/`.bat` 直起動禁止）。CI・`high_risk_paths` で fail-closed とし、Slopsquatting 検査（[CSA Research (Apr 2026)](https://labs.cloudsecurityalliance.org/research/csa-research-note-slopsquatting-ai-supply-chain-20260419-csa/)）およびシークレット全出力マスクを行う。",
+      "hash": "8623e14ca778b89f593d2077d812f639b09e3581b1bf948638502c2fb0fe7467"
+    },
+    "REQ-010": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-010（Git diff ベース Anti-Tampering）**: Layer 2 の `git diff <base_ref>` 解析で無承認保護パス改変・無承認テスト削除/`skip` 増・抑止コメント追加・`.tla` `== TRUE` 化を検知時、終了コード `4`（`TAMPER_DETECTED`）で即時停止・`OQ-NNN` エスカレーションする。例外除外は `CODEOWNERS` 保護ファイル `sdd/approved-test-retirements.json` の `path`＋`git_blob_sha` 一致のみ許可する。",
+      "hash": "c9f8e654bccce6742134e7b3626c3996d9022edf1f015af73d9b31f09db92bfe"
+    },
+    "REQ-011": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-011（Differential & NFR Rebuild モード）**: `/sdd-ship:ship --mode rebuild` で契約・ゴールデン・`nfr-budget.json` の不変性を `git diff` 検証し、旧実装との Differential Testing および NFR 回帰検証（既定上限 `+10%`）を実行する。",
+      "hash": "ce20d5eee1a9434ee04dfbbea33d3ca5eaae031ca0706c94001d765a572041f5"
+    },
+    "REQ-012": {
+      "file": "specs/verification-first-factory/requirements.md",
+      "line": "- **REQ-012（Write-Scope・ロック連携・OTel / MCP v2 統合）**: `check-traceability.mjs` の `git diff` Write-Scope、既存 `task-lock.mjs:345`（`exit 1` 不変）の JSON `acquired: false` 読み取り連携、`v2-readonly-core.mjs` / `sdd-forge-mcp`（既定 OFF・4ツール維持）オプショナル集約、`factory-metrics.mjs` [OpenTelemetry GenAI](https://opentelemetry.io/blog/2026/genai-observability/) メタデータ（本文非収集）、`sdd-doctor.mjs` アダプタ診断を提供する。",
+      "hash": "d97e199e3b57e23d5ae5c47e6860bdfd89f87fcddb1d6df773a477c4e4b0c21a"
+    }
+  }
+}

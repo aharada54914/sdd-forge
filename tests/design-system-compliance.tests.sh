@@ -108,8 +108,7 @@ with tempfile.TemporaryDirectory(prefix='design JSON ') as tmp:
         bin_dir = root / 'bin'
         bin_dir.mkdir()
         for executable in ('mktemp', 'rm'):
-            shutil.copyfile(shutil.which(executable), bin_dir / executable)
-            (bin_dir / executable).chmod(0o755)
+            (bin_dir / executable).symlink_to(shutil.which(executable))
         result = subprocess.run(runtimes[0][1] + [str(root)], env=dict(os.environ, PATH=str(bin_dir)), capture_output=True, text=True)
         assert result.returncode == 1 and 'jq is required' in result.stderr, (result.returncode, result.stderr)
         print('PASS JSON: missing jq fails closed')

@@ -1,0 +1,166 @@
+▶ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)
+  ✔ passes cleanly on the sdd-forge repository itself with explicit Non-checks (213.070916ms)
+  ✔ detects skill description > 1024 chars as NG (prevents silent host drop) (6.989167ms)
+  ✔ detects raw ASCII control character corruption in specs/ as NG without modifying files (1.3485ms)
+  ✔ warns on non-ASCII .ps1 without UTF-8 BOM, unbaselined approved specs, and AGENT_STOP (2.092166ms)
+  ✔ detects invalid guardrails.yaml mode and broken hook JSON as NG (25.945042ms)
+  ✔ verifies Zenn §8-§12 template & skill contracts (Alternatives Rejected, Non-checks, rules-first retrospective) (0.352708ms)
+  ✖ normalizes inline extension mappings, including nested options and quoted commas (22.558125ms)
+  ✖ reports an invalid checker jar path as a JSON configuration finding (21.941667ms)
+  ✖ ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2 (94.483083ms)
+✖ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI) (389.262041ms)
+ℹ tests 9
+ℹ suites 1
+ℹ pass 6
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 425.159834
+
+✖ failing tests:
+
+test at tests/v2-sdd-doctor.test.mjs:147:3
+✖ normalizes inline extension mappings, including nested options and quoted commas (22.558125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-rereview-v3ngzm9y/evidence-clone/tests/v2-sdd-doctor.test.mjs:158:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-sdd-doctor.test.mjs:171:3
+✖ reports an invalid checker jar path as a JSON configuration finding (21.941667ms)
+  AssertionError [ERR_ASSERTION]: {
+    "ok": true,
+    "sourcePath": "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-doctor-test-c15DgM/sdd/guardrails.json",
+    "errors": [],
+    "config": {
+      "schema": "sdd-guardrails/v1",
+      "sourcePath": "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-doctor-test-c15DgM/sdd/guardrails.json",
+      "spec_guard": {
+        "mode": "confirm",
+        "protected_globs": [
+          "specs/*/requirements.md",
+          "specs/*/design.md",
+          "specs/*/tasks.md"
+        ],
+        "allow_amendment_section": true
+      },
+      "review": {
+        "pre_impl_check": "auto",
+        "independent_gate": true
+      },
+      "risk_defaults": {
+        "default_tier": "standard",
+        "high_risk_paths": [
+          "**/auth/**",
+          "**/billing/**",
+          "**/migrations/**"
+        ]
+      },
+      "limits": {
+        "max_auto_fix_rounds": 2
+      },
+      "formal_verification": {
+        "enabled": true,
+        "mode": "shadow",
+        "checker": {
+          "adapter": "apalache",
+          "adapter_options": {
+            "tlc": {},
+            "apalache": {
+              "jar": 123
+            },
+            "lean4": {}
+          }
+        },
+        "timeout_sec": 120,
+        "pr_total_budget_sec": 300,
+        "on_timeout": "fail",
+        "trigger_tiers": [
+          "high"
+        ]
+      },
+      "agent_lint": {
+        "enabled": false,
+        "mode": "shadow",
+        "diff_only": true,
+        "max_abstraction_depth": 6,
+        "waivers": []
+      },
+      "security_audit": {
+        "enabled": false,
+        "mode": "shadow",
+        "enabled_adapters": [
+          "builtin-secret-pattern",
+          "builtin-slopsquatting"
+        ]
+      },
+      "anti_tampering": {
+        "enabled": true,
+        "mode": "strict",
+        "base_ref": "HEAD",
+        "retirements_manifest": "sdd/approved-test-retirements.json",
+        "protected_repo_paths": [
+          "sdd/guardrails.yaml",
+          "sdd/approved-test-retirements.json",
+          ".github/workflows/**",
+          "CODEOWNERS"
+        ]
+      }
+    }
+  }
+
+
+  0 !== 2
+
+      at TestContext.<anonymous> (file:///private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-rereview-v3ngzm9y/evidence-clone/tests/v2-sdd-doctor.test.mjs:180:14)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-sdd-doctor.test.mjs:189:3
+✖ ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2 (94.483083ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'unavailable'
+  - 'available'
+
+      at TestContext.<anonymous> (file:///private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t001-rereview-v3ngzm9y/evidence-clone/tests/v2-sdd-doctor.test.mjs:292:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'unavailable',
+    expected: 'available',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

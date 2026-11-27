@@ -54,8 +54,12 @@ function collectSecrets(): string[] {
   return [...secrets].sort((a, b) => b.length - a.length);
 }
 
-/** Escapes a string for literal use inside a RegExp. */
+/** Escapes a string for literal use inside a RegExp (RegExp.escape-first, ADR-0055). */
 function escapeRegExp(literal: string): string {
+  const esc = (RegExp as unknown as { escape?: (s: string) => string }).escape;
+  if (typeof esc === "function") {
+    return esc(literal);
+  }
   return literal.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 

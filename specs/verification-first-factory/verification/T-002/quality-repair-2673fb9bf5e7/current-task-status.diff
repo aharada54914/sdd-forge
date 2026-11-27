@@ -1,0 +1,22 @@
+diff --git a/specs/verification-first-factory/tasks.md b/specs/verification-first-factory/tasks.md
+index 8bc252e19..9b6514d07 100644
+--- a/specs/verification-first-factory/tasks.md
++++ b/specs/verification-first-factory/tasks.md
+@@ -65,7 +65,7 @@ T-002
+ T-001
+ 
+ ### T-005: 状態機械抽出＆チェッカー非依存・Windows 互換の多層形式検証ゲート（TLA+ 標準・Lean 4 予約）
+-- **Status:** `Implementation Complete`
++- **Status:** `Done`
+ - **Approval:** `Approved`
+ - **Risk:** `high`
+ - **Covers:** `REQ-003`, `REQ-004`, `REQ-005`, `REQ-006`
+@@ -106,7 +106,7 @@ T-001
+ ## Wave 3: 統合ゲート・Rebuild・OTel / MCP v2（T-008 / T-009）
+ 
+ ### T-008: Fail-Fast 7ステージ統合・`--mode rebuild`（Differential + NFR）・Write-Scope 連携
+-- **Status:** `Implementation Complete`
++- **Status:** `Done`
+ - **Approval:** `Approved`
+ - **Risk:** `high`
+ - **Covers:** `REQ-011`, `REQ-012`（Write-Scope・ロック連携）, `NFR-005`

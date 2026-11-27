@@ -26,8 +26,9 @@
 #      caller may proceed to push.
 #   1  the scan COMPLETED and found at least one match -- caller must not
 #      push without an explicit, human-granted override recorded per
-#      design-sync-loop/SKILL.md step 5; that override applies only to
-#      THIS scan's disclosed findings.
+#      the Resolve Egress Consent procedure in design-sync-loop/SKILL.md.
+#      The caller checks the current findings, upload and destination
+#      against the effective override before it can be reused.
 #   2  the scan DID NOT COMPLETE (bad/missing/extra argument, a
 #      nonexistent target directory, or an unreadable .html file under an
 #      otherwise valid target) -- a tool-error outcome, not a detection

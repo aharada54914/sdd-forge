@@ -494,10 +494,10 @@ else
 fi
 
 # --- AC-026 (TEST-026): document conformance -- report template, validator,
-#     and quality-gate SKILL.md all carry the Model/Effort requirement. ----
+#     and sdd-gate SKILL.md all carry the Model/Effort requirement. ----
 TEMPLATE="$REPO_ROOT/plugins/sdd-implementation/templates/implementation-report.template.md"
 VALIDATOR="$REPO_ROOT/plugins/sdd-implementation/scripts/validate-implementation-report.sh"
-GATE_SKILL="$REPO_ROOT/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+GATE_SKILL="$REPO_ROOT/plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md"
 
 grep -Fq -e '- Model: {{model}}' "$TEMPLATE" && grep -Fq -e '- Effort: {{effort}}' "$TEMPLATE" \
   && ok "AC-026: implementation-report.template.md carries the Model/Effort lines" \
@@ -508,8 +508,8 @@ grep -Fq 'top_level_label in ("Model", "Effort")' "$VALIDATOR" \
   || fail "AC-026: validate-implementation-report.sh does not check the Model/Effort lines"
 
 grep -Fq '`- Model:` / `- Effort:`' "$GATE_SKILL" \
-  && ok "AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction" \
-  || fail "AC-026: quality-gate SKILL.md is missing the Model/Effort Process instruction"
+  && ok "AC-026: sdd-gate SKILL.md documents the Model/Effort Process instruction" \
+  || fail "AC-026: sdd-gate SKILL.md is missing the Model/Effort Process instruction"
 
 VALIDATOR_FIXTURE_DIR="$WORK/validator-fixtures"
 mkdir -p "$VALIDATOR_FIXTURE_DIR"

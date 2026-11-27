@@ -12,9 +12,13 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import {
   DEFAULT_CONFIG,
+  VALID_ANTI_TAMPER_MODES,
+  VALID_FORMAL_ADAPTERS,
+  VALID_GATE_MODES,
   VALID_MODES,
   VALID_PRE_IMPL,
   VALID_RISK_TIERS,
+  VALID_SECURITY_ADAPTERS,
   assertValidFeatureName,
   canonicalSpecContractText,
   countDomainModelApprovals,
@@ -33,13 +37,18 @@ import {
   sha256Text,
   splitSpecAmendments,
   toPosixPath,
+  validateGuardrailsExtensions,
 } from './v2-pure-lib.mjs';
 
 export {
   DEFAULT_CONFIG,
+  VALID_ANTI_TAMPER_MODES,
+  VALID_FORMAL_ADAPTERS,
+  VALID_GATE_MODES,
   VALID_MODES,
   VALID_PRE_IMPL,
   VALID_RISK_TIERS,
+  VALID_SECURITY_ADAPTERS,
   assertValidFeatureName,
   canonicalSpecContractText,
   countDomainModelApprovals,
@@ -58,6 +67,7 @@ export {
   sha256Text,
   splitSpecAmendments,
   toPosixPath,
+  validateGuardrailsExtensions,
 };
 
 const MAX_READ_BYTES = 8 * 1024 * 1024;
@@ -321,6 +331,46 @@ export function isFeatureApproved(projectRoot, feature) {
   return false;
 }
 
+export function validateGuardrailsFile(projectRoot) {
+  const root = safeRealpath(projectRoot || findProjectRoot());
+  const jsonPath = path.join(root, 'sdd', 'guardrails.json');
+  const yamlPath = path.join(root, 'sdd', 'guardrails.yaml');
+
+  let parsed = null;
+  let sourcePath = null;
+  try {
+    if (fs.existsSync(jsonPath)) {
+      parsed = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      sourcePath = jsonPath;
+    } else if (fs.existsSync(yamlPath)) {
+      parsed = parseSimpleYaml(fs.readFileSync(yamlPath, 'utf8'));
+      sourcePath = yamlPath;
+    }
+  } catch (err) {
+    return {
+      ok: false,
+      sourcePath: fs.existsSync(jsonPath) ? jsonPath : yamlPath,
+      errors: [
+        {
+          code: 'PARSE_ERROR',
+          path: 'sdd/guardrails',
+          message: `設定ファイルの解析に失敗しました: ${err instanceof Error ? err.message : String(err)}`,
+          action: 'guardrails.yaml / guardrails.json の構文を修正してください',
+        },
+      ],
+      config: normalizeGuardrailsConfig(null, null),
+    };
+  }
+
+  const errors = validateGuardrailsExtensions(parsed);
+  return {
+    ok: errors.length === 0,
+    sourcePath,
+    errors,
+    config: normalizeGuardrailsConfig(parsed, sourcePath),
+  };
+}
+
 export function appendDriftEvent(projectRoot, event) {
   try {
     const sddDir = path.join(projectRoot, '.sdd');
@@ -332,5 +382,16 @@ export function appendDriftEvent(projectRoot, event) {
     fs.appendFileSync(path.join(sddDir, 'drift-events.jsonl'), `${JSON.stringify(record)}\n`, 'utf8');
   } catch {
     // Non-fatal: advisory logging must never crash the hook.
+  }
+}
+
+if (isMainModule(import.meta.url, 'guardrails-lib.mjs')) {
+  const argv = process.argv.slice(2);
+  if (argv.includes('--validate')) {
+    const rootIdx = argv.indexOf('--root');
+    const root = rootIdx !== -1 && argv[rootIdx + 1] ? argv[rootIdx + 1] : process.cwd();
+    const result = validateGuardrailsFile(root);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    process.exit(result.ok ? 0 : 2);
   }
 }

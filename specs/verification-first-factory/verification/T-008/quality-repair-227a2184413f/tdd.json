@@ -1,0 +1,39 @@
+{
+  "feature": "verification-first-factory",
+  "task": "T-008",
+  "red_product": "55b2ac8d00b0af427b6c645216c6b4aad35e5de7",
+  "green_product": "227a2184413f6875a8ae3262b37504e998dd9433",
+  "focused_test_file": "tests/v2-wave3-integration.test.mjs",
+  "focused_test_selection": "large binary",
+  "original_red_source": "Tests added at 55b2ac8d00b0af427b6c645216c6b4aad35e5de7; original development worktree parent had the same product and test bytes.",
+  "red_replay": {
+    "implementation_at": "55b2ac8d00b0af427b6c645216c6b4aad35e5de7",
+    "test_source_at": "227a2184413f6875a8ae3262b37504e998dd9433",
+    "test_sha256": "7ea3772087e4a27c79e81966ebbc18cde23b414f9bd69acad20f9590b72d54e8",
+    "exit": 1,
+    "tests": 1,
+    "fail": 1,
+    "log": "support/large-output/replayed-red.log"
+  },
+  "green": {
+    "command_receipt": "execution.json",
+    "integration_tests": 62,
+    "skips": 0,
+    "model_source_checks": 1
+  },
+  "source_sync": {
+    "file": "specs/self-verification/formal/mapping.json",
+    "source_sync_commit": "55b2ac8d00b0af427b6c645216c6b4aad35e5de7",
+    "checked_at": "227a2184413f6875a8ae3262b37504e998dd9433",
+    "matched_sources": {
+      "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "d39bf2d72558974ce36127119a94a3e3aa63a4d77705943035ae3c87e35722a7",
+      "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "a7aee485341a1a50f7427e81893384502e1fdf09429be64bf85ab7c70a519892",
+      "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "a0e7158ab4298502b14d05375f3694184dca6fa6c118a68f0bb6e56bde8d9498",
+      "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+      "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
+      "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05",
+      "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "3e6809da0054a512c43962dca81e2762ed236f6898ecdb6e5627447ecd9c5f41",
+      "plugins/sdd-ship/skills/ship/SKILL.md": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d"
+    }
+  }
+}

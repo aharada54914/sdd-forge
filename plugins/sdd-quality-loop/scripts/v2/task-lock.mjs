@@ -18,12 +18,40 @@
  * which renews the TTL. Without an owner, the lock is tied to the calling
  * process, which only makes sense through the in-process API.
  */
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { assertValidFeatureName, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
 
 const DEFAULT_TTL_SECONDS = 1800;
+
+/**
+ * Temporal-first UTC timestamp helpers (ADR-0055).
+ * Uses Node.js 26+ built-in `Temporal.Now.instant()` when present and falls
+ * back to `Date` on Node 24/25 runtimes with identical ISO-8601 output.
+ */
+export function computeLockWindow(ttlSeconds = DEFAULT_TTL_SECONDS) {
+  const safeTtl = Number.isFinite(ttlSeconds) && ttlSeconds > 0 ? Math.trunc(ttlSeconds) : DEFAULT_TTL_SECONDS;
+  const temporal = globalThis.Temporal;
+  if (temporal?.Now && typeof temporal.Now.instant === 'function') {
+    const now = temporal.Now.instant();
+    const expires = now.add({ seconds: safeTtl });
+    return {
+      acquiredAt: now.toString(),
+      expiresAt: expires.toString(),
+      ttlSeconds: safeTtl,
+      clock: 'Temporal',
+    };
+  }
+  const nowMs = Date.now();
+  return {
+    acquiredAt: new Date(nowMs).toISOString(),
+    expiresAt: new Date(nowMs + safeTtl * 1000).toISOString(),
+    ttlSeconds: safeTtl,
+    clock: 'Date',
+  };
+}
 
 function lockFileName(feature, taskId) {
   assertValidFeatureName(feature);
@@ -42,7 +70,7 @@ function isProcessAlive(pid) {
     process.kill(pid, 0);
     return true;
   } catch (err) {
-    return err && err.code === 'EPERM';
+    return err?.code !== 'ESRCH';
   }
 }
 
@@ -105,6 +133,45 @@ export function getLockStatus({ feature, taskId = null, projectRoot = null }) {
   return { locked: true, stale, staleReason: reason, lockPath, record };
 }
 
+// Publish a unique intent before inspecting other writers. Two overlapping
+// writers cannot both see an empty set of peers: the later publication sees
+// the earlier intent until its operation finishes. A crashed local process's
+// intent has a unique name, so cleaning it can never unlink a successor's.
+function withLockMutation(lockPath, busy, operation) {
+  // A directory per lock also preserves the filesystem's own case folding.
+  // Keep the empty directory between calls so a new entrant always sees the
+  // same namespace, including when release and acquire overlap.
+  const dir = path.join(path.dirname(lockPath), '..', 'lock-mutations', path.basename(lockPath));
+  fs.mkdirSync(dir, { recursive: true });
+  const host = Buffer.from(os.hostname()).toString('base64url');
+  const self = `${host}.${process.pid}.${randomUUID()}`;
+  const intent = path.join(dir, self);
+  let peerPath;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    fs.writeFileSync(intent, '', { flag: 'wx', mode: 0o600 });
+    try {
+      let contended = false;
+      for (const name of fs.readdirSync(dir)) {
+        if (name === self) continue;
+        const [otherHost, pid] = name.split('.');
+        peerPath = path.join(dir, name);
+        if (otherHost === host && Number(pid) === process.pid) return { ...busy, peerIntent: peerPath };
+        if (otherHost === host && /^[1-9][0-9]*$/.test(pid) && !isProcessAlive(Number(pid))) {
+          removeQuietly(path.join(dir, name));
+          continue;
+        }
+        contended = true;
+        break;
+      }
+      if (!contended) return operation();
+    } finally {
+      fs.unlinkSync(intent);
+    }
+    if (attempt < 3) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 4 + Math.random() * 8);
+  }
+  return { ...busy, peerIntent: peerPath };
+}
+
 export function acquireLock({
   feature,
   taskId = null,
@@ -116,109 +183,51 @@ export function acquireLock({
   const root = resolveExplicitOrAutoRoot(projectRoot);
   const locksDir = path.join(root, '.sdd', 'locks');
   fs.mkdirSync(locksDir, { recursive: true });
-  const name = lockFileName(feature, taskId);
-  const lockPath = path.join(locksDir, name);
+  const lockPath = path.join(locksDir, lockFileName(feature, taskId));
+  const busy = { acquired: false, lockPath, stale: false, message: 'Lock contention. Retry after the current lock operation.' };
+  return withLockMutation(lockPath, busy, () => {
+    const ttl = Number.isFinite(ttlSeconds) && ttlSeconds > 0 ? Math.min(ttlSeconds, 86400) : DEFAULT_TTL_SECONDS;
+    const now = new Date();
+    const record = {
+      schema: 'sdd-task-lock/v1',
+      feature,
+      taskId: taskId ? taskId.toUpperCase() : null,
+      owner: owner || `${os.hostname()}:${process.pid}`,
+      pid: owner ? null : process.pid,
+      hostname: os.hostname(),
+      acquiredAt: now.toISOString(),
+      expiresAt: new Date(now.getTime() + ttl * 1000).toISOString(),
+    };
 
-  const ttl = Number.isFinite(ttlSeconds) && ttlSeconds > 0 ? Math.min(ttlSeconds, 86400) : DEFAULT_TTL_SECONDS;
-  const now = new Date();
-  const record = {
-    schema: 'sdd-task-lock/v1',
-    feature,
-    taskId: taskId ? taskId.toUpperCase() : null,
-    owner: owner || `${os.hostname()}:${process.pid}`,
-    pid: owner ? null : process.pid,
-    hostname: os.hostname(),
-    acquiredAt: now.toISOString(),
-    expiresAt: new Date(now.getTime() + ttl * 1000).toISOString(),
-  };
-
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    try {
-      // The lock appears with its content already written (temp file, then a
-      // hard link that fails if the lock exists), so a racing --break-stale
-      // never reads an empty file and takes it for a corrupt, stale lock.
-      const tmpPath = `${lockPath}.new.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
-      fs.writeFileSync(tmpPath, `${JSON.stringify(record, null, 2)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
-      try {
-        try {
-          fs.linkSync(tmpPath, lockPath);
-        } catch (linkErr) {
-          // Volumes without hard links (FAT/exFAT, some network shares): fall
-          // back to an exclusive create; a racer may briefly see it empty.
-          if (!linkErr || !['EPERM', 'ENOTSUP', 'ENOSYS', 'EXDEV'].includes(linkErr.code)) throw linkErr;
-          const fd = fs.openSync(lockPath, 'wx', 0o600);
-          try {
-            fs.writeFileSync(fd, `${JSON.stringify(record, null, 2)}\n`, 'utf8');
-          } finally {
-            fs.closeSync(fd);
-          }
-        }
-      } finally {
-        removeQuietly(tmpPath);
-      }
-      return { acquired: true, lockPath, record };
-    } catch (err) {
-      if (!err || err.code !== 'EEXIST') throw err;
+    if (fs.existsSync(lockPath)) {
       const existing = withLease(readLockRecord(lockPath), lockPath);
+      if (owner && existing?.owner === owner) return renewLock(lockPath, existing, record) || busy;
       const { stale, reason } = evaluateStale(existing);
-      // The holder renews its own lock, also after its TTL ran out; the claim
-      // in renewLock fails if someone else reclaimed it meanwhile.
-      if (owner && existing && existing.owner === owner) {
-        const renewed = renewLock(lockPath, existing, record);
-        if (renewed) return renewed;
-        continue; // the lock vanished (released meanwhile): try to create it
-      }
-      if (stale && breakStale && attempt === 0) {
-        const claimPath = `${lockPath}.reclaim.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2, 8)}`;
-        try {
-          fs.renameSync(lockPath, claimPath);
-        } catch {
-          // Another process already reclaimed or replaced the lock; fail closed.
-          continue;
-        }
-        const claimed = withLease(readLockRecord(claimPath), lockPath);
-        const claimedEval = evaluateStale(claimed);
-        if (claimedEval.stale) {
-          try {
-            fs.unlinkSync(claimPath);
-          } catch {
-            // ignore cleanup error
-          }
-          continue;
-        }
-        // A fresh active lock replaced the stale one just before our rename — restore without clobbering a 3rd racer.
-        try {
-          fs.linkSync(claimPath, lockPath);
-        } catch {
-          // Another racer already acquired lockPath; do not overwrite it.
-        }
-        try {
-          fs.unlinkSync(claimPath);
-        } catch {
-          // ignore
-        }
+      if (!stale || !breakStale) {
         return {
           acquired: false,
           lockPath,
-          stale: false,
-          staleReason: 'active',
-          existing: claimed,
-          message: `Active lock held by ${claimed?.owner || 'unknown'} until ${claimed?.expiresAt || 'unknown'}. Fail-closed to prevent concurrent write collision.`,
+          stale,
+          staleReason: reason,
+          existing,
+          message: stale
+            ? `Stale lock exists (${reason}). Re-run with --break-stale after verifying no worker is active.`
+            : `Active lock held by ${existing?.owner || 'unknown'} until ${existing?.expiresAt || 'unknown'}. Fail-closed to prevent concurrent write collision.`,
         };
       }
-      return {
-        acquired: false,
-        lockPath,
-        stale,
-        staleReason: reason,
-        existing,
-        message: stale
-          ? `Stale lock exists (${reason}). Re-run with --break-stale after verifying no worker is active.`
-          : `Active lock held by ${existing?.owner || 'unknown'} until ${existing?.expiresAt || 'unknown'}. Fail-closed to prevent concurrent write collision.`,
-      };
+      removeQuietly(leasePath(lockPath));
     }
-  }
-  return { acquired: false, lockPath, stale: false, message: 'Lock contention.' };
+    // Readers see the whole new record, even during stale replacement and on
+    // filesystems without hard links. All mutators use the intent protocol.
+    const tmpPath = `${lockPath}.new.${randomUUID()}`;
+    try {
+      fs.writeFileSync(tmpPath, `${JSON.stringify(record, null, 2)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+      fs.renameSync(tmpPath, lockPath);
+    } finally {
+      removeQuietly(tmpPath);
+    }
+    return { acquired: true, lockPath, record };
+  });
 }
 
 // Re-entry by the holder: write a lease for this exact lock (owner +
@@ -267,21 +276,62 @@ export function releaseLock({ feature, taskId = null, projectRoot = null, owner 
   if (!fs.existsSync(lockPath)) {
     return { released: true, existed: false, lockPath };
   }
-  const existing = readLockRecord(lockPath);
-  if (!force && existing?.owner && (!owner || existing.owner !== owner)) {
-    return {
-      released: false,
-      existed: true,
-      lockPath,
-      existing,
-      message: owner
-        ? `Lock is owned by '${existing.owner}', not '${owner}'. Pass --force to override.`
-        : `Lock is owned by '${existing.owner}'. Pass matching --owner or --force to release.`,
-    };
-  }
-  fs.unlinkSync(lockPath);
-  removeQuietly(leasePath(lockPath));
-  return { released: true, existed: true, lockPath };
+  const busy = { released: false, existed: true, lockPath, message: 'Lock contention. Retry after the current lock operation.' };
+  return withLockMutation(lockPath, busy, () => {
+    if (!fs.existsSync(lockPath)) return { released: true, existed: false, lockPath };
+    const existing = readLockRecord(lockPath);
+    const recordedOwner = typeof existing?.owner === 'string' ? existing.owner : null;
+    if (force !== true && (!recordedOwner || recordedOwner !== owner)) {
+      let message = 'Cannot verify the lock owner. Pass --force to release after checking for active workers.';
+      if (recordedOwner) {
+        message = owner
+          ? `Lock is owned by '${recordedOwner}', not '${owner}'. Pass --force to override.`
+          : `Lock is owned by '${recordedOwner}'. Pass matching --owner or --force to release.`;
+      }
+      return { released: false, existed: true, lockPath, existing, message };
+    }
+    fs.unlinkSync(lockPath);
+    removeQuietly(leasePath(lockPath));
+    return { released: true, existed: true, lockPath };
+  });
+}
+
+/**
+ * Explicit Resource Management handle for `using` / `await using` (ADR-0055).
+ * Deterministically releases the acquired task lock when leaving scope.
+ */
+export function acquireTaskLockHandle({
+  feature,
+  taskId = null,
+  projectRoot = null,
+  owner = null,
+  ttlSeconds = DEFAULT_TTL_SECONDS,
+  breakStale = false,
+}) {
+  const effectiveOwner = owner || `handle-${process.pid}-${randomUUID().slice(0, 8)}`;
+  const result = acquireLock({
+    feature,
+    taskId,
+    projectRoot,
+    owner: effectiveOwner,
+    ttlSeconds,
+    breakStale,
+  });
+  let disposed = false;
+  const dispose = () => {
+    if (disposed || !result.acquired) return;
+    disposed = true;
+    releaseLock({ feature, taskId, projectRoot, owner: effectiveOwner });
+  };
+  return {
+    ...result,
+    owner: effectiveOwner,
+    release: dispose,
+    [Symbol.dispose]: dispose,
+    async [Symbol.asyncDispose]() {
+      dispose();
+    },
+  };
 }
 
 function parseArgs(argv) {

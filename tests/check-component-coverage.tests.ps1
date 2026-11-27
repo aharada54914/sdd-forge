@@ -71,8 +71,12 @@ if ($obj.schema -ceq "resolve-component-paths-diagnose/v1") {
 } else {
     Fail "TEST-029.1: expected resolve-component-paths-diagnose/v1, got $($obj.schema)"
 }
-$skillText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")
-if ($skillText -notmatch "resolve-component-paths --diagnose|resolve-component-paths\.(sh|ps1) --?[Dd]iagnose") {
+$skillPath = Join-Path $repoRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+$skillExists = Test-Path -LiteralPath $skillPath -PathType Leaf
+$skillText = if ($skillExists) { Get-Content -Raw -LiteralPath $skillPath }
+if (-not $skillExists) {
+    Fail "TEST-029.2: missing $skillPath"
+} elseif ($skillText -notmatch "resolve-component-paths --diagnose|resolve-component-paths\.(sh|ps1) --?[Dd]iagnose") {
     Ok "TEST-029.2: quality-gate/SKILL.md's ## Process never invokes -Diagnose"
 } else {
     Fail "TEST-029.2: -Diagnose must never appear in quality-gate/SKILL.md's Process"
@@ -365,15 +369,20 @@ if ($liveContractPs1Text -match '"high"\s*=.*"check-component-coverage"' -and
 # may carry a later serialized task's pending staged registration. Explicit
 # HUMAN APPLY STEP paths are derived from that later task's text and remain
 # candidate-only only while the candidate's argument guard is absent live.
-$liveGuardInvariants = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-loop/references/guard-invariants.json") | ConvertFrom-Json
+$invariantsPath = Join-Path $repoRoot "plugins/sdd-quality-loop/references/guard-invariants.json"
+$liveGuardInvariants = if (Test-Path -LiteralPath $invariantsPath -PathType Leaf) {
+    Get-Content -Raw -LiteralPath $invariantsPath | ConvertFrom-Json
+}
 $newSuffixes = @(
     "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
     "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
     "plugins/sdd-quality-loop/scripts/check-component-coverage.sh"
 )
-$liveAddOk = $true
-foreach ($n in $newSuffixes) {
-    if (($liveGuardInvariants.protected_gate_suffixes -notcontains $n) -or ($liveGuardInvariants.phase2_human_copy_targets -notcontains $n)) { $liveAddOk = $false }
+$liveAddOk = $null -ne $liveGuardInvariants
+if ($liveAddOk) {
+    foreach ($n in $newSuffixes) {
+        if (($liveGuardInvariants.protected_gate_suffixes -notcontains $n) -or ($liveGuardInvariants.phase2_human_copy_targets -notcontains $n)) { $liveAddOk = $false }
+    }
 }
 # Reuse the archived validator/renderer for precisely the six shared invariant
 # files; its self-test rejects removed protections, policy changes and stale output.

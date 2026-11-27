@@ -1,0 +1,52 @@
+{
+  "commit": "ff341286473f8b51531440feb33f5c0d0d23ca61",
+  "event": "push",
+  "workflowRun": 45677318149,
+  "jobUrl": "https://github.com/aharada54914/sdd-forge/actions/runs/45677318149/job/139428212086",
+  "jobConclusion": "success",
+  "artifactId": 15051988359,
+  "zipSha256": "3dcc62f1e6381724d0597e8cd32e379ee24fe6292f5ff50c42de34162504ceac",
+  "tests": {
+    "pass": 16,
+    "fail": 0,
+    "skip": 0
+  },
+  "members": {
+    "formal-verification.tap": "64b64c61a8e986f5f4b353166c7ec707733c922dd7a2b0f3f65e181c0b37db45",
+    "reservation/report.json": "7b9fc3d84714b571f5f6d18081bbf60659cc375b9e56e6b6c4f44740acc372f8"
+  },
+  "sourceSha256": {
+    ".github/workflows/sdd-guardrails.yml": "483fe852d3d6d2af2d4d0b50e409b1c5e425d751af9e7ff0446894862cd0b334",
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs": "7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b",
+    "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs": "483259eb7ea2ac9d698b5b6bcedb4a8dbcad571c59a2fb200c5199e0b04f3029",
+    "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs": "807c73f35ab75e1ae2eeb9d2718663c8f6695ff23baab72da0a5f9a73c1428bd",
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "5d5ca52334a0126c6fdcd0803327819ecb35a3aa861e7c2bbee661cc1cd730af",
+    "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83",
+    "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c",
+    "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05",
+    "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md": "3e6809da0054a512c43962dca81e2762ed236f6898ecdb6e5627447ecd9c5f41",
+    "plugins/sdd-ship/skills/ship/SKILL.md": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d",
+    "specs/self-verification/formal/GateLifecycle.cfg": "6b41f039f41d76abd5831c13a7a46c735cd5c697aaa37a9b2562d5994150c1e1",
+    "specs/self-verification/formal/GateLifecycle.drift.negative.cfg": "15d5957aa471c220b021ee89b1664d97f61147ec97291940f88fca4dc71fa5c2",
+    "specs/self-verification/formal/GateLifecycle.negative.cfg": "d29b2867058dc810db88bf68417e8ee68bf177fae6c875272384d209980f9154",
+    "specs/self-verification/formal/GateLifecycle.oq.negative.cfg": "5c3c3588ecd115b0c7be254e84cf89fe5956e2a4628b1b55a4d33bf86acc7df8",
+    "specs/self-verification/formal/GateLifecycle.retry.negative.cfg": "14d1369774c597b73e4debbf5fcfd79fcb75409d345ea6a39876879e3049293e",
+    "specs/self-verification/formal/GateLifecycle.tamper.negative.cfg": "906bb9ee4a554c8d3666d9be912b1d12e13edec4f80bcc83323569a9f074ab02",
+    "specs/self-verification/formal/GateLifecycle.tla": "594b2a9f18a78fd0f991cc5af923842a74338badca78c0fe4c7a72438b5d69a9",
+    "specs/self-verification/formal/TaskLock.cfg": "01a71771afe5bd21535978e7c205489d2698ec93d442ae1c63c62714570d7a45",
+    "specs/self-verification/formal/TaskLock.negative.cfg": "ec1003fd3d1b89af8ac596da2c8ece520a2da8cdb8a3e44089f68c4968d55586",
+    "specs/self-verification/formal/TaskLock.tla": "b668e0db4933a4e1114318afcb2f5a0effb8207a721227781ae2794bde365e99",
+    "specs/self-verification/formal/TaskLockMutation.cfg": "e7b6a4db26f350d1b40c9311dcf1883567c68cf5ecbb43bed992ddd2cf3c75ce",
+    "specs/self-verification/formal/TaskLockMutation.negative.cfg": "7223baa56205fcf1c77b4539dbbe480db05d3cf38adf34fd5e059246f3c16d4f",
+    "specs/self-verification/formal/TaskLockMutation.tla": "d61497a5616412a6f7e48c10f449e14b4a803e5eb77733a8a5bcc54212c21c46",
+    "specs/self-verification/formal/mapping.json": "f712ac527a08adf65ecea7dd0ad714efbdc1df78ca57717b86585f23fd0295a8",
+    "tests/fixtures/project-skills/formal-review-reservation/Reservation.cfg": "b8866730366a914aa657b855f10dabb08bd67c68788c625676bb525f27b828f6",
+    "tests/fixtures/project-skills/formal-review-reservation/Reservation.negative.cfg": "9507a6aa5361bff0d7557401e58733f37b7fb85bbf47d3b6088f094be0c4f07b",
+    "tests/fixtures/project-skills/formal-review-reservation/Reservation.tla": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97",
+    "tests/fixtures/project-skills/formal-review-reservation/SKILL.md": "8cf6e45ecde6438ca25ce27b89c3c81379fcf6adab7a7d8956c9e6fba65e0455",
+    "tests/fixtures/project-skills/formal-review-reservation/mapping.json": "9951b1e0e6018019e2b6aa9dc1f520053f6dc0b2e420a33771a7190f19888abc",
+    "tests/project-skill-formal.tests.py": "f3aaf45856a6ab7fd95593fb63c24862b6461955ab3e6a5f740edd58a844f73c",
+    "tests/v2-formal-gate.test.mjs": "0c7d9c3ba3046a211d96e5b934341f9f4403e39a6222a4ed145888b2ccb252f0",
+    "tests/verify-review-reservation.py": "407be3b908b087a4d7673f6457802dea9107b436b330c3618963c0a4078ccb08"
+  }
+}

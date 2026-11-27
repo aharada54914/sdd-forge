@@ -1,0 +1,187 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-010",
+  "run_id": "01a21538-b19e-7491-afdb-3777bc003251",
+  "session_id": "01a21346-4fe1-7210-a140-8530376c27fb",
+  "agent_instance_id": "01a21538-b19e-7491-afdb-3777bc003251",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Estimated incremental API charge for this Codex desktop session. Excludes subscription cost.",
+  "cost_estimate_timestamp": "2026-11-26T00:27:33Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": ".github/workflows/sdd-guardrails.yml",
+      "sha256": "c5419932bd6e8ebc2568496fab2a3c314258e605dd5f2d5d18c7eba70693b64e"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "193b7a30df1c0dd9c8b1569566937f7f2da3bfed39f5c15de18d2204872f86e1"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "af2bd6082058b56fb9bd366e6b10d65020bc074d56d4930be405add4aefeba0b"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "592fbdc3d43c64c81596c14efafc6d2fc07bf8311f703e4b98c5e20ddb63341a"
+    },
+    {
+      "path": "docs/adr/0051-lightweight-guardrails-and-sdd-core.md",
+      "sha256": "524bf7a940e09576a2c8b593d038efa440dfe4f993f7dca2375acc64abb91c11"
+    },
+    {
+      "path": "docs/operations/verification-catalog-status.md",
+      "sha256": "97553414046882a3518c100af65f757a5bac9b2a1f159655d155de832812ff35"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh",
+      "sha256": "8e496d89e3dd293a1b8c2e9c5a5d1637a6bdf4bb990c627b5c60c29c98eab849"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.ps1",
+      "sha256": "3822660e7e0857f9e370fb45f63d8200bf067a517f0ef334f4551a0b73fe65ec"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "sha256": "18dd1ffe849300b3547fe3c1525f36a99fb1574ff148abde8880bf5b60a77c84"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+      "sha256": "18e0f451510ce207c585028e97854e7cd31c4368b3a82953fac77eb0aa338b0e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh",
+      "sha256": "21c74ddac1f742081c9d5f9a34021c4513f0efd6f2c4742fa559223716f9389f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md",
+      "sha256": "e8db23b4922320f70bc828764a14a97975182601be67407eeab770ed2740d727"
+    },
+    {
+      "path": "sdd/approved-test-retirements.json",
+      "sha256": "79e34a84d77f2cc10a807cd33210dbef8ae5764a36f1cc0e5d7d40a724e1dd8a"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/design.md",
+      "sha256": "3b63c5f8c33018919fce66ef3550a0bdb5fcfee33e48f61a731b9684fab8c105"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/requirements.md",
+      "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+    },
+    {
+      "path": "specs/quality-loop-fixes/requirements.md",
+      "sha256": "508fd039e064674796e6cd9e17a4c2912792ac0318cd55d6133235535f433a0c"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "7846fdee96b5cc1730ad20a05c833a5f4b8e3156627cef90b316ace1494edbaf"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-010/report-revalidation/task-input-manifest.json",
+      "sha256": "245684f2071f4287bbb01025f19678e5148e320d9cd6e1abda55b956dfd77f76"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-010/report-revalidation/test-receipt.json",
+      "sha256": "f7e3a5b5985ece2ebdc870d833f4f4fe52408818d33ca0a3cefa23613e081716"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-010/shadow-pr976/catalog-lineage.json",
+      "sha256": "8e99d6325a8f681412d016fd41dc90797e801a4657999797a8fa4ff898695b2a"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-010/shadow-pr976/qualification.md",
+      "sha256": "2f01b3740f077d5fcea9bcfbd2e40e1e2c743dcdb210223f22d584b3b870428e"
+    },
+    {
+      "path": "tests/check-placeholders-brownfield.tests.ps1",
+      "sha256": "ee4951f364d5799cff21b2810e36ad21b1ef7aed2e215b6c5d316e2ac00eed07"
+    },
+    {
+      "path": "tests/check-placeholders-brownfield.tests.sh",
+      "sha256": "7ac923f709c252e588bdbf9428300c079b34d0ac4d6df216440adb4d90d72d7a"
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/CHANGED_FILES.txt",
+      "sha256": "c6363885023ed90edd662078870d7bec956cb0086bde97c5afa3bf2e2a5b8de5"
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/specs/brownfield-seed-demo/tasks.md",
+      "sha256": "c41f63b7e0de53d52c58e7302c0cbed961b83d089cbe20356500a5ac5d4f762d"
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/src/base.py",
+      "sha256": "c59bc057c267ed7b0385bc8940e22d33ee1511b1d9c27dd6829b05d29ce856ee"
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/src/legacy_util.py",
+      "sha256": "41929742cd3a183360a9b25dbf84677ecc08fc757e4da404f7189752e1e7db14"
+    },
+    {
+      "path": "tests/fixtures/loops/brownfield-seed/src/service.py",
+      "sha256": "71a2839979bd59b989fbf247a892e44c2df98293fcdd9c2ba7e0951c9102871f"
+    },
+    {
+      "path": "tests/hitl-wfi-terminal.tests.ps1",
+      "sha256": "30f0d36635af5dc5a45bd2ddb87d61b6b929efe00b57b34c9e845f8981e3363f"
+    },
+    {
+      "path": "tests/hitl-wfi-terminal.tests.sh",
+      "sha256": "c09421760f4c3a7257e427e2a95d6dc653fdfbf2286045776e4b3f44cfe64de2"
+    },
+    {
+      "path": "tests/lib/loop-driver.sh",
+      "sha256": "a75fa6e852bb9fa6dc7f8f30f6cf82d286fcdf20fc8e88a6881f09d4c5ee95f1"
+    },
+    {
+      "path": "tests/quality-gate-cycle-limit.tests.sh",
+      "sha256": "d2aaf771b2e7e76ef8fde2ffb54d716f3c97b55e78a7c99baa27873bf1a3b7bc"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "abb3b0c8e5e8b33495376bd30130969709dc8f15e04204c0de0455744bd49bf9"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "e1d58fcae258fedcc4e0e3d78588f7fec2501bd6ff1e5a70e1f97feea9a79b14"
+    },
+    {
+      "path": "tests/v2-hooks-and-ci.test.mjs",
+      "sha256": "8f518235238b3a58ea5036311334a2c0462ead7bb9ce05195bc7b7cd1f39e055"
+    },
+    {
+      "path": "tests/verification-catalog-status.mjs",
+      "sha256": "385a4f65ff166acfd8e8784f5666f85a62c6e6b64315d5a9ae158538b024d5e7"
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "sha256": "952672a8b44f3a6d8d70b9bfbf251abc0d98e02153ac7bf088856f2875d6f8ab"
+    },
+    {
+      "path": "tests/verification-catalog.tests.py",
+      "sha256": "4980cfaaae427f4fa26e40ba744b918bc19028129efdf790e9853e9d90a3c1e1"
+    },
+    {
+      "path": "tests/verification.py",
+      "sha256": "2e56fcd6a1fa3f751b87d2ee2536e82ce6a9cdf2ab93b1dc6f347cb2a24c996a"
+    }
+  ],
+  "allowed_outputs": [
+    "specs/verification-first-factory/verification/T-010/01a21538-b19e-7491-afdb-3777bc003251/test-receipt.json",
+    "specs/verification-first-factory/verification/T-010/01a21538-b19e-7491-afdb-3777bc003251/prior-report.md",
+    "reports/implementation/verification-first-factory/T-010.md"
+  ]
+}

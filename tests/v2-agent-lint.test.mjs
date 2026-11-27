@@ -1,0 +1,232 @@
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { runAgentLint } from '../plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(__dirname, '..');
+const LINT_CLI = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs');
+
+describe('ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers', () => {
+  it('passes cleanly on clean fixture and catches violations with remediation_hint in strict vs shadow mode', () => {
+    const clean = runAgentLint({
+      projectRoot: REPO_ROOT,
+      files: ['tests/fixtures/agent-lint/clean.mjs'],
+      mode: 'strict',
+    });
+    assert.equal(clean.status, 'PASS');
+    assert.equal(clean.findings.length, 0);
+
+    const shadowRes = spawnSync(
+      process.execPath,
+      [LINT_CLI, '--root', REPO_ROOT, '--files', 'tests/fixtures/agent-lint/violations.mjs', '--mode', 'shadow', '--format', 'json'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(shadowRes.status, 0, shadowRes.stderr);
+    const shadowReport = JSON.parse(shadowRes.stdout);
+    const rules = new Set(shadowReport.findings.map((f) => f.rule));
+    assert.ok(rules.has('no-empty-catch'));
+    assert.ok(rules.has('no-eval-or-new-function'));
+    assert.ok(rules.has('no-child-process-shell-true'));
+    assert.ok(rules.has('no-console-log'));
+    assert.ok(shadowReport.findings.every((f) => typeof f.remediation_hint === 'string' && f.remediation_hint.length > 0));
+
+    const strictRes = spawnSync(
+      process.execPath,
+      [LINT_CLI, '--root', REPO_ROOT, '--files', 'tests/fixtures/agent-lint/violations.mjs', '--mode', 'strict', '--format', 'json'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(strictRes.status, 1);
+  });
+
+  it('honors active built-in guardrails.yaml waivers and fails on expired waivers in strict mode', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-agent-lint-waiver-'));
+    fs.mkdirSync(path.join(dir, 'sdd'), { recursive: true });
+    fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'src/cli.mjs'), 'export function run() { console.log("ok"); }\n', 'utf8');
+    fs.writeFileSync(
+      path.join(dir, 'sdd/guardrails.yaml'),
+      [
+        'schema: sdd-guardrails/v1',
+        'agent_lint:',
+        '  enabled: true',
+        '  mode: strict',
+        '  waivers:',
+        '    - rule: no-console-log',
+        '      path: src/cli.mjs',
+        '      reason: CLI stdout output',
+        '      expires_on: 2027-06-01',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+
+    const active = runAgentLint({ projectRoot: dir, files: ['src/cli.mjs'], mode: 'strict', today: '2026-11-25' });
+    assert.equal(active.status, 'PASS');
+    assert.equal(active.findings.length, 0);
+    assert.equal(active.waived.length, 1);
+
+    const expired = runAgentLint({ projectRoot: dir, files: ['src/cli.mjs'], mode: 'strict', today: '2027-06-02' });
+    assert.equal(expired.status, 'FAIL');
+    assert.equal(expired.expiredWaivers.length, 1);
+    assert.equal(expired.expiredWaivers[0].code, 'EXPIRED_WAIVER');
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('checks waiver calendar dates through the CLI in strict, shadow and warn modes', t => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-waiver-dates-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(root, 'sdd'));
+    const expiries = {
+      text: 'invalid-date', month: '2028-99-99', rollover: '2028-04-31',
+      nonleap: '2100-02-29', timestamp: '2028-02-29T23:59:59Z', missing: null,
+      yesterday: '2028-02-28', today: '2028-02-29', tomorrow: '2028-03-01',
+    };
+    const invalidFiles = ['text', 'month', 'rollover', 'nonleap', 'timestamp', 'missing'].map(k => k + '.mjs');
+    const waivers = [];
+    for (const [name, expiry] of Object.entries(expiries)) {
+      const file = name + '.mjs';
+      fs.writeFileSync(path.join(root, file), 'console.log(1);');
+      waivers.push('    - rule: no-console-log', '      path: ' + file, '      reason: CLI output');
+      if (expiry !== null) waivers.push('      expires_on: ' + expiry);
+    }
+    fs.writeFileSync(path.join(root, 'sdd/guardrails.yaml'), ['agent_lint:', '  enabled: true',
+      '  waivers:', ...waivers, ''].join('\n'));
+    fs.writeFileSync(path.join(root, 'clean.mjs'), 'export const clean = true;');
+    const files = Object.keys(expiries).map(k => k + '.mjs').join(',');
+    const run = (mode, today, targets = files) => spawnSync(process.execPath, [LINT_CLI, '--root', root,
+      '--files', targets, '--mode', mode, '--today', today], { encoding: 'utf8' });
+    for (const mode of ['strict', 'shadow', 'warn']) {
+      const result = run(mode, '2028-02-29');
+      assert.equal(result.status, mode === 'strict' ? 1 : 0, result.stderr);
+      const report = JSON.parse(result.stdout);
+      assert.equal(report.status, mode === 'strict' ? 'FAIL' : 'WARN');
+      assert.deepEqual(report.waived.map(w => w.path).sort(), ['today.mjs', 'tomorrow.mjs']);
+      assert.deepEqual(report.findings.map(f => f.path).sort(), [...invalidFiles, 'yesterday.mjs'].sort());
+      assert.deepEqual(report.expiredWaivers.map(w => [w.path, w.code]), [['yesterday.mjs', 'EXPIRED_WAIVER']]);
+      assert.deepEqual(report.invalidWaivers.map(w => [w.path, w.code]),
+        invalidFiles.map(file => [file, 'INVALID_WAIVER_EXPIRY']));
+    }
+    // At an earlier reference date the invalid waivers alone must still affect the result.
+    for (const mode of ['strict', 'shadow']) {
+      const clean = run(mode, '2028-02-01', 'clean.mjs');
+      assert.equal(clean.status, mode === 'strict' ? 1 : 0, clean.stderr);
+      assert.equal(JSON.parse(clean.stdout).status, mode === 'strict' ? 'FAIL' : 'WARN');
+    }
+    const invalidToday = run('strict', '2028-02-30');
+    assert.equal(invalidToday.status, 2);
+    assert.match(invalidToday.stderr, /--today/);
+  });
+
+  it('reports changed lines, untracked files and changed local imports on a clean branch checkout', t => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-diff-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const git = (...args) => {
+      const result = spawnSync('git', ['-c', 'user.name=fixture', '-c', 'user.email=fixture@invalid', ...args], {
+        cwd: root, encoding: 'utf8',
+      });
+      assert.equal(result.status, 0, result.stderr);
+      return result.stdout.trim();
+    };
+    const write = (name, code) => fs.writeFileSync(path.join(root, name), code);
+    git('init', '--quiet');
+    write('a file.ts', "console.log('existing');\nexport const a: number = 1;\n");
+    write('b.ts', "export { a } from './a file.ts';\n");
+    git('add', '.');
+    git('commit', '--quiet', '-m', 'base');
+    const base = git('rev-parse', 'HEAD');
+    fs.appendFileSync(path.join(root, 'a file.ts'), "import './b.ts';\nconsole.log('new');\n");
+    git('add', '.');
+    git('commit', '--quiet', '-m', 'changed edge');
+    assert.equal(git('status', '--porcelain'), '');
+    const result = spawnSync(process.execPath, [LINT_CLI, '--root', root, '--mode', 'strict',
+      '--diff-only', '--base-ref', base, '--format', 'json'], { encoding: 'utf8' });
+    assert.equal(result.status, 1, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.scannedFiles, 1);
+    assert.deepEqual(report.findings.map(f => [f.rule, f.path, f.line]).sort(), [
+      ['no-console-log', 'a file.ts', 4], ['no-dependency-cycle', 'a file.ts', 3],
+    ]);
+    write('new.tsx', 'export const component = <div>{console.log("value")}</div>;\n');
+    const scoped = runAgentLint({projectRoot: root, mode: 'strict', files: ['new.tsx','b.ts'], diffOnly: true, baseRef: base});
+    assert.equal(scoped.scannedFiles, 1);
+    assert.deepEqual(scoped.findings.map(f => f.path), ['new.tsx']);
+    assert.throws(() => runAgentLint({projectRoot: root, mode: 'strict', baseRef: 'missing-ref'}));
+  });
+
+  it('applies the production console rule to source while retaining other checks in test and reporting tools', t => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-tool-output-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    for (const dir of ['src', 'tests', 'reports/verification']) {
+      fs.mkdirSync(path.join(root, dir), { recursive: true });
+      fs.writeFileSync(path.join(root, dir, 'tool.mjs'), "console.log(JSON.stringify({ ok: true }));\nconsole.log('debug');\ntry {} catch {}\n");
+    }
+    fs.writeFileSync(path.join(root, 'tests/module.mjs'), 'export const emit = data => console.log(JSON.stringify(data));');
+    fs.writeFileSync(path.join(root, 'tests/module.cjs'), 'exports.emit = data => console.log(JSON.stringify(data));');
+    const report = runAgentLint({ projectRoot: root, mode: 'shadow', diffOnly: false });
+    const consoleLocations = report.findings.filter(f => f.rule === 'no-console-log').map(f => [f.path, f.line]).sort();
+    assert.deepEqual(consoleLocations, [
+      ['reports/verification/tool.mjs', 2], ['src/tool.mjs', 1], ['src/tool.mjs', 2],
+      ['tests/module.cjs', 1], ['tests/module.mjs', 1], ['tests/tool.mjs', 2],
+    ]);
+    assert.equal(report.findings.filter(f => f.rule === 'no-empty-catch').length, 3);
+    const explicit = runAgentLint({ projectRoot: root, mode: 'shadow', files: ['tests/tool.mjs'] });
+    assert.ok(explicit.findings.some(f => f.rule === 'no-console-log' && f.line === 1));
+  });
+
+  it('uses TS syntax, scoped flag groups, configured control depth and comment nodes', t => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-lint-ast-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(root, 'sdd'));
+    fs.writeFileSync(path.join(root,'sdd/guardrails.json'), JSON.stringify({
+      agent_lint: { enabled: true, mode: 'strict', max_abstraction_depth: 1 }
+    }));
+    const directive = ['eslint', 'disable'].join('-');
+    const lines = [
+      'export function route(a: boolean, b: boolean) {',
+      '  if (a && b) return 1;',
+      '  if (a && !b) return 2;',
+      '  if (a) { if (b) return 3; }',
+      '  return { safe: { nested: { data: "" } } };',
+      '}',
+      'export function other(a: boolean, b: boolean) { if (a && b) return 4; }',
+      'export const markers = /eval[(]|console[.]log/;',
+      'export const note = "' + directive + '";',
+      '// ' + directive + '-next-line',
+      '// ' + ['sdd', 'lint', 'disable'].join('-'),
+      '// ' + ['@ts', 'ignore'].join('-'),
+      '// Why ' + directive + ' is disallowed.',
+    ];
+    fs.writeFileSync(path.join(root,'app.ts'), lines.join('\n'));
+    const report = runAgentLint({projectRoot: root, files: ['app.ts']});
+    assert.deepEqual(report.findings.map(f => [f.rule, f.line]).sort(), [
+      ['no-combinatorial-flags', 2], ['no-combinatorial-flags', 3],
+      ['no-deep-nesting', 4], ['no-inline-suppression', 10], ['no-inline-suppression', 11],
+      ['no-inline-suppression', 12],
+    ]);
+  });
+
+  it('NFR-004 performance budget: lints 100 files in <= 3000ms', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-agent-lint-perf-'));
+    fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+    const files = [];
+    for (let i = 0; i < 100; i += 1) {
+      const rel = `src/mod_${i}.mjs`;
+      fs.writeFileSync(
+        path.join(dir, rel),
+        `export function fn${i}(x) {\n  if (x > 0) {\n    return x * 2;\n  }\n  return 0;\n}\n`,
+        'utf8',
+      );
+      files.push(rel);
+    }
+    const report = runAgentLint({ projectRoot: dir, files, mode: 'strict' });
+    assert.equal(report.scannedFiles, 100);
+    assert.equal(report.status, 'PASS');
+    assert.ok(report.durationMs <= 3000, `100 files took ${report.durationMs}ms (budget <= 3000ms)`);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+});

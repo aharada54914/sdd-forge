@@ -1,0 +1,179 @@
+{
+  "revision": "f4b7cc05d4518be1c8d85fb3efc11818e6d1837e",
+  "targeted_checks": [
+    {
+      "check": "registry_shell",
+      "command": [
+        "bash",
+        "tests/workflow-state-registry.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "f37f7d71ce77538f1cdea5ff011be1841252bdf98b0460f10729b5397426bd67",
+      "last_line": [
+        "ok: workflow-state registry and bounded migration records are valid"
+      ]
+    },
+    {
+      "check": "registry_powershell",
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/workflow-state-registry.tests.ps1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "8a9eff21def21de1c678fe3116737f4a6d4fcb83ec108681b25ff13911004d50",
+      "last_line": [
+        "ok: PowerShell validates workflow-state registry and migration records"
+      ]
+    },
+    {
+      "check": "registry_parity",
+      "command": [
+        "bash",
+        "tests/workflow-state-registry-parity.tests.sh"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "0ef65cb00c749989bfad45a2f8bfdd0918148c26e0a0a942e60027a63f178998",
+      "last_line": [
+        "ok: workflow-state registry validation has per-fixture Shell/PowerShell parity"
+      ]
+    },
+    {
+      "check": "v2-lightweight-guardrails_bash",
+      "command": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--feature",
+        "v2-lightweight-guardrails"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+      "last_line": [
+        "workflow-state: ok"
+      ]
+    },
+    {
+      "check": "v2-lightweight-guardrails_powershell",
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+        "--feature",
+        "v2-lightweight-guardrails"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+      "last_line": [
+        "workflow-state: ok"
+      ]
+    },
+    {
+      "check": "verification-first-factory_bash",
+      "command": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--feature",
+        "verification-first-factory"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+      "last_line": [
+        "workflow-state: ok"
+      ]
+    },
+    {
+      "check": "verification-first-factory_powershell",
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+        "--feature",
+        "verification-first-factory"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+      "last_line": [
+        "workflow-state: ok"
+      ]
+    },
+    {
+      "check": "self-verification_bash",
+      "command": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--feature",
+        "self-verification"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+      "last_line": [
+        "workflow-state: ok"
+      ]
+    },
+    {
+      "check": "self-verification_powershell",
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+        "--feature",
+        "self-verification"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+      "last_line": [
+        "workflow-state: ok"
+      ]
+    }
+  ],
+  "catalog_receipts": [
+    {
+      "schema": "verification-receipt/v1",
+      "profile": null,
+      "revision": "f4b7cc05d4518be1c8d85fb3efc11818e6d1837e",
+      "clean_before": true,
+      "reusable": false,
+      "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+      "selected": [
+        "tests/workflow-state-registry.tests.sh"
+      ],
+      "results": [
+        {
+          "suite": "tests/workflow-state-registry.tests.sh",
+          "source_sha256": "529f45341b7a9dbe99dec8df35825511350deb32a9015069c1dd1cf6b3bd94af",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.864013
+        }
+      ],
+      "revision_after": "f4b7cc05d4518be1c8d85fb3efc11818e6d1837e",
+      "clean_after": true
+    },
+    {
+      "schema": "verification-receipt/v1",
+      "profile": null,
+      "revision": "f4b7cc05d4518be1c8d85fb3efc11818e6d1837e",
+      "clean_before": true,
+      "reusable": false,
+      "catalog_sha256": "be4540d35d96696c27208fb85ac57e543801b332e0d8b75a47489056e862ac85",
+      "selected": [
+        "tests/workflow-state-registry-parity.tests.sh"
+      ],
+      "results": [
+        {
+          "suite": "tests/workflow-state-registry-parity.tests.sh",
+          "source_sha256": "bd1d8e13a0937fdf7327f27e1107c31a437a7f46c051888a61103ab7b5aa3a5a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.632534
+        }
+      ],
+      "revision_after": "f4b7cc05d4518be1c8d85fb3efc11818e6d1837e",
+      "clean_after": true
+    }
+  ]
+}

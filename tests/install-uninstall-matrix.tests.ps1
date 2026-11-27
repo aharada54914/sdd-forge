@@ -34,7 +34,7 @@ function Get-Manifest([string]$Root) {
 function New-FakeCli([string]$Bin, [string]$Log) {
     New-Item -ItemType Directory -Path $Bin -Force | Out-Null
     $windowsHost = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
-    foreach ($name in @("codex", "claude", "copilot", "gh")) {
+    foreach ($name in @("codex", "claude", "copilot", "gh", "agy", "gemini")) {
         if ($windowsHost) {
             $path = Join-Path $Bin "$name.cmd"
             Set-Content -LiteralPath $path -Encoding ascii -Value "@echo off`necho $name %*>>`"$Log`"`nif `"%~1`"==`"--version`" (echo 2.1.317 ^(Claude Code^) & exit /b 0)`nexit /b 0"
@@ -45,6 +45,20 @@ function New-FakeCli([string]$Bin, [string]$Log) {
             & chmod +x $path
         }
     }
+}
+
+function Test-CodexConfig([string]$CellTarget, [string]$Phase, [string]$Path, [string]$InitialHash, [string[]]$Mcps) {
+    if ($CellTarget -in @("Claude", "Copilot")) {
+        if ((Get-FileHash -LiteralPath $Path).Hash -cne $InitialHash) { Write-Fail "$CellTarget $Phase changed the Codex config"; return }
+    }
+    else {
+        $lines = @(Get-Content -LiteralPath $Path)
+        $expected = if ($Phase -ceq "uninstall") { 0 } else { 1 }
+        foreach ($mcp in $Mcps) {
+            if (@($lines -ceq "[mcp_servers.$mcp]").Count -ne $expected) { Write-Fail "$CellTarget $Phase Codex registration for $mcp"; return }
+        }
+    }
+    Write-Ok "$CellTarget $Phase Codex config"
 }
 
 function Invoke-Cell([string]$CellTarget) {
@@ -70,10 +84,17 @@ function Invoke-Cell([string]$CellTarget) {
         $agentSource = Join-Path $repositoryRoot ".codex/agents"
         if (Test-Path $agentSource) { Copy-Item (Join-Path $agentSource "*.toml") (Join-Path $codexHome "agents") -Force }
         $config = @("# fixture config")
-        foreach ($mcp in @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")) {
-            $config += "", "# >>> $mcp (managed by sdd-forge installer; do not edit by hand) >>>", "[mcp_servers.$mcp]", 'command = "node"', "args = [`"$resolvedInstallRoot/mcp/$mcp/dist/index.js`"]", "# <<< $mcp <<<"
+        $mcps = @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")
+        # Codex/All register from scratch. Other targets inherit a synced Codex profile.
+        if ($CellTarget -in @("Claude", "Copilot")) {
+            $tomlRoot = $resolvedInstallRoot.Replace([IO.Path]::DirectorySeparatorChar, "/")
+            foreach ($mcp in $mcps) {
+                $config += "", "# >>> $mcp (managed by sdd-forge installer; do not edit by hand) >>>", "[mcp_servers.$mcp]", 'command = "node"', "args = [`"$tomlRoot/mcp/$mcp/dist/index.js`"]", "# <<< $mcp <<<"
+            }
         }
-        Set-Content -LiteralPath (Join-Path $codexHome "config.toml") -Value $config -Encoding utf8NoBOM
+        $configPath = Join-Path $codexHome "config.toml"
+        Set-Content -LiteralPath $configPath -Value $config -Encoding utf8NoBOM
+        $initialHash = (Get-FileHash -LiteralPath $configPath).Hash
         Set-Content -LiteralPath (Join-Path $vscodeDir "mcp.json") -Value '{"servers":{}}' -Encoding utf8NoBOM
         Set-Content -LiteralPath (Join-Path $cursorDir "mcp.json") -Value '{"mcpServers":{}}' -Encoding utf8NoBOM
         New-FakeCli $bin $log
@@ -82,18 +103,21 @@ function Invoke-Cell([string]$CellTarget) {
         $env:SDD_VSCODE_USER_DIR = $vscodeDir
         $env:SDD_CURSOR_DIR = $cursorDir
         $env:SDD_GEMINI_DIR = Join-Path $root "gemini-not-installed"
+        $env:SDD_ANTIGRAVITY_CONFIG_DIR = Join-Path $root "antigravity-not-installed"
         $env:CI_MCP_GITHUB_TOKEN = if ($env:CI_MCP_GITHUB_TOKEN) { $env:CI_MCP_GITHUB_TOKEN } else { "fixture-readonly-token" }
 
-        & $installer -SourceDirectory $repositoryRoot -InstallRoot $installRoot -Target $CellTarget -Plugins @("sdd-bootstrap", "sdd-ship")
+        & $installer -SourceDirectory $repositoryRoot -InstallRoot $installRoot -Target $CellTarget -Plugins @("sdd-bootstrap", "sdd-ship") -Mcp $mcps
         if ($LASTEXITCODE -ne 0) { throw "install_1 exited with code $LASTEXITCODE" }
         if (Test-Path -LiteralPath $installRoot) { Write-Ok "$CellTarget install_1 present" } else { Write-Fail "$CellTarget install_1 install root" }
+        Test-CodexConfig $CellTarget install_1 $configPath $initialHash $mcps
         $manifest1 = Get-Manifest $installRoot
         $driftOutput = & $driftChecker -InstallRoot $installRoot -Mode verify | Out-String
         $drift = $driftOutput | ConvertFrom-Json
         if ($drift.mode -eq "verify" -and $drift.state -eq "installed_synced") { Write-Ok "$CellTarget verify_1 drift_check" } else { Write-Host "drift_check_output[$CellTarget]: $($driftOutput.Trim())"; Write-Fail "$CellTarget verify_1 drift_check" }
 
-        & $installer -SourceDirectory $repositoryRoot -InstallRoot $installRoot -Target $CellTarget -Plugins @("sdd-bootstrap", "sdd-ship")
+        & $installer -SourceDirectory $repositoryRoot -InstallRoot $installRoot -Target $CellTarget -Plugins @("sdd-bootstrap", "sdd-ship") -Mcp $mcps
         if ($LASTEXITCODE -ne 0) { throw "install_2 exited with code $LASTEXITCODE" }
+        Test-CodexConfig $CellTarget install_2 $configPath $initialHash $mcps
         $manifest2 = Get-Manifest $installRoot
         if ($manifest2 -eq $manifest1) { Write-Ok "$CellTarget install_2 idempotent" }
         else {
@@ -104,8 +128,9 @@ function Invoke-Cell([string]$CellTarget) {
         }
 
         $allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud")
-        & $uninstaller -InstallRoot $installRoot -Target $CellTarget -Plugins $allPlugins -Mcp @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")
+        & $uninstaller -InstallRoot $installRoot -Target $CellTarget -Plugins $allPlugins -Mcp $mcps
         if ($LASTEXITCODE -ne 0) { throw "uninstall exited with code $LASTEXITCODE" }
+        Test-CodexConfig $CellTarget uninstall $configPath $initialHash $mcps
         if (-not (Test-Path -LiteralPath $installRoot)) { Write-Ok "$CellTarget verify_residue empty" } else { Write-Fail "$CellTarget verify_residue residual_paths=$installRoot" }
         Write-Ok "$CellTarget result schema install-uninstall-matrix-result/v1"
     }

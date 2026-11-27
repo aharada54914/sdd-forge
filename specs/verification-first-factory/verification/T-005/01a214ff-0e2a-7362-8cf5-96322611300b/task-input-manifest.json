@@ -1,0 +1,98 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-005",
+  "run_id": "01a214ff-0e2a-7362-8cf5-96322611300b",
+  "session_id": "01a214f1-de08-7232-9ed6-f52dd1121838",
+  "agent_instance_id": "01a214f1-de08-7232-9ed6-f52dd1121838",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Local Codex session, estimated additional API spend USD 0. Metered token cost is unavailable.",
+  "cost_estimate_timestamp": "2026-11-25T23:22:26Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "docs/review-tickets/RT-20261126-001.yml",
+      "sha256": "c5a9934cf4480aab51a99f2e13d72dc313d9b8e1b2b0ef749fbf24853a4302a2"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "sha256": "17df050152304f6d7eddadc49ae77b0504cfba1b6d220d38dce620a390baaf42"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "sha256": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs",
+      "sha256": "4d64319eb439e04a9f5d070abbeae2dbf6b39cf017d67fb765c51aed3991a414"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+      "sha256": "cd75d370dd0c7bef8930c145a3ae25d6c609c9479ab479bf9a62b6559f303753"
+    },
+    {
+      "path": "reports/quality-gate/verification-first-factory-T-005.md",
+      "sha256": "b299fedc5a5515e6972e55b2566970196bc2e33694ba8b0cfd0049ede826a856"
+    },
+    {
+      "path": "specs/self-verification/formal/mapping.json",
+      "sha256": "57745f0b1cd9cfe43e886d4a6773ef22ee96ebdba45ea60d6241202ce9b2e1f1"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "a9e44ae431510abdb157f23d52f23833feca2004f93c80bc2c13149ea84c140f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/a7fc37b5-0595-468c-b9ca-547038838162/reservation-observed.ndjson",
+      "sha256": "a2fb732e0a0f8997eae79fd91d481b1012dcf58aa1926f323f23968b83624ca0"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.cfg",
+      "sha256": "b8866730366a914aa657b855f10dabb08bd67c68788c625676bb525f27b828f6"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.negative.cfg",
+      "sha256": "9507a6aa5361bff0d7557401e58733f37b7fb85bbf47d3b6088f094be0c4f07b"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.tla",
+      "sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/SKILL.md",
+      "sha256": "8cf6e45ecde6438ca25ce27b89c3c81379fcf6adab7a7d8956c9e6fba65e0455"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/mapping.json",
+      "sha256": "9951b1e0e6018019e2b6aa9dc1f520053f6dc0b2e420a33771a7190f19888abc"
+    },
+    {
+      "path": "tests/project-skill-formal.tests.py",
+      "sha256": "f3aaf45856a6ab7fd95593fb63c24862b6461955ab3e6a5f740edd58a844f73c"
+    },
+    {
+      "path": "tests/v2-formal-gate.test.mjs",
+      "sha256": "d6c78f8518211dc1f1b49b514d065ee864fc49aee2fe7000868bb6846bcbe00c"
+    },
+    {
+      "path": "tests/verify-review-reservation.py",
+      "sha256": "407be3b908b087a4d7673f6457802dea9107b436b330c3618963c0a4078ccb08"
+    }
+  ],
+  "allowed_outputs": [
+    "reports/implementation/verification-first-factory/T-005.md",
+    "specs/verification-first-factory/verification/T-005/01a214ff-0e2a-7362-8cf5-96322611300b/review-ticket-replay.log"
+  ]
+}

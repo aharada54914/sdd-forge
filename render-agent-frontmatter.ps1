@@ -367,7 +367,7 @@ function Update-Manifest([string]$ManifestPath, [string]$RelPath, [string]$Sha) 
     [System.IO.File]::WriteAllText($ManifestPath, $text, (New-Object System.Text.UTF8Encoding($false)))
 }
 
-function Invoke-RenderTarget($Registry, $Target, [bool]$CheckMode, [string]$ManifestPath) {
+function Invoke-RenderTarget($Registry, $Target, [bool]$CheckMode, [bool]$DefaultTargets, [string]$ManifestPath) {
     $roleValues = Get-RoleValues $Registry $Target.Role $Target.Kind
     $kindForModel = if ($Target.Kind -ceq 'claude') { 'claude' } else { 'codex' }
     $modelName = Get-ModelForTier $Registry $roleValues.Tier $kindForModel
@@ -378,6 +378,12 @@ function Invoke-RenderTarget($Registry, $Target, [bool]$CheckMode, [string]$Mani
         throw "RENDER_ERROR: target file not found: $($Target.Path)"
     }
     $current = [System.IO.File]::ReadAllText($realPath)
+
+    # Explicit target lists still request the registry's rendered reference comments.
+    if ($CheckMode -and $DefaultTargets -and $Target.Kind -ceq 'codex' -and
+        $Target.Role -cin @('sdd-evaluator', 'sdd-investigator')) {
+        return [pscustomobject]@{ RelPath = $Target.Path; Protected = $Target.Protected; Drift = $false }
+    }
 
     if ($Target.Kind -ceq 'claude') {
         $result = Convert-ClaudeContent $current $modelName $effort
@@ -456,7 +462,7 @@ $manifestPath = Join-Path $RepoRoot (Join-Path $HumanCopyRelDir 'MANIFEST.sha256
 
 $results = @()
 foreach ($t in $targets) {
-    $results += (Invoke-RenderTarget -Registry $registryData -Target $t -CheckMode:([bool]$Check) -ManifestPath $manifestPath)
+    $results += (Invoke-RenderTarget -Registry $registryData -Target $t -CheckMode:([bool]$Check) -DefaultTargets:(-not $TargetsFile) -ManifestPath $manifestPath)
 }
 
 if ($Check) {

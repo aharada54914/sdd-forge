@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Session selection user paths and native handoff; no real account/model calls."""
+import hashlib
 import importlib.util
+import io
 import json
 import os
 import shutil
@@ -10,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,7 +28,6 @@ def load(name, filename):
 
 m = load('session_models', SCRIPTS / 'session-models.py')
 hook = load('session_hook', SCRIPTS / 'session-model-start.py')
-panelist = load('session_panelist', SCRIPTS / 'session-panelist.py')
 
 
 def catalog():
@@ -51,18 +53,43 @@ class Sessions(unittest.TestCase):
     def configure(self):
         m.set_choice(self.store, 'one', 'main', 'codex-cli', 'fixture-gpt', 'high')
         for role in m.ROLES:
-            host, name = ('gemini-cli', 'flash') if role == 'panelist-gemini' else ('codex-cli', 'fixture-gpt')
-            m.set_choice(self.store, 'one', role, host, name, None)
+            m.set_choice(self.store, 'one', role, 'codex-cli', 'fixture-gpt', None)
+
+    def cli(self, *args, code=0, driver=SCRIPTS / 'session-models.py', pwsh=None):
+        command = [sys.executable, str(driver), '--project', str(self.project),
+                   '--config-home', str(self.base / 'private'), *args]
+        env = os.environ.copy()
+        if pwsh:
+            env['SDD_TEST_SESSION_ARGS'] = json.dumps(command)
+            command = [pwsh, '-NoProfile', '-Command',
+                       '$cmd = @(ConvertFrom-Json $env:SDD_TEST_SESSION_ARGS); '
+                       '$exe, $params = $cmd; & $exe @params; exit $LASTEXITCODE']
+        result = subprocess.run(command, cwd=self.project, env=env, text=True,
+                                capture_output=True, timeout=15)
+        self.assertEqual(result.returncode, code, result.stdout + result.stderr)
+        return result.stderr if code else result.stdout
 
     def test_optional_roles_can_be_disabled_on_a_single_cli_install(self):
         state = self.store.state('one')
-        state['main'] = {'host': 'codex-cli', 'model': 'fixture-gpt', 'effort': None}
-        state['roles'] = {role: {'disabled': True} for role in m.ROLES}
-        state['catalog']['providers']['gemini-cli']['installed'] = False
+        for host, provider in state['catalog']['providers'].items():
+            provider['installed'] = host == 'codex-cli'
+        state['catalog']['models'] = [item for item in state['catalog']['models'] if item['host'] == 'codex-cli']
         m.write_json(self.store.path('one'), state)
-        self.assertEqual(m.confirm(self.store, 'one', True)['status'], 'confirmed')
-        with self.assertRaisesRegex(m.SelectionError, '無効'):
-            m.selection(self.store, 'one', 'panelist-gemini')
+        roles = {'implementer', 'investigator', 'spec-reviewer-a', 'spec-reviewer-b', 'evaluator',
+                 'domain-reviewer-a', 'domain-reviewer-b', 'workflow-auditor-a', 'workflow-auditor-b',
+                 'diagnosis', 'self-improvement'}
+        self.assertEqual(set(m.ROLES), roles)
+        self.cli('set', '--session', 'one', '--role', 'main', '--host', 'codex-cli', '--model', 'fixture-gpt')
+        for role in sorted(roles):
+            self.cli('disable', '--session', 'one', '--role', role)
+        confirmed = json.loads(self.cli('confirm', '--session', 'one', '--main-applied'))
+        self.assertEqual(confirmed['status'], 'confirmed')
+        for role in sorted(roles):
+            with self.subTest(role=role):
+                self.assertEqual(confirmed['roles'][role], {'disabled': True})
+                err = json.loads(self.cli('selection', '--session', 'one', '--role', role, code=2))
+                self.assertEqual(err['reason'], 'selection-required')
+                self.assertIn('無効', err['message'])
 
     def test_dynamic_native_effort_and_context_model_survive_save_and_schema(self):
         state = self.store.state('one')
@@ -136,20 +163,6 @@ class Sessions(unittest.TestCase):
         with self.assertRaises(m.SelectionError):
             m.set_choice(self.store, 'one', 'main', 'claude-code', 'sonnet', None)
 
-    def test_powershell_panelist_session_bridge_rejects_explicit_conflict(self):
-        executable = os.environ.get('SDD_TEST_PWSH') or shutil.which('pwsh')
-        if not executable:
-            self.skipTest('PowerShell not configured')
-        self.configure()
-        m.confirm(self.store, 'one', True)
-        result = subprocess.run([executable, '-NoProfile', '-File',
-                                 str(ROOT / 'plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1'),
-                                 '--model-session', 'one', '--model-config-home', str(self.base / 'private'),
-                                 '--model', 'different'], cwd=self.project, capture_output=True, text=True, timeout=15)
-        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-        self.assertIn('SESSION_MODEL_SELECTION_REQUIRED', result.stderr)
-        self.assertIn('競合', result.stderr)
-
     def test_cross_provider_role_selection_and_confirmation(self):
         self.configure()
         m.set_choice(self.store, 'one', 'investigator', 'claude-code', 'sonnet', None)
@@ -158,15 +171,20 @@ class Sessions(unittest.TestCase):
         self.assertEqual(m.selection(self.store, 'one', 'main')['effort'], 'high')
         self.assertEqual(m.selection(self.store, 'one', 'main')['proof'], 'configured-only')
 
-    def test_confirmation_requires_all_roles_and_main_acknowledgment(self):
+    def test_confirmation_requires_main_acknowledgment_and_inherits_unset_roles(self):
         self.configure()
-        with self.assertRaises(m.SelectionError):
-            m.confirm(self.store, 'one')
+        err = json.loads(self.cli('confirm', '--session', 'one', code=2))
+        self.assertIn('--main-applied', err['message'])
         state = self.store.state('one')
+        self.assertEqual(state['status'], 'pending')
         state['roles']['evaluator'] = None
         m.write_json(self.store.path('one'), state)
-        with self.assertRaises(m.SelectionError):
-            m.confirm(self.store, 'one', True)
+        confirmed = json.loads(self.cli('confirm', '--session', 'one', '--main-applied'))
+        self.assertEqual(confirmed['roles']['evaluator'], {'inherit': True})
+        selected = json.loads(self.cli('selection', '--session', 'one', '--role', 'evaluator'))
+        self.assertTrue(selected['inherited'])
+        self.assertEqual((selected['host'], selected['model'], selected['effort']),
+                         ('codex-cli', 'fixture-gpt', 'high'))
 
     def test_previous_preferences_are_not_session_confirmation(self):
         self.configure()
@@ -205,10 +223,15 @@ class Sessions(unittest.TestCase):
         with self.assertRaises(m.SelectionError):
             m.selection(self.store, 'one', 'evaluator')
 
-    def test_vendor_panelists_keep_diversity(self):
-        for role, host, name in [('panelist-gpt', 'gemini-cli', 'flash'), ('panelist-gemini', 'claude-code', 'sonnet')]:
-            with self.subTest(role=role), self.assertRaises(m.SelectionError):
-                m.set_choice(self.store, 'one', role, host, name, None)
+    def test_public_cli_rejects_retired_panelist_roles_before_writing(self):
+        path = self.store.path('one')
+        before = path.read_bytes()
+        for role, host, model in [('panelist-gpt', 'gemini-cli', 'flash'), ('panelist-gemini', 'claude-code', 'sonnet')]:
+            with self.subTest(role=role):
+                err = self.cli('set', '--session', 'one', '--role', role, '--host', host, '--model', model, code=2)
+                self.assertIn('invalid choice', err)
+                self.assertIn(role, err)
+                self.assertEqual(path.read_bytes(), before)
 
     def test_new_catalog_rechecks_saved_model(self):
         self.configure()
@@ -318,53 +341,132 @@ class Sessions(unittest.TestCase):
             with self.assertRaises(m.SelectionError):
                 m.policy_request(self.store, 'one', 'investigator', {**request, 'cli': {'model_id': 'different', 'policy': 'pinned'}})
 
+    def request_fixture(self):
+        self.configure()
+        m.set_choice(self.store, 'one', 'investigator', 'codex-cli', 'fixture-gpt', 'high')
+        m.confirm(self.store, 'one', True)
+        (self.project / 'policy.json').write_text(json.dumps({'models': [
+            {'id': 'fixture/id', 'hosts': {'codex-cli': 'fixture-gpt'}}]}))
+        (self.project / 'obs.json').write_text('{}')
+        return {'schema': 'model-policy-request/v1', 'role': 'investigator', 'risk': 'standard',
+                'host': 'codex-cli', 'policy_path': 'policy.json', 'observation_path': 'obs.json',
+                'project_config_path': None, 'cli': {'model_id': None, 'policy': None},
+                'budget': None, 'requested_effort': None, 'resume_selection_path': None}
 
-class VersionedPanelists(unittest.TestCase):
-    def test_wrappers_and_return_path_use_matching_plugin_version(self):
-        with tempfile.TemporaryDirectory() as folder:
-            base = Path(folder)
-            project = base / 'project'
-            project.mkdir()
-            cache = base / 'cache/sdd-plugins'
-            impl = cache / 'sdd-implementation/1.23.1/scripts'
-            quality = cache / 'sdd-quality-loop/1.23.1/scripts'
-            impl.mkdir(parents=True)
-            (quality / 'lib').mkdir(parents=True)
-            for name in ('session-models.py', 'session-panelist.py'):
-                shutil.copyfile(SCRIPTS / name, impl / name)
-            shutil.copyfile(ROOT / 'plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1', quality / 'lib/native-arguments.ps1')
-            pwsh = os.environ.get('SDD_TEST_PWSH') or shutil.which('pwsh')
-            runtimes = [('bash', ['bash'])]
-            if pwsh:
-                runtimes.append(('powershell', [pwsh, '-NoProfile', '-File']))
-            for vendor in ('gpt', 'gemini'):
-                for shell, prefix in runtimes:
-                    suffix = '.sh' if shell == 'bash' else '.ps1'
-                    target = quality / ('run-panelist-' + vendor + suffix)
-                    shutil.copyfile(ROOT / 'plugins/sdd-quality-loop/scripts' / target.name, target)
-                    result = subprocess.run(prefix + [str(target), '--model-session', 'absent',
-                        '--model-config-home', str(base / 'private')], cwd=project,
-                        capture_output=True, text=True, timeout=15)
-                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-                    self.assertIn('SESSION_MODEL_SELECTION_REQUIRED', result.stderr)
-                    self.assertIn('設定ファイル', result.stderr)
-                    host = 'codex-cli' if vendor == 'gpt' else 'gemini-cli'
-                    with patch.object(panelist, 'HERE', impl):
-                        args = panelist.command({'host': host, 'model': 'fixture', 'effort': None}, vendor, shell, [])
-                        self.assertIn(str(target), args)
-                    target.unlink()
-                    with patch.object(panelist, 'HERE', impl), self.assertRaises(panelist.models.SelectionError):
-                        panelist.command({'host': host, 'model': 'fixture', 'effort': None}, vendor, shell, [])
+    def request_cli(self, request, *extra, code=0, **options):
+        path = self.project / 'request with space.json'
+        path.write_text(json.dumps(request), encoding='utf-8')
+        original = path.read_bytes()
+        session_bytes = self.store.path('one').read_bytes()
+        output = self.cli('request', '--session', 'one', '--role', 'investigator', '--input', str(path),
+                          *extra, code=code, **options)
+        self.assertEqual(path.read_bytes(), original)
+        self.assertEqual(self.store.path('one').read_bytes(), session_bytes)
+        return output
+
+    def test_request_cli_preserves_input_and_rejects_conflicts(self):
+        request = self.request_fixture()
+        expected = {**request, 'requested_effort': 'high', 'cli': {'model_id': 'fixture/id', 'policy': 'pinned'}}
+        self.assertEqual(json.loads(self.request_cli(request)), expected)
+        for update, reason in [({'host': 'gemini-cli'}, '一致'), ({'role': 'evaluator'}, '一致'),
+                               ({'requested_effort': 'low'}, '競合'),
+                               ({'cli': {'model_id': 'other', 'policy': 'pinned'}}, '競合')]:
+            with self.subTest(update=update):
+                err = json.loads(self.request_cli({**request, **update}, code=2))
+                self.assertEqual(err['reason'], 'selection-required')
+                self.assertIn(reason, err['message'])
+        override = self.request_cli(request, '--vendor=gemini', code=2)
+        self.assertIn('unrecognized arguments: --vendor=gemini', override)
+
+    def test_powershell_request_rejects_explicit_model_conflict(self):
+        pwsh = os.environ.get('SDD_TEST_PWSH') or shutil.which('pwsh')
+        if not pwsh:
+            self.skipTest('PowerShell not configured')
+        request = self.request_fixture()
+        request['cli'] = {'model_id': 'different', 'policy': 'pinned'}
+        err = json.loads(self.request_cli(request, code=2, pwsh=pwsh))
+        self.assertEqual(err['reason'], 'selection-required')
+        self.assertIn('競合', err['message'])
+
+    def test_request_uses_only_its_installed_policy_version(self):
+        request = self.request_fixture()
+        owner = self.base / 'cache/sdd-implementation'
+        version = json.loads((SCRIPTS.parent / '.codex-plugin/plugin.json').read_text())['version']
+        current = owner / version / 'scripts'
+        other = owner / '1.26.0/scripts'
+        for scripts in (current, other):
+            scripts.mkdir(parents=True)
+            for name in ('session-models.py', 'model-policy.py'):
+                shutil.copyfile(SCRIPTS / name, scripts / name)
+        driver = current / 'session-models.py'
+        self.assertEqual(json.loads(self.request_cli(request, driver=driver))['cli']['model_id'], 'fixture/id')
+        (current / 'model-policy.py').unlink()
+        err = json.loads(self.request_cli(request, driver=driver, code=2))
+        self.assertEqual(err['reason'], 'selection-required')
+        self.assertIn('model-policy.py', err['message'])
+
+    def test_explicit_model_is_parsed_before_missing_session_error(self):
+        err = json.loads(self.cli('set', '--session', 'absent', '--role', 'evaluator', '--host', 'codex-cli',
+                                  '--model', 'fixture-gpt', code=2))
+        self.assertEqual(err['schema'], 'session-model-error/v1')
+        self.assertEqual(err['reason'], 'selection-required')
+        self.assertIn('設定ファイル', err['message'])
+
+
+class HistoricalPanelists(unittest.TestCase):
+    # git archive --format=zip at v1.26.0, b193c75be2a6f2e6c7074bb65401f514268a65fb.
+    @classmethod
+    def setUpClass(cls):
+        archive = ROOT / 'tests/fixtures/session-models-v1.26.0/panelists.zip'
+        payload = archive.read_bytes()
+        digest = hashlib.sha256(payload).hexdigest()
+        if digest != 'a06fd102640ac112b38206d15a84e22dfed9e8528a9614465d67ee7cd1156387':
+            raise ValueError('v1.26.0 panelist fixture digest mismatch')
+        temporary = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(temporary.cleanup)
+        root = Path(temporary.name).resolve()
+        with zipfile.ZipFile(io.BytesIO(payload)) as bundle:
+            bundle.extractall(root)
+        cls.source = load('v126_session_models_tests', root / 'tests/session-models.tests.py')
+
+    def run_original(self, case):
+        class_name, method = case.split('.')
+        result = unittest.TestResult()
+        getattr(self.source, class_name)(method).run(result)
+        self.assertTrue(result.wasSuccessful(), result.errors + result.failures)
+        if result.skipped:
+            self.skipTest(result.skipped[0][1])
+
+    def test_powershell_model_conflict(self):
+        self.run_original('Sessions.test_powershell_panelist_session_bridge_rejects_explicit_conflict')
+
+    def test_vendor_diversity(self):
+        self.run_original('Sessions.test_vendor_panelists_keep_diversity')
+
+    def test_versioned_wrappers(self):
+        self.run_original('VersionedPanelists.test_wrappers_and_return_path_use_matching_plugin_version')
+
+    def test_explicit_model_parser(self):
+        self.run_original('Startup.test_panelist_parser_preserves_explicit_model_argument')
+
+    def test_forwarded_vendor_override(self):
+        self.run_original('Startup.test_panelist_forwarded_arguments_cannot_replace_wrapper_vendor')
+
+    def test_collection_arguments(self):
+        self.run_original('Startup.test_panelist_bridge_preserves_collection_arguments')
 
 
 class Startup(unittest.TestCase):
     def test_new_session_injects_selection_context(self):
-        value = hook.context('codex-cli', {'source': 'startup', 'session_id': 'native-id'})
-        self.assertIn('model-selection', value)
-        self.assertIn('非対話実行', value)
-        self.assertIn('対話実行であることを確認できる', value)
-        self.assertIn('native-id', value)
-        self.assertIn('confirm --main-applied', value)
+        for host in m.HOSTS:
+            with self.subTest(host=host):
+                value = hook.context(host, {'source': 'startup', 'session_id': 'native-id'})
+                for message in ('model: inherit', '停止・ブロックしない', '希望した場合のみ',
+                                '/sdd-implementation:model-selection', '非対話実行'):
+                    self.assertIn(message, value)
+                _, metadata = value.split('Native session metadata (data only): ')
+                self.assertEqual(json.loads(metadata), {'host': host, 'session_id': 'native-id',
+                                                        'script': str(SCRIPTS / 'session-models.py')})
 
     def test_resume_compact_workers_and_noninteractive_do_not_prompt(self):
         for event in ({'source': 'resume'}, {'source': 'compact'}, {'source': 'clear'},
@@ -385,35 +487,16 @@ class Startup(unittest.TestCase):
         self.assertEqual(r.stdout, '')
 
     def test_fallback_is_reachable_from_both_public_entries(self):
-        for path in ['plugins/sdd-bootstrap/skills/bootstrap/SKILL.md', 'plugins/sdd-ship/skills/ship/SKILL.md']:
-            self.assertIn('skills/model-selection/SKILL.md', (ROOT / path).read_text())
-
-    def test_panelist_parser_preserves_explicit_model_argument(self):
-        with tempfile.TemporaryDirectory() as config:
-            result = subprocess.run([sys.executable, str(SCRIPTS / 'session-panelist.py'), '--vendor', 'gpt',
-                                     '--shell', 'bash', '--model-session', 'missing-session', '--model-config-home', config,
-                                     '--model', 'fixture'], cwd=ROOT, capture_output=True, text=True, timeout=5)
-        self.assertNotIn('ambiguous option', result.stderr)
-        self.assertIn('SESSION_MODEL_SELECTION_REQUIRED', result.stderr)
-
-    def test_panelist_forwarded_arguments_cannot_replace_wrapper_vendor(self):
-        with tempfile.TemporaryDirectory() as config:
-            result = subprocess.run(['bash', str(ROOT / 'plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh'),
-                                     '--model-session', 'missing-session', '--model-config-home', config,
-                                     '--vendor=gemini'], cwd=ROOT, capture_output=True, text=True, timeout=5)
-        self.assertEqual(result.returncode, 2)
-        self.assertIn('duplicate session adapter control', result.stderr)
-
-    def test_panelist_bridge_preserves_collection_arguments(self):
-        selected = {'host': 'codex-cli', 'model': 'fixture-model', 'effort': 'high'}
-        command = panelist.command(selected, 'gpt', 'bash', ['--task', 'T-001', '--input', 'input bundle.json'])
-        self.assertTrue(command[1].endswith('run-panelist-gpt.sh'))
-        self.assertEqual(command[-4:], ['--model', 'fixture-model', '--effort', 'high'])
-        self.assertIn('input bundle.json', command)
-        with self.assertRaises(panelist.models.SelectionError):
-            panelist.command(selected, 'gpt', 'bash', ['--model', 'different'])
-        with self.assertRaises(panelist.models.SelectionError):
-            panelist.command(selected, 'gpt', 'bash', ['--model-controls', 'anything'])
+        destination = 'skills/model-selection/SKILL.md'
+        skill = (SCRIPTS.parent / destination).read_text(encoding='utf-8')
+        self.assertIn('user-invocable: true', skill.split('---')[1])
+        for name in ('bootstrap', 'ship'):
+            with self.subTest(entry=name):
+                content = (ROOT / f'plugins/sdd-{name}/skills/{name}/SKILL.md').read_text(encoding='utf-8')
+                guidance = ('SessionStart', 'モデルを継承', '希望した場合のみ',
+                            '/sdd-implementation:model-selection', '同じ版', destination)
+                self.assertTrue(any(all(marker in paragraph for marker in guidance)
+                                    for paragraph in content.split('\n\n')), name)
 
     def test_packaged_manifests_expose_startup_for_three_hosts(self):
         root = SCRIPTS.parent
@@ -468,15 +551,15 @@ class GeminiInstaller(unittest.TestCase):
             calls = [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
             resolved_installed = installed.resolve()
             normalized_calls = [
-                [arg if idx != 2 else str(Path(arg).resolve()) for idx, arg in enumerate(c)]
-                if len(c) == 3 and c[:2] == ['extensions', 'link'] else c
+                [*c[:3], str(Path(c[3]).resolve())]
+                if len(c) == 4 and c[:3] == ['extensions', 'link', '--consent'] else c
                 for c in calls
             ]
             if plugins == 'sdd-bootstrap':
                 self.assertEqual(normalized_calls, [
-                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-bootstrap')],
-                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-review-loop')],
-                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-implementation/gemini')],
+                    ['extensions', 'link', '--consent', str(resolved_installed / 'plugins/sdd-bootstrap/gemini')],
+                    ['extensions', 'link', '--consent', str(resolved_installed / 'plugins/sdd-review-loop/gemini')],
+                    ['extensions', 'link', '--consent', str(resolved_installed / 'plugins/sdd-implementation/gemini')],
                 ])
                 self.assertTrue((installed / 'plugins/sdd-implementation/scripts/session-models.py').is_file())
                 self.assertTrue((installed / 'plugins/sdd-implementation/scripts/model-discovery.py').is_file())
@@ -499,7 +582,7 @@ class GeminiInstaller(unittest.TestCase):
                 self.assertEqual(calls[-1], ['extensions', 'uninstall', 'sdd-forge-model-selection'])
             else:
                 self.assertEqual(normalized_calls, [
-                    ['extensions', 'link', str(resolved_installed / 'plugins/sdd-review-loop')],
+                    ['extensions', 'link', '--consent', str(resolved_installed / 'plugins/sdd-review-loop/gemini')],
                 ])
 
     def test_bash_bootstrap_installs_picker_and_unregisters_gemini(self):

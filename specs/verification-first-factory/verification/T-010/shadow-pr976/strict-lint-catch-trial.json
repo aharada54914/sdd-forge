@@ -1,0 +1,253 @@
+{
+  "measured_on": "2026-11-26",
+  "samples": [
+    {
+      "sha256": "888783d09a521996f26f35de24c38460577ee094b433489e5119d0830d922bfc",
+      "kind": "locked_member",
+      "version": "4.5.4",
+      "path": "v4/core/compile.js",
+      "line": 141,
+      "proof": {
+        "line": 141,
+        "proven": true,
+        "flag": "recursive",
+        "probe": "isRecursiveSchema",
+        "thrown": "ZodCompileUnsupportedError",
+        "lines": [
+          137,
+          144
+        ]
+      },
+      "allProvenCatchLines": [
+        141
+      ]
+    },
+    {
+      "sha256": "df28853593428e5a2a8729b09f43baf0998eaae7f1e37797993035187833b054",
+      "kind": "locked_member",
+      "version": "4.6.5",
+      "path": "v4/core/compile.js",
+      "line": 157,
+      "proof": {
+        "line": 157,
+        "proven": true,
+        "flag": "recursive",
+        "probe": "isRecursiveSchema",
+        "thrown": "ZodCompileUnsupportedError",
+        "lines": [
+          153,
+          160
+        ]
+      },
+      "allProvenCatchLines": [
+        157
+      ]
+    },
+    {
+      "sha256": "53fcf24821f50ecf42492ab7101abe8a50ead8286a53567d71648fe5ca346b99",
+      "kind": "locked_member",
+      "version": "4.6.7",
+      "path": "v4/core/compile.js",
+      "line": 157,
+      "proof": {
+        "line": 157,
+        "proven": true,
+        "flag": "recursive",
+        "probe": "isRecursiveSchema",
+        "thrown": "ZodCompileUnsupportedError",
+        "lines": [
+          153,
+          160
+        ]
+      },
+      "allProvenCatchLines": [
+        157
+      ]
+    },
+    {
+      "sha256": "e5631957581e67d1142cf51b6c66696edefb0d396d057b3146eb826f77466c11",
+      "kind": "real_bundle",
+      "pr": 448,
+      "head": "f2cc4a3c82eb78a591bfce88991a176e8a14cea2",
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "line": 20198,
+      "proof": {
+        "line": 20198,
+        "proven": true,
+        "flag": "recursive2",
+        "probe": "isRecursiveSchema",
+        "thrown": "ZodCompileUnsupportedError",
+        "lines": [
+          20195,
+          20202
+        ]
+      },
+      "allProvenCatchLines": [
+        20198
+      ]
+    },
+    {
+      "sha256": "0bf1845fe17fa4ea70ce4da06ae948d3ab7516c45f0eb7224746754f83ac8137",
+      "kind": "real_bundle",
+      "pr": 398,
+      "head": "c0b1419ea69f305c3777eabc7ad498579c89c1ca",
+      "path": "mcp/local-env-mcp/dist/index.js",
+      "line": 19790,
+      "proof": {
+        "line": 19790,
+        "proven": true,
+        "flag": "recursive2",
+        "probe": "isRecursiveSchema",
+        "thrown": "ZodCompileUnsupportedError",
+        "lines": [
+          19787,
+          19794
+        ]
+      },
+      "allProvenCatchLines": [
+        19790
+      ]
+    },
+    {
+      "sha256": "42e180944dd731e52ab41ee1128552f751b2bbc911d7dd885cfe43d41d9c60fe",
+      "kind": "real_bundle",
+      "pr": 396,
+      "head": "0aa450cd13969889332bed921167518240baa055",
+      "path": "mcp/ci-mcp/dist/index.js",
+      "line": 19790,
+      "proof": {
+        "line": 19790,
+        "proven": true,
+        "flag": "recursive2",
+        "probe": "isRecursiveSchema",
+        "thrown": "ZodCompileUnsupportedError",
+        "lines": [
+          19787,
+          19794
+        ]
+      },
+      "allProvenCatchLines": [
+        19790
+      ]
+    },
+    {
+      "sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+      "kind": "real_bundle",
+      "pr": 800,
+      "head": "892140e3c9de8e72e1a255eccf826a5246d6d61a",
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "line": 20296,
+      "proof": {
+        "line": 20296,
+        "proven": true,
+        "flag": "recursive2",
+        "probe": "isRecursiveSchema",
+        "thrown": "ZodCompileUnsupportedError",
+        "lines": [
+          20293,
+          20300
+        ]
+      },
+      "allProvenCatchLines": [
+        20296
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "name": "independent positive, unrelated symbols",
+      "proven": true
+    },
+    {
+      "name": "ordinary swallowed probe",
+      "proven": false
+    },
+    {
+      "name": "inverted initializer",
+      "proven": false
+    },
+    {
+      "name": "inverted guard",
+      "proven": false
+    },
+    {
+      "name": "intervening side effect",
+      "proven": false
+    },
+    {
+      "name": "enclosing scope flag",
+      "proven": false
+    },
+    {
+      "name": "hoisted nested writer",
+      "proven": false
+    },
+    {
+      "name": "destructuring in hoisted writer",
+      "proven": false
+    },
+    {
+      "name": "dynamic evaluation reference in owner",
+      "proven": false
+    },
+    {
+      "name": "nonempty catch",
+      "proven": false
+    },
+    {
+      "name": "finally present",
+      "proven": false
+    },
+    {
+      "name": "fresh state written before probe return",
+      "proven": false
+    },
+    {
+      "name": "conditional refusal",
+      "proven": false
+    },
+    {
+      "name": "different guard variable",
+      "proven": false
+    },
+    {
+      "name": "outer handler can recover locally",
+      "proven": false
+    },
+    {
+      "name": "escaped direct-evaluation name",
+      "proven": false
+    }
+  ],
+  "proof": "First three executable statements of an ordinary function. A locally initialized true flag receives a lone probe return. An exception prevents that assignment from committing. The adjacent conditional checks the same unaliased lexical flag and its sole statement is an explicit throw. The owning function has no extra flag references or dynamic evaluation. Package, file, symbol, version and comments play no role.",
+  "hypothetical": {
+    "original_prs": 60,
+    "observed_unique_fp": 4,
+    "proven_unique_fp": 1,
+    "remaining_unique_fp": 3,
+    "observed_unique_tp": 1,
+    "remaining_unique_tp": 1,
+    "raw_affected_inside_60": 3,
+    "raw_observations": 9,
+    "remaining_raw": 6,
+    "remaining_disposition_ids": [
+      "guard-nesting",
+      "regression-output-31",
+      "regression-output-32",
+      "regression-output-35"
+    ],
+    "remaining_unique_fp_share": [
+      3,
+      4
+    ],
+    "new_observations_for_promotion": 0
+  },
+  "limit": "Structural local non-fallthrough through a throw statement on probe exception. User-defined throw operand evaluation can itself throw, or fail to terminate. The caller may handle the exception. This is not a product-rule change or a new precision sample.",
+  "historical_candidate": "c1cce46b18f6d5ec500597bd5ea071f7999bd475",
+  "isolated_trial": {
+    "base_commit": "88b345dd69cdf7b71802aa98562af1ffa268734e",
+    "static_prototype_sha256": "56d66b4135934fe040641cc2a0607857c95b886dcd6652d8cda0505671854f0a",
+    "dispositions": "strict-lint-expanded-c1cce46b1.json",
+    "independent_check": "Repeated all 16 controls and seven sample parses, compared four original Git blobs and recomputed unique IDs from the repository dispositions. All results matched."
+  }
+}

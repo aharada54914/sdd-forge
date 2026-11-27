@@ -130,11 +130,17 @@ jobs:
       - name: Set up Node.js 20 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: "20"
+          node-version: "26.13.0"
       - name: Verify loop checkout
         env:
           RELEASE_SHA: ${{ needs.ci-green.outputs.sha }}
         run: test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+      - name: Install locked cloud-package YAML parser dependencies
+        run: npm ci --prefix mcp/sdd-forge-mcp --omit=dev --ignore-scripts
+      - name: Verify release source contracts
+        shell: bash
+        run: node .github/scripts/check-release-source.mjs
+
       - name: Run SDD Forge v2 deterministic release suites
         shell: bash
         run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs
@@ -153,16 +159,19 @@ jobs:
           import assert from 'node:assert/strict';
           import fs from 'node:fs';
           import path from 'node:path';
+          import { countReleaseHeadings } from './.github/scripts/changelog-version.mjs';
 
           const tag = process.env.RELEASE_TAG || '';
           assert.match(tag, /^v[0-9]+\.[0-9]+\.[0-9]+$/, `Invalid release tag: ${tag}`);
           const expected = tag.slice(1);
 
           const readme = fs.readFileSync('README.md', 'utf8');
-          assert.match(readme, new RegExp(`^v${expected.replace(/\./g, '\\.')}[^0-9]`, 'm'), `README.md must declare v${expected}`);
+          const heading = readme.split(/\r?\n/, 5).find(line => /^v[0-9]/.test(line));
+          assert.ok(heading?.startsWith(`v${expected} — `), `README.md current release must be v${expected}`);
 
           const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
-          assert.match(changelog, new RegExp(`^## v${expected.replace(/\./g, '\\.')}( |$)`, 'm'), `CHANGELOG.md must contain ## v${expected}`);
+          const headingCount = countReleaseHeadings(changelog, expected);
+          assert.equal(headingCount, 1, `CHANGELOG.md must contain exactly one ## v${expected} heading (found ${headingCount})`);
 
           for (const entry of fs.readdirSync('plugins', { withFileTypes: true })) {
             if (!entry.isDirectory()) continue;
@@ -217,7 +226,7 @@ jobs:
       - name: Set up Node.js 20 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: "20"
+          node-version: "26.13.0"
 
       - name: Build reproducible source tarball
         run: |
@@ -237,6 +246,13 @@ jobs:
           SDD_RELEASE_HOST_SMOKE: "1"
         run: ./tests/release-host-smoke.sh
 
+      - name: Pre-generate portable Node.js Compile Cache
+        run: |
+          set -euo pipefail
+          node plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs \
+            --root "$PWD" \
+            --cache-dir "$PWD/.sdd-compile-cache"
+
       - name: Generate CycloneDX SBOM
         run: |
           set -euo pipefail
@@ -244,7 +260,7 @@ jobs:
           snapshot=$(mktemp -d "$RUNNER_TEMP/release-sbom.XXXXXX")
           trap 'rm -rf -- "$snapshot"' EXIT
           tar -xzf "$PKG" -C "$snapshot"
-          python3 .github/scripts/generate-sbom.py \
+          node .github/scripts/generate-sbom.ts \
             --source-root "$snapshot/sdd-forge-${TAG}" \
             --version="$TAG" \
             --repo "${GITHUB_REPOSITORY}" \

@@ -1,4 +1,8 @@
-import { loadGuardrailsConfigFromIo, stripFencedCodeBlocks } from "../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
+import {
+  computeSpecReviewInputsHash,
+  evaluateSpecCheckReport,
+  loadGuardrailsConfigFromIo,
+} from "../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
 import { createGuardedIo, guardedRead } from "./path-guard.js";
 import type { SddRoot } from "./root.js";
 
@@ -30,11 +34,28 @@ export function beforeTaskApproval(root: SddRoot, feature: string, allLowRisk: b
 
   // Only the report's own verdict field counts; examples in findings or code are not decisions.
   if (report.ok) {
-    const header = stripFencedCodeBlocks(report.data.contents).split(/^##[ \t]/m, 1)[0] ?? "";
-    const fields = [...header.matchAll(/^[ \t]*(?:-[ \t]+)?\*\*Verdict\*\*:[ \t]*([^\r\n]*)$/gm)];
-    const verdict = fields.length === 1 ? fields[0]?.[1]?.trim() : undefined;
-    if (verdict === "PASS" || verdict === "PASS_WITH_NOTES") return;
-    if (verdict === "NEEDS_FIX") {
+    const io = createGuardedIo(root);
+    const currentHash = computeSpecReviewInputsHash(io, { feature });
+    const evaluation = evaluateSpecCheckReport(report.data.contents, currentHash);
+    if (evaluation.rawVerdict === "PASS" || evaluation.rawVerdict === "PASS_WITH_NOTES") {
+      if (evaluation.freshness === "current") return;
+      if (skipReason(root, allLowRisk)) return;
+      if (evaluation.freshness === "stale") {
+        return {
+          phase: "spec-check",
+          command: rerun,
+          rationale: `${path} の判定（${evaluation.rawVerdict}）は仕様変更前の古い結果（Stale）です。現在の仕様に対する着工前レビューを ${inputs}再実行してください。`,
+        };
+      }
+      if (evaluation.freshness === "unconfirmed") {
+        return {
+          phase: "spec-check",
+          command: rerun,
+          rationale: `${path} の判定（${evaluation.rawVerdict}）には Review-Inputs-SHA256 が記録されておらず現行仕様との鮮度が未確認です。現在の仕様に対する着工前レビューを ${inputs}再実行してください。`,
+        };
+      }
+    }
+    if (evaluation.rawVerdict === "NEEDS_FIX") {
       const fix = `${path} の判定は NEEDS_FIX です。Blockers の指摘に沿って仕様を修正してください。`;
       const skipped = skipReason(root, allLowRisk);
       if (skipped) {

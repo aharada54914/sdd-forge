@@ -138,8 +138,11 @@ def compare_agents(repo_root: Path, codex_home: Path) -> list[dict[str, object]]
     return diverged
 
 
-def expected_block(name: str, install_root: Path) -> bytes:
-    entry_point = (install_root / "mcp" / name / "dist" / "index.js").resolve().as_posix()
+def expected_block(name: str, install_root: Path, recorded: bool = False) -> bytes:
+    path = install_root / "mcp" / name / "dist" / "index.js"
+    # The installer writes the selected name verbatim under its resolved root.
+    # On Windows resolving the child can change a retained historical spelling.
+    entry_point = (path if recorded else path.resolve()).as_posix()
     lines = [
         CURRENT_BEGIN.format(name=name),
         f"[mcp_servers.{name}]",
@@ -178,7 +181,11 @@ def extract_regions(config: bytes) -> dict[str, tuple[bytes, bool]]:
     return regions
 
 
-def selected_mcps(install_root: Path) -> Iterable[str]:
+def selected_mcps(install_root: Path, receipt: tuple[str, bytes] | None) -> Iterable[str]:
+    if receipt is not None:
+        return tuple(receipt[1].decode("ascii").split()[2:])
+    # Pre-receipt installations retain their payload-based comparison until
+    # the installer next targets Codex or All.
     mcp_root = install_root / "mcp"
     if not mcp_root.is_dir():
         return ()
@@ -186,17 +193,40 @@ def selected_mcps(install_root: Path) -> Iterable[str]:
                         if path.is_dir() and (path / "dist" / "index.js").is_file()))
 
 
-def compare_regions(install_root: Path, codex_home: Path) -> list[dict[str, object]]:
+def compare_regions(repo_root: Path, install_root: Path, codex_home: Path) -> list[dict[str, object]]:
     config_path = codex_home / "config.toml"
     regions = extract_regions(config_path.read_bytes()) if config_path.is_file() else {}
-    expected_names = set(selected_mcps(install_root))
+    receipt_name = ".sdd-codex-mcp-registration"
+    receipt = kind_and_bytes(install_root / receipt_name)
+    if receipt is not None:
+        kind, data = receipt
+        format_ok = kind == "file" and re.fullmatch(
+            rb"(ready|pending|legacy) codex-mcp/v1(?i:( sdd-forge-mcp)?( local-env-mcp)?( ci-mcp)?)\n", data)
+        if not format_ok:
+            # Unrecognized installed state has no matching source-side receipt.
+            return [entry("file", "install.sh#stage_codex_receipt", receipt_name, "removed", data, None)]
+        if data.startswith(b"pending "):
+            return [entry("file", "install.sh#stage_codex_receipt", receipt_name, "modified",
+                          data, b"ready " + data[len(b"pending "):])]
+    expected_names = set(selected_mcps(install_root, receipt))
     installed_ref_prefix = ("$SDD_CODEX_HOME/config.toml" if os.environ.get("SDD_CODEX_HOME")
                             else "~/.codex/config.toml")
     diverged: list[dict[str, object]] = []
+    if receipt is not None:
+        for name in sorted(expected_names):
+            relative = Path("mcp") / name / "dist" / "index.js"
+            node = install_root / relative
+            if node.is_symlink() or not node.is_file():
+                source_ref = (Path("mcp") / name.lower() / "dist" / "index.js").as_posix()
+                source = kind_and_bytes(repo_root / source_ref)
+                installed = kind_and_bytes(node)
+                diverged.append(entry("file", source_ref, relative.as_posix(),
+                                      "type-changed" if installed else "added",
+                                      installed[1] if installed else None, source[1] if source else None))
     for name in sorted(expected_names | set(regions)):
         source_ref = f"install.sh#register_codex_mcp/{name}"
         installed_ref = f"{installed_ref_prefix}#{name}"
-        expected = expected_block(name, install_root) if name in expected_names else None
+        expected = expected_block(name, install_root, receipt is not None) if name in expected_names else None
         actual, current = regions.get(name, (None, False))
         if name not in expected_names:
             diverged.append(entry("delimited-region", source_ref, installed_ref,
@@ -232,7 +262,7 @@ def build_report(mode: str, install_root: Path) -> tuple[dict[str, object], int]
     diverged = compare_file_sets(repo_root, resolved_root / "plugins",
                                  "plugins", "plugins")
     diverged.extend(compare_agents(repo_root, codex_home))
-    diverged.extend(compare_regions(resolved_root, codex_home))
+    diverged.extend(compare_regions(repo_root, resolved_root, codex_home))
     diverged.sort(key=lambda row: (str(row["surface"]), str(row["source_ref"]),
                                    str(row["installed_ref"])))
     report["diverged"] = diverged

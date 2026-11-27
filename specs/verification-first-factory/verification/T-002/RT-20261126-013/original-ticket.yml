@@ -1,0 +1,19 @@
+ticket_id: RT-20261126-013
+status: open
+type: verification
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "共通ゲートが圧縮データとパッチの削除行を未実装として扱う"
+problem: |
+  T-002 の候補 e135bc9cfa3f で公開テスト40件が成功したが、機械ゲートは FAIL を返した。
+  プレースホルダー検査が圧縮済み WASM のバイト列と、統一差分で削除するコメントに一致した。
+  いずれも実装に残った未完了の処理を示していない。
+expected_fix:
+  - 実際の圧縮資産と削除行で誤検出が無くなることを公開ゲートで検証する。
+  - 通常のソースおよびパッチで追加する行に未実装マーカーが残る対照例は検出する。
+  - 同じ入力範囲の機械ゲートと独立評価で結果を照合する。
+references:
+  - specs/verification-first-factory/verification/T-002/quality-repair-e135bc9cfa3f/execution.json
+  - plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs

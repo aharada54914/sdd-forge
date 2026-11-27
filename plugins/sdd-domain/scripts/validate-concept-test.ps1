@@ -3,8 +3,10 @@
 $ErrorActionPreference = "Stop"
 
 $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$lib = Join-Path $dir "../../sdd-quality-loop/scripts/lib/py-dispatch.ps1"
-if (-not (Test-Path -LiteralPath $lib)) {
+$runtimeLib = Join-Path $dir "../runtime/lib/py-dispatch.ps1"
+$siblingLib = Join-Path $dir "../../sdd-quality-loop/scripts/lib/py-dispatch.ps1"
+$lib = if (Test-Path -LiteralPath $runtimeLib) { $runtimeLib } elseif (Test-Path -LiteralPath $siblingLib) { $siblingLib } else { $null }
+if (-not $lib) {
     [Console]::Error.WriteLine("validate-concept-test: VALIDATE_CONCEPT_TEST_RUNTIME_UNAVAILABLE: lib/py-dispatch.ps1 unavailable beside this script")
     exit 1
 }

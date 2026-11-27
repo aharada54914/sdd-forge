@@ -1,0 +1,86 @@
+T-007 qualification (macOS arm64)
+Run: 01a21503-5efc-7131-9fc5-20e43d89eb3c
+UTC: 2026-11-25T23:34:51.138630+00:00
+Base: 6dd874a0555b806477a1e1c00229faa546316f45
+Post-repair verification manifest SHA-256: b8cdfd45a0fa74e47201eaa5033912f8026644a7c5980793f258d463076cc7b5
+plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs | base 2eaa4c88d52514b2de9de0746aa2a564b0fe305f5e5f0ff1ab07a3328de664e3 | verified cefd20ec49f570dac4f1809c87015afb1c81572fd826dc65addc78f61bbe1c84
+tests/self-security-adversarial.test.mjs | base 303bae835ba9590d74ba642d73c466985171eee1e76f6bfbfdcccbb1cb295045 | verified ffdde3cf9ff60075b28f66f18abc036537a28de298bf17d013daaf0f835899c8
+
+RED, tests executed before each source correction
+    not ok 4 - reports incomplete local input scans without disclosing the input path
+    not ok 5 - fails closed when it cannot enumerate paths for a security scan
+not ok 2 - Security adapter contracts and bootstrap integration
+# tests 16
+# pass 14
+# fail 2
+# skipped 0
+    not ok 1 - runs Socket policy checks, identifies malformed reports and masks raw output
+not ok 1 - Security adapter contracts and bootstrap integration
+# tests 1
+# pass 0
+# fail 1
+# skipped 0
+
+GREEN, candidate files bound above
+rtk proxy node --test --test-reporter=tap tests/self-security-adversarial.test.mjs
+# Subtest: ADR-0054 T-007 (SELF-AC-004 / AC-008): Adversarial Security Suite & Allowlist Security Gate
+# Subtest: 1. Rejects arbitrary command keys in guardrails.yaml and unallowed adapters with exit code 2
+# Subtest: 2. Refuses Windows .cmd/.bat wrappers (CVE-2024-27980 defense) and enforces shell: false
+# Subtest: 3. Detects leaked secrets and ALWAYS masks raw secret tokens in output
+# Subtest: 4. Detects slopsquatting / typosquatting packages and insecure HTTP deps in package.json
+# Subtest: 5. Fails closed (exit 2) in CI strict mode when an enabled external adapter is unavailable
+# Subtest: 6. Core path traversal & soft-guard self-approval defense hold against adversarial inputs
+# Subtest: Security adapter contracts and bootstrap integration
+# Subtest: rejects incomplete scans in CI and on configured high risk paths
+# Subtest: uses explicit opt-in and rejects invalid modes, paths and malformed config
+# Subtest: keeps simulated Issue instructions in the source body and rejects shell metacharacters in adapter IDs
+# Subtest: reports incomplete local input scans without disclosing the input path
+# Subtest: fails closed when it cannot enumerate paths for a security scan
+# Subtest: checks nested package manifests and fails closed on unreadable dependencies
+# Subtest: interprets CodeQL SARIF results and requires a report after database analysis
+# Subtest: runs Socket policy checks, identifies malformed reports and masks raw output
+# Subtest: persists deterministic meta-analysis and reads repository-wide learning, knowledge and OQ inputs
+# Subtest: renders the design reframing section for standard, high and an explicit low-risk override
+# tests 16
+# pass 16
+# fail 0
+# skipped 0
+rtk proxy node --test --test-reporter=tap tests/self-security-adversarial.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs
+# tests 74
+# pass 74
+# fail 0
+# skipped 0
+
+Actual local adapters
+Command: node plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs --root FIXTURE --adapters ADAPTER --mode strict --ci
+clean contains only a benign index.js; dummy-token contains a disposable, generated token-shaped string. tls-setting and codeql-setting are static JavaScript examples containing a TLS verification option. No fixture was executed.
+Gitleaks 8.30.1 darwin arm64 release archive sha256 b40ab0ae55c505963e365f271a8d3846efbc170aa17f2607f13df610a9aeb6a5
+Semgrep 1.187.0, repository rules plugins/sdd-quality-loop/rules/security.yml, metrics and version checks disabled.
+TruffleHog 3.100.1 darwin arm64 release archive sha256 baf7600403c029adcaabbc7efd262c5e26b7c654fb88d7334eb56682aaa2f000; gate passes --no-verification and --no-update.
+Official CodeQL bundle 2.27.6, JS queries 2.5.2, osx64 archive sha256 7240fa82b9ec43d0dc6d00a59f457e639b891f7ec5bc11409d77cf6506a6255f; real local database creation, analysis and SARIF evaluation.
+redacted checks that the synthetic token is absent from stdout and stderr; stderr_bytes is captured by the calling process.
+{"adapter": "gitleaks", "fixture": "clean", "status": "PASS", "exit": 0, "findings": 0, "errors": [], "redacted": true, "stderr_bytes": 0}
+{"adapter": "gitleaks", "fixture": "dummy-token", "status": "FAIL", "exit": 1, "findings": 1, "errors": [], "redacted": true, "stderr_bytes": 0}
+{"adapter": "semgrep", "fixture": "clean", "status": "PASS", "exit": 0, "findings": 0, "errors": [], "redacted": true, "stderr_bytes": 0}
+{"adapter": "semgrep", "fixture": "tls-setting", "status": "FAIL", "exit": 1, "findings": 1, "errors": [], "redacted": true, "stderr_bytes": 0}
+{"adapter": "trufflehog", "fixture": "clean", "status": "PASS", "exit": 0, "findings": 0, "errors": [], "redacted": true, "stderr_bytes": 0}
+{"adapter": "trufflehog", "fixture": "dummy-token", "status": "FAIL", "exit": 1, "findings": 1, "errors": [], "redacted": true, "stderr_bytes": 0}
+{"adapter": "codeql", "fixture": "clean", "status": "PASS", "exit": 0, "findings": 0, "errors": [], "redacted": true, "stderr_bytes": 0}
+{"adapter": "codeql", "fixture": "codeql-setting", "status": "FAIL", "exit": 1, "findings": 1, "errors": [], "redacted": true, "stderr_bytes": 0}
+{"adapter": "builtin-slopsquatting", "fixture": "worktree", "status": "PASS", "exit": 0, "findings": 0, "errors": [], "redacted": true, "stderr_bytes": 0}
+
+Socket 1.16.1 real entry point and published report contract
+NPM tarball @socketsecurity/cli@1.16.1 sha256 6a89dfb7383b8bd5dc0a42cec60760681ba15d0971795cc7210619c6b82b7478
+Registry integrity sha512-tkj6W0I8CUpek/QhYDfIaUk7QpN2piukrYpghhN5sSpwFVTRs+cWaDr53gu2QHXKLqTXHjeWGGHko9/QkF88sw==
+Source map package/dist/cli.js.map: src/commands/scan/handle-create-new-scan.mts:473; src/commands/scan/output-scan-report.mts:161-163,229-232. Report wraps healthy inside {ok:true,data:{...}} and sets process status according to policy.
+Real CLI socket scan run --help; API token and organization both unset. Real gate on a synthetic private package.json with OS network sandbox: exit 2, no stderr.
+{"schema":"sdd-security-gate/v1","mode":"strict","status":"TOOL_ERROR","exitCode":2,"adaptersRun":["socket"],"errors":[{"code":"ADAPTER_ERROR","message":"socket: ADAPTER_ERROR"}],"findings":[],"warnings":[]}
+Mocked successful and policy-violation service responses, plus malformed and contradictory responses, tested through the adapter; no authenticated API call.
+
+Explicit Semgrep scan of edited JavaScript
+{"version": "1.187.0", "scanned": ["plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs", "tests/self-security-adversarial.test.mjs"], "findings": 0, "errors": 0}
+
+Previous PR CI, separately scoped
+Run 45719350191, job 139573450332, PR head cc5872c2905ea3933c0463f9062f3c569ca10ce5. Earlier merge-tree scan artifact 15070927871:
+{"base": "2db182ad22706c86734b85a00e4263f23fda03f0", "head": "124c57a18ae3a9c04930012b6130d601cd0567a2", "gitleaks_seconds": 0, "semgrep_seconds": 3, "gitleaks": [], "semgrep": []}
+Slopsquatting step PASS exit 0 with no findings/warnings. nightly-codeql skipped on pull_request; no scheduled run of that workflow was returned at verification time. This is not CI on the newly edited candidate.

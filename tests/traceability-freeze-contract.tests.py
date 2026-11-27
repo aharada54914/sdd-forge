@@ -84,7 +84,7 @@ printf 'ok: persisted twins reject Evidence change\n'
 
     def test_raw_prelaunch_binding_twins(self):
         with tempfile.TemporaryDirectory(prefix="traceability-raw-") as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             feature = "raw-binding"
             spec = root / "specs" / feature
             spec.mkdir(parents=True)

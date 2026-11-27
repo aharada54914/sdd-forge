@@ -1,0 +1,15 @@
+{
+  "schema": "supplemental-delivery-declaration/v1",
+  "feature": "verification-first-factory",
+  "task_id": "T-006",
+  "implementation_report": {
+    "path": "reports/implementation/verification-first-factory/T-006.md",
+    "sha256": "f663dec3a9eb9cad676e33b5dddbb606f2645bdd0a9c45aca1478f1fe03348ec"
+  },
+  "artifacts": [
+    {
+      "path": "specs/verification-first-factory/verification/T-006/initial-quality-round/snapshot/cf53793720d0f3eb996e154627ace69dac893793/plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs.txt",
+      "sha256": "47b527ce95f65d69edfa43fd253041a63623dccb7f23046c12a6c0d529280a02"
+    }
+  ]
+}

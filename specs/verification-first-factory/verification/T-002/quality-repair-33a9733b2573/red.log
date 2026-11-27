@@ -1,0 +1,123 @@
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✖ allows renaming an already skipped test and editing existing skip reasons (156.590209ms)
+  ✖ preserves an existing question with invalid JSON and records a valid replacement (227.631042ms)
+  ✖ preserves an existing question with wrong id and records a valid replacement (225.857334ms)
+  ✖ preserves an existing question with wrong feature and records a valid replacement (226.387542ms)
+✖ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (837.032875ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 868.343208
+
+✖ failing tests:
+
+test at tests/v2-spec-drift.test.mjs:409:3
+✖ allows renaming an already skipped test and editing existing skip reasons (156.590209ms)
+  AssertionError [ERR_ASSERTION]: {
+    "schema": "sdd-anti-tamper/v1",
+    "status": "TAMPER_DETECTED",
+    "baseRef": "HEAD",
+    "checkedFilesCount": 1,
+    "openQuestion": {
+      "id": "OQ-001",
+      "path": "reports/verification/demo/anti-tampering/OQ-001.json"
+    },
+    "violations": [
+      {
+        "code": "TEST_SKIP_ADDED",
+        "path": "tests/sample.test.mjs",
+        "detail": "テストの skip 指定が追加されました: it.skip(\"new description\", () => {});"
+      }
+    ]
+  }
+  
+  
+  4 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:418:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at node:internal/test_runner/test:1516:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 4,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-spec-drift.test.mjs:450:5
+✖ preserves an existing question with invalid JSON and records a valid replacement (227.631042ms)
+  AssertionError [ERR_ASSERTION]: check-spec-drift --anti-tamper error: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+  
+  
+  2 !== 4
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:462:14)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at node:internal/test_runner/test:1040:31
+      at node:internal/process/task_queues:149:7
+      at AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+      at AsyncResource.runMicrotask (node:internal/process/task_queues:146:8) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 4,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-spec-drift.test.mjs:450:5
+✖ preserves an existing question with wrong id and records a valid replacement (225.857334ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'OQ-001' !== 'OQ-002'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:464:14)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'OQ-001',
+    expected: 'OQ-002',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/v2-spec-drift.test.mjs:450:5
+✖ preserves an existing question with wrong feature and records a valid replacement (226.387542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'OQ-001' !== 'OQ-002'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:464:14)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'OQ-001',
+    expected: 'OQ-002',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

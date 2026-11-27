@@ -25,7 +25,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / 'plugins/sdd-implementation/scripts'
-HOSTS = ('claude-code', 'codex-cli', 'copilot-cli', 'gemini-cli')
+HOSTS = ('claude-code', 'codex-cli', 'copilot-cli', 'antigravity-cli', 'gemini-cli')
 EFFORTS = ['low', 'medium', 'high', 'xhigh']
 ROLES = {
     'implementer': None, 'investigator': 'sdd-investigator',
@@ -229,7 +229,9 @@ class PolicySelection(unittest.TestCase):
         self.assertEqual(selection['source_date'], self.policy['source_date'])
         if model:
             self.assertEqual(selection['resolved']['catalog_id'], model)
-        self.assertIn(selection['resolved']['effort'], EFFORTS)
+        capability = next(item for item in self.registry['models']
+                          if item['name'] == selection['resolved']['catalog_id'])
+        self.assertIn(selection['resolved']['effort'], capability['supported_efforts'])
         self.assertEqual(selection['resolved']['native_id'],
                          self.model(selection['resolved']['catalog_id'])['hosts'][self.request['host']])
         load_helper().validate_selection_record(selection)
@@ -424,7 +426,7 @@ class PolicySelection(unittest.TestCase):
         self.pin(OLD)
         self.assertEqual(self.selected(self.invoke(), OLD), self.selected(self.invoke('powershell'), OLD))
 
-    def test_TEST124_all_four_hosts_are_explicit_fixture_capabilities(self):
+    def test_TEST124_all_five_hosts_are_explicit_fixture_capabilities(self):
         for host in HOSTS:
             with self.subTest(host=host):
                 self.request['host'] = self.observation['host'] = host
@@ -438,16 +440,60 @@ class PolicySelection(unittest.TestCase):
                 self.request['cli'] = {'model_id': None, 'policy': None}
 
     def test_TEST125_effort_never_enables_extra_modes(self):
-        for effort in ['max', 'ultra']:
+        for effort in ['MAX', 'beyond-ultra']:
             with self.subTest(effort=effort):
                 self.request['requested_effort'] = effort
-                self.blocked(self.invoke(), 'config-invalid')
+                for backend in ('bash', 'powershell'):
+                    self.blocked(self.invoke(backend), 'config-invalid')
         self.request['requested_effort'] = 'xhigh'
         self.blocked(self.invoke(), {'effort-unavailable', 'model-tier-unavailable'})
         result = self.selected(self.invoke(extra=['--xhigh-reason', 'explicit fixture justification']), CURRENT)
         self.assertEqual(result['resolved']['effort'], 'xhigh')
         self.assertNotIn('agents', result)
         self.assertNotIn('delegation', result)
+
+    def test_TEST125_extended_efforts_require_both_registered_and_observed_capability(self):
+        schema = json.loads((ROOT / 'contracts/model-policy-request.schema.json').read_text())
+        levels = schema['properties']['requested_effort']['anyOf'][0]['enum']
+        self.assertEqual(set(levels), {'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra'})
+        self.assertEqual(set(schema['properties']['host']['enum']), set(HOSTS))
+        self.pin(CURRENT)
+        registered = self.registry['models'][0]['supported_efforts']
+        observed = self.observation['models'][0]['efforts']
+        payload = {'request_path': 'request.json', 'registry_path': 'registry.json', 'selector_options': {}}
+        for effort in ('minimal', 'max', 'ultra'):
+            self.request['requested_effort'] = effort
+            for in_registry, in_observation in ((False, False), (True, False), (False, True), (True, True)):
+                with self.subTest(effort=effort, in_registry=in_registry, in_observation=in_observation):
+                    registered[:] = EFFORTS + ([effort] if in_registry else [])
+                    observed[:] = EFFORTS + ([effort] if in_observation else [])
+                    self.save()
+                    prepared = self.bridge('prepare-selection', payload)
+                    if in_registry and in_observation:
+                        self.assertEqual(prepared.returncode, 0, output(prepared))
+                        candidates = json.loads(prepared.stdout)['candidates']
+                        self.assertEqual([item['name'] for item in candidates], [CURRENT])
+                        self.assertIn(effort, candidates[0]['allowed_efforts'])
+                        results = [self.selected(self.invoke(backend, save=False), CURRENT)
+                                   for backend in ('bash', 'powershell')]
+                        self.assertEqual(results[0]['resolved']['effort'], effort)
+                        self.assertEqual(results[0], results[1])
+                    else:
+                        self.blocked(prepared, 'effort-unavailable')
+                        for backend in ('bash', 'powershell'):
+                            self.blocked(self.invoke(backend, save=False), 'effort-unavailable')
+        for effort in EFFORTS:
+            self.request['requested_effort'] = effort
+            self.save()
+            for backend, flag in [('bash', '--xhigh-reason'), ('powershell', '-XhighReason')]:
+                with self.subTest(effort=effort, backend=backend):
+                    extra = [flag, 'explicit fixture justification'] if effort == 'xhigh' else []
+                    selection = self.selected(self.invoke(backend, extra=extra, save=False), CURRENT)
+                    self.assertEqual(selection['resolved']['effort'], effort)
+        self.request['requested_effort'] = 'ultra'
+        self.observation['source'] = 'live-discovery'
+        for backend in ('bash', 'powershell'):
+            self.blocked(self.invoke(backend), 'scope-mismatch')
 
     def test_TEST126_selector_preserves_historical_input_bytes(self):
         self.save()

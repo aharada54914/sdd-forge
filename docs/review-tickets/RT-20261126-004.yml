@@ -1,0 +1,21 @@
+ticket_id: RT-20261126-004
+status: resolved
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "Valid compound shell commands in captured help produce a false suppression"
+problem: |
+  The independent evaluator observed exit 4, LINT_DISABLE_ADDED and a saved OQ for displayed
+  help in Bash time case and dash for arg do case. Each shell printed the help and exited 0.
+expected_fix:
+  - "Use shell grammar to identify active comments within and after nested command substitutions."
+  - "Verify native Bash and dash help controls and the genuine commented directive using the public CLI."
+owner_decision: "2026-11-26: owner approved one additional correction and independent evaluation."
+references:
+  - reports/quality-gate/verification-first-factory-T-002.md
+resolution:
+  commit: 26484310e
+  result: "Native Bash/dash help controls, active comments and installed CLI fixtures now agree."
+  evidence: specs/verification-first-factory/verification/T-002/RT-20261126-004/public-cli-receipt.json

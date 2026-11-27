@@ -26,7 +26,7 @@ def snapshot(root):
 class InstalledPrecheckTests(unittest.TestCase):
     def run_case(self, engine, layout, explicit=False):
         with tempfile.TemporaryDirectory(prefix='review install space ') as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve(strict=True)
             installation = base / 'installed'
             plugin = installation / ('plugins/sdd-review-loop' if layout == 'flat' else 'cache/sdd-plugins/sdd-review-loop/1.23.1')
             shutil.copytree(PLUGIN, plugin)
@@ -80,7 +80,7 @@ class InstalledPrecheckTests(unittest.TestCase):
         for engine in engines:
             for stage in ['impl', 'task']:
                 with self.subTest(engine=engine, stage=stage), tempfile.TemporaryDirectory() as temporary:
-                    base = Path(temporary)
+                    base = Path(temporary).resolve(strict=True)
                     cache = base / 'cache'
                     plugin = cache / 'sdd-review-loop/1.23.1'
                     shutil.copytree(PLUGIN, plugin)
@@ -120,7 +120,7 @@ class InstalledPrecheckTests(unittest.TestCase):
 
     def test_projection_refuses_links_and_conflicts_without_overwriting(self):
         with tempfile.TemporaryDirectory() as temporary:
-            base = Path(temporary)
+            base = Path(temporary).resolve(strict=True)
             root = base / 'consumer'
             root.mkdir()
             outside = base / 'outside'

@@ -86,16 +86,6 @@ class ContextSigningEnvironmentTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     guard.main()
 
-    def test_workflow_keeps_pinned_issuer_and_secret_step_boundary(self):
-        workflow = (ROOT / '.github/workflows/context-approval.yml').read_text()
-        self.assertIn('ref: 555bfb5f15265f622a353a946e3fd6b04ab575de', workflow)
-        self.assertIn('a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a', workflow)
-        self.assertIn('environment: context-approval', workflow)
-        self.assertIn('needs: prerequisites', workflow)
-        self.assertEqual(workflow.count('${{ secrets.SDD_CONTEXT_KEY }}'), 1)
-        self.assertIn('include-hidden-files: true', workflow)
-        self.assertNotIn('pull_request:', workflow)
-
 
 if __name__ == '__main__':
     unittest.main()

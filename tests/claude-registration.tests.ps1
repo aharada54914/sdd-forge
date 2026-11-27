@@ -38,7 +38,7 @@ function New-FakeClaudeCommand {
 function New-FakeSuccessfulPluginCommands {
     param([Parameter(Mandatory)][string]$BinRoot)
 
-    foreach ($command in @("codex", "copilot")) {
+    foreach ($command in @("codex", "copilot", "agy", "gemini")) {
         if ($isWindowsPlatform) {
             "@exit /b 0`r`n" | Set-Content -Path (Join-Path $BinRoot "$command.cmd") -Encoding Ascii
         }
@@ -123,6 +123,7 @@ function New-GitShim {
 }
 if ($RuntimeBoundariesOnly) { return }
 
+$runScenarios = {
 # A CLI that cannot start must never replace an existing installation. Also
 # cover a new root, whose parent must not be created on a failed preflight.
 $preflightRoot = Join-Path ([IO.Path]::GetTempPath()) ("sdd-claude-preflight-" + [guid]::NewGuid())
@@ -132,6 +133,7 @@ $preflightSavedPath = $env:PATH
 $preflightSavedOverride = $env:SDD_CLAUDE_BIN
 try {
     $env:SDD_CLAUDE_BIN = $null
+    New-FakeSuccessfulPluginCommands -BinRoot $preflightBin
     New-FakeClaudeCommand -BinRoot $preflightBin -LogPath $preflightLog -FailVersion
     $env:PATH = "$preflightBin$([IO.Path]::PathSeparator)$preflightSavedPath"
     foreach ($existing in @($true, $false)) {
@@ -316,4 +318,27 @@ try {
 finally {
     $env:PATH = $requireSavedPath
     if (Test-Path $requireRoot) { Remove-Item -Path $requireRoot -Recurse -Force }
+}
+}
+
+# Use private client directories even when the caller provides its own overrides.
+$configRoot = Join-Path ([IO.Path]::GetTempPath()) ("sdd-test-clients-" + [guid]::NewGuid())
+$savedEnvironment = @{}
+try {
+    foreach ($name in @('SDD_CURSOR_DIR', 'SDD_VSCODE_USER_DIR', 'SDD_GEMINI_DIR', 'SDD_ANTIGRAVITY_CONFIG_DIR', 'SDD_CODEX_HOME', 'SDD_CLAUDE_BIN')) {
+        $savedEnvironment[$name] = [Environment]::GetEnvironmentVariable($name)
+        if ($name -eq 'SDD_CLAUDE_BIN') {
+            Remove-Item Env:SDD_CLAUDE_BIN -ErrorAction SilentlyContinue
+            continue
+        }
+        Set-Item "Env:$name" (Join-Path $configRoot $name)
+    }
+    & $runScenarios
+}
+finally {
+    foreach ($name in $savedEnvironment.Keys) {
+        if ($null -eq $savedEnvironment[$name]) { Remove-Item "Env:$name" -ErrorAction SilentlyContinue }
+        else { Set-Item "Env:$name" $savedEnvironment[$name] }
+    }
+    if (Test-Path -LiteralPath $configRoot) { Remove-Item -LiteralPath $configRoot -Recurse -Force }
 }

@@ -1,0 +1,27 @@
+{
+  "tested_commit": "227a2184413f6875a8ae3262b37504e998dd9433",
+  "cmd": [
+    "node",
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+    "--root",
+    "/private/tmp/vff-eight-round.bCInWW/repo",
+    "--feature",
+    "verification-first-factory",
+    "--task",
+    "T-008",
+    "--base",
+    "227a2184413f6875a8ae3262b37504e998dd9433",
+    "--changed-files",
+    "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs,plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs,plugins/sdd-ship/skills/ship/SKILL.md,plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs,tests/v2-sdd-core-flow.test.mjs,tests/v2-wave3-integration.test.mjs,tests/v2-spec-drift.test.mjs,specs/self-verification/formal/mapping.json",
+    "--anti-tamper",
+    "--output",
+    "/private/tmp/vff-eight-round.bCInWW/final-227a2184413f/execution.json",
+    "--cmd",
+    "task-tests=node --test tests/v2-wave3-integration.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-spec-drift.test.mjs",
+    "--cmd",
+    "mapped-source=node --test --test-name-pattern='validates TaskLock.tla' tests/v2-formal-gate.test.mjs"
+  ],
+  "machine_run": "fb717056-8ef7-4c21-9bbe-e950e27aeef2",
+  "exit": 0,
+  "tracked_diff_after": []
+}

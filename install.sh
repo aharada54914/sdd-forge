@@ -334,6 +334,38 @@ install_codex_plugins() {
                 codex plugin add "${p}@sdd-plugins" || return 1
         done
     fi
+
+    # V-01: Detect retired v1 plugin registrations/caches (e.g. sdd-lite@sdd-plugins)
+    # that survive an in-place upgrade in Codex.
+    local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
+    local retired retired_id config_toml has_config cache_a cache_b has_cache
+    for retired in sdd-lite; do
+        retired_id="${retired}@sdd-plugins"
+        config_toml="${codex_home}/config.toml"
+        has_config=0
+        if [[ -f "$config_toml" ]] && grep -Fq "[plugins.\"${retired_id}\"]" "$config_toml"; then
+            has_config=1
+        fi
+        cache_a="${codex_home}/plugins/cache/sdd-plugins/${retired}"
+        cache_b="${codex_home}/cache/sdd-plugins/${retired}"
+        has_cache=0
+        if [[ -e "$cache_a" || -e "$cache_b" ]]; then
+            has_cache=1
+        fi
+        if [[ $has_config -eq 1 || $has_cache -eq 1 ]]; then
+            codex plugin remove "$retired_id" >/dev/null 2>&1 || true
+            local still_config=0 still_cache=0
+            if [[ -f "$config_toml" ]] && grep -Fq "[plugins.\"${retired_id}\"]" "$config_toml"; then
+                still_config=1
+            fi
+            if [[ -e "$cache_a" || -e "$cache_b" ]]; then
+                still_cache=1
+            fi
+            if [[ $still_config -eq 1 || $still_cache -eq 1 ]]; then
+                echo "Warning: Retired v1 Codex plugin residue detected for ${retired_id} (config=${still_config}, cache=${still_cache}). Back up Codex settings and run './uninstall.sh --target Codex' followed by './install.sh' to clear stale v1 entries." >&2
+            fi
+        fi
+    done
 }
 
 install_claude_plugins() {
@@ -638,9 +670,26 @@ register_claude_mcp() {
     done
 }
 
+# A pre-migration PowerShell install could preserve the spelling of a valid
+# -Mcp argument. Match only the server name case-insensitively.
+filter_codex_block() {
+    awk -v name="$1" '
+        tolower($3) == name && $0 == "# >>> " $3 " (managed by sdd-forge installer; do not edit by hand) >>>" {
+            if (skip) { invalid=1; exit 1 }; skip=1; next
+        }
+        tolower($3) == name && $0 == "# <<< " $3 " <<<" {
+            if (!skip) { invalid=1; exit 1 }; skip=0; next
+        }
+        !skip { print }
+        END { if (skip || invalid) exit 1 }
+    ' "$2"
+}
+
 register_codex_mcp() {
-    # Idempotently adds/replaces a marker-delimited block in
-    # ~/.codex/config.toml for each selected MCP. If config.toml does not
+    # Idempotently adds/updates a marker-delimited block in
+    # ~/.codex/config.toml for each selected MCP. Existing blocks are updated
+    # in place so Codex-managed sub-tables (e.g. [mcp_servers.<name>.tools])
+    # and surrounding table order are preserved. If config.toml does not
     # exist, registration is skipped with a warning (a new file is never
     # created, per requirements).
     local install_root_path="$1"
@@ -657,19 +706,6 @@ register_codex_mcp() {
         local marker_begin="# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>"
         local marker_end="# <<< ${name} <<<"
         tmp_config="$(mktemp)"
-        # Strip any prior block for this MCP (idempotent re-registration),
-        # then append a fresh block.
-        if ! awk -v begin="$marker_begin" -v end="$marker_end" '
-            $0 == begin { if (skip) { invalid = 1; exit 1 }; skip = 1; next }
-            $0 == end { if (!skip) { invalid = 1; exit 1 }; skip = 0; next }
-            skip { next }
-            { print }
-            END { if (skip || invalid) exit 1 }
-        ' "$config_toml" > "$tmp_config"; then
-            rm -f "$tmp_config"
-            echo "Malformed managed MCP markers in $config_toml; file unchanged for $name." >&2
-            return 1
-        fi
         # TOML basic strings share JSON escapes; escape every forbidden control.
         entry_point_toml="${entry_point//\\/\\\\}"
         entry_point_toml="${entry_point_toml//\"/\\\"}"
@@ -679,11 +715,99 @@ register_codex_mcp() {
             printf -v control '%b' "\\$octal_control"
             entry_point_toml="${entry_point_toml//$control/$escaped_control}"
         done
-        {
-            cat "$tmp_config"
-            printf '\n%s\n[mcp_servers.%s]\ncommand = "node"\nargs = ["%s"]\n%s\n' \
-                "$marker_begin" "$name" "$entry_point_toml" "$marker_end"
-        } > "${tmp_config}.new"
+        if ! SDD_CODEX_MCP_NAME="$name" \
+             SDD_CODEX_MCP_BEGIN="$marker_begin" \
+             SDD_CODEX_MCP_END="$marker_end" \
+             SDD_CODEX_MCP_ENTRY="$entry_point_toml" \
+             awk '
+            BEGIN {
+                name = ENVIRON["SDD_CODEX_MCP_NAME"]
+                name_lower = tolower(name)
+                begin_marker = ENVIRON["SDD_CODEX_MCP_BEGIN"]
+                end_marker = ENVIRON["SDD_CODEX_MCP_END"]
+                entry = ENVIRON["SDD_CODEX_MCP_ENTRY"]
+                in_block = 0
+                block_count = 0
+                invalid = 0
+                in_target = 0
+                saw_target = 0
+                saw_command = 0
+                saw_args = 0
+            }
+            tolower($3) == name_lower && $0 == "# >>> " $3 " (managed by sdd-forge installer; do not edit by hand) >>>" {
+                if (in_block || block_count >= 1) { invalid = 1; exit 1 }
+                in_block = 1
+                block_count = 1
+                in_target = 0
+                saw_target = 0
+                saw_command = 0
+                saw_args = 0
+                print
+                next
+            }
+            tolower($3) == name_lower && $0 == "# <<< " $3 " <<<" {
+                if (!in_block) { invalid = 1; exit 1 }
+                if (in_target) {
+                    if (!saw_command) { print "command = \"node\""; saw_command = 1 }
+                    if (!saw_args) { print "args = [\"" entry "\"]"; saw_args = 1 }
+                    in_target = 0
+                } else if (!saw_target) {
+                    print "[mcp_servers." name "]"
+                    print "command = \"node\""
+                    print "args = [\"" entry "\"]"
+                }
+                in_block = 0
+                print
+                next
+            }
+            in_block {
+                if ($0 ~ /^[ \t]*\[/) {
+                    if (in_target) {
+                        if (!saw_command) { print "command = \"node\""; saw_command = 1 }
+                        if (!saw_args) { print "args = [\"" entry "\"]"; saw_args = 1 }
+                        in_target = 0
+                    }
+                    trimmed = $0
+                    sub(/^[ \t]*/, "", trimmed)
+                    sub(/[ \t]*(#.*)?$/, "", trimmed)
+                    lower_hdr = tolower(trimmed)
+                    if (lower_hdr == "[mcp_servers." name_lower "]" || lower_hdr == "[mcp_servers.\"" name_lower "\"]") {
+                        in_target = 1
+                        saw_target = 1
+                    }
+                    print
+                    next
+                }
+                if (in_target) {
+                    if ($0 ~ /^[ \t]*command[ \t]*=/) {
+                        if (!saw_command) { print "command = \"node\""; saw_command = 1 }
+                        next
+                    }
+                    if ($0 ~ /^[ \t]*args[ \t]*=/) {
+                        if (!saw_args) { print "args = [\"" entry "\"]"; saw_args = 1 }
+                        next
+                    }
+                }
+                print
+                next
+            }
+            { print }
+            END {
+                if (in_block || invalid) exit 1
+                if (block_count == 0) {
+                    print ""
+                    print begin_marker
+                    print "[mcp_servers." name "]"
+                    print "command = \"node\""
+                    print "args = [\"" entry "\"]"
+                    print end_marker
+                }
+            }
+        ' "$config_toml" > "${tmp_config}.new"; then
+            rm -f "$tmp_config" "${tmp_config}.new"
+            echo "Malformed managed MCP markers in $config_toml; file unchanged for $name." >&2
+            return 1
+        fi
         mv "${tmp_config}.new" "$config_toml"
         rm -f "$tmp_config"
     done
@@ -826,7 +950,7 @@ place_single_mcp_payload() {
        [[ -L "$src_mcp" || -L "$src_dir" || -L "$src_dist" || -L "$src_index" || -L "$src_pkg" ]]; then
         return 0
     fi
-    local dest_dir="${install_root_path}/mcp/${name}"
+    local dest_dir="${install_root_path}/mcp/${4:-$name}"
     mkdir -p "${dest_dir}/dist"
     cp "$src_index" "${dest_dir}/dist/index.js"
     cp "$src_pkg" "${dest_dir}/package.json"
@@ -885,19 +1009,11 @@ prune_unselected_codex_mcp() {
     local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
     local config_toml="${codex_home}/config.toml"
     [[ -f "$config_toml" ]] || return 0
-    local name tmp_config marker_begin marker_end
+    local name tmp_config
     for name in "$@"; do
-        marker_begin="# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>"
-        marker_end="# <<< ${name} <<<"
-        grep -Fq "$marker_begin" "$config_toml" 2>/dev/null || continue
+        grep -Fiq "# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>" "$config_toml" || continue
         tmp_config="$(mktemp)"
-        if awk -v begin="$marker_begin" -v end="$marker_end" '
-            $0 == begin { if (skip) { invalid = 1; exit 1 }; skip = 1; next }
-            $0 == end { if (!skip) { invalid = 1; exit 1 }; skip = 0; next }
-            skip { next }
-            { print }
-            END { if (skip || invalid) exit 1 }
-        ' "$config_toml" > "$tmp_config"; then
+        if filter_codex_block "$name" "$config_toml" > "$tmp_config"; then
             mv "$tmp_config" "$config_toml"
         else
             rm -f "$tmp_config"
@@ -950,6 +1066,61 @@ prune_stale_managed_mcps() {
     [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]] && prune_unselected_mcp_json "${gemini_dir}/settings.json" "mcpServers" "$install_root_path" "${drop_names[@]}"
     [[ "$TARGET" == "All" || "$TARGET" == "Antigravity" ]] && prune_unselected_mcp_json "${agy_config_dir}/mcp_config.json" "mcpServers" "$install_root_path" "${drop_names[@]}"
     return 0
+}
+
+# Record Codex registration separately from the always-installed status CLI.
+# The names are in canonical order. An unfinished registration remains pending
+# across tree replacement and is diagnosed until a targeted retry succeeds.
+CODEX_RECEIPT=".sdd-codex-mcp-registration"
+CODEX_RECEIPT_NAMES=""
+stage_codex_receipt() {
+    local old="$INSTALL_ROOT/$CODEX_RECEIPT" new="$STAGING_ROOT/$CODEX_RECEIPT"
+    local prior="" name registered candidate prior_names="" config="${SDD_CODEX_HOME:-$HOME/.codex}/config.toml"
+    local format='^(ready|pending|legacy) codex-mcp/v1( sdd-forge-mcp)?( local-env-mcp)?( ci-mcp)?$'
+    if [[ -e "$old" || -L "$old" ]]; then
+        if [[ -L "$old" || ! -f "$old" ]] || ! IFS= read -r prior < "$old" ||
+           [[ ! "$prior" =~ ^(ready|pending|legacy)\ codex-mcp/v1(\ |$) || ! "$(printf %s "$prior" | LC_ALL=C tr 'A-Z' 'a-z')" =~ $format ]] || ! printf '%s\n' "$prior" | cmp -s - "$old"; then
+            echo "Invalid Codex MCP registration receipt; install stopped." >&2
+            return 1
+        fi
+        cp "$old" "$new" || return 1
+    fi
+    local target_codex=0 phase=legacy
+    if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
+        target_codex=1
+        phase=pending
+    fi
+    if [[ -n "$prior" && ! ( $target_codex -eq 1 && "$prior" == legacy\ * ) ]]; then
+        prior_names="${prior#* codex-mcp/v1}"
+    elif [[ $target_codex -eq 0 && ( -d "$INSTALL_ROOT/mcp" || -d "$INSTALL_ROOT/plugins" ) ]]; then
+        for candidate in "$INSTALL_ROOT"/mcp/*; do
+            [[ ! -f "$candidate/dist/index.js" ]] || prior_names+=" ${candidate##*/}"
+        done
+    elif [[ -f "$config" ]]; then
+        prior_names="$(awk '$0 == "# >>> " $3 " (managed by sdd-forge installer; do not edit by hand) >>>" { print $3 }' "$config")"
+    fi
+    for name in sdd-forge-mcp local-env-mcp ci-mcp; do
+        if [[ $target_codex -eq 1 && "$name" != "sdd-forge-mcp" ]] && ! mcp_selected "$name"; then
+            continue  # The installer prunes unselected secondary registrations.
+        fi
+        if [[ $target_codex -eq 1 && $MCP_NODE_OK -eq 1 && -f "$config" && -f "$STAGING_ROOT/mcp/$name/dist/index.js" ]] && mcp_selected "$name"; then
+            registered="$name"
+        else
+            registered="$(printf '%s\n' "$prior_names" | awk -v name="$name" '{for (i=1; i<=NF; i++) if (tolower($i)==name) { print $i; exit }}')"
+            [[ -n "$registered" ]] || continue
+            if [[ ! -f "$STAGING_ROOT/mcp/$registered/dist/index.js" ]]; then
+                place_single_mcp_payload "$SOURCE_ROOT" "$STAGING_ROOT" "$name" "$registered" || return 1
+                if [[ ! -f "$STAGING_ROOT/mcp/$registered/dist/index.js" ]]; then
+                    echo "Missing payload for retained Codex registration: $registered" >&2
+                    return 1
+                fi
+            fi
+        fi
+        CODEX_RECEIPT_NAMES+=" $registered"
+    done
+    if [[ $target_codex -eq 1 || -z "$prior" ]]; then
+        printf '%s codex-mcp/v1%s\n' "$phase" "$CODEX_RECEIPT_NAMES" > "$new"
+    fi
 }
 
 MCP_NODE_OK=0
@@ -1252,6 +1423,10 @@ REQUIRED_PATHS=(
     "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs"
     "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs"
     "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/shell-parser/parser.wasm.gz"
+    "plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs"
+    "plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.Go"
+    "plugins/sdd-quality-loop/scripts/v2/shell-parser/LICENSE.mvdan-sh"
     "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs"
     "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs"
     "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs"
@@ -1618,6 +1793,52 @@ for plugin in sdd-azure-cloud sdd-aws-cloud; do
     done
 done
 
+# V-07 (#812): Materialize self-contained Concept Test runtime inside sdd-domain
+# so per-plugin, per-version host caches (Codex / Claude) can execute
+# validate-concept-test without sibling sdd-quality-loop or shared contracts/.
+if [[ -d "$STAGING_ROOT/plugins/sdd-domain" ]]; then
+    domain_runtime="$STAGING_ROOT/plugins/sdd-domain/runtime"
+    mkdir -p "$domain_runtime/lib" "$domain_runtime/scripts" "$domain_runtime/contracts"
+    for lib_file in py-dispatch.ps1 py-dispatch.sh native-arguments.ps1; do
+        if [[ ! -f "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/lib/$lib_file" ]]; then
+            echo "Error: Required staged domain Concept Test runtime file is missing: plugins/sdd-quality-loop/scripts/lib/$lib_file" >&2
+            exit 1
+        fi
+        cp "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/lib/$lib_file" "$domain_runtime/lib/$lib_file"
+    done
+    for py_file in validate-approval-sidecar.py review-conditional-inputs.py canonicalize-sdd-yaml.py; do
+        if [[ ! -f "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/$py_file" ]]; then
+            echo "Error: Required staged domain Concept Test runtime file is missing: plugins/sdd-quality-loop/scripts/$py_file" >&2
+            exit 1
+        fi
+        cp "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/$py_file" "$domain_runtime/scripts/$py_file"
+    done
+    for schema in \
+        concept-test.v1.schema.json \
+        concept-test.v2.schema.json \
+        concept-test-decision.v1.schema.json \
+        domain-contract.v2.schema.json \
+        approval-sidecar.schema.json \
+        approver-registry.schema.json; do
+        if [[ ! -f "$STAGING_ROOT/contracts/$schema" ]]; then
+            echo "Error: Required staged domain Concept Test schema is missing: contracts/$schema" >&2
+            exit 1
+        fi
+        cp "$STAGING_ROOT/contracts/$schema" "$domain_runtime/contracts/$schema"
+    done
+fi
+
+# Stage placement and the host's pending expectation together before the swap.
+place_mcp_servers_if_selected "$SOURCE_ROOT" "$STAGING_ROOT"
+stage_codex_receipt || exit 1
+
+# Stage 2 hybrid pre-generated portable Node.js Compile Cache (ADR-0055).
+if [[ "${SDD_SKIP_COMPILE_CACHE:-0}" != "1" ]] && command -v node >/dev/null 2>&1 \
+    && [[ -f "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs" ]]; then
+    node "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs" \
+        --root "$STAGING_ROOT" --cache-dir "$STAGING_ROOT/.sdd-compile-cache" >/dev/null 2>&1 || true
+fi
+
 # Backup existing install — generate a unique path without pre-creating it
 # so that `mv` renames the directory rather than moving it inside.
 if [[ -d "$INSTALL_ROOT" ]]; then
@@ -1633,10 +1854,6 @@ STAGING_ROOT=""
 NEW_INSTALL_PLACED=1
 
 RESOLVED_INSTALL_ROOT="$(cd "$INSTALL_ROOT" && pwd)"
-
-# MCP placement mirrors plugin file placement: it happens regardless of
-# --target and is controlled only by --skip-mcp / --mcp.
-place_mcp_servers_if_selected "$SOURCE_ROOT" "$RESOLVED_INSTALL_ROOT"
 
 # ---------------------------------------------------------------------------
 # Registration
@@ -1667,6 +1884,11 @@ if [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]]; then
     install_gemini_extension "$RESOLVED_INSTALL_ROOT" || exit 1
 fi
 install_mcp_servers "$RESOLVED_INSTALL_ROOT" || exit 1
+if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
+    ready_receipt="$(mktemp "${INSTALL_ROOT}/${CODEX_RECEIPT}.XXXXXX")"
+    printf 'ready codex-mcp/v1%s\n' "$CODEX_RECEIPT_NAMES" > "$ready_receipt"
+    mv "$ready_receipt" "$INSTALL_ROOT/$CODEX_RECEIPT"
+fi
 
 # ---------------------------------------------------------------------------
 # Success

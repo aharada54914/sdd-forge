@@ -46,7 +46,7 @@ flowchart TD
 | [cloud/README.md](cloud/README.md) | クラウド開発：明示導入する操作と受入の制限（[Azure](cloud/azure.md) / [AWS](cloud/aws.md)）、[実行契約と復旧](cloud-orchestration.md) |
 | [ai-dlc-foundation-decision-v2.md](ai-dlc-foundation-decision-v2.md) | Multi-target AI-DLC 拡張計画の決定書 |
 | [specs/sdd-lite/design.md](../specs/sdd-lite/design.md) | sdd-lite 設計 |
-| [plugins/sdd-lite/references/lite-flow-policy.md](../plugins/sdd-lite/references/lite-flow-policy.md) | sdd-lite 規約・昇格 |
+| [ADR-0051](adr/0051-lightweight-guardrails-and-sdd-core.md) | SDD Lite から SDD Core への移行と、リスクに応じたレビューの選択 |
 
 ## 貢献・運用する
 

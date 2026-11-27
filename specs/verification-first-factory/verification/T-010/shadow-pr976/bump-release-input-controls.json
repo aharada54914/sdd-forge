@@ -1,0 +1,96 @@
+{
+  "v20.20.2/normal/check_bump_missing_helper": {
+    "fixtureFileCount": 933,
+    "publicPayloadAndMcpFilesPresent": 920,
+    "absent": [
+      "plugins/sdd-implementation/scripts/managed-model-entry.py"
+    ],
+    "outcomes": [
+      "#     not ok 4 - keeps the installed managed model entry in the release source",
+      "#     ok 17 - all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
+    ],
+    "specificCause": true,
+    "outcome": "accepted"
+  },
+  "v20.20.2/normal/check_bump_stale_readme": {
+    "fixtureFileCount": 934,
+    "publicPayloadAndMcpFilesPresent": 921,
+    "absent": [],
+    "outcomes": [
+      "#     ok 4 - keeps the installed managed model entry in the release source",
+      "#     not ok 17 - all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
+    ],
+    "specificCause": true,
+    "outcome": "accepted"
+  },
+  "v20.20.2/write-after-snapshot/check_bump_missing_helper": {
+    "fixtureFileCount": 933,
+    "publicPayloadAndMcpFilesPresent": 920,
+    "absent": [
+      "plugins/sdd-implementation/scripts/managed-model-entry.py"
+    ],
+    "outcomes": [
+      "#     not ok 4 - keeps the installed managed model entry in the release source",
+      "#     ok 17 - all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
+    ],
+    "specificCause": true,
+    "assertion": "LICENSE bytes differ",
+    "outcome": "rejected"
+  },
+  "v20.20.2/write-after-snapshot/check_bump_stale_readme": {
+    "fixtureFileCount": 934,
+    "publicPayloadAndMcpFilesPresent": 921,
+    "absent": [],
+    "outcomes": [
+      "#     ok 4 - keeps the installed managed model entry in the release source",
+      "#     not ok 17 - all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
+    ],
+    "specificCause": true,
+    "assertion": "LICENSE bytes differ",
+    "outcome": "rejected"
+  },
+  "v20.20.2/wrong-reason/check_bump_missing_helper": {
+    "fixtureFileCount": 933,
+    "publicPayloadAndMcpFilesPresent": 920,
+    "absent": [
+      "plugins/sdd-implementation/scripts/managed-model-entry.py"
+    ],
+    "outcomes": [],
+    "specificCause": false,
+    "assertion": "missing case-specific TAP outcome",
+    "outcome": "rejected"
+  },
+  "v20.20.2/wrong-reason/check_bump_stale_readme": {
+    "fixtureFileCount": 934,
+    "publicPayloadAndMcpFilesPresent": 921,
+    "absent": [],
+    "outcomes": [],
+    "specificCause": false,
+    "assertion": "missing case-specific TAP outcome",
+    "outcome": "rejected"
+  },
+  "v24.13.0/normal/check_bump_missing_helper": {
+    "fixtureFileCount": 933,
+    "publicPayloadAndMcpFilesPresent": 920,
+    "absent": [
+      "plugins/sdd-implementation/scripts/managed-model-entry.py"
+    ],
+    "outcomes": [
+      "not ok 1 - keeps the installed managed model entry in the release source",
+      "ok 2 - all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
+    ],
+    "specificCause": true,
+    "outcome": "accepted"
+  },
+  "v24.13.0/normal/check_bump_stale_readme": {
+    "fixtureFileCount": 934,
+    "publicPayloadAndMcpFilesPresent": 921,
+    "absent": [],
+    "outcomes": [
+      "ok 1 - keeps the installed managed model entry in the release source",
+      "not ok 2 - all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version"
+    ],
+    "specificCause": true,
+    "outcome": "accepted"
+  }
+}

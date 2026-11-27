@@ -1,0 +1,965 @@
+{
+  "method": "For every one of the same 70 first-parent ranges call the public Strict umbrella on the same historical checkout with both scanners, in order. Explicit --base with default diff_only, feature sdd-forge-refactor, task T-001, skip-drift and skip-sensors; zero project verification commands. Both scanners use pinned parser and esbuild; at #800 and #972 share the identical npm ci --offline --ignore-scripts --no-audit --no-fund --prefix mcp/sdd-forge-mcp installation using the stored historical lock hash. Confirm clean Git index/worktree before each pair. Positive rules rechecked against hashes, locations and original T-004 source review. Local replay; no hosted outcomes.",
+  "candidate_inputs": {
+    "before": {
+      "head": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+      "source": {
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "a1d576c2cab796e556bd582975090607ba4bb916f0cdb5950808babe8a16027b",
+        "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs": "fbfffce06914d2cf280eaafafed427a802ab34b900df00aec61a802e8664790e",
+        "plugins/sdd-quality-loop/rules/lint-diff.mjs": "94998d112def4fbafa56f5ce675d227c67c2b4e275b89e941f58d62782baf3eb"
+      },
+      "parser": "0.51.3",
+      "esbuild": "0.28.2"
+    },
+    "after": {
+      "head": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+      "source": {
+        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs": "3d29aeb024834791fe63dcaa599cfc3e70a24960236129deef3d9fa95a211204",
+        "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs": "fbfffce06914d2cf280eaafafed427a802ab34b900df00aec61a802e8664790e",
+        "plugins/sdd-quality-loop/rules/lint-diff.mjs": "0ab6b20700d71f4108262f43ac45c6d90de63c7c74a01b77f02156b329ff6b59"
+      },
+      "parser": "0.51.3",
+      "esbuild": "0.28.2"
+    }
+  },
+  "distinct_ranges": 70,
+  "pr_file_observations": 401,
+  "before": {
+    "findings": 25,
+    "classes": {
+      "catalog_false_alert": 13,
+      "derived_duplicate": 4,
+      "third_party_construct": 1,
+      "catalog_match": 7
+    },
+    "statuses": {
+      "PASS": 64,
+      "FAIL": 4,
+      "WARN": 2
+    },
+    "by_rule": {
+      "no-child-process-shell-true": {
+        "catalog_match": 1
+      },
+      "no-combinatorial-flags": {
+        "derived_duplicate": 4,
+        "catalog_match": 2
+      },
+      "no-console-log": {
+        "catalog_false_alert": 7,
+        "catalog_match": 1
+      },
+      "no-empty-catch": {
+        "catalog_false_alert": 6,
+        "third_party_construct": 1,
+        "catalog_match": 3
+      }
+    }
+  },
+  "after": {
+    "findings": 12,
+    "classes": {
+      "derived_duplicate": 4,
+      "third_party_construct": 1,
+      "catalog_match": 7
+    },
+    "statuses": {
+      "PASS": 65,
+      "FAIL": 4,
+      "WARN": 1
+    },
+    "by_rule": {
+      "no-child-process-shell-true": {
+        "catalog_match": 1
+      },
+      "no-combinatorial-flags": {
+        "derived_duplicate": 4,
+        "catalog_match": 2
+      },
+      "no-console-log": {
+        "catalog_match": 1
+      },
+      "no-empty-catch": {
+        "third_party_construct": 1,
+        "catalog_match": 3
+      }
+    }
+  },
+  "eliminated": {
+    "source catch has a rationale comment": 6,
+    "out-of-scope JSON report output": 7
+  },
+  "added": 0,
+  "repaired_results_identical_to_standalone_shadow_at_every_range": true,
+  "limits": "One-repository local retrospective sample; four flags are derived duplicate diagnostics and one empty catch is in vendored code. Observed catalog mismatches 0/12. Counting duplicate/vendor diagnostics as operational noise gives 5/12. Optional independent Bernoulli model has exact 95% one-sided upper bound 22.1% for 0/12; dependence makes that not a confidence statement for these PRs. Hosted strict qualification remains unverified.",
+  "without_historical_mcp_dependencies": [
+    {
+      "pr": 972,
+      "base": "520469d7496bc8f31668f626ddbf2cf5263b5420",
+      "head": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2",
+      "before": 4,
+      "after": 4,
+      "all_rule_path_line_tuples_identical": true
+    },
+    {
+      "pr": 800,
+      "base": "e416492a572b3475f7aa538df249b50063c8aba0",
+      "head": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+      "before": 9,
+      "after": 9,
+      "all_rule_path_line_tuples_identical": true
+    }
+  ],
+  "current_pr_control": {
+    "pr": 976,
+    "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+    "head": "d4fbfe2efd9f3e2a4c14d5d7983979b094097afb",
+    "scanned_files": 55,
+    "before_findings": 11,
+    "after_findings": 11,
+    "before_status": "FAIL",
+    "after_status": "FAIL",
+    "all_rule_path_line_severity_tuples_identical": true
+  },
+  "ranges": [
+    {
+      "pr": 980,
+      "base": "275f0f9151ff50c1f69aa667b74765fa2f19e4e6",
+      "head": "2db182ad22706c86734b85a00e4263f23fda03f0",
+      "files": 2,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 979,
+      "base": "34f777f4e332957ba93e19bf8918d10cd6ed8510",
+      "head": "275f0f9151ff50c1f69aa667b74765fa2f19e4e6",
+      "files": 3,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 978,
+      "base": "fa60bc51104e0c396a02846e9e78088e8fea724b",
+      "head": "34f777f4e332957ba93e19bf8918d10cd6ed8510",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 977,
+      "base": "3497bb17997499c440b5461e3b7709d6dbc00909",
+      "head": "fa60bc51104e0c396a02846e9e78088e8fea724b",
+      "files": 3,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 975,
+      "base": "8052dbfc87b67c1707bea2c92fcb0954b88a29a4",
+      "head": "3497bb17997499c440b5461e3b7709d6dbc00909",
+      "files": 2,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 974,
+      "base": "484cbe7aef828488ee49fa5d92569917e74c5891",
+      "head": "8052dbfc87b67c1707bea2c92fcb0954b88a29a4",
+      "files": 47,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 973,
+      "base": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2",
+      "head": "484cbe7aef828488ee49fa5d92569917e74c5891",
+      "files": 2,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 972,
+      "base": "520469d7496bc8f31668f626ddbf2cf5263b5420",
+      "head": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2",
+      "files": 19,
+      "before": "FAIL",
+      "after": "FAIL",
+      "lock": "e98a15e1d905f820886d1c80876788a21dba9b7aeebc23817e47a5c424efaefd",
+      "findings": [
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 38895,
+          "sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
+          "review": "source catch has a rationale comment",
+          "retained": false
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 39054,
+          "sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
+          "review": "source catch has a rationale comment",
+          "retained": false
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 38324,
+          "sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
+          "review": "same condition as authored-source finding",
+          "retained": true
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 38330,
+          "sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
+          "review": "same condition as authored-source finding",
+          "retained": true
+        }
+      ]
+    },
+    {
+      "pr": 971,
+      "base": "e848b3217785ebe00af43dda51f361b50f1d6cf2",
+      "head": "520469d7496bc8f31668f626ddbf2cf5263b5420",
+      "files": 2,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 970,
+      "base": "067aaf76f75385816036118a159f9f019dc66c81",
+      "head": "e848b3217785ebe00af43dda51f361b50f1d6cf2",
+      "files": 18,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 969,
+      "base": "ad19ec42dbe2c4455db526b3ce22dd8eafb8616d",
+      "head": "067aaf76f75385816036118a159f9f019dc66c81",
+      "files": 12,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 968,
+      "base": "c037db8b08d0e8e001a9538f10dd1197d716b5e9",
+      "head": "ad19ec42dbe2c4455db526b3ce22dd8eafb8616d",
+      "files": 2,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 967,
+      "base": "aafd1848431cd7d89cec7fa7fb25cbc340df837b",
+      "head": "c037db8b08d0e8e001a9538f10dd1197d716b5e9",
+      "files": 11,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 966,
+      "base": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+      "head": "aafd1848431cd7d89cec7fa7fb25cbc340df837b",
+      "files": 9,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 800,
+      "base": "e416492a572b3475f7aa538df249b50063c8aba0",
+      "head": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+      "files": 35,
+      "before": "FAIL",
+      "after": "FAIL",
+      "lock": "e98a15e1d905f820886d1c80876788a21dba9b7aeebc23817e47a5c424efaefd",
+      "findings": [
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 20296,
+          "sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "third-party bundled implementation",
+          "retained": true
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 37065,
+          "sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "source catch has a rationale comment",
+          "retained": false
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 40672,
+          "sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "source catch has a rationale comment",
+          "retained": false
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 40831,
+          "sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "source catch has a rationale comment",
+          "retained": false
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 41608,
+          "sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "source catch has a rationale comment",
+          "retained": false
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 40295,
+          "sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "same condition as authored-source finding",
+          "retained": true
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 40301,
+          "sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+          "review": "same condition as authored-source finding",
+          "retained": true
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+          "line": 492,
+          "sha256": "702a0e0339759c9f43eefbd9dc6d580b8e3c636b7d88e813889bb50980b10d83",
+          "review": "same flag pair tested in two sibling conditions",
+          "retained": true
+        },
+        {
+          "rule": "no-combinatorial-flags",
+          "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+          "line": 498,
+          "sha256": "702a0e0339759c9f43eefbd9dc6d580b8e3c636b7d88e813889bb50980b10d83",
+          "review": "same flag pair tested in two sibling conditions",
+          "retained": true
+        }
+      ]
+    },
+    {
+      "pr": 794,
+      "base": "7076410e4447bde0d1f1efcce04912b9ba6a1c3e",
+      "head": "e416492a572b3475f7aa538df249b50063c8aba0",
+      "files": 7,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 793,
+      "base": "84d034687c42d2de6a07b3bbebcdeb227d7face9",
+      "head": "7076410e4447bde0d1f1efcce04912b9ba6a1c3e",
+      "files": 1,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 792,
+      "base": "e219bc594379208189f5504739dcf6df7d315a42",
+      "head": "84d034687c42d2de6a07b3bbebcdeb227d7face9",
+      "files": 7,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 784,
+      "base": "0ed0dc7ff422fe225104a78ed5915a46c3226c9a",
+      "head": "e219bc594379208189f5504739dcf6df7d315a42",
+      "files": 12,
+      "before": "FAIL",
+      "after": "FAIL",
+      "findings": [
+        {
+          "rule": "no-child-process-shell-true",
+          "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+          "line": 113,
+          "sha256": "99fd50f8fa4941be30e1bda11ae19c66cb1a1f67feaa895fb30f0d342fbbee0f",
+          "review": "shell option on subprocess",
+          "retained": true
+        }
+      ]
+    },
+    {
+      "pr": 789,
+      "base": "b193c75be2a6f2e6c7074bb65401f514268a65fb",
+      "head": "0ed0dc7ff422fe225104a78ed5915a46c3226c9a",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 783,
+      "base": "5e9970c25e1c2f54002ca4102fb8a4dea7282917",
+      "head": "b193c75be2a6f2e6c7074bb65401f514268a65fb",
+      "files": 4,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 782,
+      "base": "519c581dfa460f3f7ad40becc8be4a475ba6cd39",
+      "head": "5e9970c25e1c2f54002ca4102fb8a4dea7282917",
+      "files": 1,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 781,
+      "base": "989e514ab3acff701783b3c350e79dd1355207e8",
+      "head": "519c581dfa460f3f7ad40becc8be4a475ba6cd39",
+      "files": 28,
+      "before": "FAIL",
+      "after": "FAIL",
+      "findings": [
+        {
+          "rule": "no-empty-catch",
+          "path": "plugins/sdd-ship/session-hub/runner.mjs",
+          "line": 22,
+          "sha256": "62caa42cf22d80df019f7fa2142f6cf4218c034e3414272ac9da216f90058802",
+          "review": "literal empty catch in cleanup",
+          "retained": true
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "plugins/sdd-ship/session-hub/runner.mjs",
+          "line": 52,
+          "sha256": "62caa42cf22d80df019f7fa2142f6cf4218c034e3414272ac9da216f90058802",
+          "review": "literal empty catch in cleanup",
+          "retained": true
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/session-hub-browser.mjs",
+          "line": 70,
+          "sha256": "9954c1edf2e6c97b4ce90e35fd6d0769dda665a56a7418cb6b26264849f637d3",
+          "review": "out-of-scope JSON report output",
+          "retained": false
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/session-hub-native-push.mjs",
+          "line": 21,
+          "sha256": "a332d9484e7f95c782a6181b23c03942fc03e5733f1207fcf435b85a582a7fc7",
+          "review": "out-of-scope JSON report output",
+          "retained": false
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/session-hub-native-push.mjs",
+          "line": 28,
+          "sha256": "a332d9484e7f95c782a6181b23c03942fc03e5733f1207fcf435b85a582a7fc7",
+          "review": "out-of-scope JSON report output",
+          "retained": false
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "tests/session-hub-native-push.mjs",
+          "line": 29,
+          "sha256": "a332d9484e7f95c782a6181b23c03942fc03e5733f1207fcf435b85a582a7fc7",
+          "review": "literal empty catch in cleanup",
+          "retained": true
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/session-hub-production.mjs",
+          "line": 25,
+          "sha256": "194c4704f37ee601f77bbeb91de48379f093ad2c50b95cb44b1be15fc4753d95",
+          "review": "out-of-scope JSON report output",
+          "retained": false
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/session-hub-production.mjs",
+          "line": 30,
+          "sha256": "194c4704f37ee601f77bbeb91de48379f093ad2c50b95cb44b1be15fc4753d95",
+          "review": "out-of-scope JSON report output",
+          "retained": false
+        }
+      ]
+    },
+    {
+      "pr": 779,
+      "base": "0a327bc0f0a72de5377765b364801224e517a65f",
+      "head": "989e514ab3acff701783b3c350e79dd1355207e8",
+      "files": 11,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 777,
+      "base": "fd25c1e5f7b94dc5e50addb995d4313da0dda65a",
+      "head": "0a327bc0f0a72de5377765b364801224e517a65f",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 774,
+      "base": "08e56b843203ad5dc86b25ec4481d0d7497591b8",
+      "head": "fd25c1e5f7b94dc5e50addb995d4313da0dda65a",
+      "files": 23,
+      "before": "WARN",
+      "after": "WARN",
+      "findings": [
+        {
+          "rule": "no-console-log",
+          "path": "plugins/sdd-ship/status-site/build.mjs",
+          "line": 14,
+          "sha256": "e79c8c950b36ad15ef9139dcfee279521c8bc30911d105d95769aa0f609115d6",
+          "review": "shipping build CLI stdout, catalog calls for waiver if intentional",
+          "retained": true
+        },
+        {
+          "rule": "no-console-log",
+          "path": "tests/hosted-status-browser.tests.mjs",
+          "line": 84,
+          "sha256": "ec1c25163f820789d7165bf01eab51aaa12b41259247901b14b79734bf6e38ee",
+          "review": "out-of-scope JSON report output",
+          "retained": false
+        }
+      ]
+    },
+    {
+      "pr": 756,
+      "base": "0f4e3268b5403855008ae089d3c1611430a41987",
+      "head": "08e56b843203ad5dc86b25ec4481d0d7497591b8",
+      "files": 15,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 720,
+      "base": "08398f03d964dcf9790d32dd020150727d5f8207",
+      "head": "0f4e3268b5403855008ae089d3c1611430a41987",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 723,
+      "base": "e768ee091b07fd70fa3b9212b2f132245560a63c",
+      "head": "08398f03d964dcf9790d32dd020150727d5f8207",
+      "files": 4,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 721,
+      "base": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+      "head": "e768ee091b07fd70fa3b9212b2f132245560a63c",
+      "files": 12,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 719,
+      "base": "0289c089131eebdb4620d98dc8fd1bde088fe3aa",
+      "head": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+      "files": 3,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 718,
+      "base": "782d081e4d34d91745d2dcb97be0eac952af0ecd",
+      "head": "0289c089131eebdb4620d98dc8fd1bde088fe3aa",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 717,
+      "base": "1309af62260273f76b88ce50ae935ff137af53e1",
+      "head": "782d081e4d34d91745d2dcb97be0eac952af0ecd",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 716,
+      "base": "041302bb6baaf7a96a7f8337b4b8750d3ddf7aac",
+      "head": "1309af62260273f76b88ce50ae935ff137af53e1",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 713,
+      "base": "257c238330e6b280abf4e473511a456e5ea032d3",
+      "head": "041302bb6baaf7a96a7f8337b4b8750d3ddf7aac",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 715,
+      "base": "54441b21f5af450dafab374d7dff603e68cff634",
+      "head": "257c238330e6b280abf4e473511a456e5ea032d3",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 714,
+      "base": "047673af0c347e02dc64ad4086d7840eda3c0856",
+      "head": "54441b21f5af450dafab374d7dff603e68cff634",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 711,
+      "base": "50699a31e043a6ff16e8340419cdaf2f1354d44d",
+      "head": "047673af0c347e02dc64ad4086d7840eda3c0856",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 710,
+      "base": "c5e55ae2851d064fcfd52eda01f15cf672a1f872",
+      "head": "50699a31e043a6ff16e8340419cdaf2f1354d44d",
+      "files": 1,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 709,
+      "base": "e38705080761eb7ba36656a2da31e66ae279aaae",
+      "head": "c5e55ae2851d064fcfd52eda01f15cf672a1f872",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 708,
+      "base": "006c0840693b821f6cab7627e4779445b49e74a0",
+      "head": "e38705080761eb7ba36656a2da31e66ae279aaae",
+      "files": 6,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 707,
+      "base": "fa9f4dd98189ec27d2d836f00888d8d36dddd33f",
+      "head": "006c0840693b821f6cab7627e4779445b49e74a0",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 706,
+      "base": "f6067d91301b2fe3abff231201cd36d15e6bd44a",
+      "head": "fa9f4dd98189ec27d2d836f00888d8d36dddd33f",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 697,
+      "base": "c4dd626432b1040ac5c47034d3686f5eac4cfe9c",
+      "head": "f6067d91301b2fe3abff231201cd36d15e6bd44a",
+      "files": 62,
+      "before": "WARN",
+      "after": "PASS",
+      "findings": [
+        {
+          "rule": "no-console-log",
+          "path": "reports/verification/coding-standards-mcp-public-20261101/verify.mjs",
+          "line": 60,
+          "sha256": "277f171cc2c7a04225724c943ba8ed10b85a218edd62b129491cdca982a9e0f3",
+          "review": "out-of-scope JSON report output",
+          "retained": false
+        }
+      ]
+    },
+    {
+      "pr": 705,
+      "base": "f6fba8b66a49a3821d3dd2d5aa5ace5e4aaae9ac",
+      "head": "c4dd626432b1040ac5c47034d3686f5eac4cfe9c",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 698,
+      "base": "1b71731b4e2403040faffcfdc05f8dff7c648928",
+      "head": "f6fba8b66a49a3821d3dd2d5aa5ace5e4aaae9ac",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 703,
+      "base": "8b8f713cd149dad82ae966c19e7f5d55f176c215",
+      "head": "1b71731b4e2403040faffcfdc05f8dff7c648928",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 702,
+      "base": "5fea9d6b856f5bf76e95fbbf05f97119fbcc8363",
+      "head": "8b8f713cd149dad82ae966c19e7f5d55f176c215",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 701,
+      "base": "cb417507e007d1fb0c3534d774ba0688d7132ff9",
+      "head": "5fea9d6b856f5bf76e95fbbf05f97119fbcc8363",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 700,
+      "base": "ffbe0c4f3d83bccd76b6a7050d8934e312165dd5",
+      "head": "cb417507e007d1fb0c3534d774ba0688d7132ff9",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 699,
+      "base": "82b536954626e73b36853711b264cbf5df400d22",
+      "head": "ffbe0c4f3d83bccd76b6a7050d8934e312165dd5",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 695,
+      "base": "546e985ec09daa87dffc4606c8763c61603d9160",
+      "head": "82b536954626e73b36853711b264cbf5df400d22",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 696,
+      "base": "1da0248d184c7eb07c8d2e63ccae9524bfececed",
+      "head": "546e985ec09daa87dffc4606c8763c61603d9160",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 693,
+      "base": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+      "head": "1da0248d184c7eb07c8d2e63ccae9524bfececed",
+      "files": 3,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 683,
+      "base": "2cea5aec8cdf77ae624ebd7d09b099a9b68940f0",
+      "head": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 681,
+      "base": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+      "head": "2cea5aec8cdf77ae624ebd7d09b099a9b68940f0",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 680,
+      "base": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+      "head": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+      "files": 6,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 679,
+      "base": "b9d3062ebd3fd172053dd9bf5e9df8b08d413eed",
+      "head": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 677,
+      "base": "8ce4d9e3c7694c65c3360226ed9ff0774cf64b6e",
+      "head": "b9d3062ebd3fd172053dd9bf5e9df8b08d413eed",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 676,
+      "base": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+      "head": "8ce4d9e3c7694c65c3360226ed9ff0774cf64b6e",
+      "files": 1,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 657,
+      "base": "db22681231caf6b8b16d5bd3cb80fab81416b3d8",
+      "head": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+      "files": 4,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 656,
+      "base": "45c203f0aff9e4481845649a34530a0c04ccc52f",
+      "head": "db22681231caf6b8b16d5bd3cb80fab81416b3d8",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 655,
+      "base": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "head": "45c203f0aff9e4481845649a34530a0c04ccc52f",
+      "files": 3,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 592,
+      "base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "head": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 591,
+      "base": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+      "head": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "files": 0,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 590,
+      "base": "465019f772e932ee30f55ebf85f9eaa295f1a1a9",
+      "head": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+      "files": 11,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 580,
+      "base": "532f64de9dc700426abde5a5b23966e851eb6a96",
+      "head": "465019f772e932ee30f55ebf85f9eaa295f1a1a9",
+      "files": 4,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 579,
+      "base": "c9bee62802fbb96adc4ab504681564f329560cf5",
+      "head": "532f64de9dc700426abde5a5b23966e851eb6a96",
+      "files": 3,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 578,
+      "base": "79f28350d2d1ace19879be6201b5473822e24b72",
+      "head": "c9bee62802fbb96adc4ab504681564f329560cf5",
+      "files": 1,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    },
+    {
+      "pr": 577,
+      "base": "d1bd02086167bb8914abdaa962f2e4e2877ea78e",
+      "head": "79f28350d2d1ace19879be6201b5473822e24b72",
+      "files": 1,
+      "before": "PASS",
+      "after": "PASS",
+      "findings": []
+    }
+  ],
+  "fix_commit": "e6c347cc643c47377e6c638940d7cd4419f16a8e"
+}

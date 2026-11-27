@@ -1,0 +1,739 @@
+{
+  "scanner": "d630057b02fe877e7109547562767d712689ad22",
+  "mode": "shadow --diff-only",
+  "sample": "Same consecutive historical PRs as historical-prs.json through PR #976 base; PRs #800 and #972 use their lockfile-installed MCP dependencies. Only the independently rebuilt documented catches may disappear. All other scanner locations compared by rule, file, and line. Historical code was not executed.",
+  "runs": [
+    {
+      "pr": 980,
+      "merge_or_squash": "2db182ad22706c86734b85a00e4263f23fda03f0",
+      "first_parent": "275f0f9151ff50c1f69aa667b74765fa2f19e4e6",
+      "scanned_files": 2,
+      "duration_ms": 924,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 979,
+      "merge_or_squash": "275f0f9151ff50c1f69aa667b74765fa2f19e4e6",
+      "first_parent": "34f777f4e332957ba93e19bf8918d10cd6ed8510",
+      "scanned_files": 3,
+      "duration_ms": 165,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 978,
+      "merge_or_squash": "34f777f4e332957ba93e19bf8918d10cd6ed8510",
+      "first_parent": "fa60bc51104e0c396a02846e9e78088e8fea724b",
+      "scanned_files": 0,
+      "duration_ms": 108,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 977,
+      "merge_or_squash": "fa60bc51104e0c396a02846e9e78088e8fea724b",
+      "first_parent": "3497bb17997499c440b5461e3b7709d6dbc00909",
+      "scanned_files": 3,
+      "duration_ms": 865,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 975,
+      "merge_or_squash": "3497bb17997499c440b5461e3b7709d6dbc00909",
+      "first_parent": "8052dbfc87b67c1707bea2c92fcb0954b88a29a4",
+      "scanned_files": 2,
+      "duration_ms": 151,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 974,
+      "merge_or_squash": "8052dbfc87b67c1707bea2c92fcb0954b88a29a4",
+      "first_parent": "484cbe7aef828488ee49fa5d92569917e74c5891",
+      "scanned_files": 47,
+      "duration_ms": 1436,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 973,
+      "merge_or_squash": "484cbe7aef828488ee49fa5d92569917e74c5891",
+      "first_parent": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2",
+      "scanned_files": 2,
+      "duration_ms": 845,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 972,
+      "merge_or_squash": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2",
+      "first_parent": "520469d7496bc8f31668f626ddbf2cf5263b5420",
+      "scanned_files": 19,
+      "duration_ms": 1320,
+      "findings_before": 4,
+      "findings_after": 2,
+      "removed": [
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 38895
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 39054
+        }
+      ]
+    },
+    {
+      "pr": 971,
+      "merge_or_squash": "520469d7496bc8f31668f626ddbf2cf5263b5420",
+      "first_parent": "e848b3217785ebe00af43dda51f361b50f1d6cf2",
+      "scanned_files": 2,
+      "duration_ms": 875,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 970,
+      "merge_or_squash": "e848b3217785ebe00af43dda51f361b50f1d6cf2",
+      "first_parent": "067aaf76f75385816036118a159f9f019dc66c81",
+      "scanned_files": 18,
+      "duration_ms": 1014,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 969,
+      "merge_or_squash": "067aaf76f75385816036118a159f9f019dc66c81",
+      "first_parent": "ad19ec42dbe2c4455db526b3ce22dd8eafb8616d",
+      "scanned_files": 12,
+      "duration_ms": 1013,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 968,
+      "merge_or_squash": "ad19ec42dbe2c4455db526b3ce22dd8eafb8616d",
+      "first_parent": "c037db8b08d0e8e001a9538f10dd1197d716b5e9",
+      "scanned_files": 2,
+      "duration_ms": 917,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 967,
+      "merge_or_squash": "c037db8b08d0e8e001a9538f10dd1197d716b5e9",
+      "first_parent": "aafd1848431cd7d89cec7fa7fb25cbc340df837b",
+      "scanned_files": 11,
+      "duration_ms": 985,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 966,
+      "merge_or_squash": "aafd1848431cd7d89cec7fa7fb25cbc340df837b",
+      "first_parent": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+      "scanned_files": 9,
+      "duration_ms": 970,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 800,
+      "merge_or_squash": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+      "first_parent": "e416492a572b3475f7aa538df249b50063c8aba0",
+      "scanned_files": 35,
+      "duration_ms": 2498,
+      "findings_before": 9,
+      "findings_after": 5,
+      "removed": [
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 37065
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 40672
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 40831
+        },
+        {
+          "rule": "no-empty-catch",
+          "path": "mcp/sdd-forge-mcp/dist/index.js",
+          "line": 41608
+        }
+      ]
+    },
+    {
+      "pr": 794,
+      "merge_or_squash": "e416492a572b3475f7aa538df249b50063c8aba0",
+      "first_parent": "7076410e4447bde0d1f1efcce04912b9ba6a1c3e",
+      "scanned_files": 7,
+      "duration_ms": 808,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 793,
+      "merge_or_squash": "7076410e4447bde0d1f1efcce04912b9ba6a1c3e",
+      "first_parent": "84d034687c42d2de6a07b3bbebcdeb227d7face9",
+      "scanned_files": 1,
+      "duration_ms": 110,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 792,
+      "merge_or_squash": "84d034687c42d2de6a07b3bbebcdeb227d7face9",
+      "first_parent": "e219bc594379208189f5504739dcf6df7d315a42",
+      "scanned_files": 7,
+      "duration_ms": 155,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 784,
+      "merge_or_squash": "e219bc594379208189f5504739dcf6df7d315a42",
+      "first_parent": "0ed0dc7ff422fe225104a78ed5915a46c3226c9a",
+      "scanned_files": 12,
+      "duration_ms": 177,
+      "findings_before": 1,
+      "findings_after": 1,
+      "removed": []
+    },
+    {
+      "pr": 789,
+      "merge_or_squash": "0ed0dc7ff422fe225104a78ed5915a46c3226c9a",
+      "first_parent": "b193c75be2a6f2e6c7074bb65401f514268a65fb",
+      "scanned_files": 0,
+      "duration_ms": 148,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 783,
+      "merge_or_squash": "b193c75be2a6f2e6c7074bb65401f514268a65fb",
+      "first_parent": "5e9970c25e1c2f54002ca4102fb8a4dea7282917",
+      "scanned_files": 4,
+      "duration_ms": 304,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 782,
+      "merge_or_squash": "5e9970c25e1c2f54002ca4102fb8a4dea7282917",
+      "first_parent": "519c581dfa460f3f7ad40becc8be4a475ba6cd39",
+      "scanned_files": 1,
+      "duration_ms": 109,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 781,
+      "merge_or_squash": "519c581dfa460f3f7ad40becc8be4a475ba6cd39",
+      "first_parent": "989e514ab3acff701783b3c350e79dd1355207e8",
+      "scanned_files": 28,
+      "duration_ms": 944,
+      "findings_before": 3,
+      "findings_after": 3,
+      "removed": []
+    },
+    {
+      "pr": 779,
+      "merge_or_squash": "989e514ab3acff701783b3c350e79dd1355207e8",
+      "first_parent": "0a327bc0f0a72de5377765b364801224e517a65f",
+      "scanned_files": 11,
+      "duration_ms": 878,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 777,
+      "merge_or_squash": "0a327bc0f0a72de5377765b364801224e517a65f",
+      "first_parent": "fd25c1e5f7b94dc5e50addb995d4313da0dda65a",
+      "scanned_files": 0,
+      "duration_ms": 105,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 774,
+      "merge_or_squash": "fd25c1e5f7b94dc5e50addb995d4313da0dda65a",
+      "first_parent": "08e56b843203ad5dc86b25ec4481d0d7497591b8",
+      "scanned_files": 23,
+      "duration_ms": 1088,
+      "findings_before": 1,
+      "findings_after": 1,
+      "removed": []
+    },
+    {
+      "pr": 756,
+      "merge_or_squash": "08e56b843203ad5dc86b25ec4481d0d7497591b8",
+      "first_parent": "0f4e3268b5403855008ae089d3c1611430a41987",
+      "scanned_files": 15,
+      "duration_ms": 1689,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 720,
+      "merge_or_squash": "0f4e3268b5403855008ae089d3c1611430a41987",
+      "first_parent": "08398f03d964dcf9790d32dd020150727d5f8207",
+      "scanned_files": 0,
+      "duration_ms": 110,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 723,
+      "merge_or_squash": "08398f03d964dcf9790d32dd020150727d5f8207",
+      "first_parent": "e768ee091b07fd70fa3b9212b2f132245560a63c",
+      "scanned_files": 4,
+      "duration_ms": 751,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 721,
+      "merge_or_squash": "e768ee091b07fd70fa3b9212b2f132245560a63c",
+      "first_parent": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+      "scanned_files": 12,
+      "duration_ms": 2435,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 719,
+      "merge_or_squash": "75c6919b466a929566d6d29a1d17c01b741bfd25",
+      "first_parent": "0289c089131eebdb4620d98dc8fd1bde088fe3aa",
+      "scanned_files": 3,
+      "duration_ms": 228,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 718,
+      "merge_or_squash": "0289c089131eebdb4620d98dc8fd1bde088fe3aa",
+      "first_parent": "782d081e4d34d91745d2dcb97be0eac952af0ecd",
+      "scanned_files": 0,
+      "duration_ms": 94,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 717,
+      "merge_or_squash": "782d081e4d34d91745d2dcb97be0eac952af0ecd",
+      "first_parent": "1309af62260273f76b88ce50ae935ff137af53e1",
+      "scanned_files": 0,
+      "duration_ms": 83,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 716,
+      "merge_or_squash": "1309af62260273f76b88ce50ae935ff137af53e1",
+      "first_parent": "041302bb6baaf7a96a7f8337b4b8750d3ddf7aac",
+      "scanned_files": 0,
+      "duration_ms": 84,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 713,
+      "merge_or_squash": "041302bb6baaf7a96a7f8337b4b8750d3ddf7aac",
+      "first_parent": "257c238330e6b280abf4e473511a456e5ea032d3",
+      "scanned_files": 0,
+      "duration_ms": 88,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 715,
+      "merge_or_squash": "257c238330e6b280abf4e473511a456e5ea032d3",
+      "first_parent": "54441b21f5af450dafab374d7dff603e68cff634",
+      "scanned_files": 0,
+      "duration_ms": 95,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 714,
+      "merge_or_squash": "54441b21f5af450dafab374d7dff603e68cff634",
+      "first_parent": "047673af0c347e02dc64ad4086d7840eda3c0856",
+      "scanned_files": 0,
+      "duration_ms": 84,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 711,
+      "merge_or_squash": "047673af0c347e02dc64ad4086d7840eda3c0856",
+      "first_parent": "50699a31e043a6ff16e8340419cdaf2f1354d44d",
+      "scanned_files": 0,
+      "duration_ms": 85,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 710,
+      "merge_or_squash": "50699a31e043a6ff16e8340419cdaf2f1354d44d",
+      "first_parent": "c5e55ae2851d064fcfd52eda01f15cf672a1f872",
+      "scanned_files": 1,
+      "duration_ms": 110,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 709,
+      "merge_or_squash": "c5e55ae2851d064fcfd52eda01f15cf672a1f872",
+      "first_parent": "e38705080761eb7ba36656a2da31e66ae279aaae",
+      "scanned_files": 0,
+      "duration_ms": 95,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 708,
+      "merge_or_squash": "e38705080761eb7ba36656a2da31e66ae279aaae",
+      "first_parent": "006c0840693b821f6cab7627e4779445b49e74a0",
+      "scanned_files": 6,
+      "duration_ms": 202,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 707,
+      "merge_or_squash": "006c0840693b821f6cab7627e4779445b49e74a0",
+      "first_parent": "fa9f4dd98189ec27d2d836f00888d8d36dddd33f",
+      "scanned_files": 0,
+      "duration_ms": 98,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 706,
+      "merge_or_squash": "fa9f4dd98189ec27d2d836f00888d8d36dddd33f",
+      "first_parent": "f6067d91301b2fe3abff231201cd36d15e6bd44a",
+      "scanned_files": 0,
+      "duration_ms": 100,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 697,
+      "merge_or_squash": "f6067d91301b2fe3abff231201cd36d15e6bd44a",
+      "first_parent": "c4dd626432b1040ac5c47034d3686f5eac4cfe9c",
+      "scanned_files": 62,
+      "duration_ms": 2681,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 705,
+      "merge_or_squash": "c4dd626432b1040ac5c47034d3686f5eac4cfe9c",
+      "first_parent": "f6fba8b66a49a3821d3dd2d5aa5ace5e4aaae9ac",
+      "scanned_files": 0,
+      "duration_ms": 103,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 698,
+      "merge_or_squash": "f6fba8b66a49a3821d3dd2d5aa5ace5e4aaae9ac",
+      "first_parent": "1b71731b4e2403040faffcfdc05f8dff7c648928",
+      "scanned_files": 0,
+      "duration_ms": 111,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 703,
+      "merge_or_squash": "1b71731b4e2403040faffcfdc05f8dff7c648928",
+      "first_parent": "8b8f713cd149dad82ae966c19e7f5d55f176c215",
+      "scanned_files": 0,
+      "duration_ms": 105,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 702,
+      "merge_or_squash": "8b8f713cd149dad82ae966c19e7f5d55f176c215",
+      "first_parent": "5fea9d6b856f5bf76e95fbbf05f97119fbcc8363",
+      "scanned_files": 0,
+      "duration_ms": 93,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 701,
+      "merge_or_squash": "5fea9d6b856f5bf76e95fbbf05f97119fbcc8363",
+      "first_parent": "cb417507e007d1fb0c3534d774ba0688d7132ff9",
+      "scanned_files": 0,
+      "duration_ms": 81,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 700,
+      "merge_or_squash": "cb417507e007d1fb0c3534d774ba0688d7132ff9",
+      "first_parent": "ffbe0c4f3d83bccd76b6a7050d8934e312165dd5",
+      "scanned_files": 0,
+      "duration_ms": 96,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 699,
+      "merge_or_squash": "ffbe0c4f3d83bccd76b6a7050d8934e312165dd5",
+      "first_parent": "82b536954626e73b36853711b264cbf5df400d22",
+      "scanned_files": 0,
+      "duration_ms": 91,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 695,
+      "merge_or_squash": "82b536954626e73b36853711b264cbf5df400d22",
+      "first_parent": "546e985ec09daa87dffc4606c8763c61603d9160",
+      "scanned_files": 0,
+      "duration_ms": 80,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 696,
+      "merge_or_squash": "546e985ec09daa87dffc4606c8763c61603d9160",
+      "first_parent": "1da0248d184c7eb07c8d2e63ccae9524bfececed",
+      "scanned_files": 0,
+      "duration_ms": 92,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 693,
+      "merge_or_squash": "1da0248d184c7eb07c8d2e63ccae9524bfececed",
+      "first_parent": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+      "scanned_files": 3,
+      "duration_ms": 92,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 683,
+      "merge_or_squash": "99df0dd9eb11a4cdeab1d8f2a3b32fca6e42472b",
+      "first_parent": "2cea5aec8cdf77ae624ebd7d09b099a9b68940f0",
+      "scanned_files": 0,
+      "duration_ms": 97,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 681,
+      "merge_or_squash": "2cea5aec8cdf77ae624ebd7d09b099a9b68940f0",
+      "first_parent": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+      "scanned_files": 0,
+      "duration_ms": 89,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 680,
+      "merge_or_squash": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+      "first_parent": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+      "scanned_files": 6,
+      "duration_ms": 826,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 679,
+      "merge_or_squash": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+      "first_parent": "b9d3062ebd3fd172053dd9bf5e9df8b08d413eed",
+      "scanned_files": 0,
+      "duration_ms": 100,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 677,
+      "merge_or_squash": "b9d3062ebd3fd172053dd9bf5e9df8b08d413eed",
+      "first_parent": "8ce4d9e3c7694c65c3360226ed9ff0774cf64b6e",
+      "scanned_files": 0,
+      "duration_ms": 101,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 676,
+      "merge_or_squash": "8ce4d9e3c7694c65c3360226ed9ff0774cf64b6e",
+      "first_parent": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+      "scanned_files": 1,
+      "duration_ms": 100,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 657,
+      "merge_or_squash": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+      "first_parent": "db22681231caf6b8b16d5bd3cb80fab81416b3d8",
+      "scanned_files": 4,
+      "duration_ms": 868,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 656,
+      "merge_or_squash": "db22681231caf6b8b16d5bd3cb80fab81416b3d8",
+      "first_parent": "45c203f0aff9e4481845649a34530a0c04ccc52f",
+      "scanned_files": 0,
+      "duration_ms": 97,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 655,
+      "merge_or_squash": "45c203f0aff9e4481845649a34530a0c04ccc52f",
+      "first_parent": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "scanned_files": 3,
+      "duration_ms": 2291,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 592,
+      "merge_or_squash": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "first_parent": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "scanned_files": 0,
+      "duration_ms": 101,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 591,
+      "merge_or_squash": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "first_parent": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+      "scanned_files": 0,
+      "duration_ms": 106,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 590,
+      "merge_or_squash": "ebf77988270b848b4c58c65721a10c135fc6db0d",
+      "first_parent": "465019f772e932ee30f55ebf85f9eaa295f1a1a9",
+      "scanned_files": 11,
+      "duration_ms": 1549,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 580,
+      "merge_or_squash": "465019f772e932ee30f55ebf85f9eaa295f1a1a9",
+      "first_parent": "532f64de9dc700426abde5a5b23966e851eb6a96",
+      "scanned_files": 4,
+      "duration_ms": 227,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 579,
+      "merge_or_squash": "532f64de9dc700426abde5a5b23966e851eb6a96",
+      "first_parent": "c9bee62802fbb96adc4ab504681564f329560cf5",
+      "scanned_files": 3,
+      "duration_ms": 215,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 578,
+      "merge_or_squash": "c9bee62802fbb96adc4ab504681564f329560cf5",
+      "first_parent": "79f28350d2d1ace19879be6201b5473822e24b72",
+      "scanned_files": 1,
+      "duration_ms": 90,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    },
+    {
+      "pr": 577,
+      "merge_or_squash": "79f28350d2d1ace19879be6201b5473822e24b72",
+      "first_parent": "d1bd02086167bb8914abdaa962f2e4e2877ea78e",
+      "scanned_files": 1,
+      "duration_ms": 109,
+      "findings_before": 0,
+      "findings_after": 0,
+      "removed": []
+    }
+  ]
+}

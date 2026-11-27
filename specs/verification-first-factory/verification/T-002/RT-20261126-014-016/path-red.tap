@@ -1,0 +1,47 @@
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✖ checks retirement approvals for complete __tests__ directory segments at root and nested levels (210.762709ms)
+✖ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (211.160666ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 243.168375
+
+✖ failing tests:
+
+test at tests/v2-spec-drift.test.mjs:989:3
+✖ checks retirement approvals for complete __tests__ directory segments at root and nested levels (210.762709ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+      {
+        code: 'UNAUTHORIZED_TEST_DELETION',
+  -     path: '__tests__/current.mjs'
+  -   },
+  -   {
+  -     code: 'UNAUTHORIZED_TEST_DELETION',
+        path: 'pkg/__tests__/current.mjs'
+      }
+    ]
+
+      at TestContext.<anonymous> (file:///Users/jrmag/sdd-forge/tests/v2-spec-drift.test.mjs:1019:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at node:internal/test_runner/test:1516:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { code: 'UNAUTHORIZED_TEST_DELETION', path: 'pkg/__tests__/current.mjs' } ],
+    expected: [ { code: 'UNAUTHORIZED_TEST_DELETION', path: '__tests__/current.mjs' }, { code: 'UNAUTHORIZED_TEST_DELETION', path: 'pkg/__tests__/current.mjs' } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

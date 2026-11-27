@@ -8,7 +8,12 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/v2/sdd-soft-guard.mjs", "--emit", "exit"]
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/v2/sdd-soft-guard.mjs", "--emit", "exit"],
+            "env": {
+              "NODE_COMPILE_CACHE": "${CLAUDE_PLUGIN_ROOT}/../../.sdd-compile-cache",
+              "NODE_COMPILE_CACHE_PORTABLE": "1",
+              "NODE_COMPILE_CACHE_READONLY": "1"
+            }
           }
         ]
       }

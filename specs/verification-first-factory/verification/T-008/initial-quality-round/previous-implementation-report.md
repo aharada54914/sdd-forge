@@ -1,0 +1,88 @@
+# Implementation Report: T-008
+
+- Task ID: T-008
+- Model: gpt-6.2-astra
+- Effort: high
+
+Report Schema: implementation-report/v2
+Run ID: 2bf703b2-cd55-4959-824e-862aa56241f3
+Task Attempt Count: 3
+Input manifest: `specs/verification-first-factory/verification/T-008/report-revalidation/task-input-manifest.json`, SHA-256 `7b688f8cef6900fc81120a7604053a3f975f1f11561659c51be8d8ca9540b155`
+
+## Target
+
+725eb86c5ec6 の成果物を再検証した。以下の入力・出力と担当者は今回の記録である。前回の実装記録（Run ID `verification-first-factory-T-008-repair-20261126`、試行 2）を後段に保存した。
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs` | `7285b9edfd40b8f1f6df9b14879b94f7eba43ea74a8cb56e60471c1875f38d7b` |
+| `plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs` | `674d8533ab91b652105a623d4e30f2f6e1ea96769220a5e9d4b4a54c32a997b8` |
+| `plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs` | `165eb077592da01c6c7e5e68a1913747a4574ce3ac8a54c8b7c94f17c2664a3b` |
+| `plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs` | `510f5242a04e17c9bc4acd1fb33696fd816bb4a490bc5fc62309979d24c977c9` |
+| `plugins/sdd-ship/skills/ship/SKILL.md` | `5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d` |
+| `tests/v2-sdd-core-flow.test.mjs` | `78b3a1be82a87781c7c82c821bcd758fd7584d7a2e0b0806cac81d709ca94224` |
+| `tests/v2-spec-drift.test.mjs` | `c52511137cf1a5cd88e13da05e62a5fd3942f4c12516c8010dd15e89662e3f81` |
+| `tests/v2-wave3-integration.test.mjs` | `4e64edab22db218a653f94dc5793b14942e80c565a19c1c6c4c84349c79233ea` |
+| `specs/verification-first-factory/verification/T-008/report-revalidation/test-receipt.json` | `be7c5bc58b60497ed9fb1c64403a489acbe8bcfde0434943cf9f982a417c7fc2` |
+
+## Test Evidence
+
+- **Test Command**: node --test tests/v2-wave3-integration.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-spec-drift.test.mjs
+- **Test Result**: PASS
+- **Test Evidence Path**: `specs/verification-first-factory/verification/T-008/report-revalidation/test-receipt.json`
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 3
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Scratch Root**: `/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-T-008-gtir_9b4`
+- **Run ID**: 2bf703b2-cd55-4959-824e-862aa56241f3
+- **Session ID**: 01a21386-3fc2-7a02-8f2f-75c04fff1faf
+- **Agent Instance ID**: 01a21386-3fc2-7a02-8f2f-75c04fff1faf
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Unresolved Items
+
+測定結果はこのホストに限る。独立品質ゲートの判定待ち。
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: 独立した品質ゲートで受入条件と証跡を照合する。
+- **Unresolved Items**: 測定結果はこのホストに限る。独立品質ゲートの判定待ち。
+
+## 前回の実装記録
+
+### 統合ゲート・再構築検証
+
+
+## 修正前チェック（WFI-001）
+
+実装を変更する前に、永続化される execution JSON の値と照合先を以下のように定めた。テストは tests/v2-wave3-integration.test.mjs から公開 CLI を実行する。
+
+| 出力する証拠 | 契約・照合先 | 不一致を検出するテスト |
+|---|---|---|
+| mode、rebuildDifferential.skipped、passed、verdict、プロセス終了値 | REQ-011、AC-010。公開 ship のモードが統合ゲートまで届き、失敗した検査が最終結果に反映される | 再構築モードの出力差分と NFR 超過の両方で検査結果と非ゼロ終了を照合 |
+| baseline と candidate の exitCode・durationMs・p95Ms・samples、differentialMatched | 同じ入力に対する旧実装と新実装の出力、各コマンドの実測サンプルと最近順位法の p95 | 20 回の実行数、同じ出力の成功、空白のみの差分と非ゼロ終了時の失敗を照合 |
+| nfrPassed、nfrViolations | AC-010。独立した標本ごとの p95、既定の比率 1.10、バージョン管理された明示予算 | 契約出力を維持して遅い候補を測定し、既定比率超過および明示絶対上限超過の記録を照合 |
+| rebuildDifferential.immutablePaths、error | REQ-011。比較元コミットと作業ツリー間の契約・golden・予算の変更一覧 | 実際に Git 管理された 3 種のファイルを変更し、明示 changed-files がこれらを含まなくても全パスが報告されること、変更中のコマンドも検知することを照合 |
+| writeScope.role・baseRef・violations・passed、failFastStoppedAt、checks.commands | REQ-012、AC-011。implementer の保護ファイルへの変更を Git の実差分で検知し、ロック競合またはスコープ違反時に後続コマンドを止める | 保護ファイルの追加・編集・移動、無関係ファイルだけを含む明示リスト、通常の実装変更、別所有者のロックで CLI とゲートの結果を照合 |
+
+## 修正と検証
+
+- 修正前の Wave 3 テストで5件の失敗を確認した。測定回数が未定義で、既定 p95 超過、実行前後の契約・golden・予算変更、implementer の保護パス変更をゲートが許可していた。
+- 比較元をコミット SHA に固定し、旧コマンドを一時 worktree、新コマンドを作業中のツリーで実行する。同じ入力への標準出力・標準エラーはバイト単位で照合し、どちらかの非ゼロ終了も差分として扱う。順番を入れ替えながら各20回測定する。予算は旧コミットから読み、p95 比率の既定を1.10とした。
+- 公開 ship に `--mode rebuild` を追加し、ロック所有者と比較元 SHA を統合ゲートに渡す手順を記載した。`--role implementer` は、コミット済みの保護ポリシーに基づく実差分と未追跡の追加を検査する。利用者が指定した変更ファイル一覧で検査対象を狭めることはできない。ロック競合および fail-fast 時は後続コマンドを実行しない。
+- `node --test tests/v2-wave3-integration.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-spec-drift.test.mjs` は41件成功、失敗・スキップ0件。旧新で同一コマンドが異なるコードを実行するケース、末尾空白、終了値、p95 の比率・絶対値、保護パスの移動、入れ子プロジェクトのポリシーを照合した。
+- 比較コマンドには同じ入力を渡し、両方を独立して反復実行できる必要がある。旧側で必要な生成物や依存がある場合は比較コマンドで準備する。ローカル p95 には起動・スケジューリング時間も含まれる。

@@ -245,7 +245,7 @@ class QualityTransport(unittest.TestCase):
 
     def exercise_quality_launch(self, model='sonnet', failure=None, *, selected=None):
         with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
+            root = Path(tmp).resolve()
             session = str(uuid.uuid4())
             manifest = quality_core_manifest(root)
             invocation = root / 'reports/review-context/invocation.json'

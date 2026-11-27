@@ -1,0 +1,114 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-005",
+  "run_id": "01a2150e-b79a-71c1-bea8-cfd6eb2ae273",
+  "session_id": "01a214f1-de08-7232-9ed6-f52dd1121838",
+  "agent_instance_id": "01a214f1-de08-7232-9ed6-f52dd1121838",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Local Codex session, estimated additional API spend USD 0. Metered token cost is unavailable.",
+  "cost_estimate_timestamp": "2026-11-25T23:39:43Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "docs/review-tickets/RT-20261126-001.yml",
+      "sha256": "69e93c28b5efbdca98c6ac537731330050be83ddc25823b6a932cdd8d031dc9a"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261126-003.yml",
+      "sha256": "ee8e14404c46ca046958216970f7b35a54c6dd24d4219974cc12c43e9e40496c"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "sha256": "17df050152304f6d7eddadc49ae77b0504cfba1b6d220d38dce620a390baaf42"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "sha256": "5e209d11c50b9c580572adedee0c500fcc48233c1cafe5d22d08318c52059f73"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/formal-trace.mjs",
+      "sha256": "d02bbfda9d1a66794a69cedd978063644bcf26a8ed3d22a64f1b5fba820b15a1"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+      "sha256": "4a49246e4115b3a4c097150a0318931b8f747100c51454b154fb97da21cdf1fd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+      "sha256": "d21bdb680f419df771b820f2fdf0d1e1606d325efa6c7aa764bf81cdfbcf0db3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05"
+    },
+    {
+      "path": "reports/quality-gate/verification-first-factory-T-005.md",
+      "sha256": "f9f04f94d2bd237db0b5cabf0defc4e43aab1e9be51e83fe8b1e582f39b02402"
+    },
+    {
+      "path": "specs/self-verification/formal/mapping.json",
+      "sha256": "34868ab27c4efffecb968a3d5a4d79bc2eddcb9ba907d1453a1a8330d0c88c1d"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "a9e44ae431510abdb157f23d52f23833feca2004f93c80bc2c13149ea84c140f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-005/a7fc37b5-0595-468c-b9ca-547038838162/reservation-observed.ndjson",
+      "sha256": "a2fb732e0a0f8997eae79fd91d481b1012dcf58aa1926f323f23968b83624ca0"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.cfg",
+      "sha256": "b8866730366a914aa657b855f10dabb08bd67c68788c625676bb525f27b828f6"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.negative.cfg",
+      "sha256": "9507a6aa5361bff0d7557401e58733f37b7fb85bbf47d3b6088f094be0c4f07b"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/Reservation.tla",
+      "sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/SKILL.md",
+      "sha256": "8cf6e45ecde6438ca25ce27b89c3c81379fcf6adab7a7d8956c9e6fba65e0455"
+    },
+    {
+      "path": "tests/fixtures/project-skills/formal-review-reservation/mapping.json",
+      "sha256": "9951b1e0e6018019e2b6aa9dc1f520053f6dc0b2e420a33771a7190f19888abc"
+    },
+    {
+      "path": "tests/project-skill-formal.tests.py",
+      "sha256": "f3aaf45856a6ab7fd95593fb63c24862b6461955ab3e6a5f740edd58a844f73c"
+    },
+    {
+      "path": "tests/v2-formal-gate.test.mjs",
+      "sha256": "dcc211db78bef479c452a1c0e0a517b4817136b3e594e3f9643c1a047664dedc"
+    },
+    {
+      "path": "tests/verify-review-reservation.py",
+      "sha256": "407be3b908b087a4d7673f6457802dea9107b436b330c3618963c0a4078ccb08"
+    }
+  ],
+  "allowed_outputs": [
+    "reports/implementation/verification-first-factory/T-005.md",
+    "specs/verification-first-factory/verification/T-005/01a2150e-b79a-71c1-bea8-cfd6eb2ae273/review-ticket-replay.log"
+  ]
+}

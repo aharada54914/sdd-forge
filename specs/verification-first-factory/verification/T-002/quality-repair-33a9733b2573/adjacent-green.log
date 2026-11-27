@@ -1,0 +1,135 @@
+▶ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate
+  ✔ checks literal TRUE only for invariants selected by the active CFG (2.139584ms)
+  ✔ stops a disabled formal gate in CI and honors an explicit checker mode (110.068583ms)
+  ✔ respects disabled formal configuration in the integrated gate (23.432625ms)
+  ✔ AC-003: discovers formal verification triggers from Risk: high and state-machine signals (1.195917ms)
+  ✔ AC-004/AC-005: builds Windows-safe direct java commands (shell: false, no .cmd/.bat) for tlc & apalache and reserves lean4 (0.29775ms)
+  ✔ AC-004/AC-006: validates canonical Reservation.tla baseline + negative (OneAccepted) + NDJSON trace (4.409208ms)
+✔ ADR-0054 T-005 (AC-003..AC-006): State Machine Discovery & Checker-Agnostic Formal Gate (141.990708ms)
+▶ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle)
+  ✔ validates TaskLock.tla and GateLifecycle.tla structure, invariants, and NDJSON traces (1.299375ms)
+✔ ADR-0054 T-006 (SELF-AC-001 / SELF-AC-002): sdd-forge Self-Verification Models (TaskLock & GateLifecycle) (1.367125ms)
+▶ checker verdicts match the observed failure
+  ✔ does not accept a tool error mentioning the invariant as a negative control (1.853792ms)
+  ✔ defers a missing tool locally and fails CI (2.285333ms)
+  ✔ rejects a gate pass with undeclared drift and an unapproved completion (0.421791ms)
+✔ checker verdicts match the observed failure (4.666667ms)
+✔ TaskLock Release preserves an unreadable owner and its lease until explicitly forced (397.0145ms)
+✔ scan finds related compound branches and graph validation fails on unreachable states (56.925958ms)
+✔ skips an unchanged model and mapped sources only; fails timed-out checks and persists an OQ in the decision view (106.85575ms)
+✔ retains a between-phase budget timeout and raises the repair-limit OQ in the decision view (4.375708ms)
+✔ TLC replay follows configured INIT/NEXT and SPECIFICATION and rejects unsupported temporal formulas (4117.350375ms)
+✔ TLC checks reservation, lock and gate baselines and named mutants, and replays implementation traces (20582.033292ms)
+ℹ Reservation baseline no violation exit=0 states=15 depth=8
+ℹ Reservation negative OneAccepted exit=12 states=25 depth=7
+ℹ TaskLock baseline no violation exit=0 states=5 depth=3
+ℹ TaskLock negative SingleOwner exit=12 states=4 depth=3
+ℹ TaskLock replay TraceIncomplete exit=12 states=4 depth=4
+ℹ TaskLock baseline no violation exit=0 states=5 depth=3
+ℹ TaskLock negative SingleOwner exit=12 states=4 depth=3
+ℹ TaskLock replay no violation exit=0 states=1 depth=1
+ℹ TaskLockMutation baseline no violation exit=0 states=54 depth=7
+ℹ TaskLockMutation negative OneWriter exit=12 states=27 depth=5
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+ℹ GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+ℹ GateLifecycle replay no violation exit=0 states=2 depth=2
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+ℹ GateLifecycle replay TraceIncomplete exit=12 states=5 depth=5
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative DoneRequiresGatePass exit=12 states=17 depth=5
+ℹ GateLifecycle replay no violation exit=0 states=2 depth=2
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative RetryBound exit=12 states=35 depth=12
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative EscalationRequiresOQ exit=12 states=8 depth=5
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative NoTamperRepair exit=12 states=13 depth=6
+ℹ GateLifecycle baseline no violation exit=0 states=38 depth=12
+ℹ GateLifecycle negative NoDriftPass exit=12 states=6 depth=5
+▶ run-sdd-gate.mjs (SDD Core unified deterministic gate)
+  ✔ passes cleanly when task is approved, specs are CLEAN, code has no placeholders, and tests pass (109.327ms)
+  ✔ #819: re-entering ship keeps the existing baseline; only --rerecord replaces it (332.652875ms)
+  ✔ #829: findings outside the task Scope are labelled, and the verdict stays fail-closed (225.598208ms)
+  ✔ #823: an unresolved critical/major review ticket for this task fails the gate; others do not (239.161667ms)
+  ✔ fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared (126.900166ms)
+  ✔ scans the gate source itself and reports only actual unfinished work (121.228708ms)
+  ✔ fails gate when changed production code contains placeholders or a verification command fails (100.584667ms)
+  ✔ rejects unapproved tasks at precondition check (104.521583ms)
+✔ run-sdd-gate.mjs (SDD Core unified deterministic gate) (1360.540042ms)
+▶ #821 gate task lookup uses the exact task ID
+  ✔ never reads a sibling task whose ID shares a prefix, in either order (7.08675ms)
+✔ #821 gate task lookup uses the exact task ID (7.159667ms)
+▶ #822/#828 gate change discovery
+  ✔ lists non-ASCII names verbatim and stays relative to a nested project root (152.773083ms)
+✔ #822/#828 gate change discovery (152.837084ms)
+▶ Phase 2 SDD Core skill & template contracts
+  ✔ all consolidated SDD Core skills have valid frontmatter and zero legacy canary/ERROR_STOP rituals (0.478833ms)
+  ✔ ship and sdd-gate skills wire directly to v2 Node.js ESM guardrail tools (0.116209ms)
+  ✔ spec-check defines risk-scaled single and dual-parallel (Risk: high) 1-pass review modes (0.060708ms)
+  ✔ all active core, implementation, Gemini, and command prompts have zero retired v1 contradictions (1.201208ms)
+  ✔ SDD Core templates include REQ/AC/Risk structure and Spec Amendments section (0.145709ms)
+✔ Phase 2 SDD Core skill & template contracts (2.094042ms)
+▶ #827 re-verifying a fixed review ticket reaches the gate for exactly that task
+  ✔ fix-by-review-ticket names the ticket task in the ship call, and ship auto-selection includes Implementation Complete (0.130916ms)
+✔ #827 re-verifying a fixed review ticket reaches the gate for exactly that task (0.156333ms)
+▶ #832 a Done task affected by a spec change has a re-verification path
+  ✔ ship re-runs the gate for an affected Done task and sdd-gate accepts it without changing its status (0.14775ms)
+✔ #832 a Done task affected by a spec change has a re-verification path (0.164375ms)
+▶ human concept-test decisions at the public gate
+  ✔ stops incomplete, malformed and receipt-only projects before verification (433.361458ms)
+  ✔ runs the packaged validator through a symlink for FITS and all three local decisions, and rejects stale inputs (746.273792ms)
+  ✔ records a baseline when invoked through an install symlink (42.793875ms)
+  ✔ rejects human receipt edits when invoked through an install symlink (29.377791ms)
+  ✔ preserves ordinary and v1-only feature history and scopes receipts by feature (165.406583ms)
+  ✔ keeps the Node-only path without a Git executable but blocks visible v2 evidence (95.24825ms)
+  ✔ detects an indexed proposal missing from the working tree in an unborn repository (231.756667ms)
+  ✔ scopes index evidence to the nested project with the same feature name (184.929042ms)
+  ✔ uses current proposal and decision inputs equally in full and shallow clones (313.500083ms)
+  ✔ distinguishes unstaged proposal loss from a staged change of inputs (220.56025ms)
+✔ human concept-test decisions at the public gate (2463.441834ms)
+▶ record-spec-baseline.mjs & check-spec-drift.mjs
+  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (117.726167ms)
+  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (77.763334ms)
+  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (113.330542ms)
+✔ record-spec-baseline.mjs & check-spec-drift.mjs (309.688375ms)
+▶ #820 AMENDED names the changed IDs no amendment entry mentions
+  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (235.085958ms)
+✔ #820 AMENDED names the changed IDs no amendment entry mentions (235.163458ms)
+▶ #818 staged human approval is not spec drift
+  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (142.522333ms)
+  ✔ a baseline recorded before this change keeps its old comparison (110.57075ms)
+✔ #818 staged human approval is not spec drift (253.245791ms)
+▶ #834 unreadable spec files are reported apart from deletions
+  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (94.396667ms)
+✔ #834 unreadable spec files are reported apart from deletions (94.5245ms)
+▶ #972 review: unreadable and newly approved are visible and enforced
+  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (194.938084ms)
+  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (145.502958ms)
+✔ #972 review: unreadable and newly approved are visible and enforced (340.522959ms)
+▶ #972 re-review: text added to an Approval line is drift
+  ✔ only a bare approval value is normalized (80.690709ms)
+✔ #972 re-review: text added to an Approval line is drift (80.741459ms)
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (325.885292ms)
+  ✔ allows renaming an already skipped test and editing existing skip reasons (199.269583ms)
+  ✔ counts active Node options across layout changes alongside prior Python and Go directives (698.013ms)
+  ✔ preserves an existing question with invalid JSON and records a valid replacement (404.772583ms)
+  ✔ preserves an existing question with wrong id and records a valid replacement (402.15225ms)
+  ✔ preserves an existing question with wrong feature and records a valid replacement (443.233334ms)
+  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (307.236125ms)
+  ✔ requires a nonempty retirement reason in the trusted manifest (193.88575ms)
+  ✔ requires a nonempty retirement approved_by in the trusted manifest (198.889834ms)
+  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (265.735084ms)
+✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (3439.344208ms)
+ℹ tests 63
+ℹ suites 17
+ℹ pass 63
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25459.3945

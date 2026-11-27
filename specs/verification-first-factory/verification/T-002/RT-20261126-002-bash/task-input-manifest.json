@@ -1,0 +1,82 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-002",
+  "run_id": "c48c4f69-0269-4db7-a64d-102a56f0fa9a",
+  "session_id": "01a214f1-afae-7220-9224-c5a3173ea031",
+  "agent_instance_id": "01a214f1-afae-7220-9224-c5a3173ea031",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Estimate carried forward from the preceding T-002 Codex subscription run on the same model and effort. No billing record was collected.",
+  "cost_estimate_timestamp": "2026-11-25T23:19:27Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "CODEOWNERS",
+      "sha256": "da1bbc91a4bf360b76da648ea886afd2d6e610a7bc7a31a784e78df05e41f73c"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261126-002.yml",
+      "sha256": "91915c3e0e1aa3406d01606f71449a2b4070f4a655c6327f64933d8c26c3cfff"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "sha256": "6ed5c7b94643366d8ee283a3846480a576949e4615be4860f81cea5cc1f13eb2"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
+      "sha256": "62b948661fef0b3df9800a4843b51f36f79bfa05ae8b925da0183f7372d94c86"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05"
+    },
+    {
+      "path": "sdd/approved-test-retirements.json",
+      "sha256": "79e34a84d77f2cc10a807cd33210dbef8ae5764a36f1cc0e5d7d40a724e1dd8a"
+    },
+    {
+      "path": "specs/self-verification/formal/mapping.json",
+      "sha256": "57745f0b1cd9cfe43e886d4a6773ef22ee96ebdba45ea60d6241202ce9b2e1f1"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "a9e44ae431510abdb157f23d52f23833feca2004f93c80bc2c13149ea84c140f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-002/independent-2673fb9bf5e7/diagnostic.json",
+      "sha256": "7a231dd60c31c0916483975c51810bdd24228da1ef1f2dfecdb4e5cfa05849f2"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-002/independent-2673fb9bf5e7/help.sh.txt",
+      "sha256": "e23942532a78c8e686a1cecc47e2e2836c4eba858b1c418a0aaa06f4d7278d10"
+    },
+    {
+      "path": "tests/v2-spec-drift.test.mjs",
+      "sha256": "412fb117b20f63880f760333971acd249ca879a649fd779ed6ce336d70c65f0e"
+    }
+  ],
+  "allowed_outputs": [
+    "reports/implementation/verification-first-factory/T-002.md",
+    "specs/verification-first-factory/verification/T-002/RT-20261126-002-bash/public-cli-receipt.json"
+  ]
+}

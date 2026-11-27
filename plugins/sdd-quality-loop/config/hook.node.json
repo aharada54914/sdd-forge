@@ -1,0 +1,17 @@
+{
+  "$schema": "https://nodejs.org/schemas/node-config.json",
+  "description": "PreToolUse soft-guard hook profile for sdd-soft-guard.mjs (ADR-0055). Restricts writes strictly to .sdd/drift-events.jsonl, blocks child processes and network access, disables string code generation and __proto__, and runs with read-only portable Compile Cache.",
+  "role": "hook",
+  "nodeOptions": {
+    "permission": true,
+    "allow-fs-read": ["*"],
+    "allow-fs-write": [".sdd/drift-events.jsonl"],
+    "disallow-code-generation-from-strings": true,
+    "disable-proto": "throw",
+    "env-file-if-exists": ".sdd/env"
+  },
+  "env": {
+    "NODE_COMPILE_CACHE_PORTABLE": "1",
+    "NODE_COMPILE_CACHE_READONLY": "1"
+  }
+}

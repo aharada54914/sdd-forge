@@ -368,7 +368,7 @@ Claude Code のハンドシェイクでは、`--emit-challenge` が返す
 
 | スクリプト名 | 提供ランタイム | 目的 |
 |---|---|---|
-| `generate-approval-sidecar` | sh / ps1 / py | Project Context / Provider Binding または固定 Git 入力一覧に結び付く承認を HMAC-SHA256 署名し、`sdd/.staging/` へ**候補として**書き出す（人間 / CI 専用） |
+| `generate-approval-sidecar` | py | Project Context / Provider Binding または固定 Git 入力一覧に結び付く承認を HMAC-SHA256 署名し、`sdd/.staging/` へ**候補として**書き出す（人間 / CI 専用） |
 | `generate-evidence-bundle` | sh / ps1 | 検証契約と品質レポートから、参照成果物すべての SHA-256 を含むハッシュ検証済み evidence bundle を生成 |
 | `generate-gate-capabilities` | sh / ps1 / py | 正準 Registry (`contracts/capability-registry.json`) から `generated/gate-capabilities.json` を射影生成 |
 | `generate-guard-invariants` | py | `references/guard-invariants.json` から、各ランタイム native なガード不変条件モジュール (`generated/guard-invariants.generated.{sh,ps1,js}` / `guard_invariants.py`) をレンダリング |

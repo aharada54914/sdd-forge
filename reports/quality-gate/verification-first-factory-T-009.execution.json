@@ -1,0 +1,191 @@
+{
+  "schema": "sdd-gate-execution/v1",
+  "runId": "eabc05ff-a572-45f0-9abf-6d88c4ad1c4b",
+  "feature": "verification-first-factory",
+  "taskId": "T-009",
+  "mode": "standard",
+  "executedAt": "2026-11-25T18:37:06.466Z",
+  "verdict": "PASS",
+  "specInputs": {
+    "schema": "sdd-task-evidence-inputs/v2",
+    "task": "19fd2cbc29e6b75ef8654715b54abc4dd3857e4874ba6bebc0a675c652a91885",
+    "ids": {
+      "AC-012": "362720c325bfddea48b036d36ddc2ee1000a52d05275026b4fc1286ae96d7318",
+      "AC-013": "26463fe9609d6d77512d5b3d6b2ab77ecbacf5704be9c1d96c7ed23b101d4a1f",
+      "NFR-003": "f194ba3590c269153d8661cab7797dd4054f209bae2005c0ec460dbd2fcacd08",
+      "NFR-004": "70e47d76ac214f58ee64f798e9667f7a2e11ae449b80d9d82b8c7bc1101058ab",
+      "NFR-005": "6aa282ae2762be8076b39410ce7cb9f488bd986e5236cc11aaa99d55d2550688",
+      "REQ-012": "1383543317e6145bfc5f464eb6ac03c3ad5bdeb2b05bf4e606479b0b3e4b0a3d"
+    },
+    "design": "d4179bdef77f2f7b2734db853cad1850f2df7b890a378beed5ca7c731927085f"
+  },
+  "coverage": {
+    "commandsRun": 4,
+    "specDriftChecked": true,
+    "sensorsChecked": true,
+    "complete": true
+  },
+  "scope": {
+    "mode": "explicit",
+    "taskScope": [
+      "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+      "mcp/sdd-forge-mcp/src/**"
+    ],
+    "outOfScopeFiles": [
+      "tests/v2-mcp-server.test.mjs"
+    ]
+  },
+  "warnings": [
+    "OUT_OF_SCOPE_CHANGES: 1 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
+  ],
+  "checks": {
+    "lockCheck": {
+      "checked": false,
+      "passed": true,
+      "acquired": null
+    },
+    "taskPrecondition": {
+      "passed": true,
+      "taskId": "T-009",
+      "approval": "Approved",
+      "status": "Done",
+      "risk": "standard",
+      "scopePaths": [
+        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+        "mcp/sdd-forge-mcp/src/**"
+      ],
+      "errors": []
+    },
+    "specDrift": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-spec-drift/v1",
+      "feature": "verification-first-factory",
+      "status": "CLEAN",
+      "baselineRecordedAt": "2026-11-25T16:43:30.106Z",
+      "baselineGitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
+      "changedFiles": [],
+      "deletedFiles": [],
+      "addedFiles": [],
+      "removedIdentifiers": [],
+      "modifiedIdentifiers": [],
+      "addedIdentifiers": [],
+      "amendments": [
+        {
+          "file": "specs/verification-first-factory/requirements.md",
+          "text": "*(承認後の仕様変更時は、日付・理由・影響IDをここに追記する。テスト廃止の例外承認はここではなく `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "*(承認後の仕様・タスク変更時は、日付・理由・影響タスクをここに追記する。テスト廃止の例外承認は `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        }
+      ],
+      "baselineAmendmentCount": 2,
+      "changedIdsWithoutAmendment": [],
+      "revokedApprovals": [],
+      "newlyApprovedTasks": [],
+      "unreadableFiles": []
+    },
+    "antiTamper": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "writeScope": {
+      "skipped": true,
+      "passed": true
+    },
+    "agentLint": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "securityGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "formalGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "placeholders": {
+      "passed": true,
+      "scannedFiles": [
+        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+        "mcp/sdd-forge-mcp/src/tools/v2.ts"
+      ],
+      "findings": []
+    },
+    "nonFunctionalSensors": {
+      "skipped": false,
+      "passed": true,
+      "findings": [],
+      "advisoryFindings": []
+    },
+    "openQuestions": {
+      "passed": true,
+      "blocking": false,
+      "provisionalCount": 0,
+      "provisionalIds": []
+    },
+    "reviewTickets": {
+      "passed": true,
+      "blocking": []
+    },
+    "conceptTest": {
+      "passed": true,
+      "status": "NOT_APPLICABLE"
+    },
+    "commands": [
+      {
+        "label": "mcp",
+        "command": "npm --prefix mcp/sdd-forge-mcp test",
+        "exitCode": 0,
+        "durationMs": 18537,
+        "passed": true,
+        "error": null,
+        "stdout": "...[truncated 25945 chars]...\nbsent and gate audit identifies a task's review report (17.655417ms)\n✔ resolved root is frozen and immutable after construction (3.147375ms)\n✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (5.17425ms)\n✔ changing cwd after resolution does not affect the already-resolved root (1.071166ms)\n✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (1.963708ms)\n✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (1.005667ms)\n✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (0.963625ms)\n✔ unknown CLI options and missing root values fail before cwd fallback (0.192375ms)\n✔ stdio entry rejects unknown options without protocol stdout (105.337875ms)\n✔ inspector CLI: tools/list reports the four public v2 tools (477.639417ms)\n✔ inspector CLI: each public tool declares read-only behavior and a strict input schema (265.457958ms)\n✔ inspector CLI: the server lists the overview and feature resource template (427.101292ms)\n✔ inspector CLI: sdd_project_overview returns schema-valid active features for the real repo (908.116042ms)\n✔ local status view exposes fresh guarded state and rejects untrusted requests (63.972959ms)\n✔ pre-approval guidance follows the feature’s recorded review and skip policy on every status surface (334.114291ms)\n✔ indeterminate status keeps known review progress and recovers to the quality gate when the report appears (11.635584ms)\n✔ a late feature refresh cannot overwrite the newest selection (2.723208ms)\n✔ local status page explains the recorded Concept Test stop and refreshes after revalidation (41.807167ms)\n✔ AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv) (171.38975ms)\n✔ AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv) (10.9135ms)\n✔ AC-015: an invalid-input error envelope conforms to the v1 contract (ajv) (3.868708ms)\n✔ AC-015: a not-found error envelope conforms to the v1 contract (ajv) (2.313583ms)\n✔ AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv) (5.926792ms)\n✔ TEST-004 (AC-004): hostRequiredChecks never affects verdict — pass and fail fixtures (7.456583ms)\n✔ TEST-018a (AC-018): a bundle with no signature block still carries both hostRequiredChecks (5.93775ms)\n✔ TEST-018b (AC-018): a bundle whose git_commit is not 40-hex still carries both hostRequiredChecks (2.496ms)\n✔ TEST-009 leg (AC-009): the schema requires hostRequiredChecks and pins its nested shape (0.27375ms)\n✔ TEST-009 leg (AC-009): an ok deep-verify envelope omitting hostRequiredChecks FAILS ajv validation (6.315708ms)\n✔ TEST-016 (AC-016): the schema description is verbatim requirements.md's CONFIRMED literal (2.86025ms)\n✔ AC-015 additivity: five retained evidence readers return their expected v1 contract kinds (14.826625ms)\n✔ AC-013: the serialized evidenceDeepVerify pass result is identical on two reads of one root (8.843208ms)\n✔ AC-013: the serialized evidenceDeepVerify pass result is identical across independently seeded roots (4.873417ms)\n✔ AC-013: an error envelope (not-found) is byte-identical across two calls with identical input (1.826ms)\n✔ AC-006: a drifted spec file maps to specRevision mismatch (recompute + filesHashed) + verdict fail (6.175792ms)\n✔ AC-007: a missing git_commit is shape-invalid + verdict fail (2.672792ms)\n✔ AC-007: a short git_commit is shape-invalid + verdict fail (5.298917ms)\n✔ AC-007: a too-long git_commit is shape-invalid + verdict fail (2.295917ms)\n✔ AC-007: a non-hex git_commit is shape-invalid + verdict fail (2.689166ms)\n✔ AC-007: a uppercase git_commit is shape-invalid + verdict fail (2.884375ms)\n✔ AC-008: a foreign well-formed 40-hex is shapeValid with ancestryVerified false and does not fail the verdict (6.005209ms)\n✔ AC-008: evidence_deep_verify never spawns a git subprocess (no-exec boundary, ADR-0008) (8.932625ms)\n✔ AC-009: a verification_contract task_id mismatch maps to crossBinding mismatch + verdict fail (3.668708ms)\n✔ AC-009: a verification_contract feature mismatch maps to crossBinding mismatch + verdict fail (2.651709ms)\n✔ AC-010: a quality_report Task ID mismatch maps to crossBinding mismatch + verdict fail (4.708416ms)\n✔ AC-010: a quality_report Feature mismatch maps to crossBinding mismatch + verdict fail (3.439916ms)\n✔ AC-010: an unreadable quality_report maps to crossBinding mismatch + verdict fail (no throw) (2.378834ms)\n✔ AC-019: all specs absent with recorded spec_revision '' is a match (no throw) (2.235834ms)\n✔ AC-019: all specs absent with a non-empty recorded spec_revision is a mismatch + verdict fail (no throw) (2.413084ms)\n✔ AC-001: legacy evidenceDeepVerify returns an ok pass envelope for a consistent bundle (5.406834ms)\n✔ error envelope: an invalid taskId maps to invalid-input in evidenceDeepVerify (145.312417ms)\n✔ error envelope: an invalid feature maps to invalid-input in evidenceDeepVerify (1.9685ms)\n✔ error envelope: a missing bundle maps to not-found in evidenceDeepVerify (1.912667ms)\n✔ error envelope: a malformed-JSON bundle maps to cannot-parse in evidenceDeepVerify (1.958958ms)\n✔ AC-001: a fully consistent bundle verifies as pass with no failures (15.3665ms)\n✔ AC-002: a 1-byte on-disk artifact tamper maps to mismatch + digest mismatch + verdict fail (10.436459ms)\n✔ AC-003: a recorded sha rewritten to a different 64-hex maps to mismatch + verdict fail (5.926458ms)\n✔ AC-018: empty artifacts[] is a vacuous pass when the remaining invariants hold, without throwing (3.931625ms)\n✔ AC-018: empty artifacts[] still fails when another invariant fails (malformed git_commit) (2.291ms)\n▶ legacy evidence and task-state readers return domain results for malformed JSON shapes and recover\n  ✔ bundle null (73.84025ms)\n  ✔ bundle [] (1.06675ms)\n  ✔ bundle 7 (0.952209ms)\n  ✔ bundle \"scalar\" (0.840458ms)\n  ✔ bundle true (0.811416ms)\n  ✔ contract null (3.984417ms)\n  ✔ contract [] (4.302458ms)\n  ✔ contract 7 (2.419708ms)\n  ✔ contract \"scalar\" (1.659875ms)\n  ✔ artifact null retains valid siblings (2.119625ms)\n  ✔ artifact [] retains valid siblings (1.835375ms)\n  ✔ artifact 7 retains valid siblings (2.202167ms)\n  ✔ artifact \"scalar\" retains valid siblings (1.875334ms)\n  ✔ checks null (1.275708ms)\n  ✔ checks {} (1.060792ms)\n  ✔ checks [null] (1.170583ms)\n  ✔ checks [[]] (1.309834ms)\n  ✔ checks [3] (1.044958ms)\n  ✔ object-valued fields cannot replace primitive conversion methods (1.116833ms)\n✔ legacy evidence and task-state readers return domain results for malformed JSON shapes and recover (109.818916ms)\n✔ legacy Lite Done requires real reports but no Full contract/review headers (14.949667ms)\n✔ v2 implementation and sdd-gate routes use /sdd-ship:ship; missing implementation fails (4.273583ms)\n✔ Lite fallback never bypasses present Project Context; ambiguous profile fails (2.281667ms)\n✔ artifact byte hashing supports non-UTF8 files outside content allowlist without exposing content (3.114792ms)\n✔ Lite declaration cannot weaken high/critical tasks or choose between duplicate settings (8.924042ms)\n✔ observation code shipped with plugin exactly matches MCP source (0.443125ms)\n✔ heartbeat deduplicates events; changes, removal and continuous dwell are observed (1.337958ms)\n✔ failure freezes dwell, recovery and long gaps reset continuity without inferred actors (1.233791ms)\n✔ history retains only latest 200 events and 30 days on read and write (7.957208ms)\n✔ private reads and publisher-only writes; malformed input and future timestamps rejected (23.775125ms)\n✔ collector restart failure retains last-good data and source time; heartbeat keeps content age (3.314125ms)\n✔ payload bounds, malformed task shapes, cross origin and project replacement are rejected (5.772584ms)\n✔ dedicated snapshot contract and MCP envelope projection stay identical (1.149583ms)\n✔ health publication is private, ordered and separate from task data (4.325834ms)\n✔ observations share snapshot CAS, remain private and cannot be supplied by publishers (2.679959ms)\n✔ decision validator is identical across installed worker and collector; malformed projection is refused (0.654708ms)\nℹ tests 369\nℹ suites 0\nℹ pass 369\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 17964.600958\n",
+        "stderr": ""
+      },
+      {
+        "label": "protocol",
+        "command": "node --test tests/v2-mcp-server.test.mjs",
+        "exitCode": 0,
+        "durationMs": 20611,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & opt-in installer)\n  ✔ exposes exactly 4 read-only tools (<3.5KB schema, zero root params, strict input) and 2 sdd:// resources (178.405167ms)\n  ✔ serves contract-valid v2 overview, feature state, gate audit, dashboard snapshot, and rejects extra/traversal args (342.424958ms)\n  ✔ enforces frozen root (C-1), path-guard symlink/denylist/baseline containment (C-2), fail-closed gate audit (H-2), and graceful draft state (M-1/M-2) (1319.177125ms)\n  ✔ D5: requires design.md alongside requirements.md and tasks.md in both sdd_project_overview and sdd_feature_state before guiding to approval-gate (166.618917ms)\n  ▶ DDD gate guidance over public stdio\n    ✔ shows the recorded BLOCK instead of a gate retry (211.028834ms)\n    ✔ shows the recorded DEFER instead of a gate retry (205.152042ms)\n    ✔ shows the recorded REJECT instead of a gate retry (260.757834ms)\n    ✔ requires validation when only the rationale of one FITS proposal copy changes (460.572709ms)\n    ✔ revalidates a deferred decision before recommending a model update or a new proposal (217.958125ms)\n    ✔ prioritizes a rejection bound to the current feature and both proposals over a previous gate stop (828.264083ms)\n    ✔ uses the latest gate and keeps an ordinary failing command on the gate path (375.98075ms)\n    ✔ keeps another feature or task from blocking the current task (200.773792ms)\n    ✔ does not reopen an already Done task because of a retained stop (211.644917ms)\n  ✔ DDD gate guidance over public stdio (2972.449292ms)\n  ✔ retains the blocked action when an existing design is lost or a task has a recorded blocker (274.795291ms)\n  ✔ #835: a Done task with a mechanical PASS but a failing or missing independent verdict shows as failed (1623.949709ms)\n  ✔ install.sh places dashboard CLI runtime by default without registering MCPs, rejects conflicting flags, and supports --with-mcp (9765.89975ms)\n✔ ADR-0052: sdd-forge-mcp v2 (4-tool SSOT server, security boundaries & opt-in installer) (16644.270958ms)\n▶ #834 a spec file over the MCP read limit is unverifiable, not deleted\n  ✔ the CLI stays CLEAN, MCP reports UNVERIFIABLE and blocks with the reason, and a real deletion is still drift (402.214042ms)\n✔ #834 a spec file over the MCP read limit is unverifiable, not deleted (402.471792ms)\n▶ #831/#832 gate evidence is bound to the spec inputs it verified\n  ✔ a PASS recorded before an amended AC is not ready for Done until the gate runs again (439.350208ms)\n  ✔ status and approval edits keep evidence current; legacy evidence counts only while drift is CLEAN (335.744708ms)\n  ✔ #832 a Done task whose evidence is stale is re-verified through ship for that task; others are not (697.286125ms)\n✔ #831/#832 gate evidence is bound to the spec inputs it verified (1472.470458ms)\n▶ #972 batch-6 review: re-verification outcome and input coverage\n  ✔ a failed or command-less re-verification of a Done task is not reported as done (706.92725ms)\n  ✔ continuation lines, table rows and fenced code in the task are part of the inputs (687.689792ms)\n✔ #972 batch-6 review: re-verification outcome and input coverage (1394.675833ms)\n▶ #972 review 3: heading-style IDs and failed review verdicts\n  ✔ an AC written as a heading is still an evidence input (412.592584ms)\n  ✔ a nested AC bullet under its REQ is its own entry (3.048417ms)\n  ✔ a Done task re-verified with a FAIL review verdict is not reported as done (202.190833ms)\n✔ #972 review 3: heading-style IDs and failed review verdicts (617.904417ms)\nℹ tests 25\nℹ suites 6\nℹ pass 25\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 20584.280584\n",
+        "stderr": ""
+      },
+      {
+        "label": "telemetry",
+        "command": "node --test tests/v2-wave3-integration.test.mjs",
+        "exitCode": 0,
+        "durationMs": 8381,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2\n  ✔ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (1358.915792ms)\n  ✔ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (177.103ms)\n  ✔ T-008 resolves the baseline command against the committed implementation (319.692167ms)\n  ✔ T-008 stops at the first failing verification command in fail-fast mode (162.861166ms)\n  ✔ T-008 rebuild measures default p95 and absolute budgets independently from exact output (3960.285833ms)\n  ✔ T-008 rebuild rechecks immutable inputs after running the candidate (986.134791ms)\n  ✔ T-008 enforces implementer write scope through both public CLIs using the Git diff (326.431417ms)\n  ✔ T-008 resolves a nested project’s protected paths from its committed policy (182.507709ms)\n  ✔ reports a failed lock release after saving a completed gate execution (197.876583ms)\n  ✔ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (330.603042ms)\n  ✔ T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor (318.273958ms)\n✔ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (8321.462834ms)\nℹ tests 11\nℹ suites 1\nℹ pass 11\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 8356.540917\n",
+        "stderr": ""
+      },
+      {
+        "label": "taskPlan",
+        "command": "node --test tests/v2-software-factory.test.mjs",
+        "exitCode": 0,
+        "durationMs": 1534,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ Software Factory v2.x (SQL + AWS + Azure + Software SDLC)\n  ✔ Phase A-1: sql-develop skill, policy, and contract template align cleanly with SDD Core v2 (0.558584ms)\n  ✔ Phase A-2 & A-3: render-decision-view.mjs skips GFM aligned separators, isolates feature gates, and escapes HTML/MD (48.810667ms)\n  ✔ Phase A-3 (fail-closed OQ): handles escaped pipes, bold/backtick IDs, JP commas, and non-Confirmed statuses (115.251709ms)\n  ✔ Phase B-1: check-traceability.mjs propagates transitive Blockers, ignores Spec Amendments, and matches Scopes accurately (34.340458ms)\n  ✔ I2: scopeEntriesOverlap & --plan-batches serialize wildcard/directory & wildcard-pair overlaps (including uncreated files) while keeping disjoint top dirs parallel (59.715292ms)\n  ✔ Phase B-2: SQL & Cloud IaC sensors catch multiline/untracked real-world issues without comment false positives (224.985ms)\n  ✔ Phase C: sdd-doctor.mjs walks nested sdd/knowledge/**/INDEX.md with CRLF-normalized 3,000-char limit (12.333917ms)\n  ✔ parseAlternativesRejected skips aligned separators and handles escaped pipes (0.108041ms)\n  ✔ D6: Decision View reflects missing, NEEDS_FIX, and PASS spec-check without claiming unobserved checks ran (2.640666ms)\n✔ Software Factory v2.x (SQL + AWS + Azure + Software SDLC) (499.259666ms)\n▶ #817 invalid Blockers are reported and never scheduled\n  ✔ unknown and self dependencies are listed apart from cycles, excluded with their downstream, and fail --strict (55.523541ms)\n✔ #817 invalid Blockers are reported and never scheduled (55.584375ms)\n▶ #817 review: only bare Blocker IDs are declared dependencies\n  ✔ prose mentioning the own ID or a range does not block; cycles stay visible next to invalid tasks (56.785375ms)\n✔ #817 review: only bare Blocker IDs are declared dependencies (56.839ms)\n▶ #816 overlapping Scopes never share a wave\n  ✔ same file through a symlink, prose bullets, notes and braces serialize; empty Scope runs alone; independent paths stay parallel (248.487959ms)\n✔ #816 overlapping Scopes never share a wave (248.5295ms)\n▶ #815 CLI locks are held by their owner, not by the exiting CLI process\n  ✔ ship acquires, the child re-acquires with the same owner, others are refused, and the owner releases (149.036042ms)\n  ✔ an expired owner lock is stale and recoverable; a CLI acquire without --owner is refused (127.792041ms)\n✔ #815 CLI locks are held by their owner, not by the exiting CLI process (276.897667ms)\n▶ #830 one approval grammar for the gate, the decision view and MCP\n  ✔ Approved with an optional (note) is approved; other case and trailing words are not (162.434167ms)\n✔ #830 one approval grammar for the gate, the decision view and MCP (162.48175ms)\n▶ #972 review: Scope literals and lock renewal races\n  ✔ a backtick path keeps parentheses that belong to the path (route groups) (0.294875ms)\n  ✔ a concurrent release and acquire cannot remove a newly acquired lock (109.688375ms)\n  ✔ a process exit during acquisition does not strand an intent or publish partial data (24.84975ms)\n  ✔ renewal never overwrites a lock another worker took after it was read (1.174292ms)\n✔ #972 review: Scope literals and lock renewal races (136.090833ms)\n▶ #972 review: bounded braces and owner renewal after expiry\n  ✔ a Scope whose brace expansion is too large is treated as touching everything (0.134625ms)\n  ✔ the owner of an expired lock renews it without --break-stale; another owner still cannot (1.25925ms)\n✔ #972 review: bounded braces and owner renewal after expiry (1.434833ms)\n▶ #972 re-review: nested braces, bare route groups, lease renewal\n  ✔ nested brace lists are bounded by what they actually expand to (0.117334ms)\n  ✔ a bare path keeps a route group between slashes and drops a trailing note (0.161541ms)\n  ✔ renewal never leaves a moment where another owner can take a live lock (1.026084ms)\n  ✔ a renewed lease keeps an otherwise expired lock active; a lease for an older lock is ignored (1.2355ms)\n✔ #972 re-review: nested braces, bare route groups, lease renewal (2.59325ms)\n▶ Wave task plans in CLI and read-only views\n  ✔ resolves real H3 metadata, scope and blockers with the same task boundaries as the gate (0.242833ms)\n  ✔ binds fenced bytes and task references while normalizing a real lifecycle transition (1.014959ms)\n✔ Wave task plans in CLI and read-only views (1.292666ms)\n▶ #972 review 4: wrapped prose, table cells, filesystems without hard links\n  ✔ binds SELF criteria, linked requirements and NFRs by their full IDs (0.251084ms)\n  ✔ a wrapped line that starts with an ID stays part of its entry (0.18375ms)\n  ✔ a table row whose first cell starts with the ID is that ID's entry (0.093541ms)\n  ✔ locking still works where hard links are not supported (0.705959ms)\n✔ #972 review 4: wrapped prose, table cells, filesystems without hard links (1.273125ms)\nℹ tests 31\nℹ suites 11\nℹ pass 31\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1509.904125\n",
+        "stderr": ""
+      }
+    ],
+    "rebuildDifferential": {
+      "skipped": true,
+      "passed": true
+    }
+  }
+}

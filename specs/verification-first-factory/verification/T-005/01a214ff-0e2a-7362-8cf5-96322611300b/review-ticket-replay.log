@@ -1,0 +1,45 @@
+RT-20261126-001 | T-005 | 01a214ff-0e2a-7362-8cf5-96322611300b
+Implementation base fdea1c16331140d0a0ecbd52001c06d1467eef50
+Implementation fix e438d4c41cd22b07f867d2eefd5b9c1fc165b937
+Integrated verification input f94cafa6e1660c755e1586562ede47f8f822f024
+TLC 2.19 | tla2tools.jar SHA-256 936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88
+Apalache 0.63.0 | apalache.jar SHA-256 f2d43f2e279a657be50b2ecec3a013ba2915266008a2562b38412c3269347dc9
+
+RED | node --test --test-name-pattern="TLC and replay agree" tests/v2-formal-gate.test.mjs | exit 1
+The direct tlc2.TLC run of [Next]_(* ordinary note *)vars returned 0 before the gate assertion failed.
+AssertionError [ERR_ASSERTION]: after subscript: ["Unsupported baseline SPECIFICATION for trace replay: Spec"]
+
+GREEN | integrated verification tree | node --test tests/v2-formal-gate.test.mjs | exit 0
+TLC phase order: baseline, negative, replay. Each row reports [exit, violated invariant, distinct states, depth].
+✔ TLC and replay agree on token boundaries in canonical safety specifications (18864.042584ms)
+ℹ original: TLC baseline=0; replay phases=[[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ after subscript: TLC baseline=0; replay phases=[[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ name, block comments: TLC baseline=0; replay phases=[[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ tuple, block comments: TLC baseline=0; replay phases=[[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ name, whitespace: TLC baseline=0; replay phases=[[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ tuple, line comments: TLC baseline=0; replay phases=[[0,null,15,8],[12,"OneAccepted",25,7],[12,"TraceIncomplete",5,5]]
+ℹ APALACHE version: 0.63.0 | build: 67b8ec6 TaskLock baseline, negative, and projection: length=10
+ℹ tests 18
+ℹ pass 18
+ℹ fail 0
+ℹ skipped 0
+
+Token split controls | direct tlc2.TLC native results
+==    | TLC 150 | Parsing or semantic analysis failed
+Init  | TLC 150 | Parsing or semantic analysis failed
+/\    | TLC 150 | Parsing or semantic analysis failed
+[]    | TLC 150 | Parsing or semantic analysis failed
+Next  | TLC 150 | Parsing or semantic analysis failed
+]_    | TLC 150 | Parsing or semantic analysis failed
+<<    | TLC 150 | Parsing or semantic analysis failed
+phase | TLC 150 | Parsing or semantic analysis failed
+>>    | TLC 150 | Parsing or semantic analysis failed
+In the same regression test the gate rejected all nine as unsupported baseline SPECIFICATIONs.
+The fairness extension with ordinary comments is valid to native TLC (0) and rejected as unsupported by the gate.
+
+python3 tests/project-skill-formal.tests.py -v | exit 0
+Ran 8 tests in 1.135s
+
+OK
+
+validate-task-input-manifest.sh --manifest <manifest> --snapshot-root . --expected-task T-005 | TASK_INPUT_OK

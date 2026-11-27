@@ -1,0 +1,24 @@
+{
+  "ticket": "RT-20261126-013",
+  "before": "985f84e253282809a2f235a8ab8d1fc086b4e162",
+  "after": "5518abfe0128fcd9ca18d39cb499e7ba967ed78a",
+  "runs": [
+    {
+      "command": "node --test --test-name-pattern=\"scans text and unified patch additions\" tests/v2-sdd-core-flow.test.mjs",
+      "revision": "985f84e253282809a2f235a8ab8d1fc086b4e162",
+      "regression_test_from": "5518abfe0128fcd9ca18d39cb499e7ba967ed78a",
+      "outcome": "FAIL",
+      "log": "red.log",
+      "sha256": "5889a233c7b1a5d0faa373d8bba775296aca30aceafadcadf334d34adcc8eb92"
+    },
+    {
+      "command": "node --test --test-reporter=spec tests/v2-sdd-core-flow.test.mjs tests/v2-spec-drift.test.mjs",
+      "revision": "5518abfe0128fcd9ca18d39cb499e7ba967ed78a",
+      "passed": 68,
+      "skipped": 0,
+      "failed": 0,
+      "log": "green.log",
+      "sha256": "7383cafa50a7f946af75cfb9923f7e161195ac7a54a7e4af77365ed73ca6b93a"
+    }
+  ]
+}

@@ -129,21 +129,26 @@ try {
     # =======================================================================
     $checkResult = Invoke-Render -RenderArgs @('-Check', '-RepoRoot', $tmp, '-Registry', $registryDst)
     if ($checkResult.ExitCode -ne 0) {
-        Test-Ok 'TEST-016: --check exits non-zero when every target still has drift'
+        Test-Ok 'TEST-016: --check exits non-zero on Claude target drift'
     } else {
         Test-Bad 'TEST-016: --check exited 0 despite injected/pre-existing drift'
     }
 
     $driftAllPresent = $true
-    foreach ($rel in ($unprotectedClaudeRelPaths + $codexRelPaths + $protectedRelPaths)) {
+    foreach ($rel in ($unprotectedClaudeRelPaths + $protectedRelPaths)) {
         if ($checkResult.Combined -cnotmatch [regex]::Escape("DRIFT: $rel")) {
             $driftAllPresent = $false
         }
     }
+    foreach ($rel in $codexRelPaths) {
+        if ($checkResult.Combined -cnotmatch [regex]::Escape("OK: $rel")) {
+            $driftAllPresent = $false
+        }
+    }
     if ($driftAllPresent) {
-        Test-Ok 'TEST-016: --check reports DRIFT for every un-rendered target (unprotected and protected)'
+        Test-Ok 'TEST-016: --check accepts shipped Codex roles and reports un-rendered Claude targets'
     } else {
-        Test-Bad "TEST-016: --check did not report DRIFT for every un-rendered target -- $($checkResult.Combined)"
+        Test-Bad "TEST-016: --check unexpected default target status -- $($checkResult.Combined)"
     }
 
     $noWriteDuringCheck = $true

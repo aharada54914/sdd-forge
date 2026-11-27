@@ -1,0 +1,824 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs b/plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
+index 87ed45c41..185fafeed 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs
+@@ -11,13 +11,14 @@ import path from 'node:path';
+ import {
+   assertValidFeatureName,
+   canonicalSpecContractText,
+-  countPrimaryApprovals,
+   extractAmendmentEntries,
+   extractSpecIdentifiers,
+   globToRegExp,
+   isApprovedValue,
+   matchProtectedSpecRelPath,
++  markdownLines,
+   normalizeGuardrailsConfig,
++  normalizeTaskFields,
+   normalizeNewlines,
+   normalizeRelPath,
+   parseSimpleYaml,
+@@ -25,6 +26,8 @@ import {
+   sha256Text,
+   splitSpecAmendments,
+   stripYamlComment,
++  taskField,
++  taskHeading,
+   VALID_MODES,
+   VALID_PRE_IMPL,
+   VALID_RISK_TIERS,
+@@ -131,25 +134,7 @@ export function loadGuardrailsConfigFromIo(io) {
+ }
+ 
+ export function stripFencedCodeBlocks(text) {
+-  const lines = normalizeNewlines(text || '').split('\n');
+-  const out = [];
+-  let inFence = false;
+-  let fenceChar = '';
+-  for (const line of lines) {
+-    const m = line.match(/^[ \t]*(`{3,}|~{3,})/);
+-    if (m) {
+-      if (!inFence) {
+-        inFence = true;
+-        fenceChar = m[1][0];
+-      } else if (m[1][0] === fenceChar) {
+-        inFence = false;
+-        fenceChar = '';
+-      }
+-      continue;
+-    }
+-    if (!inFence) out.push(line);
+-  }
+-  return out.join('\n');
++  return [...markdownLines(text)].filter(({ fenced }) => !fenced).map(({ line }) => line).join('\n');
+ }
+ 
+ export function splitMarkdownTableRow(line) {
+@@ -376,11 +361,12 @@ function extractDeclaredBlockers(taskBlock) {
+ }
+ 
+ export function extractScopePaths(taskBlock) {
++  const inline = taskBlock.split('\n').map(taskField).find((field) => field?.name === 'scope' && field.raw);
+   const scopeMatch = /^###[ \t]+Scope[ \t]*$/im.exec(taskBlock);
+-  if (!scopeMatch) return [];
+-  const rest = taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
++  if (!inline && !scopeMatch) return [];
++  const rest = inline ? '' : taskBlock.slice(scopeMatch.index + scopeMatch[0].length);
+   const nextSub = /^###[ \t]+\S/m.exec(rest);
+-  const section = nextSub ? rest.slice(0, nextSub.index) : rest;
++  const section = inline ? `- ${stripScopeNote(inline.raw)}` : (nextSub ? rest.slice(0, nextSub.index) : rest);
+   const paths = [];
+   for (const line of section.split('\n')) {
+     const trimmed = line.trim();
+@@ -420,6 +406,14 @@ function stripScopeNote(token) {
+   let out = '';
+   for (let i = 0; i < text.length; i += 1) {
+     const ch = text[i];
++    if (ch === '`') {
++      const end = text.indexOf('`', i + 1);
++      if (end !== -1) {
++        out += text.slice(i, end + 1);
++        i = end;
++        continue;
++      }
++    }
+     if (ch !== '(' && ch !== '（') {
+       out += ch;
+       continue;
+@@ -497,46 +491,62 @@ export function normalizeRiskTier(raw, fallback = 'standard') {
+   return fallback;
+ }
+ 
++// One structural scan for the CLI, public read-only views and evidence hashing.
++function taskSections(text) {
++  const { beforeAmendments, afterAmendments } = splitSpecAmendments(text || '');
++  const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
++  const sections = [];
++  let current = null;
++  for (const { line, fenced } of markdownLines(body)) {
++    const heading = !fenced && taskHeading(line);
++    if (heading) {
++      current = { id: heading[1].toUpperCase(), title: (heading[2] || '').trim(), raw: [line], body: [], fields: {} };
++      sections.push(current);
++    } else if (!fenced && /^##[ \t]+\S/.test(line)) {
++      current = null;
++    } else if (current) {
++      current.raw.push(line);
++      if (fenced) continue;
++      current.body.push(line);
++      const field = taskField(line);
++      if (field?.value && !(field.name in current.fields)) current.fields[field.name] = field.value;
++    }
++  }
++  return sections;
++}
++
++export function parseTaskBlock(tasksContent, taskId) {
++  const section = taskSections(tasksContent).find(({ id }) => id === taskId.toUpperCase());
++  if (!section) return null;
++  const { approval = null, status = null, risk } = section.fields;
++  return { taskId: section.id, approval, status, risk: normalizeRiskTier(risk), scopePaths: extractScopePaths(section.body.join('\n')) };
++}
++
++function taskSummary({ id: taskId, title, body, fields }) {
++  const block = body.join('\n');
++  const { approval = 'Draft', status = 'Planned' } = fields;
++  const risk = normalizeRiskTier(fields.risk);
++  const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
++  const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
++  const declaredBlockers = extractDeclaredBlockers(block);
++  const selfBlocked = declaredBlockers.includes(taskId);
++
++  return {
++    selfBlocked,
++    declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
++    id: taskId,
++    title,
++    approval,
++    status,
++    risk,
++    acRefs,
++    blockers,
++    block,
++  };
++}
++
+ export function parseTasksSummary(tasksText) {
+-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksText || '');
+-  const body = stripFencedCodeBlocks(afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments);
+-  const tasks = [];
+-  const h2Re = /^##[ \t]+(.+)$/gm;
+-  const headings = [...body.matchAll(h2Re)];
+-
+-  for (let i = 0; i < headings.length; i += 1) {
+-    const h = headings[i];
+-    const titleLine = h[1].trim();
+-    const taskMatch = titleLine.match(/^(T-[A-Za-z0-9._-]+)(?:[ \t]+(.*))?$/);
+-    if (!taskMatch) continue;
+-
+-    const start = h.index + h[0].length;
+-    const end = i + 1 < headings.length ? headings[i + 1].index : body.length;
+-    const block = body.slice(start, end);
+-
+-    const approval = (block.match(/^[ \t]*Approval:[ \t]*(.+)$/m) || [])[1]?.trim() || 'Draft';
+-    const status = (block.match(/^[ \t]*Status:[ \t]*(.+)$/m) || [])[1]?.trim() || 'Planned';
+-    const risk = normalizeRiskTier((block.match(/^[ \t]*Risk:[ \t]*(.+)$/m) || [])[1], 'standard');
+-    const acRefs = [...new Set((block.match(/\bAC-\d+\b/gi) || []).map((id) => id.toUpperCase()))];
+-    const taskId = taskMatch[1].toUpperCase();
+-    const blockers = extractTaskBlockers(block).filter((b) => b !== taskId);
+-    const declaredBlockers = extractDeclaredBlockers(block);
+-    const selfBlocked = declaredBlockers.includes(taskId);
+-
+-    tasks.push({
+-      selfBlocked,
+-      declaredBlockers: declaredBlockers.filter((b) => b !== taskId),
+-      id: taskId,
+-      title: (taskMatch[2] || '').trim(),
+-      approval,
+-      status,
+-      risk,
+-      acRefs,
+-      blockers,
+-      block,
+-    });
+-  }
+-  return tasks;
++  return taskSections(tasksText).map(taskSummary);
+ }
+ 
+ export function detectDomains(combinedText) {
+@@ -595,21 +605,31 @@ export function scopeMatchesFile(scopeEntry, changedFile) {
+   return cf === sp || cf.startsWith(`${sp}/`);
+ }
+ 
+-function globStaticDir(glob) {
+-  const parts = glob.split('/');
+-  const staticParts = [];
+-  for (const part of parts) {
+-    if (/[*?]/.test(part)) break;
+-    staticParts.push(part);
++function normalizeScopePattern(entry) {
++  let norm = normalizeRelPath(entry);
++  while (norm.startsWith('./')) {
++    norm = norm.slice(2).replace(/\/+$/, '');
+   }
+-  return staticParts.join('/');
++  return norm;
+ }
+ 
+-function scopeEntriesOverlap(a, b) {
+-  const na = normalizeRelPath(a);
+-  const nb = normalizeRelPath(b);
++function isAmbiguousScopePattern(norm) {
++  if (norm.startsWith('/') || norm.includes('//')) return true;
++  return norm.split('/').some((seg) => seg === '.' || seg === '..');
++}
++
++function fixedLiteralSuffix(pattern) {
++  const lastMeta = Math.max(pattern.lastIndexOf('*'), pattern.lastIndexOf('?'), pattern.lastIndexOf('/'));
++  return pattern.slice(lastMeta + 1);
++}
++
++export function scopeEntriesOverlap(a, b) {
++  const na = normalizeScopePattern(a);
++  const nb = normalizeScopePattern(b);
+   if (!na || !nb) return false;
+   if (na === nb) return true;
++  if (isAmbiguousScopePattern(na) || isAmbiguousScopePattern(nb)) return true;
++
+   const aWild = /[*?]/.test(na);
+   const bWild = /[*?]/.test(nb);
+   if (!aWild && !bWild) {
+@@ -618,14 +638,43 @@ function scopeEntriesOverlap(a, b) {
+   if (scopeMatchesFile(na, nb) || scopeMatchesFile(nb, na)) {
+     return true;
+   }
++
++  const segsA = na.split('/');
++  const segsB = nb.split('/');
++  const aHasDouble = na.includes('**');
++  const bHasDouble = nb.includes('**');
++
++  // Fixed segment-count bounds when a wildcard pattern has no `**`.
++  if (aWild && !aHasDouble) {
++    if (bWild && !bHasDouble && segsA.length !== segsB.length) return false;
++    if (!bWild && segsA.length < segsB.length) return false;
++  }
++  if (bWild && !bHasDouble && !aWild && segsB.length < segsA.length) {
++    return false;
++  }
++
++  // Leading path-component constraints before any `**` segment.
++  const minLen = Math.min(segsA.length, segsB.length);
++  for (let i = 0; i < minLen; i += 1) {
++    const sa = segsA[i];
++    const sb = segsB[i];
++    if (sa.includes('**') || sb.includes('**')) break;
++    if (!/[*?]/.test(sb)) {
++      if (!globToRegExp(sa).test(sb)) return false;
++    } else if (!/[*?]/.test(sa) && !globToRegExp(sb).test(sa)) {
++      return false;
++    }
++  }
++
++  // Disjoint fixed literal suffixes for wildcard pairs (both anchored at end of path).
+   if (aWild && bWild) {
+-    const dirA = globStaticDir(na);
+-    const dirB = globStaticDir(nb);
+-    if (dirA === dirB) return true;
+-    if (dirA && dirB && (dirA.startsWith(`${dirB}/`) || dirB.startsWith(`${dirA}/`))) return true;
+-    if ((!dirA && na.includes('**')) || (!dirB && nb.includes('**'))) return true;
++    const sufA = fixedLiteralSuffix(na);
++    const sufB = fixedLiteralSuffix(nb);
++    const length = Math.min(sufA.length, sufB.length);
++    if (length && !globToRegExp(sufA.slice(-length)).test(sufB.slice(-length))) return false;
+   }
+-  return false;
++
++  return true;
+ }
+ 
+ function isTestPath(relPath) {
+@@ -639,38 +688,12 @@ function isTestPath(relPath) {
+   );
+ }
+ 
+-// Only a line that is exactly an approval value is normalized; any other text
+-// on the line (a waiver, a scope note) stays part of the contract hash.
+-const APPROVAL_FIELD_RE = /^([ \t]*Approval:[ \t]*)(?:Approved(?:[ \t]*\([^()\n]*\))?|Draft)[ \t]*$/gm;
+-
+ // An IO may cap reads (MCP: 2 MiB). Ask it whether a null read means "there
+ // but unreadable"; IOs without the method fall back to exists().
+ function existsButUnreadable(io, relPath) {
+   return typeof io.existsButUnreadable === 'function' ? io.existsButUnreadable(relPath) : io.exists(relPath);
+ }
+ 
+-// Raw text of each task section in tasks.md, fenced code included (the
+-// parsed task block drops fences, but a command in a fence is a spec too).
+-function rawTaskSections(tasksRaw) {
+-  const { beforeAmendments, afterAmendments } = splitSpecAmendments(normalizeNewlines(tasksRaw || ''));
+-  const lines = (afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments).split('\n');
+-  const sections = new Map();
+-  let fence = false;
+-  let current = null;
+-  for (const line of lines) {
+-    if (/^[ \t]*(?:```|~~~)/.test(line)) fence = !fence;
+-    const heading = !fence && /^##[ \t]+(\S+)/.exec(line);
+-    if (heading) {
+-      current = /^T-[A-Za-z0-9._-]+$/i.test(heading[1]) ? heading[1].toUpperCase() : null;
+-      if (current && !sections.has(current)) sections.set(current, [line]);
+-      else if (current) current = null; // a repeated heading keeps the first section
+-      continue;
+-    }
+-    if (current) sections.get(current).push(line);
+-  }
+-  return new Map([...sections].map(([id, body]) => [id, body.join('\n')]));
+-}
+-
+ const ENTRY_HEAD_RE = /^([ \t]*)(?:[-*+]|\d+\.)?[ \t]*(?:\*\*)?((?:REQ|AC)-\d+)\b/i;
+ const LIST_ENTRY_HEAD_RE = /^[ \t]*(?:[-*+]|\d+\.)[ \t]+(?:\*\*)?(?:REQ|AC)-\d+\b/i;
+ 
+@@ -747,18 +770,17 @@ export function featureEvidenceInputs(io, { feature }) {
+   };
+   const designRaw = io.readText(`specs/${feature}/design.md`);
+   const design = designRaw === null ? null : sha256Text(canonicalSpecContractText(designRaw, 'design.md'));
+-  const sections = rawTaskSections(tasksRaw);
+   const reqsIn = (text) => (String(text || '').match(/\bREQ-\d+\b/gi) || []).map((m) => m.toUpperCase());
+-  for (const task of parseTasksSummary(tasksRaw)) {
++  for (const section of taskSections(tasksRaw)) {
++    if (byTask.has(section.id)) continue;
++    const task = taskSummary(section);
+     const wanted = new Set(task.acRefs);
+     for (const req of reqsIn(task.block)) wanted.add(req);
+     for (const ac of task.acRefs) for (const req of reqsIn((entries.get(ac) || []).join('\n'))) wanted.add(req);
+     const ids = {};
+     for (const key of [...wanted].sort()) ids[key] = entries.has(key) ? sha256Text(entries.get(key).join('\n')) : fallbackHash(key);
+-    const section = (sections.get(task.id) || task.block)
+-      .replace(/^[ \t]*Status:[ \t]*.*$/gm, '<NORMALIZED>')
+-      .replace(APPROVAL_FIELD_RE, '<NORMALIZED>');
+-    byTask.set(task.id, { schema: 'sdd-task-evidence-inputs/v2', task: sha256Text(section.trim()), ids, design });
++    const normalized = normalizeTaskFields(section.raw.join('\n'), { approval: true, evidence: true });
++    byTask.set(task.id, { schema: 'sdd-task-evidence-inputs/v2', task: sha256Text(normalized.trim()), ids, design });
+   }
+   return byTask;
+ }
+@@ -792,7 +814,7 @@ export function diffEvidenceInputs(recorded, current) {
+  */
+ export function taskApprovalBaseline(rawText, fileName) {
+   if (String(fileName || '').toLowerCase() !== 'tasks.md') return null;
+-  const contract = canonicalSpecContractText(rawText, fileName).replace(APPROVAL_FIELD_RE, 'Approval: <NORMALIZED>');
++  const contract = normalizeTaskFields(canonicalSpecContractText(rawText, fileName), { approval: true });
+   const taskApprovals = {};
+   for (const t of parseTasksSummary(rawText)) taskApprovals[t.id] = t.approval;
+   return { approvalContractSha256: sha256Text(contract), taskApprovals };
+@@ -859,7 +881,8 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
+     // older comparison, where any Approval: edit changes the file.
+     const approvalView = typeof baseInfo?.approvalContractSha256 === 'string' ? taskApprovalBaseline(rawText, fileName) : null;
+     if (approvalView) {
+-      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256) {
++      // Older baselines used a narrower grammar. Identical raw bytes always match.
++      if (approvalView.approvalContractSha256 !== baseInfo.approvalContractSha256 && sha256Text(rawText) !== baseInfo.rawSha256) {
+         changedFiles.push(safeRel);
+       }
+       for (const [id, was] of Object.entries(baseInfo.taskApprovals || {})) {
+@@ -868,7 +891,7 @@ export function checkSpecDriftCore(io, { feature, baselineRelPath = null, config
+         if (isApprovedValue(was) && !isApprovedValue(now)) revokedApprovals.push(id);
+         else if (!isApprovedValue(was) && isApprovedValue(now)) newlyApprovedTasks.push(id);
+       }
+-    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256) {
++    } else if (sha256Text(canonicalSpecContractText(rawText, fileName)) !== baseInfo?.contractSha256 && sha256Text(rawText) !== baseInfo?.rawSha256) {
+       changedFiles.push(safeRel);
+     }
+ 
+@@ -1401,6 +1424,8 @@ export function buildReviewPerspectiveMatrix({
+   const hasCloud = domains.includes('AWS') || domains.includes('Azure') || domains.includes('Cloud');
+   const hasDdd = domains.includes('DDD');
+   const provisionalCount = openQuestions.filter((q) => !q.confirmed).length;
++  const effectiveSpecCheck = specCheckVerdict || 'Not Run';
++  const specCheckConfirmed = effectiveSpecCheck === 'PASS' || effectiveSpecCheck === 'PASS_WITH_NOTES';
+ 
+   const matrix = COMMON_REVIEW_PERSPECTIVES.map((p) => {
+     let disposition = p.defaultDisposition;
+@@ -1408,10 +1433,15 @@ export function buildReviewPerspectiveMatrix({
+ 
+     if (p.id === 'C01') {
+       disposition = alternativesRejected.length > 0 ? '採用' : '軽く確認';
+-      reason =
+-        alternativesRejected.length > 0
+-          ? `採らなかった設計が ${alternativesRejected.length} 件記録されており判断根拠の確認が必要。`
+-          : '標準構成。spec-check で既存設計との整合を確認済み。';
++      if (alternativesRejected.length > 0) {
++        reason = `採らなかった設計が ${alternativesRejected.length} 件記録されており判断根拠の確認が必要。`;
++      } else if (specCheckConfirmed) {
++        reason = `標準構成。spec-check (${effectiveSpecCheck}) の判定を記録。設計整合の個別結果はレポートを確認すること。`;
++      } else if (effectiveSpecCheck === 'Not Run') {
++        reason = `標準構成。spec-check (${effectiveSpecCheck}) は未実施。既存設計との整合は未確認。`;
++      } else {
++        reason = `標準構成。spec-check (${effectiveSpecCheck}) は未通過のため、既存設計との整合を確認すること。`;
++      }
+     } else if (p.id === 'C02') {
+       disposition = hasSql || hasDdd || highestRisk === 'high' ? '最重要' : '軽く確認';
+       reason =
+@@ -1441,16 +1471,22 @@ export function buildReviewPerspectiveMatrix({
+       reason =
+         provisionalCount > 0
+           ? `未確定事項（OQ-NNN）が ${provisionalCount} 件あり、事業判断・業務例外の確認が必要。`
+-          : '業務ルール・境界値は AC とテスト方針に落とし込み済み。';
++          : '未確定の OQ-NNN はなし。業務ルール・境界値が AC とテスト方針に反映されているか確認。';
+     } else if (p.id === 'C07') {
+       disposition = '機械検証';
+-      reason = `check-traceability.mjs / check-spec-drift.mjs / spec-check (${specCheckVerdict}) で自動照合済み。人は逸脱時のみ確認。`;
++      if (specCheckConfirmed) {
++        reason = `spec-check (${effectiveSpecCheck}) は確認済み。check-traceability.mjs / check-spec-drift.mjs の実行結果で逸脱がないか確認すること。`;
++      } else if (effectiveSpecCheck === 'Not Run') {
++        reason = `spec-check (${effectiveSpecCheck}) は未実施。check-traceability.mjs / check-spec-drift.mjs の実行結果とあわせて確認すること。`;
++      } else {
++        reason = `spec-check (${effectiveSpecCheck}) は未通過。check-traceability.mjs / check-spec-drift.mjs の実行結果とあわせて確認すること。`;
++      }
+     } else if (p.id === 'C08') {
+       disposition = hasSql || hasCloud || highestRisk === 'high' ? '最重要' : '機械検証';
+       reason =
+         hasSql || hasCloud || highestRisk === 'high'
+-          ? 'SQL/Cloud/高リスク領域を含むため、機械センサー＋人間の切戻し確認を併用。'
+-          : 'run-sdd-gate.mjs の決定論センサー（Secret/Placeholder/lint/test）で自動検証。';
++          ? 'SQL/Cloud/高リスク領域を含むため、run-sdd-gate.mjs / CI の機械センサー実行と人間の切戻し確認を併用すること。'
++          : '実装後の run-sdd-gate.mjs / CI（Secret/Placeholder/lint/test）の機械検証結果を確認してください。';
+     }
+ 
+     return {
+@@ -1640,7 +1676,7 @@ export function renderDecisionViewMarkdown(data) {
+   const lines = [];
+   lines.push(`# Decision View: ${data.feature}`);
+   lines.push('');
+-  lines.push('> 全文を読み解く代わりに、**人が判断すべき要点（事実・理由・問い）** と **機械検証済みの領域** を分離したレビュービューです。');
++  lines.push('> 全文を読み解く代わりに、**人が判断すべき要点（事実・理由・問い）** と **機械検証の対象領域・既知の spec-check 結果** を整理したレビュービューです。');
+   lines.push('');
+   lines.push('## 1. 全体像（Overview）');
+   lines.push('');
+@@ -1847,7 +1883,7 @@ export function renderDecisionViewHtml(data) {
+ </head>
+ <body>
+   <h1>Decision View: ${escapeHtml(data.feature)}</h1>
+-  <p class="muted">生成時刻: ${escapeHtml(data.generatedAt)} — 機械確認済み項目と人間が判断すべき問いを分離したビュー</p>
++  <p class="muted">生成時刻: ${escapeHtml(data.generatedAt)} — 機械検証の対象領域・既知の spec-check 結果と人間が判断すべき問いを整理したビュー</p>
+   <div class="meta">
+     <span class="pill">Domains: ${escapeHtml(data.domains.join(' / '))}</span>
+     <span class="pill">Highest Risk: ${escapeHtml(data.highestRisk)}</span>
+@@ -2205,8 +2241,9 @@ export function runDoctorCore(
+     const content = io.readText(relTasks);
+     if (content === null) continue;
+ 
+-    const approvedCount = countPrimaryApprovals(content);
+-    const hasActiveTask = /^[ \t]*Status:[ \t]*(?:Planned|In Progress|Implementation Complete|Blocked)\b/im.test(content);
++    const tasks = parseTasksSummary(content);
++    const approvedCount = tasks.filter((task) => isApprovedValue(task.approval)).length;
++    const hasActiveTask = tasks.some((task) => /^(?:Planned|In Progress|Implementation Complete|Blocked)$/.test(task.status));
+     const baselineRel = `specs/${entry.name}/.spec-baseline.json`;
+ 
+     if (approvedCount > 0 && hasActiveTask && !io.exists(baselineRel)) {
+@@ -2220,7 +2257,7 @@ export function runDoctorCore(
+       );
+     }
+ 
+-    if (/^[ \t]*Status:[ \t]*In Progress\b/im.test(content)) {
++    if (tasks.some((task) => task.status === 'In Progress')) {
+       const mtimeMs = io.statMtimeMs(relTasks);
+       if (mtimeMs !== null && nowMs - mtimeMs > staleMs) {
+         const ageDays = Math.floor((nowMs - mtimeMs) / (24 * 60 * 60 * 1000));
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+index d6e1ced2b..d6ca7943e 100755
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -358,7 +358,7 @@ path_is_authorized() {
+     return
+   fi
+   if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab]|task:task-reviewer-[ab]|quality:sdd-evaluator)$ ]] &&
+-      [[ "$path" == domain/* || "$path" == design-system/* || "$path" =~ ^specs/"$feature"/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$ ]]; then
++      [[ "$path" == domain/* || "$path" == design-system/* || "$path" =~ ^specs/"$feature"/concept-test(-seed\.md|\.md|\.json|\.approval\.json|\.decision\.json)$ ]]; then
+     # Exact quality delivery declarations are independent of optional concept inputs.
+     if [[ "$stage:$role" == quality:sdd-evaluator ]] &&
+         quality_delivery_input_is_declared "$path" "$expected_hash"; then
+@@ -373,7 +373,12 @@ path_is_authorized() {
+         if [[ "$stage" != impl || ! "$path" =~ ^domain/aggregates/[^/]+\.md$ ]]; then
+           local concept_record="specs/$feature/concept-test.json"
+           jq -e --arg p "$concept_record" 'any(.allowed_input_manifest[]; .path == $p)' "$manifest" >/dev/null || return 1
+-          jq -e --arg p "$path" --arg h "$expected_hash" 'any(.inputs[]; .path == $p and .sha256 == $h)' "$repository_root/$concept_record" >/dev/null 2>&1 || return 1
++          local concept_root="$repository_root"
++          if [[ -n "$fixed_record" ]]; then
++            jq -e --arg p "$concept_record" 'any(.[]; .path == $p)' <<< "$fixed_sources" >/dev/null || return 1
++            concept_root="$fixed_snapshot"
++          fi
++          jq -e --arg p "$path" --arg h "$expected_hash" 'any(.inputs[]; .path == $p and .sha256 == $h)' "$concept_root/$concept_record" >/dev/null 2>&1 || return 1
+         fi
+         ;;
+     esac
+@@ -1042,6 +1047,8 @@ while IFS=$'\t' read -r path expected_hash; do
+   input_root="$repository_root"
+   if jq -e --arg p "$path" 'any(.[]; .path == $p)' <<< "$fixed_sources" >/dev/null; then
+     input_root="$fixed_snapshot"
++  elif [[ -n "$fixed_record" && ( "$path" == domain/* || "$path" == "specs/$feature/concept-test."* || "$path" == "specs/$feature/concept-test-seed.md" ) ]]; then
++    fail INPUT "fixed inventory omits a domain or Concept Test input: $path"
+   fi
+   candidate="$input_root/$path"
+   current="$input_root"
+@@ -1205,7 +1212,10 @@ fi
+ record_hash=$(printf '%s' "$record_text" | sha256_text)
+ if $reserve; then
+   lock_dir="$ledger.lock"
+-  mkdir "$lock_dir" 2>/dev/null ||
++  # Reservation needs the mkdir syscall's exclusive result. Some coreutils
++  # implementations report success when a concurrent mkdir actually got EEXIST.
++  command -v python3 >/dev/null 2>&1 || fail RUNTIME 'deterministic-runtime-unavailable: python3'
++  python3 -c 'import os, sys; os.mkdir(sys.argv[1])' "$lock_dir" 2>/dev/null ||
+     fail IDENTITY 'canonical identity ledger reservation is already in progress'
+   trap 'rm -f "${temp_ledger:-}"; rmdir "${lock_dir:-}" 2>/dev/null || true' EXIT
+   [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]] ||
+diff --git a/tests/fixtures/project-skills/formal-review-reservation/mapping.json b/tests/fixtures/project-skills/formal-review-reservation/mapping.json
+index 90302cf21..0a91cad9d 100644
+--- a/tests/fixtures/project-skills/formal-review-reservation/mapping.json
++++ b/tests/fixtures/project-skills/formal-review-reservation/mapping.json
+@@ -1,9 +1,9 @@
+ {
+   "source": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+-  "source_sha256": "f79e5a35a9e6106f3493a57cfda5cb9c3f3d456f9cb925ea5a80971bdc1be0e8",
++  "source_sha256": "51e6bd3fc2704d038903fec9468a5d0873ff7f788394f48f075529cd9ccc50d7",
+   "property": "At most one contender with the same pre-reservation ledger hash is accepted.",
+   "mapping": {
+-    "Acquire": "atomic mkdir identity-ledger.json.lock; failure refuses reservation",
++    "Acquire": "Python os.mkdir of identity-ledger.json.lock; only a successful OS directory creation grants the reservation",
+     "Check": "sha256_file ledger equals bound_ledger_sha256 after acquisition",
+     "Publish": "jq staged append followed by mv temp_ledger ledger",
+     "Release": "rmdir lock and EXIT cleanup"
+@@ -22,10 +22,10 @@
+     "Windows behavior",
+     "entire application correctness"
+   ],
+-  "previous_source_sha256": "50d1ae0ac38b0e269366af7b993a7fb8453db63c99bd480b1d83215dd10ffd0d",
+-  "reservation_tail_sha256": "099073aafef9082cab371bfab889a19afe4e40a3f9d791739ceb820052a4a92c",
+-  "mapping_recheck": "Compared with bd94f864: #743 exact quality delivery declaration admission was added/refactored before conditional design/domain paths; no ledger writer, lock, post-lock hash check, staged publish or release changed. The full reservation transaction remains byte-identical (reservation_tail_sha256). Current-source six-test baseline/mutation replay and pinned TLC baseline/negative model are re-run separately in the archived evidence at https://github.com/aharada54914/sdd-forge/tree/78a84dcad51709ee6881eba44ed162369ae048fb/reports/verification/all-features-20261114/inventory/formal-reservation. Scope/assumptions/exclusions unchanged.",
+-  "source_sync_commit": "3f5521b01f63570460adf85cc2511cc0143fa98f",
++  "previous_source_sha256": "3aa2fe5b3209a9d1a06692523fbce23eabb7c71fe2e317e18468fedb8d0b761a",
++  "reservation_tail_sha256": "91a91e8728c5ea71d0d86003672c2b0f67b9a60ec0dff33a0eed61f508c74615",
++  "mapping_recheck": "Acquire uses the mkdir syscall result directly, preserving the model's exclusive acquisition on Ubuntu 26.04. The replay holds the winner inside Check until its peer has attempted acquisition and compares critical-section entry, process status and the published ledger record. The mutation removes Acquire and Release and must admit both contenders.",
++  "previous_source_commit": "dc86a706cf3fe3b93ea5d9af3eec885e3290a769",
+   "expected_violated_invariant": "OneAccepted",
+   "sources": [
+     "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+diff --git a/tests/project-skill-formal.tests.py b/tests/project-skill-formal.tests.py
+index 2b40057be..db02e188e 100644
+--- a/tests/project-skill-formal.tests.py
++++ b/tests/project-skill-formal.tests.py
+@@ -41,15 +41,40 @@ class Reservation(unittest.TestCase):
+         self.assertEqual(
+             mapping["source_sha256"], hashlib.sha256(P.SOURCE.read_bytes()).hexdigest()
+         )
+-        self.assertIn(P.ACQUIRE, P.reservation_tail())
++        tail = P.reservation_tail()
++        self.assertEqual(mapping["reservation_tail_sha256"], hashlib.sha256(tail.encode()).hexdigest())
++        self.assertIn(P.ACQUIRE, tail)
++
++    def test_negative_model_requires_a_completed_invariant_violation(self):
++        message = "Error: Invariant OneAccepted is violated.\n"
++        result = subprocess.CompletedProcess([], 12, stdout=message)
++        self.assertTrue(P.expected_tlc_result(result, True))
++        result.returncode = 1
++        self.assertFalse(P.expected_tlc_result(result, True))
++
++    def test_successful_reservation_must_publish_the_winning_actor(self):
++        replay = {
++            "calls": [{"actor": "a", "exit_code": 0}, {"actor": "b", "exit_code": 1,
++                       "stderr": "IDENTITY canonical identity ledger reservation is already in progress"}],
++            "entered": ["a"],
++            "ledger": {"records": []},
++        }
++        self.assertFalse(P.expected_replay(replay, False))
++        replay["ledger"]["records"] = [{"run_id": "b"}]
++        self.assertFalse(P.expected_replay(replay, False))
++        replay["ledger"]["records"] = [{"run_id": "a"}]
++        self.assertTrue(P.expected_replay(replay, False))
++        replay["entered"].append("b")
++        self.assertFalse(P.expected_replay(replay, False))
+ 
+     @unittest.skipUnless(
+         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),
+         "POSIX jq/sha256sum replay only",
+     )
+     def test_mutation_and_baseline(self):
+-        self.assertEqual(P.real_race(True)["accepted"], 2)
+-        self.assertEqual(P.real_race(False)["accepted"], 1)
++        for mutated in (True, False):
++            replay = P.real_race(mutated)
++            self.assertTrue(P.expected_replay(replay, mutated), replay)
+ 
+     @unittest.skipUnless(
+         os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),
+diff --git a/tests/v2-formal-gate.test.mjs b/tests/v2-formal-gate.test.mjs
+index 5d9e7feef..8314824a0 100644
+--- a/tests/v2-formal-gate.test.mjs
++++ b/tests/v2-formal-gate.test.mjs
+@@ -292,6 +292,34 @@ function sandbox(t) {
+   return root;
+ }
+ 
++it('TaskLock Release preserves an unreadable owner and its lease until explicitly forced', (t) => {
++  const projectRoot = sandbox(t);
++  const args = { feature: 'demo', projectRoot };
++  const cli = (...options) => spawnSync(process.execPath, [
++    path.join(scripts, 'task-lock.mjs'), 'release', '--feature', args.feature, '--root', projectRoot, ...options,
++  ], { encoding: 'utf8' });
++  for (const bytes of ['{', '{}', '{"owner":null}', '{"owner":""}', '{"owner":7}']) {
++    const { lockPath } = acquireLock({ ...args, owner: 'w1' });
++    fs.writeFileSync(lockPath, bytes);
++    const leasePath = lockPath + '.lease';
++    fs.writeFileSync(leasePath, 'retained lease');
++    for (const options of [[], ['--owner', 'w1']]) {
++      const attempt = cli(...options);
++      assert.equal(attempt.status, 1, bytes + ' ' + attempt.stdout);
++      const result = JSON.parse(attempt.stdout);
++      assert.equal(result.released, false);
++      assert.match(result.message, /--force/);
++    }
++    assert.equal(releaseLock({ ...args, owner: 7 }).released, false);
++    assert.equal(releaseLock({ ...args, force: 'false' }).released, false);
++    assert.equal(fs.readFileSync(lockPath, 'utf8'), bytes);
++    assert.equal(fs.readFileSync(leasePath, 'utf8'), 'retained lease');
++    assert.equal(cli('--force').status, 0);
++    assert.equal(fs.existsSync(lockPath), false);
++    assert.equal(fs.existsSync(leasePath), false);
++  }
++});
++
+ it('scan finds related compound branches and graph validation fails on unreachable states', (t) => {
+   const root = sandbox(t);
+   fs.writeFileSync(
+@@ -501,6 +529,7 @@ it(
+         ],
+       ],
+       [path.join(formal, 'TaskLock.tla'), 'SingleOwner', captureLock(projectRoot)],
++      [path.join(formal, 'TaskLockMutation.tla'), 'OneWriter'],
+       [path.join(formal, 'GateLifecycle.tla'), 'DoneRequiresGatePass', captureGate(projectRoot)],
+       [path.join(formal, 'GateLifecycle.tla'), 'DoneRequiresGatePass', captureGate(sandbox(t), true)],
+     ];
+diff --git a/tests/verify-review-reservation.py b/tests/verify-review-reservation.py
+index c07c40cd6..e7eabc98c 100644
+--- a/tests/verify-review-reservation.py
++++ b/tests/verify-review-reservation.py
+@@ -15,7 +15,8 @@ MODEL = ROOT / "tests/fixtures/project-skills/formal-review-reservation"
+ SOURCE = ROOT / "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+ JAR_SHA256 = "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
+ ASSET_ID = 184694200  # GitHub release asset id of tla2tools.jar under tag v1.7.4
+-ACQUIRE = "  mkdir \"$lock_dir\" 2>/dev/null ||\n    fail IDENTITY 'canonical identity ledger reservation is already in progress'"
++ACQUIRE = """  python3 -c 'import os, sys; os.mkdir(sys.argv[1])' "$lock_dir" 2>/dev/null ||
++    fail IDENTITY 'canonical identity ledger reservation is already in progress'"""
+ RELEASE = (
+     "  rmdir \"$lock_dir\" ||\n    fail IO 'cannot release identity-ledger reservation'"
+ )
+@@ -35,6 +36,22 @@ def reservation_tail():
+     return tail
+ 
+ 
++def wait_for_barrier(ready, processes, deadline, *, allow_exit=False):
++    while True:
++        arrived = [path.exists() for path in ready]
++        exited = [p.poll() is not None for p in processes]
++        if all(arrived):
++            return
++        unfinished = [done for reached, done in zip(arrived, exited) if not reached]
++        if allow_exit and any(arrived) and all(unfinished):
++            return
++        if (not allow_exit and any(unfinished)) or all(exited):
++            raise RuntimeError("replay contender exited before synchronization")
++        if time.monotonic() >= deadline:
++            raise TimeoutError("replay synchronization timeout")
++        time.sleep(0.01)
++
++
+ def real_race(mutated=False, *, barrier_timeout=10):
+     if not shutil.which("bash") or not shutil.which("jq"):
+         raise ValueError("bash and jq required")
+@@ -61,22 +78,26 @@ previous_record_sha256=""
+ record_hash=$run_id
+ scratch_binding=""
+ input_binding=""
++exec 9>"${ledger}.${run_id}.trace"
++BASH_XTRACEFD=9
++PS4='+ ${LINENO}: '
++set -x
+ fail() { echo "$*" >&2; exit 1; }
+ sha256_file() { sha256sum "$1" | cut -d ' ' -f 1; }
++check_feature_scratch_history() {
++  touch "${ledger}.${run_id}.entered"
++  while [ ! -f "${ledger}.release" ]; do sleep 0.01; done
++}
++touch "${ledger}.${run_id}.ready"
++while [ ! -f "${ledger}.start" ]; do sleep 0.01; done
+ """
+-        setup += (
+-            'check_feature_scratch_history() {\n'
+-            '  touch "${ledger}.${run_id}.ready"\n'
+-            '  while [ ! -f "${ledger}.release" ]; do sleep 0.01; done\n'
+-            '}\n'
+-            if mutated else 'check_feature_scratch_history() { :; }\n'
+-        )
+         script = root / "race.sh"
+         script.write_text(setup + tail)
++        actors = ("a", "b")
+         processes = []
+         results = []
+         try:
+-            for actor in ("a", "b"):
++            for actor in actors:
+                 processes.append(
+                     subprocess.Popen(
+                         ["bash", str(script), str(ledger), actor, bound],
+@@ -84,35 +105,66 @@ sha256_file() { sha256sum "$1" | cut -d ' ' -f 1; }
+                         stderr=subprocess.PIPE,
+                     )
+                 )
+-            if mutated:
+-                deadline = time.monotonic() + barrier_timeout
+-                ready = [root / (ledger.name + "." + actor + ".ready") for actor in ("a", "b")]
+-                while not all(path.exists() for path in ready):
+-                    if any(p.poll() is not None for p in processes):
+-                        raise RuntimeError("negative replay contender exited before synchronization")
+-                    if time.monotonic() >= deadline:
+-                        raise TimeoutError("negative replay synchronization timeout")
+-                    time.sleep(0.01)
+-                (root / (ledger.name + ".release")).touch()
+-            for p in processes:
++            ready = [root / f"{ledger.name}.{actor}.ready" for actor in actors]
++            entered = [root / f"{ledger.name}.{actor}.entered" for actor in actors]
++            wait_for_barrier(ready, processes, time.monotonic() + barrier_timeout)
++            (root / f"{ledger.name}.start").touch()
++            # Hold each real writer after its ledger hash check. In the baseline
++            # its peer must finish its attempt before the holder can release.
++            wait_for_barrier(entered, processes, time.monotonic() + barrier_timeout, allow_exit=not mutated)
++            (root / f"{ledger.name}.release").touch()
++            for actor, p in zip(actors, processes):
+                 out, err = p.communicate(timeout=10)
+                 results.append(
+                     {
++                        "actor": actor,
+                         "exit_code": p.returncode,
+                         "stdout": out.decode(),
+                         "stderr": err.decode(),
+                     }
+                 )
++        except (RuntimeError, TimeoutError) as error:
++            diagnostics = [str(error)]
++            for actor in actors:
++                trace = root / f"{ledger.name}.{actor}.trace"
++                if trace.exists():
++                    diagnostics.append(f"actor {actor}, last Bash commands:\n{trace.read_text()[-2000:]}")
++            raise type(error)("\n".join(diagnostics)) from error
+         finally:
+             for p in processes:
+                 if p.poll() is None:
+                     p.kill()
+                 p.communicate()
+-        return {
++        replay = {
+             "accepted": sum(r["exit_code"] == 0 for r in results),
+             "calls": results,
++            "entered": [actor for actor, marker in zip(actors, entered) if marker.exists()],
+             "ledger": json.loads(ledger.read_text()),
+         }
++        if not expected_replay(replay, mutated):
++            for call in results:
++                call["bash_trace"] = (root / f"{ledger.name}.{call['actor']}.trace").read_text()
++        return replay
++
++
++def expected_replay(replay, mutated):
++    accepted = [call["actor"] for call in replay["calls"] if call["exit_code"] == 0]
++    if replay["entered"] != accepted:
++        return False
++    if mutated:
++        return len(accepted) == 2
++    records = replay["ledger"]["records"]
++    refused = [call for call in replay["calls"] if call["exit_code"] != 0]
++    return (len(accepted) == 1 and [record["run_id"] for record in records] == accepted
++            and len(refused) == 1 and refused[0]["exit_code"] == 1
++            and "IDENTITY canonical identity ledger reservation is already in progress" in refused[0]["stderr"])
++
++
++def expected_tlc_result(result, mutated):
++    lines = result.stdout.splitlines()
++    if mutated:
++        return result.returncode == 12 and "Error: Invariant OneAccepted is violated." in lines
++    return result.returncode == 0 and "Model checking completed. No error has been found." in lines
+ 
+ 
+ def main():
+@@ -140,13 +192,8 @@ def main():
+         directory = args.output / label
+         directory.mkdir()
+         shutil.copyfile(MODEL / "Reservation.tla", directory / "Reservation.tla")
+-        (directory / "Reservation.cfg").write_text(
+-            (MODEL / "Reservation.cfg")
+-            .read_text()
+-            .replace("UseLock = TRUE", "UseLock = FALSE")
+-            if mutated
+-            else (MODEL / "Reservation.cfg").read_text()
+-        )
++        cfg = "Reservation.negative.cfg" if mutated else "Reservation.cfg"
++        shutil.copyfile(MODEL / cfg, directory / "Reservation.cfg")
+         start = time.monotonic()
+         result = subprocess.run(
+             [
+@@ -170,13 +217,9 @@ def main():
+             result.stdout.splitlines()[0] if result.stdout else None
+         )
+         counterexample = "Invariant OneAccepted is violated" in result.stdout
+-        expected = (
+-            counterexample
+-            if mutated
+-            else result.returncode == 0 and "No error has been found" in result.stdout
+-        )
++        expected = expected_tlc_result(result, mutated)
+         replay = real_race(mutated)
+-        replay_expected = replay["accepted"] == (2 if mutated else 1)
++        replay_expected = expected_replay(replay, mutated)
+         report["runs"].append(
+             {
+                 "case": label,

@@ -1,0 +1,20 @@
+▶ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2
+  ✔ T-008 (AC-010/AC-011): --mode rebuild passes on matching Differential + NFR budget and fails on output divergence or budget breach (1302.096083ms)
+  ✔ T-008 rebuild rejects changed contracts, goldens and budget regardless of explicit selection (167.638458ms)
+  ✔ T-008 resolves the baseline command against the committed implementation (297.535709ms)
+  ✔ T-008 stops at the first failing verification command in fail-fast mode (150.909334ms)
+  ✔ T-008 rebuild measures default p95 and absolute budgets independently from exact output (3363.749125ms)
+  ✔ T-008 rebuild rechecks immutable inputs after running the candidate (982.451042ms)
+  ✔ T-008 enforces implementer write scope through both public CLIs using the Git diff (300.603958ms)
+  ✔ T-008 resolves a nested project’s protected paths from its committed policy (186.266584ms)
+  ✔ T-008 (NFR-005): fails closed when task-lock is held by another owner and stops early on --fail-fast (325.843584ms)
+  ✔ T-009 (AC-012/AC-013): emits OTel GenAI telemetry (prompt body off by default) and v2_2_gates summary in sdd-doctor (282.342542ms)
+✔ ADR-0054 Wave 3 (T-008 / T-009): Fail-Fast Gate, --mode rebuild, Lock Fail-Closed, OTel GenAI & MCP v2 (7360.100292ms)
+ℹ tests 10
+ℹ suites 1
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7394.932042

@@ -1,0 +1,12 @@
+{
+  "id": "OQ-001",
+  "status": "Provisional",
+  "feature": "verification-first-factory",
+  "baseCommit": "33a9733b2573660a1380e41263ce45093eae39ff",
+  "violations": [
+    {
+      "code": "PROTECTED_PATH_MODIFIED",
+      "path": "sdd/approved-test-retirements.json"
+    }
+  ]
+}

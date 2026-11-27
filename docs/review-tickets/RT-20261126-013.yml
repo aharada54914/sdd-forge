@@ -1,0 +1,28 @@
+ticket_id: RT-20261126-013
+status: resolved
+type: verification
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "共通ゲートが圧縮データとパッチの削除行を未実装として扱う"
+problem: |
+  T-002 の候補 e135bc9cfa3f で公開テスト40件が成功したが、機械ゲートは FAIL を返した。
+  プレースホルダー検査が圧縮済み WASM のバイト列と、統一差分で削除するコメントに一致した。
+  いずれも実装に残った未完了の処理を示していない。
+expected_fix:
+  - 実際の圧縮資産と削除行で誤検出が無くなることを公開ゲートで検証する。
+  - 通常のソースおよびパッチで追加する行に未実装マーカーが残る対照例は検出する。
+  - 同じ入力範囲の機械ゲートと独立評価で結果を照合する。
+references:
+  - specs/verification-first-factory/verification/T-002/quality-repair-e135bc9cfa3f/execution.json
+  - plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs
+owner_decision: "2026-11-26: 共通ゲートの修正と再検証を承認する。"
+resolution:
+  commit: 5518abfe0128fcd9ca18d39cb499e7ba967ed78a
+  result: "実資産での誤検出と通常ソース・追加行の対照テストを含む68件が成功。独立ゲートの判定は品質レポートに記録する。"
+  evidence: specs/verification-first-factory/verification/T-002/RT-20261126-013/public-cli-receipt.json
+reopened: "Independent review at 95aa6c281472 found removed-line false positives in Git binary patches and diff.suppressBlankEmpty context."
+follow_up_resolution:
+  commit: 0a4e6052da81fe494c0dd00ff4a898a17ea6e3c2
+  evidence: specs/verification-first-factory/verification/T-002/RT-20261126-013-git-patches/public-cli-receipt.json

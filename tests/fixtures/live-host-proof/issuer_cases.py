@@ -1,8 +1,10 @@
 """Operator nonce issuance: disposable fixture keys, never real identities."""
 import base64
 import datetime as dt
+import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -13,7 +15,16 @@ from unittest import mock
 
 def cases(root, keys):
     script = root / 'plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py'
-    results = []
+    emitter = Path(__file__).with_name('archived_challenge_emitter.py')
+    retired = [script.with_name(f'check-hook-activation-handshake.{ext}') for ext in ('py', 'sh', 'ps1')]
+    distributed = [path.name for path in retired if os.path.lexists(path)]
+    results = [('issuer-retired-emitter-not-distributed', not distributed, ', '.join(distributed))]
+    # Bind the pre-retirement emitter used as historical input, including in a shallow checkout.
+    digest = hashlib.sha256(emitter.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+    matches_archive = digest == 'd4ce4de60bbb8d0e369afbb804727858dc48d9dde9b844cf930f9500cb0462b1'
+    results.append(('issuer-archived-emitter-integrity', matches_archive, digest))
+    if not matches_archive:
+        return results
     with tempfile.TemporaryDirectory() as temporary:
         base = Path(temporary).resolve()
         seed, public = keys['issuer-key']
@@ -26,8 +37,12 @@ def cases(root, keys):
         ledger = base / 'ledger.json'
         ledger.write_text(json.dumps({'schema': 'live-host-nonce-ledger/v1', 'entries': []}))
         challenge = base / 'challenge.json'
-        emit_started = dt.datetime.now(dt.timezone.utc)
-        emitted = subprocess.run([sys.executable, str(root / 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py'), '--emit-challenge'], cwd=base, capture_output=True, text=True, check=True)
+        emitted = subprocess.run(
+            [sys.executable, str(emitter), '--emit-challenge'],
+            cwd=base, capture_output=True, text=True, check=True,
+        )
+        emit_finished = dt.datetime.now(dt.timezone.utc)
+        challenge_nonce = json.loads(emitted.stdout)['nonce']
         challenge.write_text(emitted.stdout)
         common = [sys.executable, str(script), '--challenge', str(challenge), '--matrix-cell', 'Claude-active', '--nonce-ledger', str(ledger), '--trusted-signers', str(registry)]
         issue = common + ['--issue', '--issuer-key-id', 'issuer-key', '--private-key', str(key)]
@@ -39,8 +54,8 @@ def cases(root, keys):
                 ok = ok and ledger.read_bytes() == before
             results.append((name, ok, process.stderr.strip()))
             return process
-        check('issuer-real-openssl-signature', issue, True)
-        check('issuer-public-receipt-verification', common + ['--verify-receipt'], True, True)
+        issuance = check('issuer-real-openssl-signature', issue, True)
+        verification = check('issuer-public-receipt-verification', common + ['--verify-receipt'], True, True)
         check('issuer-duplicate-rejected', issue, False, True)
         spec = importlib.util.spec_from_file_location('issuer_under_test', script)
         if not script.exists():
@@ -48,10 +63,17 @@ def cases(root, keys):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         entry = json.loads(ledger.read_text())['entries'][0]
+        for name, record in (
+            ('issued-receipt', json.loads(issuance.stdout)),
+            ('verified-receipt', json.loads(verification.stdout)),
+            ('ledger-entry', entry),
+        ):
+            results.append(('issuer-challenge-matches-' + name, record.get('nonce') == challenge_nonce,
+                            'expected the nonce emitted by the archived host'))
         module.proof.validate_ledger(json.loads(ledger.read_text()), json.loads(registry.read_text()))
         results.append(('issuer-consumption-validator-compatible', True, ''))
         issued = module.proof.parse_utc(entry['issued_at'], 'issued_at')
-        results.append(('issuer-real-emit-before-actual-issuance', emit_started <= issued <= dt.datetime.now(dt.timezone.utc), ''))
+        results.append(('issuer-real-emit-before-actual-issuance', emit_finished <= issued <= dt.datetime.now(dt.timezone.utc), ''))
         original_issued = ledger.read_bytes()
         issued_ledger = json.loads(original_issued)
         record_ref = 'tests/hook-activation-live-proof/claude-active.json'
@@ -77,8 +99,9 @@ def cases(root, keys):
             check('issuer-receipt-' + name + '-rejected', common + ['--verify-receipt'], False, True)
         ledger.write_bytes(original)
         changed = json.loads(challenge.read_text())
-        changed['nonce'] = 'a' * 32
+        changed['nonce'] = ('1' if challenge_nonce[0] == '0' else '0') + challenge_nonce[1:]
         challenge.write_text(json.dumps(changed))
+        check('issuer-receipt-other-challenge-rejected', common + ['--verify-receipt'], False, True)
         check('issuer-unknown-key-rejected', [part if part != 'issuer-key' else 'missing' for part in issue], False, True)
         other = base / 'wrong-fixture-key.der'
         other.write_bytes(bytes.fromhex('302e020100300506032b657004220420') + keys['operator-key'][0])

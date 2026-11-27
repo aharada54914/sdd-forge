@@ -1,0 +1,109 @@
+▶ run-sdd-gate.mjs (SDD Core unified deterministic gate)
+  ✔ passes cleanly when task is approved, specs are CLEAN, code has no placeholders, and tests pass (107.593084ms)
+  ✔ #819: re-entering ship keeps the existing baseline; only --rerecord replaces it (316.404875ms)
+  ✔ #829: findings outside the task Scope are labelled, and the verdict stays fail-closed (228.622125ms)
+  ✔ #823: an unresolved critical/major review ticket for this task fails the gate; others do not (231.132834ms)
+  ✔ fails gate on UNDECLARED_DRIFT (silent AC tampering) and passes once amendment rationale is declared (122.401791ms)
+  ✔ scans the gate source itself and reports only actual unfinished work (119.872083ms)
+  ✔ scans text and unified patch additions while excluding binary assets and removed lines (130.728125ms)
+  ✔ scans Git-generated text additions with binary patch (173.048333ms)
+  ✔ scans Git-generated text additions with binary summary (151.564791ms)
+  ✔ scans Git-generated text additions with binary damaged (168.044417ms)
+  ✔ scans Git-generated text additions with unprefixed blank context (153.91925ms)
+  ✔ scans Git-generated text additions with malformed tail (153.963292ms)
+  ✔ fails gate when changed production code contains placeholders or a verification command fails (99.051667ms)
+  ✔ rejects unapproved tasks at precondition check (99.404417ms)
+✔ run-sdd-gate.mjs (SDD Core unified deterministic gate) (2256.482042ms)
+▶ #821 gate task lookup uses the exact task ID
+  ✔ never reads a sibling task whose ID shares a prefix, in either order (7.277417ms)
+✔ #821 gate task lookup uses the exact task ID (7.330292ms)
+▶ #822/#828 gate change discovery
+  ✔ lists non-ASCII names verbatim and stays relative to a nested project root (130.036458ms)
+✔ #822/#828 gate change discovery (130.081042ms)
+▶ Phase 2 SDD Core skill & template contracts
+  ✔ all consolidated SDD Core skills have valid frontmatter and zero legacy canary/ERROR_STOP rituals (0.372167ms)
+  ✔ ship and sdd-gate skills wire directly to v2 Node.js ESM guardrail tools (0.124667ms)
+  ✔ spec-check defines risk-scaled single and dual-parallel (Risk: high) 1-pass review modes (0.059792ms)
+  ✔ all active core, implementation, Gemini, and command prompts have zero retired v1 contradictions (0.717167ms)
+  ✔ SDD Core templates include REQ/AC/Risk structure and Spec Amendments section (0.101458ms)
+✔ Phase 2 SDD Core skill & template contracts (1.432916ms)
+▶ #827 re-verifying a fixed review ticket reaches the gate for exactly that task
+  ✔ fix-by-review-ticket names the ticket task in the ship call, and ship auto-selection includes Implementation Complete (0.11425ms)
+✔ #827 re-verifying a fixed review ticket reaches the gate for exactly that task (0.133083ms)
+▶ #832 a Done task affected by a spec change has a re-verification path
+  ✔ ship re-runs the gate for an affected Done task and sdd-gate accepts it without changing its status (0.148042ms)
+✔ #832 a Done task affected by a spec change has a re-verification path (0.167167ms)
+▶ human concept-test decisions at the public gate
+  ✔ stops incomplete, malformed and receipt-only projects before verification (413.6265ms)
+  ✔ runs the packaged validator through a symlink for FITS and all three local decisions, and rejects stale inputs (677.812834ms)
+  ✔ records a baseline when invoked through an install symlink (41.315084ms)
+  ✔ rejects human receipt edits when invoked through an install symlink (26.91325ms)
+  ✔ preserves ordinary and v1-only feature history and scopes receipts by feature (140.018584ms)
+  ✔ keeps the Node-only path without a Git executable but blocks visible v2 evidence (79.126042ms)
+  ✔ detects an indexed proposal missing from the working tree in an unborn repository (226.934708ms)
+  ✔ scopes index evidence to the nested project with the same feature name (175.407458ms)
+  ✔ uses current proposal and decision inputs equally in full and shallow clones (271.383291ms)
+  ✔ distinguishes unstaged proposal loss from a staged change of inputs (204.733083ms)
+✔ human concept-test decisions at the public gate (2257.728916ms)
+▶ record-spec-baseline.mjs & check-spec-drift.mjs
+  ✔ AC-008: reports CLEAN on unchanged specs and after normal tasks.md Status transitions (114.801541ms)
+  ✔ AC-009: detects silent goalpost moving (deleted/modified AC) as UNDECLARED_DRIFT (76.014375ms)
+  ✔ AC-010: reports AMENDED with PR-ready markdown when rationale is recorded in Spec Amendments (112.049833ms)
+✔ record-spec-baseline.mjs & check-spec-drift.mjs (303.2845ms)
+▶ #820 AMENDED names the changed IDs no amendment entry mentions
+  ✔ two changed ACs with a reason for only one stay AMENDED but list the unexplained one (225.698417ms)
+✔ #820 AMENDED names the changed IDs no amendment entry mentions (225.780417ms)
+▶ #818 staged human approval is not spec drift
+  ✔ approving a second task stays CLEAN and is listed; revoking an approval or editing the body is drift (143.572666ms)
+  ✔ a baseline recorded before this change keeps its old comparison (108.616334ms)
+✔ #818 staged human approval is not spec drift (252.301958ms)
+▶ #834 unreadable spec files are reported apart from deletions
+  ✔ an existing file the IO cannot read is UNVERIFIABLE; drift elsewhere still wins (87.445541ms)
+✔ #834 unreadable spec files are reported apart from deletions (87.531666ms)
+▶ #972 review: unreadable and newly approved are visible and enforced
+  ✔ UNVERIFIABLE alone fails --fail-on-undeclared and the gate; AMENDED plus an unreadable file is UNVERIFIABLE (188.49325ms)
+  ✔ a task approved after the baseline is listed even when CLEAN, and its gate run warns (142.25825ms)
+✔ #972 review: unreadable and newly approved are visible and enforced (330.8405ms)
+▶ #972 re-review: text added to an Approval line is drift
+  ✔ only a bare approval value is normalized (71.692334ms)
+✔ #972 re-review: text added to an Approval line is drift (71.74475ms)
+▶ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest
+  ✔ exits 4 on unauthorized test skip injection, inline lint disable, and TLA+ == TRUE weakening (283.549666ms)
+  ✔ allows documentation and quoted examples of inline lint directives without opening an OQ (174.778125ms)
+  ✔ accepts the shell here-document help example without a diagnostic or OQ (178.129917ms)
+  ✔ distinguishes help from active comments in nested shell command substitutions (352.377042ms)
+  ✔ parses compound shell grammar around captured help and its actual comments (613.577708ms)
+  ✔ distinguishes help and active comments in a native zsh short for loop (297.2195ms)
+  ✔ distinguishes help and active comments in a native zsh brace for loop (326.34025ms)
+  ✔ distinguishes help and active comments in a native zsh parenthesized brace for loop (299.213084ms)
+  ✔ distinguishes help and active comments in a native zsh short in for loop (298.52325ms)
+  ✔ distinguishes help and active comments in a native zsh repeat do loop (300.704834ms)
+  ✔ distinguishes help and active comments in a native zsh repeat loop (302.469667ms)
+  ✔ keeps repeat an ordinary command in Bash and POSIX shells (272.482125ms)
+  ✔ matches the native sh delimiter when both dialect spellings occur in the body (166.165959ms)
+  ✔ reports a tool error for invalid shell syntax and an unavailable or damaged parser (663.049792ms)
+  ✔ matches Bash dollar-quoted here-document delimiters and preserves the following directive (294.078208ms)
+  ✔ uses the declared shell and preserves a literal-dollar terminator in generic sh (381.173875ms)
+  ✔ reports only active shell comments before, beside and after queued here-documents (194.242917ms)
+  ✔ reports added lint directives in source comments with a persisted OQ (154.907542ms)
+  ✔ allows renaming an already skipped test and editing existing skip reasons (160.59175ms)
+  ✔ counts active Node options across layout changes alongside prior Python and Go directives (568.4605ms)
+  ✔ counts Node test context calls using the callback parameter, including subtests (447.588417ms)
+  ✔ distinguishes an entire TRUE definition from conjunctions and their continuations (523.154167ms)
+  ✔ ignores Python and Go documentation while counting executable skip directives (234.881959ms)
+  ✔ preserves an existing question with invalid JSON and records a valid replacement (308.312375ms)
+  ✔ preserves an existing question with wrong id and records a valid replacement (300.604666ms)
+  ✔ preserves an existing question with wrong feature and records a valid replacement (297.423917ms)
+  ✔ uses committed retirement approvals and mandatory protection; records a repeatable OQ (243.095458ms)
+  ✔ requires a nonempty retirement reason in the trusted manifest (201.570375ms)
+  ✔ requires a nonempty retirement approved_by in the trusted manifest (180.92725ms)
+  ✔ rejects unapproved test deletion (exit 4) and allows deletion matching path + git_blob_sha in manifest (exit 0) (261.165958ms)
+✔ ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retirement manifest (9281.40125ms)
+ℹ tests 73
+ℹ suites 14
+ℹ pass 73
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10592.150167

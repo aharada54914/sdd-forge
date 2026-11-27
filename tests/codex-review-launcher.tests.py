@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 import shutil
+import sys
 from pathlib import Path
 import tempfile
 import tomllib
@@ -24,7 +25,7 @@ class LaunchTests(unittest.TestCase):
                  selected_model=None, selected_effort=None, model_bad=False, effort_bad=False):
         calls = []
         with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
+            root = Path(folder).resolve()
             (root / 'input').write_text('admitted')
             ledger = root / 'reports/review-context/identity-ledger.json'
             ledger.parent.mkdir(parents=True)
@@ -39,7 +40,7 @@ class LaunchTests(unittest.TestCase):
             invocation.write_text(json.dumps(data))
             args = SimpleNamespace(repository_root=root, invocation=invocation,
                 manifest_sha256=module.sha(invocation), output=root / 'output',
-                codex='/bin/true', fixed_input_record=None, fixed_input_snapshot=None,
+                codex=sys.executable, fixed_input_record=None, fixed_input_snapshot=None,
                 runtime='bash', timeout=10, selected_model=selected_model, selected_effort=selected_effort)
             if path_escape:
                 args.output = root / '..' / ('escape-' + root.name)

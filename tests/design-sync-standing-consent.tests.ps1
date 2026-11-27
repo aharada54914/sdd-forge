@@ -28,6 +28,12 @@ Set-StrictMode -Version Latest
 # correct default rather than a silent case-insensitive gap.
 
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$pythonCommand = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $pythonCommand) { $pythonCommand = Get-Command python -ErrorAction Stop }
+function Test-PolicyContract([string]$method) {
+    & $pythonCommand -B (Join-Path $PSScriptRoot 'design-sync-policy.tests.py') "PolicyTests.$method" | Out-Host
+    return $LASTEXITCODE -eq 0
+}
 
 $Script:TestPass = 0
 $Script:TestFail = 0
@@ -42,12 +48,16 @@ function Test-Fail([string]$label) {
 
 $agPath = Join-Path $repositoryRoot "AGENTS.md"
 $dslPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
-$cdwPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+$cdwPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 $runAllShPath = Join-Path $repositoryRoot "tests/run-all.sh"
 $runAllPs1Path = Join-Path $repositoryRoot "tests/run-all.ps1"
 $dscPs1Path = Join-Path $repositoryRoot "tests/design-system-contract.tests.ps1"
 $ciDir = Join-Path $repositoryRoot ".github/workflows"
 $baselinePs1 = Join-Path $repositoryRoot "specs/design-sync-standing-consent/verification/T-001/ds29-baseline-ps1.log"
+
+if (-not (Test-Path -LiteralPath $cdwPath -PathType Leaf) -or (Get-Item -LiteralPath $cdwPath).Length -eq 0) {
+    throw "Missing design-sync-loop manual fallback: $cdwPath"
+}
 
 function Get-LinesOrEmpty([string]$path) {
     if (-not (Test-Path -LiteralPath $path)) { return @() }
@@ -391,7 +401,7 @@ if (($step3Flat -ne "") -and $step3Flat.Contains($bannedKey) -and -not ($step3Fl
 
 # --- REQ-003 (AC-007, AC-008, AC-009, AC-030, AC-010) -- standing -----------
 
-if ($standingFlat -match 'never produces.{0,10}outcome \(b\)|never produces.{0,10}\(b\)') {
+if (Test-PolicyContract 'test_standing_skips_confirmation') {
     Test-Pass "TEST-008 under standing, step 3 never produces its 'must be requested' outcome (AC-007)"
 } else {
     Test-Fail "TEST-008 under standing, step 3 never produces its 'must be requested' outcome (AC-007)"
@@ -416,7 +426,7 @@ if (($standingFlat -match 'different destination.{0,60}fresh') `
     Test-Fail "TEST-011 a different destination for an already-recorded feature triggers a fresh one-time write (AC-030)"
 }
 
-if ($standingFlat.Contains("Egress-Consent: granted")) {
+if (Test-PolicyContract 'test_standing_first_audit_is_granted') {
     Test-Pass "TEST-012 the one-time record's Egress-Consent value is granted, not a new fourth value (AC-010)"
 } else {
     Test-Fail "TEST-012 the one-time record's Egress-Consent value is granted, not a new fourth value (AC-010)"
@@ -430,19 +440,19 @@ if ($offFlat -match 'always resolves to outcome \(c\)') {
     Test-Fail "TEST-013 under off, step 3's resolved outcome is always outcome (c) (AC-011)"
 }
 
-if ($offFlat -match 'manual fallback[^.]{0,80}no upload attempt|no upload attempt[^.]{0,80}manual fallback') {
+if (Test-PolicyContract 'test_off_routes_without_upload') {
     Test-Pass "TEST-014 outcome (c) routes to the manual fallback and no upload is attempted (combined, one clause) (AC-012)"
 } else {
     Test-Fail "TEST-014 outcome (c) routes to the manual fallback and no upload is attempted (combined, one clause) (AC-012)"
 }
 
-if ($offFlat -match 'write a record|writes a record') {
+if (Test-PolicyContract 'test_off_records_the_outcome') {
     Test-Pass "TEST-015 an outcome record is written for the off resolution (existence) (AC-012)"
 } else {
     Test-Fail "TEST-015 an outcome record is written for the off resolution (existence) (AC-012)"
 }
 
-if ($offFlat.Contains("Ds-Upload-Consent-Setting: off")) {
+if (Test-PolicyContract 'test_off_audit_names_the_setting') {
     Test-Pass "TEST-016 that record carries Ds-Upload-Consent-Setting: off specifically (AC-012)"
 } else {
     Test-Fail "TEST-016 that record carries Ds-Upload-Consent-Setting: off specifically (AC-012)"

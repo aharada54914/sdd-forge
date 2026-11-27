@@ -1,0 +1,35 @@
+{
+  "head": "df85f19d65c251e9f0e3dbd3abf26d9c6e30d619",
+  "current_manifest": "./hooks/codex-hooks.json",
+  "path": "plugins/sdd-quality-loop/hooks/codex-hooks.json",
+  "hosts": {
+    "sh": {
+      "exit": 1,
+      "state": "installed_drifted",
+      "diverged": [
+        {
+          "change_type": "modified",
+          "installed_ref": "plugins/sdd-quality-loop/hooks/codex-hooks.json",
+          "installed_sha256": "sha256:d50f22edc133e1e49d1ee01c48e3afaaacd7e218d50e9900960ee5be26badd64",
+          "repo_sha256": "sha256:cbfbc64fd7672f2af6c10fad68a9d784ae47d220f05fa8ccf435805df84f1870",
+          "source_ref": "plugins/sdd-quality-loop/hooks/codex-hooks.json",
+          "surface": "file"
+        }
+      ]
+    },
+    "ps1": {
+      "exit": 1,
+      "state": "installed_drifted",
+      "diverged": [
+        {
+          "change_type": "modified",
+          "installed_ref": "plugins/sdd-quality-loop/hooks/codex-hooks.json",
+          "installed_sha256": "sha256:d50f22edc133e1e49d1ee01c48e3afaaacd7e218d50e9900960ee5be26badd64",
+          "repo_sha256": "sha256:cbfbc64fd7672f2af6c10fad68a9d784ae47d220f05fa8ccf435805df84f1870",
+          "source_ref": "plugins/sdd-quality-loop/hooks/codex-hooks.json",
+          "surface": "file"
+        }
+      ]
+    }
+  }
+}

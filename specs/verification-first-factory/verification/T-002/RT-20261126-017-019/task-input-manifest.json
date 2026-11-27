@@ -1,0 +1,70 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-002",
+  "run_id": "f6fd0ce8-1ab0-4b63-b2f7-8cdfedfb007b",
+  "session_id": "01a216b8-5206-72e0-bd56-2811d3c8ba39",
+  "agent_instance_id": "01a216b8-5206-72e0-bd56-2811d3c8ba39",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Previous T-002 estimate for the same model and effort on the Codex subscription. No per-run bill was collected.",
+  "cost_estimate_timestamp": "2026-11-26T07:24:52Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/verification-first-factory/verification/T-002/RT-20261126-017-019/original-017.yml",
+      "sha256": "c72312fbf3833bac19e38aa720c5ac1cf83dc53e0ff891c432feebec8378b121"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-002/RT-20261126-017-019/original-018.yml",
+      "sha256": "6599e629d198964c9592e45e84f831dd0603e254b0b8e6132743c8a9e04d2f9b"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-002/RT-20261126-017-019/original-019.yml",
+      "sha256": "9d44c90521b84219596cbd1e827fe05196e96a252eb19cdff8f3b24ead627318"
+    },
+    {
+      "path": "CODEOWNERS",
+      "sha256": "da1bbc91a4bf360b76da648ea886afd2d6e610a7bc7a31a784e78df05e41f73c"
+    },
+    {
+      "path": "sdd/approved-test-retirements.json",
+      "sha256": "79e34a84d77f2cc10a807cd33210dbef8ae5764a36f1cc0e5d7d40a724e1dd8a"
+    },
+    {
+      "path": "reports/quality-gate/verification-first-factory-T-002.md",
+      "sha256": "24ac18932d3c474b2711c00b79633a9894eee415afef99d879b757b60fa3fefa"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-002/quality-repair-c83ccc36c607/execution.json",
+      "sha256": "b1d2125fe8e6eda5f903efe32b0f5ba81a3b5b9da84b55b7857ad4172d27dd54"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "ed6680018203ad4a6cfad0dd248512424c88f516dd75d814544928bb9a9b0490"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+    "tests/v2-spec-drift.test.mjs",
+    "specs/self-verification/formal/mapping.json",
+    "reports/implementation/verification-first-factory/T-002.md",
+    "docs/review-tickets/RT-20261126-017.yml",
+    "docs/review-tickets/RT-20261126-018.yml",
+    "docs/review-tickets/RT-20261126-019.yml",
+    "specs/verification-first-factory/verification/T-002/RT-20261126-017-019/task-input-manifest.json",
+    "specs/verification-first-factory/verification/T-002/RT-20261126-017-019/public-cli-receipt.json",
+    "specs/verification-first-factory/verification/T-002/RT-20261126-017-019/path-green.log"
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "candidate": "ff7157a93bdb873c97cee7090d5b1475f273a8ca",
+  "pr": 976,
+  "previous_artifacts": 68,
+  "live_artifacts": 82,
+  "new_artifacts": 14,
+  "distinct_diff_pairs": 82,
+  "gitleaks": 0,
+  "semgrep": 0,
+  "new_rows": [
+    {
+      "run": 45751692839,
+      "artifact": 15085937111,
+      "sha256": "0d9cb303331ce8b45e0d308caa81b4a74ac3962c9f9dec5044ac0f1bcaa34034",
+      "diff_base": "19029a8e08057af2c247a2a6ecd2f93089ae6e0f",
+      "diff_head": "ff7157a93bdb873c97cee7090d5b1475f273a8ca",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45751698741,
+      "artifact": 15085802596,
+      "sha256": "3f717ac6003bb8c312682c2bf654337bc1467f3a8774751b790cf7b8319506f2",
+      "diff_base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "diff_head": "d1e2b314cb4206fdc93fffe458d26e7c6e8b4221",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45750794228,
+      "artifact": 15085581778,
+      "sha256": "a34837f93549448f4845cb018a5b3f704b61b65419019590ba7587e088fdb807",
+      "diff_base": "344ae9fe885fab5eba5da7ec4ef41e3068e9821d",
+      "diff_head": "19029a8e08057af2c247a2a6ecd2f93089ae6e0f",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45750801838,
+      "artifact": 15085471818,
+      "sha256": "eb412d72866cd57637ef49d01684ebac790a60e46edcc2be97815a20ee68f239",
+      "diff_base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "diff_head": "2233e641c2198b879af423b06dd0ddc073d37fb3",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45749319203,
+      "artifact": 15084811975,
+      "sha256": "56eb3bd87885b0ced0283328f3ed80dffa3b04ceacb396246dec3b84d99ffc2b",
+      "diff_base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "diff_head": "5cc78618ec79580ade82ae7eb83a47968e90f041",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45749309091,
+      "artifact": 15084189243,
+      "sha256": "d67c2c7b34e0930efaa8c00f155a3e7b46ef6095a1f9a3d8d543b3ddd124aeec",
+      "diff_base": "207622f8b433fb9f58f13d2a9b3ed5518a0f71ec",
+      "diff_head": "344ae9fe885fab5eba5da7ec4ef41e3068e9821d",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45748154521,
+      "artifact": 15084086878,
+      "sha256": "9b0866c26635d7f9e2b82420aefc17247e60d7b4fb5e1263fd7aa7c45256022a",
+      "diff_base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "diff_head": "6941a9feb86b67103f1b137ae939da7711157746",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45748147737,
+      "artifact": 15084042411,
+      "sha256": "58761e8e6f39ac2eb8434cc1a1542944002b93578c349e019ac7dffaaf160471",
+      "diff_base": "985f84e253282809a2f235a8ab8d1fc086b4e162",
+      "diff_head": "207622f8b433fb9f58f13d2a9b3ed5518a0f71ec",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45746496462,
+      "artifact": 15083811195,
+      "sha256": "51d21c5e4eea77f525efb4feb1bf92ceeed4da46f7492d4d0da604accc32b0b3",
+      "diff_base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "diff_head": "e001e5c0b9120dc92f833b156eea990386fc7545",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45744439900,
+      "artifact": 15083001295,
+      "sha256": "bcb8f842d4172f2446dd8f7e832d0cc85ebb5bf4928fe67e247fd60930b30198",
+      "diff_base": "8ab04dd8be9696979332077e53eab1f215db9f12",
+      "diff_head": "e94da1ef5084711d5dc486dee51981a76edfb9db",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45744449363,
+      "artifact": 15082776928,
+      "sha256": "09cdc6ba3955583a635aa5370a757cf53e36de4b90b5fdbbb2a49da981012d1b",
+      "diff_base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "diff_head": "c61e63ca6aa6620206de060dafc5c5586e684795",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45746489652,
+      "artifact": 15082738904,
+      "sha256": "047b32e0ee615104de0bce140aa877057ca83c640c85ae12364bad7c3c309ab5",
+      "diff_base": "e94da1ef5084711d5dc486dee51981a76edfb9db",
+      "diff_head": "985f84e253282809a2f235a8ab8d1fc086b4e162",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45741813857,
+      "artifact": 15081846023,
+      "sha256": "2529fd97b78bd5034a7f85fd9757ef81b03bf2b6f0bfe9ed0093a913a6af37fc",
+      "diff_base": "627f511d71d24190c91a5779b65363b85df080fc",
+      "diff_head": "8ab04dd8be9696979332077e53eab1f215db9f12",
+      "gitleaks": 0,
+      "semgrep": 0
+    },
+    {
+      "run": 45741818955,
+      "artifact": 15080923061,
+      "sha256": "eea5de301b37c7930dee1c19fd68d437a543cd9336d7c819dab009a64b353a57",
+      "diff_base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+      "diff_head": "db571574952eba97a06c84717eb777dc9475b43c",
+      "gitleaks": 0,
+      "semgrep": 0
+    }
+  ]
+}

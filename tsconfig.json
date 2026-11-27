@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "lib": ["ESNext"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "erasableSyntaxOnly": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
+    "typeRoots": ["./mcp/sdd-forge-mcp/node_modules/@types"]
+  },
+  "include": [
+    ".github/scripts/**/*.ts",
+    "scripts/**/*.ts",
+    "plugins/sdd-quality-loop/scripts/**/*.ts",
+    "plugins/sdd-domain/scripts/**/*.ts",
+    "mcp/shared/diagnostics-core.ts"
+  ]
+}

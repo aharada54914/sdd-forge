@@ -93,6 +93,13 @@ else
     fail "release.yml lost the ci-green gating shape (RT-20260821-004)"
 fi
 
+# The release config checks are also consumed independently by v2 CI.
+if [ "${1:-}" = "--release-config-only" ]; then
+    printf 'Release config: %s passed, %s failed.\n' "$PASS" "$FAIL"
+    [ "$FAIL" -eq 0 ]
+    exit $?
+fi
+
 # The CI signer must reject absent/weak environment controls before using a key.
 if python3 "$ROOT/tests/context-signing-environment.tests.py"; then
     ok "Context signing environment rejects unsafe dispatch/configuration"

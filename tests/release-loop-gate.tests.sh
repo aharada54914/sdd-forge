@@ -3,9 +3,8 @@
 # .github/workflows/release.yml required loop-gate job (T-002 / Issue #148 /
 # epic-159-pillar-b REQ-002).
 #
-#   TEST-007 (AC-007) — the new `loop-gate:` job's slice of the workflow
-#     text contains both the `tests/loop-consistency.tests.sh` and
-#     `tests/loop-inventory.tests.sh` invocation strings.
+#   TEST-007 (AC-007) — the release gate runs all ten v2 suites and the
+#     doctor, repository structure and installer checks.
 #   TEST-008 (AC-008) — the build job's (`release:`) slice contains a
 #     `needs: loop-gate` (or equivalent list form) entry, and neither that
 #     slice nor the `loop-gate:` job's slice contains `continue-on-error:
@@ -144,8 +143,6 @@ release_has_needs = bool(needs_scalar or needs_inline_list or needs_block_list)
 results = {
     "loop_gate_slice_found": bool(loop_gate_slice),
     "release_slice_found": bool(release_slice),
-    "loop_gate_has_consistency": "tests/loop-consistency.tests.sh" in loop_gate_slice,
-    "loop_gate_has_inventory": "tests/loop-inventory.tests.sh" in loop_gate_slice,
     "release_has_needs": release_has_needs,
     "loop_gate_has_escape_hatch": has_escape_hatch(loop_gate_slice),
     "release_has_escape_hatch": has_escape_hatch(release_slice),
@@ -165,10 +162,10 @@ check_release_yml() {
 }
 
 # ---------------------------------------------------------------------------
-# TEST-007 (AC-007): loop-gate job slice contains both suite invocations
+# TEST-007 (AC-007): release gate runs the v2 suites and health checks
 # ---------------------------------------------------------------------------
 run_test_007() {
-  echo "=== TEST-007 (AC-007): loop-gate job slice contains both suite invocations ==="
+  echo "=== TEST-007 (AC-007): release gate runs the v2 suites and health checks ==="
   local output
   output="$(check_release_yml "$RELEASE_YML")"
 
@@ -179,17 +176,15 @@ run_test_007() {
     return
   fi
 
-  if grep -qF 'loop_gate_has_consistency=True' <<<"$output"; then
-    ok "TEST-007 (AC-007): loop-gate job slice invokes tests/loop-consistency.tests.sh"
-  else
-    fail "TEST-007 (AC-007): loop-gate job slice does not invoke tests/loop-consistency.tests.sh"
-  fi
-
-  if grep -qF 'loop_gate_has_inventory=True' <<<"$output"; then
-    ok "TEST-007 (AC-007): loop-gate job slice invokes tests/loop-inventory.tests.sh"
-  else
-    fail "TEST-007 (AC-007): loop-gate job slice does not invoke tests/loop-inventory.tests.sh"
-  fi
+  local method python=python3
+  [[ -z "${MSYSTEM:-}" ]] || python=python
+  for method in check_loop_suites check_loop_health; do
+    if "$python" -B "$ROOT/tests/release-readiness.tests.py" "ReleaseReadiness.$method"; then
+      ok "TEST-007 (AC-007): $method"
+    else
+      fail "TEST-007 (AC-007): $method"
+    fi
+  done
 }
 
 # ---------------------------------------------------------------------------
@@ -284,19 +279,13 @@ run_test_008
 run_test_009
 run_test_010
 
-printf -- '---- summary: pass=%d fail=%d ----\n' "$PASS" "$FAIL"
-if [[ "$FAIL" -gt 0 ]]; then
-  printf 'not ok: release-loop-gate suite FAILED (%d failures)\n' "$FAIL" >&2
-  exit 1
-fi
-printf 'ok: release-loop-gate suite passed (%d checks)\n' "$PASS"
-
 # Execute the real release steps over distinct tag/dispatch commits. Network,
 # signing and publication are replaced by record-only API boundaries.
-python3 - "$RELEASE_YML" "$BASH" <<'PY'
+if ! python3 - "$RELEASE_YML" "$BASH" <<'PY'
 import json
 import os
 from pathlib import Path
+import runpy
 import shutil
 import subprocess
 import sys
@@ -340,7 +329,7 @@ for name in ('loop-gate', 'release'):
 # makes valid manifests appear stale; the actual loop checkout must retain history.
 assert '          fetch-depth: 0' in checkout('loop-gate').splitlines(), 'release source validation requires full history'
 assert 'needs: ci-green' in job('loop-gate')
-assert 'run: bash ./tests/validate-repository.sh' in job('loop-gate')
+assert 'run: node .github/scripts/check-release-source.mjs' in job('loop-gate')
 assert 'contents: read' in job('loop-gate')
 assert 'id-token: write' not in job('loop-gate')
 assert 'sha: ${{ steps.source.outputs.sha }}' in job('ci-green')
@@ -483,20 +472,30 @@ with tempfile.TemporaryDirectory() as temporary:
     git('init', '-q')
     git('config', 'user.name', 'Release test')
     git('config', 'user.email', 'release-test@example.invalid')
-    (root / 'tests').mkdir()
-    scripts = ('validate-repository.sh', 'loop-consistency.tests.sh', 'loop-inventory.tests.sh', 'release-host-smoke.sh')
-    for name in scripts:
-        path = root / 'tests' / name
-        path.write_text('#!/usr/bin/env bash\nprintf "tagged ' + name + '\\n" >> "$RUNNER_TEMP/executed"\n')
-        path.chmod(0o755)
+    workload = runpy.run_path(str(repo / 'tests/release-readiness.tests.py'))
+    validator = '.github/scripts/check-release-source.mjs'
+    suites, doctor = workload['SUITES'], workload['DOCTOR']
+    structure, smoke = 'scripts/check-sdd-structure.sh', 'tests/release-host-smoke.sh'
+    for name in [validator, *suites, doctor, structure, smoke]:
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if name.endswith('.mjs'):
+            path.write_text("import {appendFileSync} from 'node:fs';\n"
+                            f"appendFileSync(process.env.RUNNER_TEMP + '/executed', {json.dumps(name)} + '\\n');\n")
+        else:
+            path.write_text(f'#!/usr/bin/env bash\necho "{name}" >> "$RUNNER_TEMP/executed"\n')
+            path.chmod(0o755)
+    installers = ('install.sh', 'uninstall.sh')
+    for name in installers:
+        (root / name).write_text('#!/usr/bin/env bash\nexit 0\n')
     write_lock('tagged-dependency')
     git('add', '.')
     git('commit', '-qm', 'tagged source')
     tagged = git('rev-parse', 'HEAD')
     git('tag', 'v1')
     write_lock('dispatch-only-dependency')
-    for name in scripts:
-        (root / 'tests' / name).write_text('#!/usr/bin/env bash\nexit 91\n')
+    for name in [validator, *suites, doctor, structure, smoke, *installers]:
+        (root / name).write_text('unexpected dispatch source (\n')
     (root / '.github/scripts/generate-sbom.py').write_text('raise SystemExit(92)\n')
     git('add', '.')
     git('commit', '-qm', 'different dispatch source')
@@ -517,12 +516,15 @@ with tempfile.TemporaryDirectory() as temporary:
     # may select the loops, optional smoke, archive and SBOM generator.
     git('tag', '-f', 'v1', dispatch)
     git('checkout', '-q', '--detach', tagged)
-    for step in ('Verify loop checkout', 'Validate release source', 'Test loop consistency suite', 'Test loop inventory suite',
+    for step in ('Verify loop checkout', 'Verify release source contracts', 'Run SDD Forge v2 deterministic release suites',
+                 'Run sdd-doctor health check and POSIX installer checks',
                  'Build reproducible source tarball', 'Release-only real host smoke',
                  'Generate CycloneDX SBOM', 'Record immutable build inputs'):
         result = invoke(body(step), env, root)
         assert result.returncode == 0, (step, result.stdout, result.stderr)
-    assert (root / 'executed').read_text().splitlines() == ['tagged ' + name for name in scripts]
+    executed = (root / 'executed').read_text().splitlines()
+    assert executed[0] == validator and sorted(executed[1:-3]) == sorted(suites), executed
+    assert executed[-3:] == [doctor, structure, smoke], executed
     names = {entry['name'] for entry in json.loads((root / 'sdd-forge-sbom.cdx.json').read_text())['components']}
     assert names == {'tagged-dependency'}, names
     assert not list(root.glob('release-sbom.*')), 'source export scratch was not cleaned'
@@ -568,8 +570,8 @@ with tempfile.TemporaryDirectory() as temporary:
     # therefore stops the dependent build, even with a previously admitted SHA.
     package = root / env['PKG']
     package.unlink()
-    (root / 'tests/validate-repository.sh').write_text('#!/usr/bin/env bash\nexit 93\n')
-    result = invoke(body('Validate release source') + '\n' + body('Build reproducible source tarball'), env, root)
+    (root / validator).write_text('process.exit(93)\n')
+    result = invoke(body('Verify release source contracts') + '\n' + body('Build reproducible source tarball'), env, root)
     assert result.returncode == 93 and not package.exists(), 'source validation failure reached the release build'
     # A present corrupt lock remains an error, not zero dependency evidence.
     for invalid in ('{', '[]', '{"packages":[]}'):
@@ -583,3 +585,13 @@ with tempfile.TemporaryDirectory() as temporary:
 
 print('ok: release consumers retain the admitted SHA across dispatch/tag drift; workflow identity stays distinct')
 PY
+then
+  fail "Release steps must retain the admitted source across tag and dispatch changes"
+fi
+
+printf -- '---- summary: pass=%d fail=%d ----\n' "$PASS" "$FAIL"
+if [[ "$FAIL" -gt 0 ]]; then
+  printf 'not ok: release-loop-gate suite FAILED (%d failures)\n' "$FAIL" >&2
+  exit 1
+fi
+printf 'ok: release-loop-gate suite passed (%d checks)\n' "$PASS"

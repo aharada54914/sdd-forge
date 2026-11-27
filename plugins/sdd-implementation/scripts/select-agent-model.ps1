@@ -226,8 +226,9 @@ function Convert-CandidateCost($Value) {
 # and 'low' to 0 — never reused for v2 clamp/bump arithmetic, where '' is
 # never a valid member). Every comparison is case-sensitive (-ceq/-cnotin)
 # per this repository's established mis-cased-value hazard guard.
-$EffortValues = @('low','medium','high','xhigh')
-$EffortOrder = @('low','medium','high','xhigh')
+$StandaloneEfforts = @('low','medium','high','xhigh')
+$RegistryEfforts = @('minimal') + $StandaloneEfforts + @('max','ultra')
+$EffortOrder = if ($policyMode) { $RegistryEfforts } else { $StandaloneEfforts }
 function Get-EffortRank([string]$Value) {
   $index = [Array]::IndexOf($EffortOrder, $Value)
   if ($index -lt 0) { throw "MODEL_SELECTION_ERROR: invalid effort value: $Value" }
@@ -396,7 +397,7 @@ if ($CandidatesFile -or $policyMode) {
             continue
           }
           if ($RecognizedRiskKeys -cnotcontains $property.Name) { continue }
-          if ($property.Value -isnot [string] -or $property.Value -cnotin $EffortValues) {
+          if ($property.Value -isnot [string] -or $property.Value -cnotin $EffortOrder) {
             throw 'risk-matrix-value'
           }
           $riskMatrix[$property.Name] = [string]$property.Value
@@ -414,7 +415,7 @@ if ($CandidatesFile -or $policyMode) {
         $supported = $model.supported_efforts
         if ($supported -isnot [Array] -or @($supported).Count -eq 0 -or
             @(@($supported) | Where-Object {
-              $_ -isnot [string] -or $_ -cnotin $EffortValues
+              $_ -isnot [string] -or $_ -cnotin $RegistryEfforts
             }).Count -gt 0) {
           throw 'supported-efforts'
         }
@@ -441,7 +442,7 @@ if ($CandidatesFile -or $policyMode) {
             $roleMinTier = [string]$roleEntry.minimum_tier
           }
           if ((Test-HasProperty $roleEntry 'default_effort') -and
-              ($roleEntry.default_effort -is [string] -and $roleEntry.default_effort -cin $EffortValues)) {
+              ($roleEntry.default_effort -is [string] -and $roleEntry.default_effort -cin $EffortOrder)) {
             $roleDefaultEffort = [string]$roleEntry.default_effort
           }
         }
@@ -455,7 +456,8 @@ if ($CandidatesFile -or $policyMode) {
         $name = $item.name
         if (-not $registered.ContainsKey($name)) { throw 'model' }
         $definition = $registered[$name]
-        $supported = @($definition.supported_efforts)
+        $supported = @($definition.supported_efforts | Where-Object { $_ -cin $EffortOrder })
+        if ($supported.Count -eq 0) { throw 'supported-efforts' }
         if ($item.available -isnot [bool]) { throw 'candidate' }
         $cost = if ($policyMode) { $item.cost } else { Convert-CandidateCost $item.cost }
         $declaredEffort = $null

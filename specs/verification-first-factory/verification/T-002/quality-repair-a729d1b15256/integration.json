@@ -1,0 +1,138 @@
+{
+  "revision": "a729d1b152567af6cca0f921588338846dc90427",
+  "task": "T-002",
+  "clean": {
+    "command": [
+      "node",
+      "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "--root",
+      "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t002-r3-n1k7hzh7/T-002/repo",
+      "--task",
+      "T-002",
+      "--feature",
+      "verification-first-factory",
+      "--base",
+      "a729d1b152567af6cca0f921588338846dc90427",
+      "--changed-files",
+      "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs,sdd/approved-test-retirements.json,CODEOWNERS,tests/v2-spec-drift.test.mjs",
+      "--anti-tamper",
+      "--output",
+      "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t002-r3-n1k7hzh7/T-002/execution.json",
+      "--cmd",
+      "task-tests=node --test tests/v2-spec-drift.test.mjs"
+    ],
+    "exit": 0,
+    "run": "33a249ab-4f18-49e8-a7ec-c145b5fa717a",
+    "verdict": "PASS",
+    "antiTamper": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-anti-tamper/v1",
+      "status": "CLEAN",
+      "baseRef": "a729d1b152567af6cca0f921588338846dc90427",
+      "checkedFilesCount": 0,
+      "violations": []
+    },
+    "coverage": {
+      "commandsRun": 1,
+      "specDriftChecked": true,
+      "sensorsChecked": true,
+      "complete": true
+    },
+    "specDrift": "CLEAN"
+  },
+  "positive": {
+    "command": [
+      "node",
+      "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "--root",
+      "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t002-r3-n1k7hzh7/T-002/repo",
+      "--task",
+      "T-002",
+      "--feature",
+      "verification-first-factory",
+      "--base",
+      "a729d1b152567af6cca0f921588338846dc90427",
+      "--changed-files",
+      "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs,sdd/approved-test-retirements.json,CODEOWNERS,tests/v2-spec-drift.test.mjs",
+      "--anti-tamper",
+      "--output",
+      "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t002-r3-n1k7hzh7/T-002/integrated-positive.json",
+      "--cmd",
+      "task-tests=node --test tests/v2-spec-drift.test.mjs"
+    ],
+    "exit": 0,
+    "run": "938b8a59-bd17-4cb8-bc5b-f2bbec987900",
+    "verdict": "PASS",
+    "antiTamper": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-anti-tamper/v1",
+      "status": "CLEAN",
+      "baseRef": "a729d1b152567af6cca0f921588338846dc90427",
+      "checkedFilesCount": 1,
+      "violations": []
+    },
+    "coverage": {
+      "commandsRun": 1,
+      "specDriftChecked": true,
+      "sensorsChecked": true,
+      "complete": true
+    },
+    "specDrift": "CLEAN",
+    "fixture": "Append a single documentation comment to tests/v2-spec-drift.test.mjs.",
+    "fixture_sha256": "fd8b76936d225eaed606e4df416bf7f22f06ae82bb8129ede0b179d3782f8673"
+  },
+  "negative": {
+    "command": [
+      "node",
+      "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "--root",
+      "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t002-r3-n1k7hzh7/T-002/repo",
+      "--task",
+      "T-002",
+      "--feature",
+      "verification-first-factory",
+      "--base",
+      "a729d1b152567af6cca0f921588338846dc90427",
+      "--changed-files",
+      "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs,sdd/approved-test-retirements.json,CODEOWNERS,tests/v2-spec-drift.test.mjs",
+      "--anti-tamper",
+      "--output",
+      "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/vff-t002-r3-n1k7hzh7/T-002/integrated-negative.json",
+      "--cmd",
+      "task-tests=node --test tests/v2-spec-drift.test.mjs"
+    ],
+    "exit": 1,
+    "run": "5d86acbb-b596-4ac0-b266-488d755d95c0",
+    "verdict": "FAIL",
+    "antiTamper": {
+      "skipped": false,
+      "passed": false,
+      "schema": "sdd-anti-tamper/v1",
+      "status": "TAMPER_DETECTED",
+      "baseRef": "a729d1b152567af6cca0f921588338846dc90427",
+      "checkedFilesCount": 1,
+      "openQuestion": {
+        "id": "OQ-001",
+        "path": "reports/verification/verification-first-factory/anti-tampering/OQ-001.json"
+      },
+      "violations": [
+        {
+          "code": "PROTECTED_PATH_MODIFIED",
+          "path": "sdd/approved-test-retirements.json",
+          "detail": "保護対象パス (sdd/approved-test-retirements.json) が変更されています (M)"
+        }
+      ]
+    },
+    "coverage": {
+      "commandsRun": 1,
+      "specDriftChecked": true,
+      "sensorsChecked": true,
+      "complete": true
+    },
+    "specDrift": "CLEAN"
+  },
+  "fixture": "Append one newline to sdd/approved-test-retirements.json in the isolated checkout.",
+  "fixture_sha256": "8fe290836ca354ea3bef67555c21a76cc1b3264690a9869ddcf911bd9288a1eb"
+}

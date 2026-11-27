@@ -1,0 +1,19 @@
+▶ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI)
+  ✔ passes cleanly on the sdd-forge repository itself with explicit Non-checks (211.509583ms)
+  ✔ detects skill description > 1024 chars as NG (prevents silent host drop) (7.0155ms)
+  ✔ detects raw ASCII control character corruption in specs/ as NG without modifying files (1.2575ms)
+  ✔ warns on non-ASCII .ps1 without UTF-8 BOM, unbaselined approved specs, and AGENT_STOP (1.9685ms)
+  ✔ detects invalid guardrails.yaml mode and broken hook JSON as NG (27.03425ms)
+  ✔ verifies Zenn §8-§12 template & skill contracts (Alternatives Rejected, Non-checks, rules-first retrospective) (0.43425ms)
+  ✔ normalizes inline extension mappings, including nested options and quoted commas (67.131083ms)
+  ✔ reports an invalid checker jar path as a JSON configuration finding (101.153583ms)
+  ✔ ADR-0054 (AC-008/AC-012): rejects arbitrary command keys and unallowed adapters with NG and exit 2 (68.909958ms)
+✔ sdd-doctor.mjs (Zenn §8/§11 read-only diagnostic CLI) (486.903917ms)
+ℹ tests 9
+ℹ suites 1
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 519.974917

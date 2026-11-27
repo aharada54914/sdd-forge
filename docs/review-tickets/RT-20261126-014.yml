@@ -1,0 +1,21 @@
+ticket_id: RT-20261126-014
+status: resolved
+type: regression
+severity: minor
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "同梱 zsh パーサーが区切りの欠けた波括弧 for ループを受理する"
+problem: |
+  第5回独立レビューの G3 で、区切りが欠けた for ... in ... { ... } において
+  zsh の構文検査は終了1、候補の同梱パーサーは正常な空のコメント一覧を返した。
+  評価はヘルプ文字列を含む無害な入力を使った。
+expected_fix:
+  - 正しい波括弧ループのヘルプと実コメントの分類を維持し、区切りのない不正形式の結果をネイティブ zsh と照合する。
+references:
+  - scripts/vendor-shell-parser/zsh_loops.go.in
+  - reports/review-context/verification-first-factory-T-002-d51c85ee-2dfe-4522-9a08-3cbbd10ba66d-invocation.json
+resolution:
+  owner_decision: "2026-11-26: RT-016 と RT-014 の両方を承認"
+  commit: 936f182edd83a650458efccb032f111cd211c8c9
+  evidence: specs/verification-first-factory/verification/T-002/RT-20261126-014-016/public-cli-receipt.json

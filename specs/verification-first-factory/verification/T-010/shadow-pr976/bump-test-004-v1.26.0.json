@@ -1,0 +1,34 @@
+{
+  "release": "v1.26.0",
+  "revision": "b193c75be2a6f2e6c7074bb65401f514268a65fb",
+  "script": {
+    "path": "scripts/bump-version.sh",
+    "blob": "ce5b931c07b48f142682072af9177ef7ae02abf3"
+  },
+  "cases": [
+    {
+      "shell": "bash",
+      "source": "tests/bump-version-gate.tests.sh",
+      "blob": "d03e09f97a11a0cfcf96f9cab6f6d7a3ccfc2aff",
+      "entry": "run_test_004",
+      "assertions": [
+        "ok: TEST-004 (AC-004): the loop-gate 'for' statement is unindented (top-level, not nested inside a conditional)",
+        "ok: TEST-004 (AC-004): no bypass-suggestive token (SKIP/BYPASS/OVERRIDE) inside the loop-gate block's code",
+        "ok: TEST-004 (AC-004): no statement (conditional or otherwise) precedes the loop-gate 'for' entry"
+      ],
+      "stdout_sha256": "8b9e37e1bb838dd031e5f8c8b22a414f232eadab9424cdff38b3ac893503b824"
+    },
+    {
+      "shell": "PowerShell",
+      "source": "tests/bump-version-gate.tests.ps1",
+      "blob": "8c23afc853b00999549db4b3b421d7e0e8751960",
+      "entry": "Test-004",
+      "assertions": [
+        "ok: TEST-004 (AC-004): the loop-gate 'for' statement is unindented (top-level, not nested inside a conditional)",
+        "ok: TEST-004 (AC-004): no bypass-suggestive token (SKIP/BYPASS/OVERRIDE) inside the loop-gate block's code",
+        "ok: TEST-004 (AC-004): no statement (conditional or otherwise) precedes the loop-gate 'for' entry"
+      ],
+      "stdout_sha256": "8b9e37e1bb838dd031e5f8c8b22a414f232eadab9424cdff38b3ac893503b824"
+    }
+  ]
+}

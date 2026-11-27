@@ -1,0 +1,44 @@
+{
+  "head": "4618dd504154aaff3cf0eed0ac74f4bdeba1e976",
+  "base": "bad6aff7cb8efb9337f0d2d0e4ab011d73f30ea4",
+  "checks": {
+    "lint": {
+      "umbrella_exit": 1,
+      "umbrella_verdict": "FAIL",
+      "commands_run": 0,
+      "mode": "strict",
+      "status": "FAIL",
+      "scanned_files": 55,
+      "findings": 11,
+      "severities": {
+        "error": 7,
+        "warn": 4
+      },
+      "by_adapter": {},
+      "adapters_run": null,
+      "warnings": 0,
+      "component_exit": null
+    },
+    "security": {
+      "umbrella_exit": 1,
+      "umbrella_verdict": "FAIL",
+      "commands_run": 0,
+      "mode": "strict",
+      "status": "FAIL",
+      "scanned_files": null,
+      "findings": 1,
+      "severities": {
+        "high": 1
+      },
+      "by_adapter": {
+        "builtin-secret-pattern": 1
+      },
+      "adapters_run": [
+        "builtin-secret-pattern",
+        "builtin-slopsquatting"
+      ],
+      "warnings": 0,
+      "component_exit": 1
+    }
+  }
+}

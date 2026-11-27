@@ -1,0 +1,46 @@
+ticket_id: RT-20261126-012
+status: resolved
+type: verification
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-010
+summary: "strict 移行に必要な誤検知率と時間予算が未確定"
+problem: |
+  62差分で両スキャナーの所見が0件。候補リビジョンでのローカルおよびPR CIの時間差を示す比較もない。
+expected_fix:
+  - 判定可能な Shadow 所見と同じ候補の対照計測を集め、誤検知率5%未満、ローカル+15秒以内、PR全体+120秒以内を検証する。
+references:
+  - reports/quality-gate/verification-first-factory-T-010.md
+  - specs/verification-first-factory/verification/T-010/quality-repair-e2f726ab4808/admission.json
+progress:
+  local_candidate: 9d874e50279b83be443a5ba9a43cafcb754b1db2
+  local_evidence: specs/verification-first-factory/verification/T-010/shadow-pr976/paired-local-9d874e502.json
+  local_result: "同一候補上の交互3組で +2.215、+1.514、+1.545 秒。既存1スイートとローカル追加処理の測定。"
+  ci_evidence: specs/verification-first-factory/verification/T-010/shadow-pr976/hosted-9d874e502.json
+  ci_result: "PR全体の観測差は −4 秒。候補の一部ステップが先行失敗で省略され、成功経路の時間差は未確定。"
+  follow_up_627f511d7:
+    local: specs/verification-first-factory/verification/T-010/shadow-pr976/paired-local-627f511d7.json
+    hosted: specs/verification-first-factory/verification/T-010/shadow-pr976/hosted-627f511d7.json
+    additional_diffs: specs/verification-first-factory/verification/T-010/shadow-pr976/additional-shadow-counts-627f511d7.json
+    result: "ローカル3組の最大増分は1.748秒。全ジョブ成功時のPR全体は533秒から703秒（+170秒、予算を50秒超過）。68差分の両スキャナーの所見は合計0件で、誤検知率は未確定。"
+  follow_up_ff7157a93:
+    local: specs/verification-first-factory/verification/T-010/shadow-pr976/paired-local-ff7157a93.json
+    hosted: specs/verification-first-factory/verification/T-010/shadow-pr976/hosted-ff7157a93.json
+    additional_diffs: specs/verification-first-factory/verification/T-010/shadow-pr976/additional-shadow-counts-ff7157a93.json
+    result: "ローカル3組の最大純増は3.596秒。候補・対照ともPR全体の11ジョブが成功し533秒（差0秒）。82通りの実差分で両スキャナー各0件、誤検知率は判定不能。"
+  follow_up_d4fbfe2ef:
+    scope: specs/verification-first-factory/verification/T-010/approved-shadow-release.md
+    local: specs/verification-first-factory/verification/T-010/shadow-pr976/paired-local-d4fbfe2ef.json
+    hosted: specs/verification-first-factory/verification/T-010/shadow-pr976/hosted-d4fbfe2ef.json
+    additional_diffs: specs/verification-first-factory/verification/T-010/shadow-pr976/additional-shadow-counts-d4fbfe2ef.json
+    historical_replay: specs/verification-first-factory/verification/T-010/shadow-pr976/strict-historical-replay.json
+    result: "同一候補のローカル3組の純増は最大1.946秒。PRは対照533秒・候補523秒。異なる86差分で両スキャナーとも0件。別母集団のマージ済み50 PRではGitleaksの22件中5件がGitコミットIDで、17件が未判定。Semgrepは0件。"
+    disposition: "所有者承認によりstrict昇格の実証はT-011に移管。T-010のShadow出荷は新候補の全195スイート・両スキャナー・両時間予算を独立ゲートが照合する。"
+resolution:
+  candidate: 1256863cec63390377d83024f3d4b4c27527f62b
+  owner_amendment: specs/verification-first-factory/verification/T-010/approved-shadow-release.md
+  hosted: specs/verification-first-factory/verification/T-010/shadow-pr976/hosted-1256863ce.json
+  local: specs/verification-first-factory/verification/T-010/shadow-pr976/paired-local-1256863ce.json
+  verified: "独立レビューでローカル3対の差を再計算し、+2.269、+1.533、+1.519秒を確認。GitHubの比較元・候補の成功ジョブは533秒と382秒で、差は−151秒。候補の成果物を再取得し、PRのマージ親とハッシュ、両スキャナー各0件を確認した。"
+  scope: "誤検知率の実証は承認済みの改訂により T-011 が担当する。新しい出荷候補では両時間予算と Shadow スキャンを再確認する。全195件の合格は RT-20261126-011 が追跡する。"

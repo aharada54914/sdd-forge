@@ -1,0 +1,207 @@
+{
+  "ticket": "RT-20261126-002",
+  "fixture": "help.sh",
+  "help_source": "#!/usr/bin/env bash\ncat <<$'HELP'\n# sdd-lint-disable example-rule\nHELP\n",
+  "active_suffix": "# sdd-lint-disable active-rule\n",
+  "command": [
+    "node",
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+    "--anti-tamper",
+    "--root",
+    "<temporary Git repository>",
+    "--feature",
+    "example"
+  ],
+  "suite_sha256": "412fb117b20f63880f760333971acd249ca879a649fd779ed6ce336d70c65f0e",
+  "cases": [
+    {
+      "revision": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+      "phase": "red",
+      "cli_sha256": "5d6756867cf2951766e8cc5d27c54a7f3ee53da5c282c2a9cfffa17c98d70c3c",
+      "has_active_comment": false,
+      "bash_exit": 0,
+      "bash_stdout": "# sdd-lint-disable example-rule\n",
+      "bash_stderr": "",
+      "cli_exit": 4,
+      "diagnostic": {
+        "schema": "sdd-anti-tamper/v1",
+        "status": "TAMPER_DETECTED",
+        "baseRef": "HEAD",
+        "checkedFilesCount": 1,
+        "openQuestion": {
+          "id": "OQ-001",
+          "path": "reports/verification/example/anti-tampering/OQ-001.json"
+        },
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable example-rule"
+          }
+        ]
+      },
+      "persisted_questions": [
+        {
+          "id": "OQ-001",
+          "status": "Provisional",
+          "feature": "example",
+          "baseCommit": "31b0f3ba0016ce9529042f036a22bc70f3aa2444",
+          "violations": [
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "help.sh"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "revision": "cc5872c2905ea3933c0463f9062f3c569ca10ce5",
+      "phase": "red",
+      "cli_sha256": "5d6756867cf2951766e8cc5d27c54a7f3ee53da5c282c2a9cfffa17c98d70c3c",
+      "has_active_comment": true,
+      "bash_exit": 0,
+      "bash_stdout": "# sdd-lint-disable example-rule\n",
+      "bash_stderr": "",
+      "cli_exit": 4,
+      "diagnostic": {
+        "schema": "sdd-anti-tamper/v1",
+        "status": "TAMPER_DETECTED",
+        "baseRef": "HEAD",
+        "checkedFilesCount": 1,
+        "openQuestion": {
+          "id": "OQ-001",
+          "path": "reports/verification/example/anti-tampering/OQ-001.json"
+        },
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable example-rule"
+          },
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable active-rule"
+          }
+        ]
+      },
+      "persisted_questions": [
+        {
+          "id": "OQ-001",
+          "status": "Provisional",
+          "feature": "example",
+          "baseCommit": "31b0f3ba0016ce9529042f036a22bc70f3aa2444",
+          "violations": [
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "help.sh"
+            },
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "help.sh"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "revision": "f64d8186a6a02e940365f0140b5a6ea57497d1f7",
+      "phase": "green",
+      "cli_sha256": "6ed5c7b94643366d8ee283a3846480a576949e4615be4860f81cea5cc1f13eb2",
+      "has_active_comment": false,
+      "bash_exit": 0,
+      "bash_stdout": "# sdd-lint-disable example-rule\n",
+      "bash_stderr": "",
+      "cli_exit": 0,
+      "diagnostic": {
+        "schema": "sdd-anti-tamper/v1",
+        "status": "CLEAN",
+        "baseRef": "HEAD",
+        "checkedFilesCount": 1,
+        "violations": []
+      },
+      "persisted_questions": []
+    },
+    {
+      "revision": "f64d8186a6a02e940365f0140b5a6ea57497d1f7",
+      "phase": "green",
+      "cli_sha256": "6ed5c7b94643366d8ee283a3846480a576949e4615be4860f81cea5cc1f13eb2",
+      "has_active_comment": true,
+      "bash_exit": 0,
+      "bash_stdout": "# sdd-lint-disable example-rule\n",
+      "bash_stderr": "",
+      "cli_exit": 4,
+      "diagnostic": {
+        "schema": "sdd-anti-tamper/v1",
+        "status": "TAMPER_DETECTED",
+        "baseRef": "HEAD",
+        "checkedFilesCount": 1,
+        "openQuestion": {
+          "id": "OQ-001",
+          "path": "reports/verification/example/anti-tampering/OQ-001.json"
+        },
+        "violations": [
+          {
+            "code": "LINT_DISABLE_ADDED",
+            "path": "help.sh",
+            "detail": "インライン Lint 抑止コメントが追加されました（sdd/guardrails.yaml の agent_lint.waivers を使用してください）: # sdd-lint-disable active-rule"
+          }
+        ]
+      },
+      "persisted_questions": [
+        {
+          "id": "OQ-001",
+          "status": "Provisional",
+          "feature": "example",
+          "baseCommit": "31b0f3ba0016ce9529042f036a22bc70f3aa2444",
+          "violations": [
+            {
+              "code": "LINT_DISABLE_ADDED",
+              "path": "help.sh"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/v2-spec-drift.test.mjs"
+      ],
+      "exit_code": 0,
+      "summary": [
+        "ℹ tests 29",
+        "ℹ suites 7",
+        "ℹ pass 29",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 7750.248208"
+      ]
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern=validates TaskLock.tla and GateLifecycle.tla",
+        "tests/v2-formal-gate.test.mjs"
+      ],
+      "exit_code": 0,
+      "summary": [
+        "ℹ tests 1",
+        "ℹ suites 1",
+        "ℹ pass 1",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 68.588833"
+      ]
+    }
+  ]
+}

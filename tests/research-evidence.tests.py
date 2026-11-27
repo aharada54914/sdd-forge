@@ -326,8 +326,9 @@ class ResearchTests(unittest.TestCase):
 
     def test_history_requires_original_values_not_normalized_equality(self):
         with tempfile.TemporaryDirectory() as td:
-            old = Path(td) / "previous.json"
-            new = Path(td) / "current.json"
+            root = Path(td).resolve()
+            old = root / "previous.json"
+            new = root / "current.json"
             d = document()
             old.write_text(json.dumps(d))
             new.write_text(json.dumps(d, indent=2))
@@ -339,7 +340,7 @@ class ResearchTests(unittest.TestCase):
 
     def test_location_closure_symlink_duplicate_json_and_bom(self):
         with tempfile.TemporaryDirectory() as td:
-            root = Path(td)
+            root = Path(td).resolve()
             p = root / "specs/sample/research/records/research-evidence.json"
             p.parent.mkdir(parents=True)
             p.write_text(json.dumps(document()))
@@ -364,7 +365,7 @@ class ResearchTests(unittest.TestCase):
 
     def test_repository_inheritance_pins_canonical_record(self):
         with tempfile.TemporaryDirectory() as td:
-            root = Path(td)
+            root = Path(td).resolve()
             d = document()
             other = document()
             other["feature"] = "other"

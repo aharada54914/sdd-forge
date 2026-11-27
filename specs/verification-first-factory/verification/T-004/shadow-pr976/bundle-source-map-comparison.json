@@ -1,0 +1,83 @@
+{
+  "procedure": [
+    "npm ci --ignore-scripts --offline --no-fund --no-audit in the historical MCP package (204 packages per lock)",
+    "Run the lockfile-pinned esbuild binary with src/index.ts --bundle --platform=node --format=esm --sourcemap=external --outfile=dist/index.js",
+    "Compare rebuilt JS bytes to git show <revision>:mcp/sdd-forge-mcp/dist/index.js",
+    "Map the catch token via node:module SourceMap and compare sourcesContent with the committed original source bytes"
+  ],
+  "column_indexing": "line and column numbers are one-based",
+  "runs": [
+    {
+      "pr": 972,
+      "revision": "f95bf9f483bd3c7eeca20bfbfddc599cf9a873f2",
+      "lockfile_sha256": "e98a15e1d905f820886d1c80876788a21dba9b7aeebc23817e47a5c424efaefd",
+      "esbuild": "0.28.2",
+      "generated_and_tracked_js_sha256": "983a50ddd45155ae3c7e0d82e43463eb5978c70fa6838b5238145a77bed9c7f9",
+      "generated_and_tracked_js_bytes": 1652002,
+      "external_map_sha256": "430aa2fd5ffac6c2514f790da80e9dd04c04334daf36d1bedac00189cd821fbb",
+      "external_map_bytes": 2995774,
+      "origins": [
+        {
+          "generated_line": 38895,
+          "generated_column": 7,
+          "original_path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+          "original_line": 1336,
+          "original_sha256": "e3a648b02e1c407154d06cf62f30fd3231f9a920a0ca8cc26fddefcd78a53e9f",
+          "sources_content_matches_git_blob": true
+        },
+        {
+          "generated_line": 39054,
+          "generated_column": 7,
+          "original_path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+          "original_line": 1543,
+          "original_sha256": "e3a648b02e1c407154d06cf62f30fd3231f9a920a0ca8cc26fddefcd78a53e9f",
+          "sources_content_matches_git_blob": true
+        }
+      ]
+    },
+    {
+      "pr": 800,
+      "revision": "96f5273d50ac632e3e943e6d2c18a12e46e94fa9",
+      "lockfile_sha256": "e98a15e1d905f820886d1c80876788a21dba9b7aeebc23817e47a5c424efaefd",
+      "esbuild": "0.28.2",
+      "generated_and_tracked_js_sha256": "66943907608856eff28282f2a1269514f09ee402d428c4d1543224e8e77069f8",
+      "generated_and_tracked_js_bytes": 1635734,
+      "external_map_sha256": "c4a60adbbeb8dbc44ec8245b5922cd17bdb0950fc049a5e95844baf26f7002eb",
+      "external_map_bytes": 2957735,
+      "origins": [
+        {
+          "generated_line": 37065,
+          "generated_column": 5,
+          "original_path": "mcp/sdd-forge-mcp/src/path-guard.ts",
+          "original_line": 167,
+          "original_sha256": "f960805d192c473fc4c9fb0b2ad480ba482605a15997ddd1473540819f47000b",
+          "sources_content_matches_git_blob": true
+        },
+        {
+          "generated_line": 40672,
+          "generated_column": 7,
+          "original_path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+          "original_line": 950,
+          "original_sha256": "702a0e0339759c9f43eefbd9dc6d580b8e3c636b7d88e813889bb50980b10d83",
+          "sources_content_matches_git_blob": true
+        },
+        {
+          "generated_line": 40831,
+          "generated_column": 7,
+          "original_path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+          "original_line": 1157,
+          "original_sha256": "702a0e0339759c9f43eefbd9dc6d580b8e3c636b7d88e813889bb50980b10d83",
+          "sources_content_matches_git_blob": true
+        },
+        {
+          "generated_line": 41608,
+          "generated_column": 7,
+          "original_path": "mcp/sdd-forge-mcp/src/tools/v2.ts",
+          "original_line": 436,
+          "original_sha256": "647f53ec3ef0d675a125644a45631b929c652826d5e2e53850e5e22069233e56",
+          "sources_content_matches_git_blob": true
+        }
+      ]
+    }
+  ]
+}

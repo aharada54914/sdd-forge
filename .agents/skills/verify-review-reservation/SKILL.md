@@ -21,17 +21,15 @@ same lock; mkdir and same-directory rename must be atomic and hashes collision-f
 A finite-model PASS is not a proof of all implementation schedules or operating
 systems.
 
-The covered source is `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh`
-in the combined integration candidate, SHA-256
-`8d4397f7120d07b6eb0513049c519367de7e9cd1d61ea2814c1b8ffcd28dedcf`.
-The unchanged acquire/hash-check/append/rename/release tail has SHA-256
-`099073aafef9082cab371bfab889a19afe4e40a3f9d791739ceb820052a4a92c`.
-Evidence for the combined candidate is in
-`reports/verification/formal-reservation-combined-20261028/`. The separately
-recorded historical asset check (id 683491413) is in
-`reports/verification/formal-reservation-asset-683491413-20261029/`; earlier
-main-based evidence remains historical. Use the local
-`pstack-maintain-formal-verification-skill` procedure when the mapping drifts.
+The mapping records the current source SHA-256 and the commit used for the
+last comparison. The acquisition now uses Python’s `os.mkdir` to observe exclusive directory
+creation directly. Concurrent hosted Linux reservations had returned a success
+for a process whose record was absent from the resulting ledger. The source
+and the extracted transaction have separate pins so each can be rechecked.
+The two-process replay results are in
+`specs/verification-first-factory/verification/T-006/reservation-bridge.json`.
+After a change, compare the transaction to the last sync commit and rerun
+both the baseline and the lock-removed control before updating either pin.
 
 ## Tool choice and setup
 
@@ -53,7 +51,7 @@ asset disappears or differs, stop rather than accepting a new jar implicitly.
 Historical v1.8.0 evidence remains unchanged. The new tool's negative, baseline
 and actual-code race observations are recorded separately in
 `reports/verification/formal-reservation-stable-20261031/`.
-Bash, jq and sha256sum are required for the Linux real-code replay. No network
+The Linux implementation replay uses Python 3, Bash, jq, sha256sum and Node.js. No network
 call occurs during verification.
 
 ## Run and observe
@@ -72,8 +70,16 @@ isolated scratch state and invokes two competing processes. The negative mutates
 that extracted code's acquire/release guard; both calls must succeed. The intact
 code must accept only one. The fixture replaces unrelated input-validation setup,
 so this proves the reservation tail's observed behavior, not the whole review CLI.
-For the negative replay the parent releases both contenders only after both
-reach the post-hash-check barrier; timeout is a synchronization failure.
+Both contenders start together. A process that enters the critical section waits
+after the hash check until its peer has entered or exited. The baseline requires
+one entrant, a matching successful caller and that caller’s persisted ledger
+record. The negative requires both entrants to succeed. A timeout fails the replay.
+
+The intact transaction also records each successful lock acquisition, hash check,
+ledger publication and release with the ledger contents observed at that point.
+The formal gate replays `observed.ndjson` against the configured baseline using
+TLC. It also checks `out-of-order.ndjson`, where the observed hash check is
+replaced with a premature publication. The report records both checker outcomes.
 
 ## Maintenance and cleanup
 

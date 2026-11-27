@@ -28,14 +28,23 @@ FAIL=0
 pass() { PASS=$((PASS + 1)); printf 'PASS: %s\n' "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf 'FAIL: %s\n' "$1"; }
 
+policy_contract() {
+  python3 -B "$ROOT/tests/design-sync-policy.tests.py" "PolicyTests.$1"
+}
+
 AG="$ROOT/AGENTS.md"
 DSL="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
-CDW="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+CDW="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 RUN_ALL_SH="$ROOT/tests/run-all.sh"
 RUN_ALL_PS1="$ROOT/tests/run-all.ps1"
 DSC_SH="$ROOT/tests/design-system-contract.tests.sh"
 CI_DIR="$ROOT/.github/workflows"
 BASELINE_SH="$ROOT/specs/design-sync-standing-consent/verification/T-001/ds29-baseline-sh.log"
+
+if [ ! -s "$CDW" ]; then
+  printf 'Missing design-sync-loop manual fallback: %s\n' "$CDW" >&2
+  exit 1
+fi
 
 # Lines from the first line matching $2 (inclusive) up to, but excluding,
 # the first later line matching $3, from file $1. Mirrors
@@ -340,7 +349,7 @@ fi
 
 # --- REQ-003 (AC-007, AC-008, AC-009, AC-030, AC-010) -- standing ----------
 
-if printf '%s' "$STANDING_FLAT" | grep -Eiq 'never produces.{0,10}outcome \(b\)|never produces.{0,10}\(b\)'; then
+if policy_contract test_standing_skips_confirmation; then
   pass "TEST-008 under standing, step 3 never produces its 'must be requested' outcome (AC-007)"
 else
   fail "TEST-008 under standing, step 3 never produces its 'must be requested' outcome (AC-007)"
@@ -365,7 +374,7 @@ else
   fail "TEST-011 a different destination for an already-recorded feature triggers a fresh one-time write (AC-030)"
 fi
 
-if printf '%s' "$STANDING_FLAT" | grep -Fq 'Egress-Consent: granted'; then
+if policy_contract test_standing_first_audit_is_granted; then
   pass "TEST-012 the one-time record's Egress-Consent value is granted, not a new fourth value (AC-010)"
 else
   fail "TEST-012 the one-time record's Egress-Consent value is granted, not a new fourth value (AC-010)"
@@ -379,19 +388,19 @@ else
   fail "TEST-013 under off, step 3's resolved outcome is always outcome (c) (AC-011)"
 fi
 
-if printf '%s' "$OFF_FLAT" | grep -Eiq 'manual fallback[^.]{0,80}no upload attempt|no upload attempt[^.]{0,80}manual fallback'; then
+if policy_contract test_off_routes_without_upload; then
   pass "TEST-014 outcome (c) routes to the manual fallback and no upload is attempted (combined, one clause) (AC-012)"
 else
   fail "TEST-014 outcome (c) routes to the manual fallback and no upload is attempted (combined, one clause) (AC-012)"
 fi
 
-if printf '%s' "$OFF_FLAT" | grep -Eiq 'write a record|writes a record'; then
+if policy_contract test_off_records_the_outcome; then
   pass "TEST-015 an outcome record is written for the off resolution (existence) (AC-012)"
 else
   fail "TEST-015 an outcome record is written for the off resolution (existence) (AC-012)"
 fi
 
-if printf '%s' "$OFF_FLAT" | grep -Fq 'Ds-Upload-Consent-Setting: off'; then
+if policy_contract test_off_audit_names_the_setting; then
   pass "TEST-016 that record carries Ds-Upload-Consent-Setting: off specifically (AC-012)"
 else
   fail "TEST-016 that record carries Ds-Upload-Consent-Setting: off specifically (AC-012)"

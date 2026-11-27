@@ -1,0 +1,15 @@
+▶ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers
+  ✔ passes cleanly on clean fixture and catches violations with remediation_hint in strict vs shadow mode (63.896584ms)
+  ✔ honors active built-in guardrails.yaml waivers and fails on expired waivers in strict mode (1.854416ms)
+  ✔ reports changed lines, untracked files and changed local imports on a clean branch checkout (200.816917ms)
+  ✔ uses TS syntax, scoped flag groups, configured control depth and comment nodes (1.785416ms)
+  ✔ NFR-004 performance budget: lints 100 files in <= 3000ms (18.242791ms)
+✔ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers (287.096375ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 324.879334

@@ -1,0 +1,24 @@
+ticket_id: RT-20261126-017
+status: resolved
+type: regression
+severity: major
+target:
+  feature: verification-first-factory
+  task: T-002
+summary: "Python test modules outside test directories miss the retirement approval check"
+problem: |
+  A root-level test_checkout.py is discoverable by Python unittest. The path classifier
+  only recognizes selected directory and suffix patterns, so this test misses the path and
+  blob approval lookup required by AC-009. The previous Python case uses tests/sample_test.py.
+expected_fix:
+  - Recognize the supported Python test module convention outside designated test directories.
+  - Check both the unapproved deletion and the matching approved path and blob, with an ordinary Python module as a control.
+references:
+  - plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+  - tests/v2-spec-drift.test.mjs
+  - reports/review-context/verification-first-factory-T-002-4a3ee035-78af-422a-813f-2eb50ac25c73-invocation.json
+owner_decision: "2026-11-26、所有者が RT-017・018・019 の追加修正と独立レビューを1回承認。"
+resolution:
+  owner_decision: "2026-11-26、所有者が RT-017・018・019 の追加修正と独立レビューを1回承認。"
+  commit: fe80ed6fd0da6c35c0f714137a7e5a14d8007a21
+  evidence: specs/verification-first-factory/verification/T-002/RT-20261126-017-019/public-cli-receipt.json

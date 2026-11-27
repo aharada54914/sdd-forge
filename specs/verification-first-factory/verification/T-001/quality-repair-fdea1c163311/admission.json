@@ -1,0 +1,126 @@
+{
+  "revision": "fdea1c16331140d0a0ecbd52001c06d1467eef50",
+  "task": "T-001",
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "592fbdc3d43c64c81596c14efafc6d2fc07bf8311f703e4b98c5e20ddb63341a"
+    },
+    {
+      "path": "docs/adr/0054-verification-first-and-agentic-factory.md",
+      "sha256": "8cd49dd9f560de09f6093f020bddd0344f0cd54a70a0e739e3fb9b8b892ed7f7"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/create-project-skill/SKILL.md",
+      "sha256": "df7616074c40bf6f9369b245f346f16d6cf8337ed9ae94fb614ef641a3cc82c0"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-core-spec/templates/design.md",
+      "sha256": "52c23169a5a2f107adc8335696ba11f82d1b551edb63830dd321dc0f445c24f8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+      "sha256": "ffbf1c7dd715f52e872a60d75c81671ff3fd15b8c4d0f64f92106906bedfdb87"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+      "sha256": "028735ca86edccad1a8e6eda26d588c14f9c2105d4278650b4507b50ac87ec5d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/retrospective-report.template.md",
+      "sha256": "098d7fbe12552be630b894f8ecd49041f585ded046e592b3319e11feac53126c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/templates/sdd-gate-report.md",
+      "sha256": "5979da50a9e6ecc9a73be44eba3fd4953f06703a66d88a20408999149af821b7"
+    },
+    {
+      "path": "reports/implementation/verification-first-factory/T-001.md",
+      "sha256": "1d14fc976834c1e09d51b3e55d7fc2d1d1c0304404e33e4753f868fc565ee67e"
+    },
+    {
+      "path": "sdd/guardrails.example.yaml",
+      "sha256": "3bfb11b809dde42e200f9ca36ff7668b70de8a42a69128a01b2bdbdc2ba93a76"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "a9e44ae431510abdb157f23d52f23833feca2004f93c80bc2c13149ea84c140f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/30292d05-0eff-49c5-b841-fe98262bdf59/task-input-manifest.json",
+      "sha256": "4df1799d9b1b5151be099a441d0d753d7c7e50ffde84364e578ee6d96bf3f134"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/configuration-repair/green.txt",
+      "sha256": "9dcdbc59e9127ffc613c00812989a11b3673b428bffffb1cb9db95514373733f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/configuration-repair/red-green.md",
+      "sha256": "6749ea4b255d228ea7517e9d8f9bbf0f22f6e3016007c02db7a5bd1c2697f869"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/configuration-repair/red.txt",
+      "sha256": "ae32bfb0cf6a542a0dfd76026be86141dd071bd6859a3cb6dcd4f2d40a53f691"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/initial-quality-round/task-scoped.diff",
+      "sha256": "3dc60ce6eea01401780d98f2afd8a631a1d2b88ec236e318559f8310cb68ffed"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/quality-repair-fdea1c163311/declaration.json",
+      "sha256": "9ad2ca0b7ae4a7adb3e620edd1815c07dea6e6aa831ee4dfa71eec55f7716768"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/quality-repair-fdea1c163311/execution.json",
+      "sha256": "d089a0fbf93827369e51c521dfec2dfed89efdf398eb22958a087c592338f3e1"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/quality-repair-fdea1c163311/legacy-doctor.json",
+      "sha256": "939ae111d2d259659ee49873c4c50db9d38c323e59a446ffccbf5f9aab527139"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-001/quality-repair-fdea1c163311/repair.diff",
+      "sha256": "332c53a844a36f3f13be7c790c51da65062eeb172e01d89b8515b3e031845376"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/compatibility.json",
+      "sha256": "126fa7f2d743b6cf392a108e55abcd324719be4c8d7a54410be1f47c838e5479"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-009/main-integration/registration-followup/installer-sensitivity.json",
+      "sha256": "6a29bcf320b69260e02e1ec5750b3a59a9124e491c75e9034ac426f0832f471e"
+    },
+    {
+      "path": "tests/v2-sdd-doctor.test.mjs",
+      "sha256": "19cdb0115daddaea79b9e80a6256bb4ff98555ff88dd4f9732303d33a72fc743"
+    }
+  ],
+  "implementation_manifest": {
+    "path": "specs/verification-first-factory/verification/T-001/30292d05-0eff-49c5-b841-fe98262bdf59/task-input-manifest.json",
+    "sha256": "4df1799d9b1b5151be099a441d0d753d7c7e50ffde84364e578ee6d96bf3f134"
+  },
+  "supplemental_delivery_declaration": {
+    "path": "specs/verification-first-factory/verification/T-001/quality-repair-fdea1c163311/declaration.json",
+    "sha256": "9ad2ca0b7ae4a7adb3e620edd1815c07dea6e6aa831ee4dfa71eec55f7716768"
+  }
+}

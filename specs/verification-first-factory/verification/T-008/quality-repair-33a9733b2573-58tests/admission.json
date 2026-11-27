@@ -1,0 +1,190 @@
+{
+  "revision": "33a9733b2573660a1380e41263ce45093eae39ff",
+  "task": "T-008",
+  "inputs": [
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
+      "sha256": "674d8533ab91b652105a623d4e30f2f6e1ea96769220a5e9d4b4a54c32a997b8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
+      "sha256": "9122b5cce0bac86e246975a4586e636586a9435077c6ca759c7295c0e85add88"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "sha256": "0a6a692b071f9fd4ad732c9fbceb4577b68f65ca7602bc15ddb010f58f523346"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/rebuild-differential.mjs",
+      "sha256": "165eb077592da01c6c7e5e68a1913747a4574ce3ac8a54c8b7c94f17c2664a3b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
+      "sha256": "62b948661fef0b3df9800a4843b51f36f79bfa05ae8b925da0183f7372d94c86"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
+      "sha256": "4a49246e4115b3a4c097150a0318931b8f747100c51454b154fb97da21cdf1fd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+      "sha256": "9ba1d0a985cf95d517d139dda7ae04e62bbe79ad764b93f41ab50ea7a745453b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "sha256": "5d5ca52334a0126c6fdcd0803327819ecb35a3aa861e7c2bbee661cc1cd730af"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+      "sha256": "2eaa4c88d52514b2de9de0746aa2a564b0fe305f5e5f0ff1ab07a3328de664e3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
+      "sha256": "ffbf1c7dd715f52e872a60d75c81671ff3fd15b8c4d0f64f92106906bedfdb87"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
+      "sha256": "8cebf7634c6db05c97b5c283c4029960590504e27fb5461f52d2b24c51dc6e83"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "sha256": "8945d5bfcec37dd0e2e9da26044e6c05c3a5cbc51d73fa7496512eda5d1bc27c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05"
+    },
+    {
+      "path": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "sha256": "5eb8d8b61732059aa4557f74aeed372f70bdf4535d641bc48fc11a8efc77d74d"
+    },
+    {
+      "path": "sdd/guardrails.example.yaml",
+      "sha256": "3bfb11b809dde42e200f9ca36ff7668b70de8a42a69128a01b2bdbdc2ba93a76"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "0458874e171ca8fa183b273fa0e9a009c01379e03626243c6f4af5fb404cd083"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "tests/v2-sdd-core-flow.test.mjs",
+      "sha256": "b82ff94afb131d7a9966ad54927fc643b384f1224529f43accdc86b86e434140"
+    },
+    {
+      "path": "tests/v2-wave3-integration.test.mjs",
+      "sha256": "f4ea8c7e687689638ecd4fe7cb27d242557cdb9b400288c50c3e3f39145ed5a8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+      "sha256": "0aaf0786d8161d109dd664bad873330a33507aa97eb053f17e86acef83651399"
+    },
+    {
+      "path": "specs/verification-first-factory/.spec-baseline.json",
+      "sha256": "77e20bdad7b8f20498611de41ea1eecaa895918d17edafd15023fa4ac7f01f52"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/initial-quality-round/historical-red.json",
+      "sha256": "d05d3d67c2efd747b73914be9a6e243a8658e5887bfeca0c9bed33060cbce503"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/initial-quality-round/historical-final.log",
+      "sha256": "145a8bd64a76ad4203f1f4c630c6938c5856013263954667fee7d4d5cb18bdf5"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/initial-quality-round/source-inputs.json",
+      "sha256": "eb59e5859d4cfe61eae27393c5da69613b51a7746e83b7313eac25b46b9fc217"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/report-revalidation/test-receipt.json",
+      "sha256": "be7c5bc58b60497ed9fb1c64403a489acbe8bcfde0434943cf9f982a417c7fc2"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/execution.json",
+      "sha256": "8a03a4f0466933498466d35beb229876e88b1a8b85f67e98bbd44d1c4791c0cc"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/integration.json",
+      "sha256": "3fa27eda1970c762a6abc1b21d88c3488601adae111e0082f3a29a5ab22cea1c"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/revision-sources/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+      "sha256": "f82d676e8e331f3d19eddb69f1c08bfa03cfecd919f659deb29f661eb2a2e339"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-formal-gate.mjs",
+      "sha256": "807c73f35ab75e1ae2eeb9d2718663c8f6695ff23baab72da0a5f9a73c1428bd"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/revision-sources/specs/verification-first-factory/tasks.md",
+      "sha256": "4329f816a9abdb8f8c601d6aaf6911bf4586379bd5db59717c0ec9775c91a28e"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/revision-sources/tests/v2-spec-drift.test.mjs",
+      "sha256": "9df2bde3fa7de021d8dcbbec741012167cffde1828128d59629ffb17ae5367a9"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/scope-hardening.diff",
+      "sha256": "88fd1325e637eff92aa578adffe3addfc46b7a803c7f8cd711cda8b2773602b9"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/scope-lock.diff",
+      "sha256": "5133fc17dec5db07ee166b33f9e467fc02a2644ce0cdcdc7ff674c16c4fd6d3f"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/scope-since-prior.diff",
+      "sha256": "f3cdf6309c6e80e78c4f8cad56a573c1f9908d04ac85207aab54396252b3f820"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/scope-wave3.diff",
+      "sha256": "f864936baed76514060ea50fb9a7596b82a720911871246bd849c5fdb1bfbd66"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/scope.json",
+      "sha256": "093e77ec8604219919af62944964eafff6b6a576f23457284f36ef24eed9bcad"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/support/reproduction/green.log",
+      "sha256": "7c65a4272b4a46a3b0878ebd5d6f3bea5c5bb7f93c853d1930803833adbe4e19"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/support/reproduction/red.log",
+      "sha256": "c563c77ecb3139944ed59faa182c46b83af8506ad4f2a3cc021693bc2427a0f1"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/support/reproduction/tests/v2-wave3-integration.test.mjs",
+      "sha256": "4e64edab22db218a653f94dc5793b14942e80c565a19c1c6c4c84349c79233ea"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/task-tests.log",
+      "sha256": "351e9d195d1ddedc1f92e4142d69e136833edbc1d97d2bb77d94075e9584a8bd"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/tdd.json",
+      "sha256": "66b70d44b3f4ff82bf79a99a21acb93d01acbff07cda12fc1d0750850c26bfdc"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/declaration.json",
+      "sha256": "c9a3365c246814bf2a96d8ec2cbe6d249397dc346149c11ac189574540b053c2"
+    },
+    {
+      "path": "reports/implementation/verification-first-factory/T-008.md",
+      "sha256": "e70d2860f185cc5255a3a6c1f62ef8ab958a94dccbfeaae9421e599e510e8488"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-008/report-revalidation/task-input-manifest.json",
+      "sha256": "7b688f8cef6900fc81120a7604053a3f975f1f11561659c51be8d8ca9540b155"
+    }
+  ],
+  "implementation_manifest": {
+    "path": "specs/verification-first-factory/verification/T-008/report-revalidation/task-input-manifest.json",
+    "sha256": "7b688f8cef6900fc81120a7604053a3f975f1f11561659c51be8d8ca9540b155"
+  },
+  "supplemental_delivery_declaration": {
+    "path": "specs/verification-first-factory/verification/T-008/quality-repair-33a9733b2573-58tests/declaration.json",
+    "sha256": "c9a3365c246814bf2a96d8ec2cbe6d249397dc346149c11ac189574540b053c2"
+  }
+}

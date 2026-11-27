@@ -1,0 +1,4 @@
+{"step":0,"action":"Init","state":{"holders":[],"leaseActive":false}}
+{"step":1,"action":"Acquire","actor":"w1","state":{"holders":["w1"],"leaseActive":true}}
+{"step":2,"action":"Renew","actor":"w1","state":{"holders":["w1"],"leaseActive":true}}
+{"step":3,"action":"Release","actor":"w1","state":{"holders":[],"leaseActive":false}}

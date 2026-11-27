@@ -1,0 +1,180 @@
+{
+  "schema": "sdd-gate-execution/v1",
+  "runId": "2e0317c2-5276-46b5-aae0-42ec9f7cd165",
+  "feature": "verification-first-factory",
+  "taskId": "T-007",
+  "mode": "standard",
+  "executedAt": "2026-11-26T00:08:52.530Z",
+  "verdict": "PASS",
+  "specInputs": {
+    "schema": "sdd-task-evidence-inputs/v2",
+    "task": "f015fd20da8378df01d9a3f54e820a150c5ecea3eab474a189413f9c959d217c",
+    "ids": {
+      "AC-001": "7158fe52b8b51b8f5b8da7f814a29940882b1674de701e4c6319f70f8c89c739",
+      "AC-002": "6e99b032d2809ae9eb6e9c93c38bf874ff851c5e275d2765f4caab6603d7d3ef",
+      "AC-008": "8a911933795277c3e7a39a6fcd3e4e5f9338c05ce48efa4d7cdb81af6cf553b9",
+      "REQ-001": "0a323e2e647ca4c7771fcf8095ad769157074701ec186b75a26ecafaf900be77",
+      "REQ-002": "3a7ddb7d0e245c1a72a758130a448d02c35765263ef24bc45ba900cf983dc814",
+      "REQ-009": "f2055c6d01e886de9bcf1d9867244d7f1895b7a5bce51d5dcc59cecea553842c",
+      "SELF-AC-004": "4c6b2b6e20ddd9519acceff832b754f1c2b09ae260236ccd97aae171e6543162",
+      "SELF-REQ-004": "6e5762b3ff8d026793d7af88dd9cd669293ffb0bb7a31e9b08bbc5ea4688cf8c"
+    },
+    "design": "d4179bdef77f2f7b2734db853cad1850f2df7b890a378beed5ca7c731927085f"
+  },
+  "coverage": {
+    "commandsRun": 1,
+    "specDriftChecked": true,
+    "sensorsChecked": true,
+    "complete": true
+  },
+  "scope": {
+    "mode": "explicit",
+    "taskScope": [
+      "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+      "plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs",
+      "plugins/sdd-bootstrap/**",
+      "tests/self-security-adversarial.test.mjs"
+    ],
+    "outOfScopeFiles": [
+      "README.md",
+      "plugins/sdd-quality-loop/rules/security.yml",
+      "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+      "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+      "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+      "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs"
+    ]
+  },
+  "warnings": [
+    "OUT_OF_SCOPE_CHANGES: 6 changed file(s) outside this task's Scope were scanned; in a shared working tree pass the task's own files with --changed-files."
+  ],
+  "checks": {
+    "lockCheck": {
+      "checked": false,
+      "passed": true,
+      "acquired": null
+    },
+    "taskPrecondition": {
+      "passed": true,
+      "taskId": "T-007",
+      "approval": "Approved",
+      "status": "Implementation Complete",
+      "risk": "high",
+      "scopePaths": [
+        "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs",
+        "plugins/sdd-bootstrap/**",
+        "tests/self-security-adversarial.test.mjs"
+      ],
+      "errors": []
+    },
+    "specDrift": {
+      "skipped": false,
+      "passed": true,
+      "schema": "sdd-spec-drift/v1",
+      "feature": "verification-first-factory",
+      "status": "CLEAN",
+      "baselineRecordedAt": "2026-11-25T16:43:30.106Z",
+      "baselineGitHead": "c88c89e500ee106699a9cf2e69754864165836a6",
+      "changedFiles": [],
+      "deletedFiles": [],
+      "addedFiles": [],
+      "removedIdentifiers": [],
+      "modifiedIdentifiers": [],
+      "addedIdentifiers": [],
+      "amendments": [
+        {
+          "file": "specs/verification-first-factory/requirements.md",
+          "text": "*(承認後の仕様変更時は、日付・理由・影響IDをここに追記する。テスト廃止の例外承認はここではなく `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "*(承認後の仕様・タスク変更時は、日付・理由・影響タスクをここに追記する。テスト廃止の例外承認は `CODEOWNERS` 保護の `sdd/approved-test-retirements.json` で管理する)*"
+        },
+        {
+          "file": "specs/verification-first-factory/tasks.md",
+          "text": "- 2026-11-26（所有者承認、T-003・T-004）。AC-007 の Layer 1 基準を上流の677行に更新。上限700行、差分ゼロ、外部依存ゼロを維持する。過去の663行の記述に対する適用範囲と照合手順は [基準変更の記録](verification/T-004/approved-layer1-baseline.md) に示す。"
+        }
+      ],
+      "baselineAmendmentCount": 2,
+      "changedIdsWithoutAmendment": [],
+      "revokedApprovals": [],
+      "newlyApprovedTasks": [],
+      "unreadableFiles": []
+    },
+    "antiTamper": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "writeScope": {
+      "skipped": true,
+      "passed": true
+    },
+    "agentLint": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "securityGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "formalGate": {
+      "skipped": true,
+      "passed": true,
+      "status": "SKIPPED"
+    },
+    "placeholders": {
+      "passed": true,
+      "scannedFiles": [
+        "plugins/sdd-bootstrap/scripts/read-issue-source.mjs",
+        "plugins/sdd-bootstrap/scripts/render-design-template.mjs",
+        "plugins/sdd-quality-loop/rules/security.yml",
+        "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/run-security-gate.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
+        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs"
+      ],
+      "findings": []
+    },
+    "nonFunctionalSensors": {
+      "skipped": false,
+      "passed": true,
+      "findings": [],
+      "advisoryFindings": []
+    },
+    "openQuestions": {
+      "passed": true,
+      "blocking": false,
+      "provisionalCount": 0,
+      "provisionalIds": []
+    },
+    "reviewTickets": {
+      "passed": true,
+      "blocking": []
+    },
+    "conceptTest": {
+      "passed": true,
+      "status": "NOT_APPLICABLE"
+    },
+    "commands": [
+      {
+        "label": "check-1",
+        "command": "node --test '--test-name-pattern=removed manifest|cannot enumerate paths|reports incomplete local input|renders the design reframing' tests/self-security-adversarial.test.mjs",
+        "exitCode": 0,
+        "durationMs": 198,
+        "passed": true,
+        "error": null,
+        "stdout": "▶ Security adapter contracts and bootstrap integration\n  ✔ reports incomplete local input scans without disclosing the input path (3.604042ms)\n  ✔ accepts a removed manifest in a CI change list and reports an unreadable remaining manifest (1.215ms)\n  ✔ fails closed when it cannot enumerate paths for a security scan (0.650583ms)\n  ✔ renders the design reframing section for standard, high and an explicit low-risk override (113.522875ms)\n✔ Security adapter contracts and bootstrap integration (119.471291ms)\nℹ tests 4\nℹ suites 1\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 165.17225\n",
+        "stderr": ""
+      }
+    ],
+    "rebuildDifferential": {
+      "skipped": true,
+      "passed": true
+    }
+  }
+}

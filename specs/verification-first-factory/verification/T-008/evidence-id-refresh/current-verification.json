@@ -1,0 +1,58 @@
+{
+  "feature": "verification-first-factory",
+  "taskId": "T-008",
+  "testedCommit": "f755b33f3a68ee1ec6dd34087d32bdce274da544",
+  "newExecution": {
+    "path": "reports/quality-gate/verification-first-factory-T-008.execution.json",
+    "sha256": "da8983aeb0e33c2ec79e40d35b1d9dd924d6564140dd047610cf4f69462df903"
+  },
+  "priorExecution": {
+    "path": "specs/verification-first-factory/verification/T-008/evidence-id-refresh/prior-execution.json",
+    "sha256": "aef087efb6c74d077f140433db244030d04bc9b0baead8d6796dbf4b9364a03a"
+  },
+  "runId": "99e75fb2-6764-44d8-8e5a-66284897d290",
+  "previousIds": [
+    "AC-010",
+    "AC-011",
+    "REQ-011",
+    "REQ-012"
+  ],
+  "currentIds": [
+    "AC-010",
+    "AC-011",
+    "NFR-005",
+    "REQ-011",
+    "REQ-012"
+  ],
+  "testedRuntime": [
+    {
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "sha256": "bce07ec7a875ee7c1f01e7724b9c78022c59aa6e7fc96ca37b2ea27c2e76663b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
+      "sha256": "fcc678340e1796c16b3bd64e214800181f58c3c4affb5bcad46c687839969a05"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
+      "sha256": "0eadaaa61c0fa612d11e613c9ed63f209a3796dc736f2fea88f15017205f285d"
+    }
+  ],
+  "mcpAudit": {
+    "path": "specs/verification-first-factory/verification/T-008/evidence-id-refresh/mcp-gate-audit.json",
+    "sha256": "116a950da0a9fa36444454028b4a478f6372d92dd61197379112a65c3872d7a6"
+  },
+  "tests": [
+    {
+      "label": "task-tests",
+      "command": "node --test tests/v2-wave3-integration.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-spec-drift.test.mjs",
+      "exitCode": 0,
+      "counts": {
+        "tests": 53,
+        "pass": 53,
+        "fail": 0,
+        "skipped": 0
+      }
+    }
+  ]
+}

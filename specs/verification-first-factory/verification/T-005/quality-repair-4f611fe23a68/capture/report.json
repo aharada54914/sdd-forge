@@ -1,0 +1,483 @@
+{
+  "distribution_tag": "v1.7.4",
+  "observed_tool_version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+  "tool_asset_id": 184694200,
+  "jar_sha256": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+  "source_sha256": "51e6bd3fc2704d038903fec9468a5d0873ff7f788394f48f075529cd9ccc50d7",
+  "scope": "two contenders, one original ledger hash, one attempt each; no crashes, retries, hostile filesystem or OS-wide proof",
+  "runs": [
+    {
+      "case": "negative",
+      "exit_code": 12,
+      "seconds": 0.7224580409820192,
+      "counterexample": true,
+      "expected_result": true,
+      "real_code_replay": {
+        "accepted": 2,
+        "calls": [
+          {
+            "actor": "a",
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "actor": "b",
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": ""
+          }
+        ],
+        "entered": [
+          "a",
+          "b"
+        ],
+        "ledger": {
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "a",
+              "host_session_id": "a",
+              "previous_record_sha256": "",
+              "record_sha256": "a"
+            }
+          ]
+        }
+      },
+      "replay_expected": true
+    },
+    {
+      "case": "baseline",
+      "exit_code": 0,
+      "seconds": 0.7508407499990426,
+      "counterexample": false,
+      "expected_result": true,
+      "real_code_replay": {
+        "accepted": 1,
+        "calls": [
+          {
+            "actor": "a",
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "IDENTITY canonical identity ledger reservation is already in progress\n"
+          },
+          {
+            "actor": "b",
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": ""
+          }
+        ],
+        "entered": [
+          "b"
+        ],
+        "ledger": {
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "b",
+              "host_session_id": "b",
+              "previous_record_sha256": "",
+              "record_sha256": "b"
+            }
+          ]
+        },
+        "trace": [
+          {
+            "step": 0,
+            "action": "Init",
+            "state": {
+              "accepted": []
+            }
+          },
+          {
+            "step": 1,
+            "action": "Acquire",
+            "state": {
+              "accepted": []
+            },
+            "actor": 2
+          },
+          {
+            "step": 2,
+            "action": "Check",
+            "state": {
+              "accepted": []
+            },
+            "actor": 2
+          },
+          {
+            "step": 3,
+            "action": "Publish",
+            "state": {
+              "accepted": [
+                2
+              ]
+            },
+            "actor": 2
+          },
+          {
+            "step": 4,
+            "action": "Release",
+            "state": {
+              "accepted": [
+                2
+              ]
+            },
+            "actor": 2
+          }
+        ]
+      },
+      "replay_expected": true
+    }
+  ],
+  "trace_replays": [
+    {
+      "file": "observed.ndjson",
+      "expected_result": true,
+      "report": {
+        "schema": "sdd-formal-gate/v1",
+        "adapter": "tlc",
+        "mode": "strict",
+        "moduleName": "Reservation",
+        "structure": {
+          "ok": true,
+          "moduleName": "Reservation",
+          "invariants": [
+            "OneAccepted"
+          ],
+          "mapping": {
+            "source": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+            "source_sha256": "51e6bd3fc2704d038903fec9468a5d0873ff7f788394f48f075529cd9ccc50d7",
+            "property": "At most one contender with the same pre-reservation ledger hash is accepted.",
+            "mapping": {
+              "Acquire": "Python os.mkdir of identity-ledger.json.lock; only a successful OS directory creation grants the reservation",
+              "Check": "sha256_file ledger equals bound_ledger_sha256 after acquisition",
+              "Publish": "jq staged append followed by mv temp_ledger ledger",
+              "Release": "rmdir lock and EXIT cleanup"
+            },
+            "assumptions": [
+              "mkdir and same-directory rename are atomic",
+              "every writer honors this same lock",
+              "hash collision excluded",
+              "no hostile filesystem changes",
+              "two contenders each uses the same initial hash and attempts once"
+            ],
+            "excluded": [
+              "crash recovery",
+              "lease expiry",
+              "network filesystems",
+              "Windows behavior",
+              "entire application correctness"
+            ],
+            "previous_source_sha256": "3aa2fe5b3209a9d1a06692523fbce23eabb7c71fe2e317e18468fedb8d0b761a",
+            "reservation_tail_sha256": "91a91e8728c5ea71d0d86003672c2b0f67b9a60ec0dff33a0eed61f508c74615",
+            "mapping_recheck": "Acquire uses the mkdir syscall result directly, preserving the model's exclusive acquisition on Ubuntu 26.04. The replay holds the winner inside Check until its peer has attempted acquisition and compares critical-section entry, process status and the published ledger record. The mutation removes Acquire and Release and must admit both contenders.",
+            "previous_source_commit": "dc86a706cf3fe3b93ea5d9af3eec885e3290a769",
+            "expected_violated_invariant": "OneAccepted",
+            "sources": [
+              "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+            ],
+            "trace": {
+              "fields": [
+                "accepted"
+              ],
+              "actor_actions": [
+                "Acquire",
+                "Check",
+                "Publish",
+                "Release"
+              ]
+            }
+          },
+          "errors": []
+        },
+        "trace": {
+          "ok": true,
+          "stepsChecked": 5,
+          "violations": []
+        },
+        "checker": {
+          "baseline": {
+            "ok": true,
+            "status": 0,
+            "unavailable": false,
+            "timedOut": false,
+            "violatedInvariant": null,
+            "distinctStates": 15,
+            "depth": 8,
+            "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+            "command": {
+              "bin": "java",
+              "shell": false,
+              "args": [
+                "-XX:+UseParallelGC",
+                "-cp",
+                "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+                "tlc2.TLC",
+                "-generateSpecTE",
+                "-workers",
+                "1",
+                "-config",
+                "Reservation.cfg",
+                "Reservation.tla"
+              ]
+            }
+          },
+          "negative": {
+            "ok": true,
+            "status": 12,
+            "unavailable": false,
+            "timedOut": false,
+            "violatedInvariant": "OneAccepted",
+            "distinctStates": 25,
+            "depth": 7,
+            "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+            "expectedViolatedInvariant": "OneAccepted",
+            "invariantMentioned": true,
+            "command": {
+              "bin": "java",
+              "shell": false,
+              "args": [
+                "-XX:+UseParallelGC",
+                "-cp",
+                "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+                "tlc2.TLC",
+                "-generateSpecTE",
+                "-workers",
+                "1",
+                "-config",
+                "Reservation.negative.cfg",
+                "Reservation.tla"
+              ]
+            }
+          },
+          "command": {
+            "bin": "java",
+            "shell": false,
+            "args": [
+              "-XX:+UseParallelGC",
+              "-cp",
+              "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+              "tlc2.TLC",
+              "-generateSpecTE",
+              "-workers",
+              "1",
+              "-config",
+              "Reservation.cfg",
+              "Reservation.tla"
+            ]
+          },
+          "replay": {
+            "ok": true,
+            "status": 12,
+            "unavailable": false,
+            "timedOut": false,
+            "violatedInvariant": "TraceIncomplete",
+            "distinctStates": 5,
+            "depth": 5,
+            "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+            "expectedViolatedInvariant": "TraceIncomplete",
+            "invariantMentioned": true,
+            "command": {
+              "bin": "java",
+              "shell": false,
+              "args": [
+                "-XX:+UseParallelGC",
+                "-cp",
+                "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+                "tlc2.TLC",
+                "-generateSpecTE",
+                "-workers",
+                "1",
+                "-config",
+                "SDDTraceReplay.cfg",
+                "SDDTraceReplay.tla"
+              ]
+            }
+          }
+        },
+        "evidence": "reports/verification/formal-3dd422da-cbf1-4c2f-8498-52eba494cb00/checker-2jPhZz",
+        "status": "PASS",
+        "exitCode": 0
+      }
+    },
+    {
+      "file": "out-of-order.ndjson",
+      "expected_result": true,
+      "report": {
+        "schema": "sdd-formal-gate/v1",
+        "adapter": "tlc",
+        "mode": "strict",
+        "moduleName": "Reservation",
+        "structure": {
+          "ok": true,
+          "moduleName": "Reservation",
+          "invariants": [
+            "OneAccepted"
+          ],
+          "mapping": {
+            "source": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+            "source_sha256": "51e6bd3fc2704d038903fec9468a5d0873ff7f788394f48f075529cd9ccc50d7",
+            "property": "At most one contender with the same pre-reservation ledger hash is accepted.",
+            "mapping": {
+              "Acquire": "Python os.mkdir of identity-ledger.json.lock; only a successful OS directory creation grants the reservation",
+              "Check": "sha256_file ledger equals bound_ledger_sha256 after acquisition",
+              "Publish": "jq staged append followed by mv temp_ledger ledger",
+              "Release": "rmdir lock and EXIT cleanup"
+            },
+            "assumptions": [
+              "mkdir and same-directory rename are atomic",
+              "every writer honors this same lock",
+              "hash collision excluded",
+              "no hostile filesystem changes",
+              "two contenders each uses the same initial hash and attempts once"
+            ],
+            "excluded": [
+              "crash recovery",
+              "lease expiry",
+              "network filesystems",
+              "Windows behavior",
+              "entire application correctness"
+            ],
+            "previous_source_sha256": "3aa2fe5b3209a9d1a06692523fbce23eabb7c71fe2e317e18468fedb8d0b761a",
+            "reservation_tail_sha256": "91a91e8728c5ea71d0d86003672c2b0f67b9a60ec0dff33a0eed61f508c74615",
+            "mapping_recheck": "Acquire uses the mkdir syscall result directly, preserving the model's exclusive acquisition on Ubuntu 26.04. The replay holds the winner inside Check until its peer has attempted acquisition and compares critical-section entry, process status and the published ledger record. The mutation removes Acquire and Release and must admit both contenders.",
+            "previous_source_commit": "dc86a706cf3fe3b93ea5d9af3eec885e3290a769",
+            "expected_violated_invariant": "OneAccepted",
+            "sources": [
+              "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+            ],
+            "trace": {
+              "fields": [
+                "accepted"
+              ],
+              "actor_actions": [
+                "Acquire",
+                "Check",
+                "Publish",
+                "Release"
+              ]
+            }
+          },
+          "errors": []
+        },
+        "trace": {
+          "ok": false,
+          "stepsChecked": 5,
+          "violations": [
+            "The baseline model could not reproduce the observed trace"
+          ]
+        },
+        "checker": {
+          "baseline": {
+            "ok": true,
+            "status": 0,
+            "unavailable": false,
+            "timedOut": false,
+            "violatedInvariant": null,
+            "distinctStates": 15,
+            "depth": 8,
+            "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+            "command": {
+              "bin": "java",
+              "shell": false,
+              "args": [
+                "-XX:+UseParallelGC",
+                "-cp",
+                "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+                "tlc2.TLC",
+                "-generateSpecTE",
+                "-workers",
+                "1",
+                "-config",
+                "Reservation.cfg",
+                "Reservation.tla"
+              ]
+            }
+          },
+          "negative": {
+            "ok": true,
+            "status": 12,
+            "unavailable": false,
+            "timedOut": false,
+            "violatedInvariant": "OneAccepted",
+            "distinctStates": 25,
+            "depth": 7,
+            "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+            "expectedViolatedInvariant": "OneAccepted",
+            "invariantMentioned": true,
+            "command": {
+              "bin": "java",
+              "shell": false,
+              "args": [
+                "-XX:+UseParallelGC",
+                "-cp",
+                "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+                "tlc2.TLC",
+                "-generateSpecTE",
+                "-workers",
+                "1",
+                "-config",
+                "Reservation.negative.cfg",
+                "Reservation.tla"
+              ]
+            }
+          },
+          "command": {
+            "bin": "java",
+            "shell": false,
+            "args": [
+              "-XX:+UseParallelGC",
+              "-cp",
+              "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+              "tlc2.TLC",
+              "-generateSpecTE",
+              "-workers",
+              "1",
+              "-config",
+              "Reservation.cfg",
+              "Reservation.tla"
+            ]
+          },
+          "replay": {
+            "ok": false,
+            "status": 0,
+            "unavailable": false,
+            "timedOut": false,
+            "violatedInvariant": null,
+            "distinctStates": 2,
+            "depth": 2,
+            "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+            "expectedViolatedInvariant": "TraceIncomplete",
+            "invariantMentioned": false,
+            "command": {
+              "bin": "java",
+              "shell": false,
+              "args": [
+                "-XX:+UseParallelGC",
+                "-cp",
+                "/private/tmp/sdd-formal-runtime/tla2tools.jar",
+                "tlc2.TLC",
+                "-generateSpecTE",
+                "-workers",
+                "1",
+                "-config",
+                "SDDTraceReplay.cfg",
+                "SDDTraceReplay.tla"
+              ]
+            }
+          }
+        },
+        "evidence": "reports/verification/formal-4561afe8-28b2-4da5-afae-cd48b8f2252d/checker-aUyFrD",
+        "status": "FAIL",
+        "exitCode": 1
+      }
+    }
+  ],
+  "passed": true
+}

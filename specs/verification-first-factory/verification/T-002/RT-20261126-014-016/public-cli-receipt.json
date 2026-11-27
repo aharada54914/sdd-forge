@@ -1,0 +1,95 @@
+{
+  "tickets": [
+    "RT-20261126-014",
+    "RT-20261126-016"
+  ],
+  "before": "344ae9fe885fab5eba5da7ec4ef41e3068e9821d",
+  "after": "936f182edd83a650458efccb032f111cd211c8c9",
+  "scratch": "/private/tmp/vff-013-me9zsxuv/repo",
+  "path_control": "node --test --test-name-pattern='checks retirement approvals for complete' tests/v2-spec-drift.test.mjs",
+  "integrated_command": "node --test --test-reporter=spec tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs",
+  "red_green": [
+    {
+      "log": "integrated.log",
+      "sha256": "adfa22050e4efcfd6e05a507d85ce8f794d17fede67e0b0a4090a24604eb2d44",
+      "counts": {
+        "tests": 81,
+        "pass": 81,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "log": "path-green.tap",
+      "sha256": "6e29b9f40049d5821906b25e7436bb43bc07144bbf2801d326fea8420d83a4f1",
+      "counts": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "log": "path-red.tap",
+      "sha256": "51a98f8353d9d7038fbbf6a7f40f5c12ebeed717d0130e024db2c92fca4bb6f7",
+      "counts": {
+        "tests": 1,
+        "pass": 0,
+        "fail": 1,
+        "skipped": 0
+      },
+      "raw_sha256": "a2ba119686f39a1115cb43b8925ecbb455e086d059c72ae30d1ac82f254784e2"
+    },
+    {
+      "log": "zsh-raw-parser.log",
+      "sha256": "2f5769e848e9f38b867f48e1226fd9d09c6048fdfded22ac3f30f912caf6a285",
+      "counts": {}
+    },
+    {
+      "log": "zsh-rebuild.log",
+      "sha256": "33570242f4f48c043538ce439f9bcf1284f5c260d6c68c355084f5e321f0f4ed",
+      "counts": {}
+    },
+    {
+      "log": "zsh-red.log",
+      "sha256": "1e1e1b07881d25c7647beeae1d86e86a24f7090cbc205170b01713f1377484d1",
+      "counts": {
+        "tests": 3,
+        "pass": 2,
+        "fail": 1,
+        "skipped": 0
+      },
+      "raw_sha256": "c74b03ef9eadb316fc6da51954c8b9947e7ff2363a2e432036049381dfd82ce8"
+    },
+    {
+      "log": "zsh-variants-green.log",
+      "sha256": "6c817d129ce21fb7f650a9fe6a990f20c41df2294e8d5152713028c234ad5d88",
+      "counts": {
+        "tests": 14,
+        "pass": 14,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "log": "zsh-variants-red.log",
+      "sha256": "6a6970d6df47e200fddebfa7eef431b8a0972c0bbd6e7346a1431a8bcddb431f",
+      "counts": {
+        "tests": 14,
+        "pass": 13,
+        "fail": 1,
+        "skipped": 0
+      },
+      "raw_sha256": "1a8508ce3c35e2636d9120b395930f9bdb671267e68a3f55138ca10afc4c7361"
+    }
+  ],
+  "installation": {
+    "receipt": "installed-cli.json",
+    "sha256": "e263620964e264948afcb641934d81c1aa653db74111294bd6eb20f893107b54"
+  },
+  "contributors": {
+    "zsh": "01a215e6-7f68-7da2-a693-d5cf25127247",
+    "test_directory": "01a215e6-b64c-7140-a7b5-6f51842acc1d"
+  },
+  "log_normalization": "Trailing spaces on diagnostic lines removed for git. raw_sha256 identifies original output where this changed the hash."
+}

@@ -1,0 +1,93 @@
+{
+  "baseline": "484cbe7aef828488ee49fa5d92569917e74c5891",
+  "candidate": "569e1db909be2df95324eaf35b0e3cd141824ec2",
+  "fixture": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1576c3de812c15bfb6a6516c96d8693374064f43976ff448bdb355f30bc7159e"
+    },
+    {
+      "path": "sdd/guardrails.yaml",
+      "sha256": "79d3cca3689f58c681467e1ab90e4b1e5f276ec8014c6b1ce69cf2e2a3b98557"
+    },
+    {
+      "path": "specs/v2-lightweight-guardrails/requirements.md",
+      "sha256": "7a63d1e41c78080060294b2768d7652f45974680b16d213e77495bf5a6366559"
+    },
+    {
+      "path": "specs/v2-lightweight-guardrails/tasks.md",
+      "sha256": "df7f192d19fe7b5448ce1aa37bea90cdda072cfbe56a9587b0993f06bbedbb73"
+    },
+    {
+      "path": "specs/v2-lightweight-guardrails/design.md",
+      "sha256": "c118f25f62501f9e5a47c8ff6eb7c9a8f797415d765df261f5cbb12818d7f3c9"
+    }
+  ],
+  "pairs": [
+    {
+      "baseline": {
+        "exit": 0,
+        "ms": 36.942,
+        "status": "CLEAN"
+      },
+      "candidate": {
+        "exit": 0,
+        "ms": 41.822,
+        "status": "CLEAN"
+      },
+      "delta_ms": 4.88
+    },
+    {
+      "candidate": {
+        "exit": 0,
+        "ms": 41.136,
+        "status": "CLEAN"
+      },
+      "baseline": {
+        "exit": 0,
+        "ms": 38.953,
+        "status": "CLEAN"
+      },
+      "delta_ms": 2.183
+    },
+    {
+      "baseline": {
+        "exit": 0,
+        "ms": 36.558,
+        "status": "CLEAN"
+      },
+      "candidate": {
+        "exit": 0,
+        "ms": 37.616,
+        "status": "CLEAN"
+      },
+      "delta_ms": 1.058
+    },
+    {
+      "candidate": {
+        "exit": 0,
+        "ms": 38.421,
+        "status": "CLEAN"
+      },
+      "baseline": {
+        "exit": 0,
+        "ms": 38.825,
+        "status": "CLEAN"
+      },
+      "delta_ms": -0.404
+    },
+    {
+      "baseline": {
+        "exit": 0,
+        "ms": 35.259,
+        "status": "CLEAN"
+      },
+      "candidate": {
+        "exit": 0,
+        "ms": 39.449,
+        "status": "CLEAN"
+      },
+      "delta_ms": 4.19
+    }
+  ]
+}

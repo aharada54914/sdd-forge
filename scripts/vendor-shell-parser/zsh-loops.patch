@@ -1,0 +1,34 @@
+--- a/vendor/mvdan.cc/sh/v3/syntax/parser.go
++++ b/vendor/mvdan.cc/sh/v3/syntax/parser.go
+@@ -2201 +2200,0 @@
+-			// TODO(zsh): "repeat"
+@@ -2202,0 +2202,4 @@
++		case "repeat":
++			if p.lang.in(LangZsh) {
++				p.zshLoop(s, true)
++			}
+@@ -2204 +2207,5 @@
+-			p.forClause(s)
++			if p.lang.in(LangZsh) {
++				p.zshLoop(s, false)
++			} else {
++				p.forClause(s)
++			}
+--- a/vendor/mvdan.cc/sh/v3/syntax/nodes.go
++++ b/vendor/mvdan.cc/sh/v3/syntax/nodes.go
+@@ -444,0 +445,2 @@
++	RepeatCount            *Word // zsh repeat in place of a for iterator
++	ShortEnd               Pos   // end of a zsh loop with a single sublist
+@@ -451,0 +454,3 @@
++	if f.ShortEnd.IsValid() {
++		return f.ShortEnd
++	}
+--- a/vendor/mvdan.cc/sh/v3/syntax/walk.go
++++ b/vendor/mvdan.cc/sh/v3/syntax/walk.go
+@@ -70 +70,5 @@
+-		Walk(node.Loop, f)
++		if node.RepeatCount != nil {
++			Walk(node.RepeatCount, f)
++		} else {
++			Walk(node.Loop, f)
++		}

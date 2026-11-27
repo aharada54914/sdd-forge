@@ -17,3 +17,7 @@ AGENT_STOP
 # R-10 scratchpad handoff leftovers (human-cp staging areas; never commit)
 scratchpad-T006/
 scratchpad-T007/
+
+# ADR-0054 formal model checker state dumps & caches
+states/
+.sdd-formal-cache/

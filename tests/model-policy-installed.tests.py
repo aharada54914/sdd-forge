@@ -72,7 +72,6 @@ COPILOT = {'plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md': 'ev
            'plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md': 'investigator'}
 PROTECTED = {'plugins/sdd-review-loop/agents/' + name + '.md': name
              for name in ('impl-reviewer-a', 'impl-reviewer-b', 'task-reviewer-a', 'task-reviewer-b')}
-TARGETS = {**CLAUDE, **CODEX, **COPILOT, **PROTECTED}
 
 
 def frontmatter(text):
@@ -93,8 +92,9 @@ def tree(root):
 
 
 class ManagedFixture(LaunchFixture):
-    """T-007 LaunchFixture plus copied renderers, current role files and the frozen epic-159 copy."""
+    """T-007 LaunchFixture plus both renderers and the role files exercised by the suite."""
     host = launch.HOST
+    render_targets: dict[str, str]
 
     def setUp(self):
         self.assertTrue(PWSH and os.access(PWSH, os.X_OK), 'PowerShell is required; fixture setup failure')
@@ -104,17 +104,13 @@ class ManagedFixture(LaunchFixture):
         copilot.chmod(0o755)
         # New adapter absence is product RED, never a copy-time setup exception.
         copied = [ADAPTER] if (ROOT / ADAPTER).is_file() else []
-        for rel in ('render-agent-frontmatter.sh', 'render-agent-frontmatter.ps1', *TARGETS, *PROTECTED_SKILLS, *copied):
+        self.copy_inputs('render-agent-frontmatter.sh', 'render-agent-frontmatter.ps1', *self.render_targets, *copied)
+        self.originals = {rel: (self.root / rel).read_bytes() for rel in self.render_targets}
+
+    def copy_inputs(self, *rels):
+        for rel in rels:
             (self.root / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / rel, self.root / rel)
-        if (ROOT / FROZEN).is_dir():
-            shutil.copytree(ROOT / FROZEN, self.root / FROZEN)
-        else:  # stand-in only when the frozen copy is absent; it must never change either
-            (self.root / FROZEN).mkdir(parents=True)
-            (self.root / FROZEN / 'MANIFEST.sha256').write_text('0' * 64 + '  frozen-fixture-sentinel\n')
-        self.originals = {rel: (self.root / rel).read_bytes() for rel in TARGETS}
-        self.transport = launch.load_module(launch.TRANSPORT_SCRIPT, 'transport')
-        self.addCleanup(sys.modules.pop, self.transport.__name__, None)
 
     def bind(self, role, *, budget=False):
         """Real selector selection accepted by the real T-007 launch-controls CLI; returns its resolution."""
@@ -188,6 +184,30 @@ class ManagedFixture(LaunchFixture):
 
 
 class ManagedClaudeRoles(ManagedFixture):
+    render_targets = {**CLAUDE, **CODEX, **COPILOT}
+
+    def setUp(self):
+        super().setUp()
+        # These are sibling write detectors in current-role tests. The staging tests
+        # below require and copy the actual protected role and skill sources.
+        for rel in (*PROTECTED, *PROTECTED_SKILLS):
+            sibling = self.root / rel
+            sibling.parent.mkdir(parents=True, exist_ok=True)
+            sibling.write_text(f'---\nname: {sibling.stem}\n---\nProtected fixture sibling: {rel}\n')
+        if (ROOT / FROZEN).is_dir():
+            shutil.copytree(ROOT / FROZEN, self.root / FROZEN)
+        else:  # stand-in only when the frozen copy is absent; it must never change either
+            (self.root / FROZEN).mkdir(parents=True)
+            (self.root / FROZEN / 'MANIFEST.sha256').write_text('0' * 64 + '  frozen-fixture-sentinel\n')
+        self.transport = launch.load_module(launch.TRANSPORT_SCRIPT, 'transport')
+        self.addCleanup(sys.modules.pop, self.transport.__name__, None)
+
+    def require_protected_sources(self):
+        sources = (*PROTECTED, *PROTECTED_SKILLS)
+        missing = [rel for rel in sources if not (ROOT / rel).is_file()]
+        self.assertEqual(missing, [], 'protected staging requires all four roles and both skills')
+        self.copy_inputs(*sources)
+        self.originals.update({rel: (self.root / rel).read_bytes() for rel in PROTECTED})
 
     def test_explicit_empty_root_is_rejected_before_any_installed_target_write(self):
         target = next(iter(CLAUDE))
@@ -301,6 +321,7 @@ class ManagedClaudeRoles(ManagedFixture):
                     self.assertEqual(tree(self.root), before)
 
     def test_protected_reviewers_stage_exact_current_copy_and_raw_pin(self):
+        self.require_protected_sources()
         for rel, role in PROTECTED.items():
             resolved = self.bind(role)
             for shell in SHELLS:
@@ -469,6 +490,10 @@ class ManagedClaudeRoles(ManagedFixture):
                 finally:
                     target.unlink()
                     target.write_bytes(original)
+
+    def test_protected_staging_rejects_symlink(self):
+        self.require_protected_sources()
+        for shell in SHELLS:
             protected_rel = 'plugins/sdd-review-loop/agents/impl-reviewer-a.md'
             for case in ('staging-ancestor', 'staged-target', 'manifest'):
                 with self.subTest(shell=shell, staging_symlink=case):
@@ -549,6 +574,7 @@ class ManagedClaudeRoles(ManagedFixture):
 
 class ManagedCodexRoles(ManagedFixture):
     host = 'codex-cli'
+    render_targets = CODEX
 
     def codex_model(self):
         return next(m for m in self.trusted_policy['models'] if 'codex-cli' in m['hosts'])
@@ -639,12 +665,19 @@ class ManagedCodexRoles(ManagedFixture):
     def test_legacy_default_render_remains_comment_only(self):  # preservation guard, expected GREEN at baseline
         for shell in SHELLS:
             with self.subTest(shell=shell):
-                self.restore(*TARGETS)
+                self.restore(*CODEX)
+                # The default invocation renders these four Markdown files alongside the two Codex roles.
+                self.copy_inputs('plugins/sdd-quality-loop/agents/evaluator.md',
+                                 'plugins/sdd-bootstrap/agents/investigator.md',
+                                 'plugins/sdd-review-loop/agents/spec-reviewer-a.md',
+                                 'plugins/sdd-review-loop/agents/spec-reviewer-b.md')
                 result = self.render(shell, legacy=True)
                 self.assertEqual(result.returncode, 0, result.stderr[-1500:])
                 for rel in CODEX:
                     self.assertTrue(self.text(rel).startswith('# x-sdd-model: '))
+                    self.assertRegex(self.text(rel), r'(?m)^# x-sdd-effort: \S+$')
                     self.assertFalse(set(RUNTIME_TOML) & set(self.toml(rel)), 'legacy mode adds no runtime keys')
+                    self.assertEqual(self.toml(rel), tomllib.loads(self.originals[rel].decode('utf-8')))
 
 
 

@@ -6,6 +6,15 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INSTALLER="${REPO_ROOT}/install.sh"
+# Keep host configuration inside the fixture, including the initial payload checks.
+SOURCE_FIXTURE_ROOT="$(mktemp -d)"
+trap 'rm -rf "$SOURCE_FIXTURE_ROOT"' EXIT
+export SDD_CODEX_HOME="${SOURCE_FIXTURE_ROOT}/codex-not-installed"
+export SDD_CURSOR_DIR="${SOURCE_FIXTURE_ROOT}/cursor-not-installed"
+export SDD_ANTIGRAVITY_CONFIG_DIR="${SOURCE_FIXTURE_ROOT}/antigravity-not-installed"
+export SDD_GEMINI_DIR="${SOURCE_FIXTURE_ROOT}/gemini-not-installed"
+export SDD_VSCODE_USER_DIR="${SOURCE_FIXTURE_ROOT}/vscode-not-installed"
+
 python3 "${REPO_ROOT}/tests/lib/install-payload-check.py" --runtime bash
 # shellcheck source=tests/lib/fixture-matrix-builder.sh
 source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
@@ -42,7 +51,6 @@ clone_fixture() {
 # Local installs intentionally copy Git-tracked files only. Overlay the
 # installer and Claude manifests under test so the fixture exercises this
 # working tree without including unrelated untracked files.
-SOURCE_FIXTURE_ROOT="$(mktemp -d)"
 SOURCE_FIXTURE="${SOURCE_FIXTURE_ROOT}/source"
 clone_fixture "$REPO_ROOT" "$SOURCE_FIXTURE"
 for relative_path in \
@@ -163,34 +171,20 @@ echo "noise" > "${SOURCE_FIXTURE}/mcp/ci-mcp/node_modules/should-not-copy/index.
 echo "noise" > "${SOURCE_FIXTURE}/mcp/ci-mcp/src/index.ts"
 echo "noise" > "${SOURCE_FIXTURE}/mcp/ci-mcp/tests/index.test.ts"
 
-# T-007 (AC-010/011/015): install.sh registers MCP servers with Cursor and
-# VS Code via SDD_CURSOR_DIR / SDD_VSCODE_USER_DIR-overridable config paths.
-# Tests must NEVER touch the real user's client configs, so point both at
-# non-existent directories inside an isolated root by default (an absent
-# client directory means "client not installed" and registration skips).
-# Scenarios that exercise the upsert override these per-scenario and restore
-# them to these defaults afterwards.
-GLOBAL_IDE_ROOT="$(mktemp -d)"
-export SDD_CURSOR_DIR="${GLOBAL_IDE_ROOT}/cursor-not-installed"
-export SDD_GEMINI_DIR="${GLOBAL_IDE_ROOT}/gemini-not-installed"
-export SDD_VSCODE_USER_DIR="${GLOBAL_IDE_ROOT}/vscode-not-installed"
-
-trap 'rm -rf "$SOURCE_FIXTURE_ROOT" "$GLOBAL_IDE_ROOT"' EXIT
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 ok() { echo "ok: $*"; PASS=$((PASS+1)); }
 fail() { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
 
-# Create fake codex / claude / copilot shims in a temp bin dir.
+# Log host and GitHub CLI calls inside the fixture.
 # Args: bin_dir log_path [fail_pattern]
 make_fake_commands() {
     local bin_dir="$1"
     local log_path="$2"
     local fail_pattern="${3:-}"
     mkdir -p "$bin_dir"
-    for cmd in codex claude copilot gh; do
+    for cmd in codex claude copilot gh agy gemini; do
         local shim="${bin_dir}/${cmd}"
         if [[ "$cmd" == "gh" ]]; then
             cat > "$shim" <<SHIM
@@ -452,30 +446,27 @@ invoke_installer_scenario() {
         requested_plugins+=("$plugin")
     done < <(resolve_registered_plugins "${initial_plugins[@]}")
 
-    local log=""
-    [[ -f "$command_log" ]] && log="$(cat "$command_log")"
-
     # Registered expected commands
     for p in "${requested_plugins[@]}"; do
-        if ! echo "$log" | grep -qF "codex plugin add ${p}@sdd-plugins"; then
+        if ! grep -qF "codex plugin add ${p}@sdd-plugins" "$command_log"; then
             fail "expected command not found: codex plugin add ${p}@sdd-plugins"
             all_ok=0
         fi
-        if ! echo "$log" | grep -qF "claude plugin install ${p}@sdd-plugins"; then
+        if ! grep -qF "claude plugin install ${p}@sdd-plugins" "$command_log"; then
             fail "expected command not found: claude plugin install ${p}@sdd-plugins"
             all_ok=0
         fi
-        if ! echo "$log" | grep -qF "copilot plugin install ${p}@sdd-plugins"; then
+        if ! grep -qF "copilot plugin install ${p}@sdd-plugins" "$command_log"; then
             fail "expected command not found: copilot plugin install ${p}@sdd-plugins"
             all_ok=0
         fi
     done
     # Copilot marketplace command
-    if ! echo "$log" | grep -qF "copilot plugin marketplace add"; then
+    if ! grep -qF "copilot plugin marketplace add" "$command_log"; then
         fail "expected command not found: copilot plugin marketplace add"
         all_ok=0
     fi
-    if ! echo "$log" | grep -qF "codex plugin marketplace add"; then
+    if ! grep -qF "codex plugin marketplace add" "$command_log"; then
         fail "expected command not found: codex plugin marketplace add"
         all_ok=0
     fi
@@ -487,14 +478,17 @@ invoke_installer_scenario() {
             [[ "$p" == "$r" ]] && selected=1 && break
         done
         if [[ $selected -eq 0 ]]; then
-            if echo "$log" | grep -qF "plugin add ${p}@sdd-plugins" || \
-               echo "$log" | grep -qF "plugin install ${p}@sdd-plugins"; then
+            if grep -qF "plugin add ${p}@sdd-plugins" "$command_log" || \
+               grep -qF "plugin install ${p}@sdd-plugins" "$command_log"; then
                 fail "installer registered unselected plugin: $p"
                 all_ok=0
             fi
         fi
     done
 
+    if [[ $all_ok -eq 0 && -f "$command_log" ]]; then
+        grep -E '^(codex|claude|copilot) plugin ' "$command_log" >&2 || true
+    fi
     rm -rf "$test_root"
     [[ $all_ok -eq 1 ]]
 }

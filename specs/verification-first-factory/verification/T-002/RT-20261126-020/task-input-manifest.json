@@ -1,0 +1,60 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-002",
+  "run_id": "b7cc342f-7977-4b96-9cf8-36714218ae04",
+  "session_id": "01a216cf-c049-7ad2-9948-f949d1f63493",
+  "agent_instance_id": "01a216cf-c049-7ad2-9948-f949d1f63493",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6.2-astra",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "Previous T-002 estimate for the same model and effort on the Codex subscription. No per-run bill was collected.",
+  "cost_estimate_timestamp": "2026-11-26T07:46:53Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/verification-first-factory/verification/T-002/RT-20261126-020/original-020.yml",
+      "sha256": "2a77c93739c965bdb39731ef331bc2000eed04aeb7aa338482887a64f6f72ac7"
+    },
+    {
+      "path": "CODEOWNERS",
+      "sha256": "da1bbc91a4bf360b76da648ea886afd2d6e610a7bc7a31a784e78df05e41f73c"
+    },
+    {
+      "path": "sdd/approved-test-retirements.json",
+      "sha256": "79e34a84d77f2cc10a807cd33210dbef8ae5764a36f1cc0e5d7d40a724e1dd8a"
+    },
+    {
+      "path": "reports/quality-gate/verification-first-factory-T-002.md",
+      "sha256": "05cff5572dc57c7ea97218e7a262b0890a50051fbc9254e348dcad404d9b16da"
+    },
+    {
+      "path": "specs/verification-first-factory/verification/T-002/quality-repair-1129b486847c/execution.json",
+      "sha256": "b45169b88b23f1fa1936d86e7ca4d87ea52b5ae30e207a7fefda4fa606761606"
+    },
+    {
+      "path": "specs/verification-first-factory/tasks.md",
+      "sha256": "2eadbe6c041677a1816535e5499c3bb94e1ff1e8c794bc44368d0ff6cf3d4703"
+    },
+    {
+      "path": "specs/verification-first-factory/requirements.md",
+      "sha256": "46365063daf64e00cdaa901db86257a790cc1d6cce6cac66a6c0fbcf23513f6c"
+    },
+    {
+      "path": "specs/verification-first-factory/design.md",
+      "sha256": "1417486b01a43e1ec85e7f71712be6328e113746646d826428b0f50ad58ac7a4"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
+    "tests/v2-spec-drift.test.mjs",
+    "specs/self-verification/formal/mapping.json",
+    "reports/implementation/verification-first-factory/T-002.md",
+    "docs/review-tickets/RT-20261126-020.yml",
+    "specs/verification-first-factory/verification/T-002/RT-20261126-020/task-input-manifest.json",
+    "specs/verification-first-factory/verification/T-002/RT-20261126-020/windows-ci.json",
+    "specs/verification-first-factory/verification/T-002/RT-20261126-020/posix-run.json"
+  ]
+}

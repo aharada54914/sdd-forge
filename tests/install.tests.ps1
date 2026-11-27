@@ -7,6 +7,17 @@ Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 
+# Keep host configuration inside the fixture, including the initial payload checks.
+$global:SddInstallerIdeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-ide-" + [guid]::NewGuid())
+$env:SDD_CODEX_HOME = Join-Path $global:SddInstallerIdeRoot "codex-not-installed"
+$env:SDD_CURSOR_DIR = Join-Path $global:SddInstallerIdeRoot "cursor-not-installed"
+$env:SDD_ANTIGRAVITY_CONFIG_DIR = Join-Path $global:SddInstallerIdeRoot "antigravity-not-installed"
+$env:SDD_GEMINI_DIR = Join-Path $global:SddInstallerIdeRoot "gemini-not-installed"
+$env:SDD_VSCODE_USER_DIR = Join-Path $global:SddInstallerIdeRoot "vscode-not-installed"
+
+# Let each scenario select its Claude stub from PATH.
+Remove-Item Env:SDD_CLAUDE_BIN -ErrorAction SilentlyContinue
+
 if ($Lane -in @('all', 'core')) {
     # Registered black-box payload checks with isolated local/archive fixtures.
     $payloadPython = Get-Command python3 -ErrorAction SilentlyContinue
@@ -219,18 +230,6 @@ Set-Content -Path (Join-Path $ciMcpSourceDir "node_modules/should-not-copy/index
 Set-Content -Path (Join-Path $ciMcpSourceDir "src/index.ts") -Value "noise" -Encoding Utf8NoBOM
 Set-Content -Path (Join-Path $ciMcpSourceDir "tests/index.test.ts") -Value "noise" -Encoding Utf8NoBOM
 
-# T-007/T-008 (AC-010/011/013/015): install.ps1 registers MCP servers with
-# Cursor and VS Code via SDD_CURSOR_DIR / SDD_VSCODE_USER_DIR-overridable config
-# paths. Tests must NEVER touch the real user's client configs, so point both at
-# non-existent directories inside an isolated root by default (an absent client
-# directory means "client not installed" and registration skips). Scenarios that
-# exercise the upsert override these per-scenario and restore them afterwards.
-$global:SddInstallerIdeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-ide-" + [guid]::NewGuid())
-New-Item -ItemType Directory -Path $global:SddInstallerIdeRoot -Force | Out-Null
-$env:SDD_CURSOR_DIR = Join-Path $global:SddInstallerIdeRoot "cursor-not-installed"
-$env:SDD_GEMINI_DIR = Join-Path $global:SddInstallerIdeRoot "gemini-not-installed"
-$env:SDD_VSCODE_USER_DIR = Join-Path $global:SddInstallerIdeRoot "vscode-not-installed"
-
 function New-FakeCommands {
     param(
         [Parameter(Mandatory)][string]$BinRoot,
@@ -239,7 +238,7 @@ function New-FakeCommands {
     )
 
     New-Item -ItemType Directory -Path $BinRoot -Force | Out-Null
-    foreach ($command in @("codex", "claude", "copilot", "gh")) {
+    foreach ($command in @("codex", "claude", "copilot", "gh", "agy", "gemini")) {
         if ($isWindowsPlatform) {
             $commandPath = Join-Path $BinRoot "$command.cmd"
             $failureLine = if ($FailPattern -and $command -ne "gh") { "@echo %*| findstr /c:`"$FailPattern`" >nul && exit /b 9`r`n" } else { "" }

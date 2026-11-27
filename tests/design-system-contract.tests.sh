@@ -3,12 +3,73 @@ set -u
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 SCHEMA="$ROOT/contracts/design-system.contract.v1.schema.json"
-TOKENS="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-tokens.template.json"
+TOKENS="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-tokens.template.json"
 PASS=0
 FAIL=0
 
 pass() { PASS=$((PASS + 1)); printf 'PASS: %s\n' "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf 'FAIL: %s\n' "$1"; }
+
+# V-08: Detect v2 layout (sdd-core-spec + sdd-gate, no retired sdd-bootstrap-interviewer / sdd-lite)
+# and route to the current v2 design-system contract checks while retaining the legacy v1 branch below.
+if [ ! -f "$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md" ] \
+   && [ ! -f "$ROOT/plugins/sdd-lite/templates/design-lite.md" ]; then
+  v2_ds_001() {
+    grep -Fq 'https://sdd-forge.dev/contracts/design-system.contract.v1.schema.json' "$SCHEMA" \
+      && grep -Fq '"design-system-contract/v1"' "$SCHEMA" \
+      && grep -Fq '"schema": "design-system-contract/v1"' "$TOKENS" \
+      && grep -Eq '"version": "[0-9]+\.[0-9]+\.[0-9]+"' "$TOKENS" \
+      && grep -Eq '"generated_by": "(design-sync-loop|ui-ux-pro-max|manual|figma-dtcg-import)"' "$TOKENS" \
+      && grep -Fq '"profile": "custom"' "$TOKENS"
+  }
+  v2_ds_002() {
+    grep -Fq '"color"' "$TOKENS" \
+      && grep -Fq '"typography"' "$TOKENS" \
+      && grep -Fq '"spacing"' "$TOKENS" \
+      && grep -Fq '"$type"' "$TOKENS" \
+      && grep -Fq '"$value"' "$TOKENS" \
+      && node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" design-system >/dev/null
+  }
+  v2_ds_003() {
+    DS="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-system.template.md"
+    UIP="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/templates/ui-patterns.template.md"
+    grep -Eq '^## Layer 1 — Tokens \(machine-extracted\)$' "$DS" \
+      && grep -Eq '^## Layer 2 — Do / Don'"'"'t \(component conventions\)$' "$DS" \
+      && grep -Eq '^## Layer 3 — Review checklist \(human-curated\)$' "$DS" \
+      && grep -Eq '^## Change Process$' "$DS" \
+      && grep -Eq 'WCAG 2\.2 AA' "$DS" \
+      && grep -Eq '^## Actions$' "$UIP" \
+      && grep -Eq '^## Dialogs$' "$UIP" \
+      && grep -Eq '^## Icons$' "$UIP" \
+      && grep -Eq '^## Flow$' "$UIP" \
+      && grep -Eq '^## States$' "$UIP" \
+      && grep -Eq '^## Cognitive Load$' "$UIP"
+  }
+  v2_ds_004() {
+    DSL="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
+    VVL="$ROOT/plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md"
+    GATE="$ROOT/plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md"
+    CORE="$ROOT/plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md"
+    grep -Fq 'design-tokens.json' "$DSL" \
+      && grep -Fq 'Figma DTCG JSON' "$DSL" \
+      && grep -Fq 'MASTER.md' "$DSL" \
+      && grep -Fq 'design-system/{design-tokens.json,ui-patterns.md}' "$VVL" \
+      && grep -Fq 'sdd-gate' "$VVL" \
+      && [ -f "$ROOT/plugins/sdd-quality-loop/scripts/check-design-system.sh" ] \
+      && [ -f "$ROOT/plugins/sdd-quality-loop/scripts/check-design-system.ps1" ] \
+      && grep -Fq '**G5**' "$GATE" \
+      && grep -Fq 'design-system/' "$GATE" \
+      && grep -Fq 'design-system/' "$CORE"
+  }
+
+  if v2_ds_001; then pass "V2-DS-001 token contract schema and template metadata"; else fail "V2-DS-001 token contract schema and template metadata"; fi
+  if v2_ds_002; then pass "V2-DS-002 DTCG token groups, types, and values"; else fail "V2-DS-002 DTCG token groups, types, and values"; fi
+  if v2_ds_003; then pass "V2-DS-003 design-system and ui-patterns templates"; else fail "V2-DS-003 design-system and ui-patterns templates"; fi
+  if v2_ds_004; then pass "V2-DS-004 visual verification and evaluator wiring"; else fail "V2-DS-004 visual verification and evaluator wiring"; fi
+  printf 'PASS: %d\nFAIL: %d\n' "$PASS" "$FAIL"
+  [ "$FAIL" -eq 0 ]
+  exit $?
+fi
 
 assert_contains() {
   file=$1
@@ -36,7 +97,7 @@ assert_contains "$TOKENS" '"\$type"' "DS-002 DTCG \$type present"
 assert_contains "$TOKENS" '"\$value"' "DS-002 DTCG \$value present"
 
 # DS-003 design-system.md template required sections
-DS="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md"
+DS="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-system.template.md"
 assert_contains "$DS" '^## Layer 1 — Tokens \(machine-extracted\)$' "DS-003 layer 1 section"
 assert_contains "$DS" '^## Layer 2 — Do / Don'"'"'t \(component conventions\)$' "DS-003 layer 2 section"
 assert_contains "$DS" '^## Layer 3 — Review checklist \(human-curated\)$' "DS-003 layer 3 section"
@@ -44,7 +105,7 @@ assert_contains "$DS" '^## Change Process$' "DS-003 change process section"
 assert_contains "$DS" 'WCAG 2\.2 AA' "DS-003 WCAG 2.2 AA"
 
 # DS-004 ui-patterns.md template required sections (D6 categories)
-UIP="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md"
+UIP="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/templates/ui-patterns.template.md"
 for section in Actions Dialogs Icons Flow States 'Cognitive Load'; do
   assert_contains "$UIP" "^## $section$" "DS-004 ui-patterns section $section"
 done
@@ -59,12 +120,12 @@ assert_contains "$PC" 'absence never blocks' "DS-005 absence contract"
 
 # DS-006 design-sync-loop v2 ensures design-system/ and token-driven mockups
 DSL="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
-assert_contains "$DSL" '^## Ensure design-system/$' "DS-006 ensure section"
+assert_contains "$DSL" '^## [0-9]+\. Ensure `design-system/`' "DS-006 ensure section"
 assert_contains "$DSL" 'ui-ux-pro-max' "DS-006 seed generator detection"
 assert_contains "$DSL" 'design-system --persist' "DS-006 seed generation command"
 assert_contains "$DSL" 'ui-ux-pro-max unavailable — D6 template interview used' "DS-006 D6 fallback note"
-assert_contains "$DSL" 'figma-dtcg-import' "DS-006 figma DTCG import path"
-assert_contains "$DSL" 'design-system/design-tokens\.json' "DS-006 mockups reference tokens"
+assert_contains "$DSL" 'Figma DTCG JSON.*ローカルファイル.*design-tokens\.json' "DS-006 figma DTCG import path"
+assert_contains "$DSL" 'Generate Mockups.*トークン準拠' "DS-006 mockups reference tokens"
 assert_contains "$DSL" 'MASTER\.md' "DS-006 seed is input, artifacts authoritative"
 
 # DS-007 investigate-codebase brownfield design inventory
@@ -103,8 +164,8 @@ assert_contains "$ITSK" 'design-system/design-system\.md' "DS-012 conditional re
 
 # DS-013 visual-verify-loop design-system comparison
 VVL="$ROOT/plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md"
-assert_contains "$VVL" 'design-system/design-tokens\.json' "DS-013 token conformance in loop"
-assert_contains "$VVL" 'design-system/ui-patterns\.md' "DS-013 ui-patterns in loop"
+assert_contains "$VVL" 'design-system/\{design-tokens\.json,ui-patterns\.md\}' "DS-013 token conformance in loop"
+assert_contains "$VVL" 'design-system/\{design-tokens\.json,ui-patterns\.md\}' "DS-013 ui-patterns in loop"
 assert_contains "$VVL" 'check-design-system' "DS-013 deterministic gate ownership"
 
 # DS-014 design-system checklist and evaluator wiring
@@ -159,7 +220,7 @@ assert_contains "$ROOT/CHANGELOG.md" '統一デザインシステム統合' "DS-
 
 BSI="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 WFG="$ROOT/docs/workflow-guide.md"
-CDW="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+CDW="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 CHG="$ROOT/CHANGELOG.md"
 DSC_DRAFT="$ROOT/specs/design-sync-consent/verification/T-004/staged-lite-spec-candidate.draft.md"
 DSC_MANIFEST="$ROOT/specs/design-sync-consent/human-copy/MANIFEST.sha256"
@@ -228,14 +289,12 @@ BANNED_JA_PER_UPLOAD="$(printf '%s' '都度人間')$(printf '%s' '承認')"
 
 LOOP_SECTION=$(section_between "$DSL" '^## Loop$' '^## ')
 BOUNDARIES_SECTION=$(section_between "$DSL" '^## Boundaries$' '^## ')
-DSL_CAP_SECTION=$(section_between "$DSL" '^## Capability Detection$' '^## ')
 BSI_UI_BULLET=$(section_between "$BSI" '^- When the target is a UI application' '^- Otherwise ask whether the human has a local mockup')
 WFG_SECTION=$(section_between "$WFG" '^### 3\.1b ' '^### 3\.2 ')
 
 DSL_FLAT=$(flatten_file "$DSL")
 LOOP_FLAT=$(flatten_text "$LOOP_SECTION")
 BOUNDARIES_FLAT=$(flatten_text "$BOUNDARIES_SECTION")
-DSL_CAP_FLAT=$(flatten_text "$DSL_CAP_SECTION")
 BSI_UI_BULLET_FLAT=$(flatten_text "$BSI_UI_BULLET")
 WFG_FLAT=$(flatten_text "$WFG_SECTION")
 CDW_FLAT=$(flatten_file "$CDW")
@@ -247,22 +306,19 @@ loop_line_of() {
 
 # --- REQ-001 (AC-001, AC-002, AC-026, AC-027, AC-028, AC-030) --------------
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'consent has not been obtained for this scope' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'Obtain informed consent'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" consent-initial; then
   pass "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
 else
   fail "TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'consent already holds' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'continue to 5|proceeds? (directly )?to (the )?(pre-upload|step 5)'; then
+if python3 -B "$ROOT/tests/design-sync-policy.tests.py" PolicyTests.test_subsequent_uploads_reuse_current_grant; then
   pass "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
 else
   fail "TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'both must match' \
-   || printf '%s' "$LOOP_FLAT" | grep -Eiq 'session has ended does not hold'; then
+if python3 -B "$ROOT/tests/design-sync-policy.tests.py" PolicyTests.test_different_feature_or_session_requires_consent; then
   pass "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
 else
   fail "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
@@ -275,33 +331,19 @@ else
   fail "TEST-004 scope names exactly one unit, no disjunction between units (AC-002)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'REQ-NNN' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'AC-NNN' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'confidential|pre-release'; then
-  pass "TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)"
-else
-  fail "TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Fq 'claude.ai/design' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'external' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'selected in step 1|project selected'; then
-  pass "TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)"
-else
-  fail "TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'may be retained' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'does not control|outside this repository.{0,3}s control'; then
-  pass "TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)"
-else
-  fail "TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'for this session' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'without asking again|without prompting again|proceed without asking'; then
-  pass "TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)"
-else
-  fail "TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)"
-fi
+check_consent_policy() {
+  if python3 -B "$ROOT/tests/design-sync-policy.tests.py" "PolicyTests.$1"; then
+    pass "$2"
+  else
+    fail "$2"
+  fi
+}
+check_consent_policy 'test_disclosure_payload' 'TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)'
+check_consent_policy 'test_disclosure_destination' 'TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)'
+check_consent_policy 'test_disclosure_retention' 'TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)'
+check_consent_policy 'test_disclosure_repeated_uploads' 'TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)'
+check_consent_policy 'test_disclosure_regenerated_mockups' 'TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)'
+check_consent_policy 'test_disclosure_operator_authority' 'TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)'
 
 if printf '%s' "$LOOP_FLAT" | grep -Fq 'finalize_plan' \
    && printf '%s' "$LOOP_FLAT" | grep -Eiq 'not (fully )?(known|knowable|established)|opacity|limitation|not (fully )?enumerable'; then
@@ -382,15 +424,13 @@ else
   fail "TEST-018 record is an audit trace, not an authorization anything enforces (AC-012, load-bearing)"
 fi
 
-if printf '%s' "$DSL_CAP_FLAT" | grep -Eiq 'tool is unavailable' \
-   && printf '%s' "$DSL_CAP_FLAT" | grep -Fq 'design tools unavailable'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" tool-unavailable; then
   pass "TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)"
 else
   fail "TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)"
 fi
 
-if printf '%s' "$DSL_CAP_FLAT" | grep -Eiq 'authentication fails' \
-   && printf '%s' "$DSL_CAP_FLAT" | grep -Fq 'design tools unavailable'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" auth-failed; then
   pass "TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)"
 else
   fail "TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)"
@@ -403,7 +443,7 @@ else
   fail "TEST-021 fallback still performs no upload, and gained no consent step (AC-014, positive+negative)"
 fi
 
-if printf '%s' "$BOUNDARIES_FLAT" | grep -Eiq 'absence of mockups.{0,20}never blocks|mockups or design tools'; then
+if printf '%s' "$CDW_FLAT" | grep -Eiq 'mockups and HTML previews are optional attachments.{0,25}absence never blocks specification review'; then
   pass "TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)"
 else
   fail "TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)"
@@ -476,7 +516,7 @@ else
   fail "TEST-027 check point's blocking behaviour carries no interactive-human precondition (AC-018)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'consent has not been obtained for this scope'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" consent-prompt; then
   pass "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
 else
   fail "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
@@ -488,9 +528,7 @@ else
   fail "TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'egress is not permitted' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'manual fallback' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'no upload'; then
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" consent-off; then
   pass "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
 else
   fail "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
@@ -617,7 +655,7 @@ else
   fail "TEST-039 this feature's assertions are reachable from a CI entry point (AC-024) -- DESIGNED RED: staged workflow patch not yet applied (R-OQ-8 part 3)"
 fi
 
-if grep -Eq '^## Ensure design-system/$' "$DSL" && grep -Fq 'ui-ux-pro-max' "$DSL" \
+if grep -Eq '^## [0-9]+\. Ensure `design-system/`' "$DSL" && grep -Fq 'ui-ux-pro-max' "$DSL" \
    && grep -Fq 'design-system --persist' "$DSL" \
    && grep -Fq 'ui-ux-pro-max unavailable — D6 template interview used' "$DSL" \
    && grep -Fq 'figma-dtcg-import' "$DSL" && grep -Eq 'design-system/design-tokens\.json' "$DSL" \
@@ -627,67 +665,18 @@ else
   fail "TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'no upload' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'decline'; then
-  pass "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
-else
-  fail "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'next (one|attempt).{0,20}asks again|next upload attempt.{0,20}prompts again'; then
-  pass "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
-else
-  fail "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'not the same thing as a decline at 4'; then
-  pass "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
-else
-  fail "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
-fi
-
-if printf '%s' "$DSL_FLAT" | grep -Fq 'Egress-Destination' \
-   && printf '%s' "$DSL_FLAT" | grep -Eiq 'project selected in step 1|selected in step 1'; then
-  pass "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
-else
-  fail "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
-fi
-
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'does not carry to|re-enters step 4|different destination.{0,30}gated again'; then
-  pass "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
-else
-  fail "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
-fi
-
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'withdraw' && printf '%s' "$DSL_FLAT" | grep -Eiq 'mid-session'; then
-  pass "TEST-046 a mid-session withdrawal path is stated (AC-028)"
-else
-  fail "TEST-046 a mid-session withdrawal path is stated (AC-028)"
-fi
-
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'withdraw' \
-   && printf '%s' "$DSL_FLAT" | grep -Eiq 'gated again|does not hold'; then
-  pass "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
-else
-  fail "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'future regenerations' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'for this session'; then
-  pass "TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)"
-else
-  fail "TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)"
-fi
+check_consent_policy 'test_decline_stops_current_upload' "TEST-041 a decline blocks that upload -- no upload occurs (AC-026)"
+check_consent_policy 'test_retry_after_decline_prompts_again' "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
+check_consent_policy 'test_decline_is_distinct_from_prohibition' "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
+check_consent_policy 'test_consent_binds_selected_project' "TEST-044 the consent names the destination project as part of its coverage (AC-027)"
+check_consent_policy 'test_destination_change_checks_its_own_grant' "TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)"
+check_consent_policy 'test_operator_can_withdraw_during_session' "TEST-046 a mid-session withdrawal path is stated (AC-028)"
+check_consent_policy 'test_withdrawn_consent_needs_fresh_grant' "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
 
 if printf '%s' "$LOOP_FLAT" | grep -Eiq 'pull direction' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'human-supplied project name'; then
   pass "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"
 else
   fail "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"
-fi
-
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'asserting.{0,20}authority' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'claim, not a check|not enforced'; then
-  pass "TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)"
-else
-  fail "TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)"
 fi
 
 if printf '%s' "$LOOP_FLAT" | grep -Eiq 'not change consent state' \
@@ -697,6 +686,12 @@ if printf '%s' "$LOOP_FLAT" | grep -Eiq 'not change consent state' \
   pass "TEST-051 push-failure rule, all four parts (AC-030)"
 else
   fail "TEST-051 push-failure rule, all four parts (AC-030)"
+fi
+
+if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" design-system; then
+  pass "Core design-system contract"
+else
+  fail "Core design-system contract"
 fi
 
 printf 'PASS: %s\n' "$PASS"

@@ -1,0 +1,119 @@
+{
+  "revision": "c7af88f32ba18ed732b4b22546827271e0013e6a",
+  "run_id": "1ef4177e-7ab2-4e5a-8615-f5679e3a3f41",
+  "session_id": "01a21346-4fe1-7210-a140-8530376c27fb",
+  "agent_instance_id": "01a2152c-d3d0-7d91-ae4e-ed2e0ef0e120",
+  "input_manifest_sha256": "b144b75b5e2415c5278b50b7fae3c0766d507689578a8f408a8caab04ef72104",
+  "inputs_verified_before": true,
+  "inputs_verified_after": true,
+  "task_plan_snapshot": {
+    "path": "specs/verification-first-factory/verification/T-004/RT-20261126-009/tested-tasks.md",
+    "source_path": "specs/verification-first-factory/tasks.md",
+    "source_revision": "c7af88f32ba18ed732b4b22546827271e0013e6a"
+  },
+  "review_ticket_at_intake": {
+    "path": "docs/review-tickets/RT-20261126-009.yml",
+    "sha256": "4002a388cf35ecef51d79200da43c71c35fdd735f5d7c064a67276b492afdc23",
+    "text": "ticket_id: RT-20261126-009\nstatus: open\ntype: regression\nseverity: major\ntarget:\n  feature: verification-first-factory\n  task: T-004\nsummary: \"Invalid dates grant permanent agent-lint waivers\"\nproblem: |\n  In strict mode invalid-date and 2026-99-99 exempt a no-empty-catch finding and exit 0.\nexpected_fix:\n  - Require a real calendar date and keep same-day expiry inclusive.\n  - Verify invalid strings, impossible dates and a valid leap day through the public CLI.\nreferences:\n  - reports/quality-gate/verification-first-factory-T-004.md\n"
+  },
+  "red": {
+    "implementation_revision": "21a0f4a881818436236e4c19968a9743b8b4df48",
+    "test_revision": "c7af88f32ba18ed732b4b22546827271e0013e6a",
+    "test_path": "tests/v2-agent-lint.test.mjs",
+    "test_sha256": "8c650bc7b54f67b9ad579a30566f8b01b8d8bcfe038dfdb3ca29a4f77ae3d7d6",
+    "argv": [
+      "node",
+      "--test",
+      "--test-name-pattern=checks waiver calendar dates",
+      "tests/v2-agent-lint.test.mjs"
+    ],
+    "exit_code": 1,
+    "combined_output": "▶ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers\n  ✖ checks waiver calendar dates through the CLI in strict, shadow and warn modes (461.06775ms)\n✖ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers (461.444334ms)\nℹ tests 1\nℹ suites 1\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 501.366125\n\n✖ failing tests:\n\ntest at tests/v2-agent-lint.test.mjs:80:3\n✖ checks waiver calendar dates through the CLI in strict, shadow and warn modes (461.06775ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    [\n  +   'month.mjs',\n  +   'nonleap.mjs',\n  +   'rollover.mjs',\n  +   'text.mjs',\n  +   'timestamp.mjs',\n      'today.mjs',\n      'tomorrow.mjs'\n    ]\n  \n      at TestContext.<anonymous> (file:///private/tmp/vff-rt009-expiry/tests/v2-agent-lint.test.mjs:108:14)\n      at Test.runInAsyncScope (node:async_hooks:214:14)\n      at Test.run (node:internal/test_runner/test:1106:25)\n      at Test.start (node:internal/test_runner/test:1003:17)\n      at node:internal/test_runner/test:1516:71\n      at node:internal/per_context/primordials:466:82\n      at new Promise (<anonymous>)\n      at new SafePromise (node:internal/per_context/primordials:435:3)\n      at node:internal/per_context/primordials:466:9\n      at Array.map (<anonymous>) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: [ 'month.mjs', 'nonleap.mjs', 'rollover.mjs', 'text.mjs', 'timestamp.mjs', 'today.mjs', 'tomorrow.mjs' ],\n    expected: [ 'today.mjs', 'tomorrow.mjs' ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+    "combined_output_sha256": "7bb4d14387afe10821c9c0d8773291f4ac0ecb52783cb77540aa1258a41e4947"
+  },
+  "commands": [
+    {
+      "argv": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+        "--manifest",
+        "specs/verification-first-factory/verification/T-004/RT-20261126-009/task-input-manifest.json",
+        "--snapshot-root",
+        "/private/tmp/vff-rt009-expiry",
+        "--expected-task",
+        "T-004"
+      ],
+      "exit_code": 0,
+      "stdout": "TASK_INPUT_OK\n",
+      "stdout_sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "node",
+        "--test",
+        "--test-name-pattern=checks waiver calendar dates",
+        "tests/v2-agent-lint.test.mjs"
+      ],
+      "exit_code": 0,
+      "stdout": "▶ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers\n  ✔ checks waiver calendar dates through the CLI in strict, shadow and warn modes (174.193416ms)\n✔ ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers (174.550917ms)\nℹ tests 1\nℹ suites 1\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 208.649\n",
+      "stdout_sha256": "ed62ea646f5fee9a827daa4b6ddff49a1c83ed0608237852d981cb9fc333a809",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "tests/v2-agent-lint.test.mjs",
+        "tests/v2-agent-lint-bundle.test.mjs",
+        "tests/v2-hooks-and-ci.test.mjs"
+      ],
+      "exit_code": 0,
+      "stdout": "TAP version 13\n# Subtest: an independently rebuilt bundle preserves only the documented source catch\nok 1 - an independently rebuilt bundle preserves only the documented source catch\n  ---\n  duration_ms: 550.556542\n  type: 'test'\n  ...\n# Subtest: an input map pointing to a different documented catch cannot clear a finding\nok 2 - an input map pointing to a different documented catch cannot clear a finding\n  ---\n  duration_ms: 179.582375\n  type: 'test'\n  ...\n# Subtest: ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers\n    # Subtest: passes cleanly on clean fixture and catches violations with remediation_hint in strict vs shadow mode\n    ok 1 - passes cleanly on clean fixture and catches violations with remediation_hint in strict vs shadow mode\n      ---\n      duration_ms: 64.941375\n      type: 'test'\n      ...\n    # Subtest: honors active built-in guardrails.yaml waivers and fails on expired waivers in strict mode\n    ok 2 - honors active built-in guardrails.yaml waivers and fails on expired waivers in strict mode\n      ---\n      duration_ms: 1.918042\n      type: 'test'\n      ...\n    # Subtest: checks waiver calendar dates through the CLI in strict, shadow and warn modes\n    ok 3 - checks waiver calendar dates through the CLI in strict, shadow and warn modes\n      ---\n      duration_ms: 197.159167\n      type: 'test'\n      ...\n    # Subtest: reports changed lines, untracked files and changed local imports on a clean branch checkout\n    ok 4 - reports changed lines, untracked files and changed local imports on a clean branch checkout\n      ---\n      duration_ms: 192.323\n      type: 'test'\n      ...\n    # Subtest: applies the production console rule to source while retaining other checks in test and reporting tools\n    ok 5 - applies the production console rule to source while retaining other checks in test and reporting tools\n      ---\n      duration_ms: 2.887541\n      type: 'test'\n      ...\n    # Subtest: uses TS syntax, scoped flag groups, configured control depth and comment nodes\n    ok 6 - uses TS syntax, scoped flag groups, configured control depth and comment nodes\n      ---\n      duration_ms: 1.433833\n      type: 'test'\n      ...\n    # Subtest: NFR-004 performance budget: lints 100 files in <= 3000ms\n    ok 7 - NFR-004 performance budget: lints 100 files in <= 3000ms\n      ---\n      duration_ms: 19.799875\n      type: 'test'\n      ...\n    1..7\nok 3 - ADR-0054 T-004 (AC-007 / NFR-004): Layer 2/3 AST Agent-Strict Lint & Built-in Waivers\n  ---\n  duration_ms: 481.020125\n  type: 'suite'\n  ...\n# Subtest: Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer\n    # Subtest: all 4 host hook manifests parse as valid JSON and wire to v2/sdd-soft-guard.mjs\n    ok 1 - all 4 host hook manifests parse as valid JSON and wire to v2/sdd-soft-guard.mjs\n      ---\n      duration_ms: 0.655167\n      type: 'test'\n      ...\n    # Subtest: deprecated hard-lock scripts, 3-loop reviews, and sdd-lite plugin are removed\n    ok 2 - deprecated hard-lock scripts, 3-loop reviews, and sdd-lite plugin are removed\n      ---\n      duration_ms: 0.160792\n      type: 'test'\n      ...\n    # Subtest: CI workflow and CODEOWNERS cover Layer 3 guardrails boundary\n    ok 3 - CI workflow and CODEOWNERS cover Layer 3 guardrails boundary\n      ---\n      duration_ms: 0.287917\n      type: 'test'\n      ...\n    # Subtest: install.sh --target FilesOnly succeeds end-to-end and installs v2 guardrail scripts\n    ok 4 - install.sh --target FilesOnly succeeds end-to-end and installs v2 guardrail scripts\n      ---\n      duration_ms: 3347.118459\n      type: 'test'\n      ...\n    # Subtest: install-payload.txt includes README-linked guardrails example and user guides (H5)\n    ok 5 - install-payload.txt includes README-linked guardrails example and user guides (H5)\n      ---\n      duration_ms: 0.544791\n      type: 'test'\n      ...\n    # Subtest: v1.26.1 (\\#789): session-model-start.py emits valid UTF-8 JSON under ASCII stdout across 3 AI hosts\n    ok 6 - v1.26.1 (\\#789): session-model-start.py emits valid UTF-8 JSON under ASCII stdout across 3 AI hosts\n      ---\n      duration_ms: 88.554834\n      type: 'test'\n      ...\n    # Subtest: \\#852: Spec Drift CI reports its coverage and lists approved features without a baseline\n    ok 7 - \\#852: Spec Drift CI reports its coverage and lists approved features without a baseline\n      ---\n      duration_ms: 0.264791\n      type: 'test'\n      ...\n    # Subtest: \\#861: Bash and PowerShell installers require the same Cloud entry files\n    ok 8 - \\#861: Bash and PowerShell installers require the same Cloud entry files\n      ---\n      duration_ms: 0.674667\n      type: 'test'\n      ...\n    # Subtest: publish-release cuts a tag only by manual dispatch on main, never moving an existing tag\n    ok 9 - publish-release cuts a tag only by manual dispatch on main, never moving an existing tag\n      ---\n      duration_ms: 0.969583\n      type: 'test'\n      ...\n    # Subtest: \\#869: every v2 CLI behaves the same when launched through a symlink\n    ok 10 - \\#869: every v2 CLI behaves the same when launched through a symlink\n      ---\n      duration_ms: 500.973916\n      type: 'test'\n      ...\n    # Subtest: \\#869 review: a CLI embedded under another file name (a bundle) never runs its main()\n    ok 11 - \\#869 review: a CLI embedded under another file name (a bundle) never runs its main()\n      ---\n      duration_ms: 26.190375\n      type: 'test'\n      ...\n    # Subtest: no node_modules entry (directory or symlink) is ever tracked\n    ok 12 - no node_modules entry (directory or symlink) is ever tracked\n      ---\n      duration_ms: 11.276125\n      type: 'test'\n      ...\n    # Subtest: \\#858: every workflow and distributed CI template pins third-party actions to a commit SHA\n    ok 13 - \\#858: every workflow and distributed CI template pins third-party actions to a commit SHA\n      ---\n      duration_ms: 1.598792\n      type: 'test'\n      ...\n    # Subtest: \\#855: Claude never auto-loads a second hooks/hooks.json next to a manifest-declared hooks file\n    ok 14 - \\#855: Claude never auto-loads a second hooks/hooks.json next to a manifest-declared hooks file\n      ---\n      duration_ms: 0.418667\n      type: 'test'\n      ...\n    # Subtest: \\#851/\\#801: required-checks aggregates every dependency result and installers job runs install suites\n    ok 15 - \\#851/\\#801: required-checks aggregates every dependency result and installers job runs install suites\n      ---\n      duration_ms: 0.1445\n      type: 'test'\n      ...\n    # Subtest: all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version\n    ok 16 - all plugin manifests, marketplaces, README, and CHANGELOG agree on one release version\n      ---\n      duration_ms: 2.24325\n      type: 'test'\n      ...\n    1..16\nok 4 - Phase 3-4: 4-host hooks, legacy removal, CI workflow, and installer\n  ---\n  duration_ms: 3982.699541\n  type: 'suite'\n  ...\n# Subtest: \\#862 the verification catalog report matches what CI runs\n    # Subtest: a suite counts as run only when a current test.yml job names it; the committed report is current\n    ok 1 - a suite counts as run only when a current test.yml job names it; the committed report is current\n      ---\n      duration_ms: 3.015875\n      type: 'test'\n      ...\n    1..1\nok 5 - \\#862 the verification catalog report matches what CI runs\n  ---\n  duration_ms: 3.0545\n  type: 'suite'\n  ...\n# Subtest: \\#850 the committed ruleset, the CI jobs and the threat model agree\n    # Subtest: every required check is a real job, the Spec Drift job is required, and docs do not claim owner review\n    ok 1 - every required check is a real job, the Spec Drift job is required, and docs do not claim owner review\n      ---\n      duration_ms: 0.590625\n      type: 'test'\n      ...\n    1..1\nok 6 - \\#850 the committed ruleset, the CI jobs and the threat model agree\n  ---\n  duration_ms: 0.613541\n  type: 'suite'\n  ...\n1..6\n# tests 27\n# suites 4\n# pass 27\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 4022.625833\n",
+      "stdout_sha256": "f0b396c4422729dc6557eee49efbb8d424049bb8a0d208260c03ece50129235d",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "node",
+        "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+        "--format",
+        "json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"schema\": \"sdd-agent-lint/v1\",\n  \"mode\": \"off\",\n  \"status\": \"SKIPPED\",\n  \"scannedFiles\": 0,\n  \"durationMs\": 1,\n  \"findings\": [],\n  \"waived\": [],\n  \"expiredWaivers\": [],\n  \"invalidWaivers\": []\n}\n",
+      "stdout_sha256": "bd518d0c3e66eded5db527a8bc35281f4da5dee74a1d09724c6575996c9a552e",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "node",
+        "plugins/sdd-quality-loop/scripts/v2/run-agent-lint.mjs",
+        "--base-ref",
+        "2db182ad22706c86734b85a00e4263f23fda03f0",
+        "--diff-only",
+        "--mode",
+        "shadow",
+        "--format",
+        "json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"schema\": \"sdd-agent-lint/v1\",\n  \"mode\": \"shadow\",\n  \"status\": \"WARN\",\n  \"scannedFiles\": 51,\n  \"durationMs\": 1457,\n  \"findings\": [\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs\",\n      \"line\": 96,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-console-log\",\n      \"severity\": \"warn\",\n      \"category\": \"observability\",\n      \"path\": \"plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs\",\n      \"line\": 22,\n      \"message\": \"プロダクションコードに console.log が残存しています\",\n      \"remediation_hint\": \"構造化ロガーまたは process.stdout.write へ置換するか、CLI 出力として guardrails.yaml の agent_lint.waivers に期限付き登録してください\",\n      \"snippet\": \"console.log\"\n    },\n    {\n      \"rule\": \"no-console-log\",\n      \"severity\": \"warn\",\n      \"category\": \"observability\",\n      \"path\": \"plugins/sdd-quality-loop/scripts/v2/shell-parser/wasm_exec.cjs\",\n      \"line\": 473,\n      \"message\": \"プロダクションコードに console.log が残存しています\",\n      \"remediation_hint\": \"構造化ロガーまたは process.stdout.write へ置換するか、CLI 出力として guardrails.yaml の agent_lint.waivers に期限付き登録してください\",\n      \"snippet\": \"console.log\"\n    },\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"specs/verification-first-factory/verification/T-005/quality-repair-9a64eb26d839-470239a6/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs\",\n      \"line\": 572,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs\",\n      \"line\": 96,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"specs/verification-first-factory/verification/T-008/quality-repair-227a2184413f/revision-sources/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs\",\n      \"line\": 726,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-empty-catch\",\n      \"severity\": \"error\",\n      \"category\": \"reliability\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 4,\n      \"message\": \"空の catch ブロックが例外を無言で握り潰しています\",\n      \"remediation_hint\": \"例外をログ出力・再送出するか、意図的に無視する場合は理由コメントまたは guardrails.yaml の agent_lint.waivers に登録してください\",\n      \"snippet\": \"catch (err) {}\"\n    },\n    {\n      \"rule\": \"no-eval-or-new-function\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 8,\n      \"message\": \"eval() または new Function() の動的コード実行が検出されました\",\n      \"remediation_hint\": \"動的評価を廃止し、静的マッピング・JSON.parse・安全なパーサへ置き換えてください\",\n      \"snippet\": \"eval\"\n    },\n    {\n      \"rule\": \"no-child-process-shell-true\",\n      \"severity\": \"error\",\n      \"category\": \"security\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 12,\n      \"message\": \"shell: true または exec/execSync によるシェル経由の外部コマンド実行が検出されました\",\n      \"remediation_hint\": \"execFile / execFileSync / spawn に引数配列を渡し、{ shell: false } を明示してください\",\n      \"snippet\": \"shell: true\"\n    },\n    {\n      \"rule\": \"no-console-log\",\n      \"severity\": \"warn\",\n      \"category\": \"observability\",\n      \"path\": \"tests/fixtures/agent-lint/violations.mjs\",\n      \"line\": 16,\n      \"message\": \"プロダクションコードに console.log が残存しています\",\n      \"remediation_hint\": \"構造化ロガーまたは process.stdout.write へ置換するか、CLI 出力として guardrails.yaml の agent_lint.waivers に期限付き登録してください\",\n      \"snippet\": \"console.log\"\n    }\n  ],\n  \"waived\": [],\n  \"expiredWaivers\": [],\n  \"invalidWaivers\": []\n}\n",
+      "stdout_sha256": "6e834ff4937f3ca3b4bf8d8993ad188658e60870fada7838a0524ede2428cd5b",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "layer1": {
+    "path": "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
+    "upstream_revision": "2db182ad22706c86734b85a00e4263f23fda03f0",
+    "lines": 677,
+    "sha256": "0aaf0786d8161d109dd664bad873330a33507aa97eb053f17e86acef83651399",
+    "byte_equal": true
+  }
+}

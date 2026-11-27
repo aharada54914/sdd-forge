@@ -1,0 +1,389 @@
+diff --git a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+index eaf195d54..a7fe5446a 100644
+--- a/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
++++ b/plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs
+@@ -233,12 +233,198 @@ const LINT_DISABLE_RE = /sdd-lint-disable\b/i;
+ const DIRECTIVE_START = /^\s*(?:\/\/|\/\*+|\*|#)?\s*sdd-lint-disable\b/i;
+ const HASH_NON_CODE = /#[^\n]*|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g;
+ const JS_NON_CODE = /\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|`(?:\\[\s\S]|[^`\\])*`/g;
++
++const ANSI_C_ESCAPES = {
++  a: '\x07', b: '\b', e: '\x1b', E: '\x1b', f: '\f', n: '\n', r: '\r',
++  t: '\t', v: '\v', '\\': '\\', "'": "'", '"': '"', '?': '?',
++};
++
++// Work in bytes until all adjacent fragments have been joined: two hexadecimal
++// or octal escapes in separate quoted fragments can spell one UTF-8 character.
++function ansiQuotedBytes(text) {
++  const escapes = /\\(?:([0-7]{1,3})|x([\da-fA-F]{1,2})|u([\da-fA-F]{1,4})|U([\da-fA-F]{1,8})|c(\\\\|[\s\S])|([\s\S]))/g;
++  const bytes = text.replace(escapes, (raw, octal, hex, shortUnicode, longUnicode, control, simple) => {
++    if (octal || hex) return String.fromCharCode(parseInt(octal ?? hex, octal ? 8 : 16) & 255);
++    if (shortUnicode || longUnicode) {
++      const code = parseInt(shortUnicode ?? longUnicode, 16);
++      if (code > 0x10ffff || (code >= 0xd800 && code <= 0xdfff)) return '\xff';
++      return Buffer.from(String.fromCodePoint(code)).toString('latin1');
++    }
++    if (control) return String.fromCharCode(control === '?' ? 127 : control.charCodeAt(0) & 31);
++    return ANSI_C_ESCAPES[simple] ?? raw;
++  });
++  return bytes.split('\0', 1)[0]; // Bash words cannot hold an embedded NUL.
++}
++
++function shellDelimiter(word, dialect) {
++  const raw = Buffer.from(word).toString('latin1');
++  // No variable/command expansion occurs. In the source locale a dollar-double
++  // quote uses the double-quoted text; dollar-single quotes decode ANSI escapes.
++  const fragments = /\$'((?:\\[\s\S]|[^'\\])*)'|'([^']*)'|\$?"((?:\\[\s\S]|[^"\\])*)"|\\([\s\S])/g;
++  const stripped = raw.replace(fragments, (fragment, ansi, single, double, escaped) => {
++    if (ansi !== undefined) return dialect === 'literal' ? '$' + ansi : ansiQuotedBytes(ansi);
++    if (single !== undefined) return single;
++    if (double !== undefined) {
++      const prefix = dialect !== 'bash' && fragment.startsWith('$') ? '$' : '';
++      return prefix + double.replace(/\\([$"`\\\n])/g, (_, c) => c === '\n' ? '' : c);
++    }
++    return escaped === '\n' ? '' : escaped;
++  });
++  const bytes = Buffer.from(stripped, 'latin1');
++  const delimiter = bytes.toString('utf8');
++  return bytes.equals(Buffer.from(delimiter)) ? delimiter : null;
++}
++
++function hereDocumentEnd(source, cursor, { delimiters, stripTabs, quoted }) {
++  let logicalLine = '';
++  while (cursor < source.length) {
++    const newline = source.indexOf('\n', cursor);
++    const end = newline < 0 ? source.length : newline;
++    logicalLine += source.slice(cursor, end);
++    cursor = newline < 0 ? end : end + 1;
++    if (!quoted && newline >= 0 && /(?:^|[^\\])(?:\\\\)*\\$/.test(logicalLine)) {
++      logicalLine = logicalLine.slice(0, -1);
++      continue;
++    }
++    if (delimiters.includes(stripTabs ? logicalLine.replace(/^\t+/, '') : logicalLine)) return cursor;
++    logicalLine = '';
++  }
++  // Uncertain boundaries must leave later comments visible to the checker.
++  return null;
++}
++
++// Each command substitution starts a new shell command, even inside double
++// quotes. Its quote state and pending here-documents end with that command.
++function* shellComments(source, file) {
++  const interpreter = /^#![^\n]*[ \t/](bash|dash|ash|sh|zsh)(?=[ \t\r\n]|$)/.exec(source)?.[1]
++    ?? path.extname(file).slice(1).toLowerCase();
++  const dialects = interpreter === 'sh' ? ['bash', 'literal'] :
++    [interpreter === 'bash' || interpreter === 'zsh' ? interpreter : 'literal'];
++  const delimiter = /(?:[ \t]|\\\n)*((?:\$'(?:\\[\s\S]|[^'\\])*'|'[^']*'|"(?:\\[\s\S]|[^"\\])*"|\\[\s\S]|[^ \t\n;|&()<>'"\\])+)/y;
++  const comment = /#[^\n]*/y;
++  const reserved = /(?:case|esac|if|then|else|elif|while|until|do|!|\{)(?=[ \t\n;&|()<>]|$)/y;
++  const command = end => ({
++    end, quote: '', wordStart: true, commandStart: true, cases: 0, pending: [], parentheses: 0, arithmetic: 0,
++  });
++  const stack = [command('')];
++  for (let i = 0; i < source.length; i++) {
++    const frame = stack.at(-1);
++    const c = source[i];
++    const next = source[i + 1];
++    // A case pattern also ends in ')'. Keep its containing command open until
++    // the matching esac. Reserved words are recognized only in command position.
++    if (!frame.quote && frame.wordStart && !/[ \t\n;&|()<>#]/.test(c) &&
++        !(c === '\\' && next === '\n')) {
++      reserved.lastIndex = i;
++      const keyword = frame.commandStart ? reserved.exec(source)?.[0] : undefined;
++      if (keyword === 'case') frame.cases++;
++      if (keyword === 'esac' && frame.cases) frame.cases--;
++      frame.commandStart = Boolean(keyword && keyword !== 'case' && keyword !== 'esac');
++      if (keyword) {
++        frame.wordStart = false;
++        i += keyword.length - 1;
++        continue;
++      }
++    }
++    if (frame.quote === "'" || frame.quote === 'ansi') {
++      if (c === "'") frame.quote = '';
++      else if (c === '\\' && frame.quote === 'ansi') i++;
++      continue;
++    }
++    if (c === '\\') {
++      if (!frame.quote || '$"`\\\n'.includes(next)) {
++        if (next !== '\n') frame.wordStart = false;
++        i++;
++      }
++      continue;
++    }
++    if (c === '$' && next === '(' && source[i + 2] !== '(') {
++      frame.wordStart = false;
++      stack.push(command(')'));
++      i++;
++      continue;
++    }
++    if (c === '`' && (!frame.quote || frame.quote === '"')) {
++      if (frame.end === '`' && !frame.quote) stack.pop();
++      else { frame.wordStart = false; stack.push(command('`')); }
++      continue;
++    }
++    if (c === '"') {
++      frame.quote = frame.quote ? '' : '"';
++      frame.wordStart = false;
++      continue;
++    }
++    if (frame.quote) continue;
++    if (c === "'" || (c === '$' && next === "'")) {
++      frame.quote = c === "'" ? "'" : 'ansi';
++      frame.wordStart = false;
++      if (c === '$') i++;
++      continue;
++    }
++    if (c === '(' && next === '(') {
++      frame.arithmetic += 2;
++      i++;
++      continue;
++    }
++    if (frame.arithmetic) {
++      if (c === '(') frame.arithmetic++;
++      if (c === ')') frame.arithmetic--;
++      continue;
++    }
++    if (c === '#' && frame.wordStart) {
++      comment.lastIndex = i;
++      yield comment.exec(source);
++      i = comment.lastIndex - 1;
++      continue;
++    }
++    if (c === '\n') {
++      let bodyStart = i + 1;
++      for (const document of frame.pending) {
++        const end = hereDocumentEnd(source, bodyStart, document);
++        if (end === null) break;
++        bodyStart = end;
++      }
++      frame.pending.length = 0;
++      frame.commandStart = true;
++      frame.wordStart = true;
++      i = bodyStart - 1;
++      continue;
++    }
++    if (c === '<' && next === '<') {
++      frame.wordStart = true;
++      if (source[i + 2] === '<') { i += 2; continue; }
++      const stripTabs = source[i + 2] === '-';
++      i += stripTabs ? 2 : 1;
++      delimiter.lastIndex = i + 1;
++      const match = delimiter.exec(source);
++      if (match && !match[1].startsWith('#')) {
++        const word = match[1];
++        frame.pending.push({
++          delimiters: dialects.map(dialect => shellDelimiter(word, dialect)),
++          stripTabs, quoted: /['"\\]/.test(word.replace(/\\\n/g, '')),
++        });
++        i = delimiter.lastIndex - 1;
++        frame.wordStart = false;
++      }
++      continue;
++    }
++    if (c === '(') frame.parentheses++;
++    if (c === ')') {
++      if (frame.parentheses) frame.parentheses--;
++      else if (!frame.cases && frame.end === ')') stack.pop();
++    }
++    if (';&|()'.includes(c)) frame.commandStart = true;
++    frame.wordStart = /[ \t;&|()<>]/.test(c);
++  }
++}
++
+ const SOURCE_TOKENS = new Map();
+ for (const [extensions, tokens] of [
+   ['js mjs cjs jsx ts mts cts tsx', JS_NON_CODE],
+   ['go c h cc cpp hpp cs java kt kts rs swift scala', GO_NON_CODE],
+   ['py pyw', PYTHON_NON_CODE],
+-  ['sh bash zsh rb pl ps1', HASH_NON_CODE],
++  ['rb pl ps1', HASH_NON_CODE],
++  ['sh bash zsh', shellComments],
+ ]) {
+   for (const ext of extensions.split(' ')) SOURCE_TOKENS.set('.' + ext, tokens);
+ }
+@@ -259,7 +445,8 @@ function addedLintDirectives(root, revision, file, status, source, tokens) {
+   const directives = [];
+   let line = 1;
+   let offset = 0;
+-  for (const token of source.matchAll(tokens)) {
++  const matches = typeof tokens === 'function' ? tokens(source, file) : source.matchAll(tokens);
++  for (const token of matches) {
+     line += source.slice(offset, token.index).split('\n').length - 1;
+     const lines = token[0].split('\n');
+     if (/^(?:#|\/\/|\/\*)/.test(token[0])) {
+diff --git a/tests/v2-spec-drift.test.mjs b/tests/v2-spec-drift.test.mjs
+index b00705b25..8741f1d01 100644
+--- a/tests/v2-spec-drift.test.mjs
++++ b/tests/v2-spec-drift.test.mjs
+@@ -427,6 +427,170 @@ describe('ADR-0054 T-002 (AC-009): git diff Anti-Tampering & CODEOWNERS retireme
+     assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
+   });
+ 
++  const shellMarker = ['# sdd-lint', '-disable'].join('');
++  const helpExample = "#!/bin/sh\ncat <<'HELP'\n" + shellMarker + ' example-rule\nHELP\n';
++
++  it('accepts the shell here-document help example without a diagnostic or OQ', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    fs.writeFileSync(path.join(dir, 'help.sh'), helpExample);
++    const shown = spawnSync('sh', ['help.sh'], { cwd: dir, encoding: 'utf8' });
++    assert.equal(shown.status, 0, shown.stderr);
++    assert.equal(shown.stdout, shellMarker + ' example-rule\n');
++
++    const result = runAntiTamper(dir);
++    assert.equal(result.status, 0, result.stdout);
++    const report = JSON.parse(result.stdout);
++    assert.equal(report.status, 'CLEAN');
++    assert.deepEqual(report.violations, []);
++    assert.equal(report.openQuestion, undefined);
++    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++  });
++
++  it('distinguishes help from active comments in nested shell command substitutions', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'help.sh');
++    const example = shellMarker + ' shown-rule';
++    const document = ['Use " for inches.', example, 'HELP'];
++    const script = [
++      '#!/bin/sh',
++      'help_text="$(cat <<\'HELP\'', ...document, ')"',
++      'printf \'%s\\n\' "$help_text"',
++      'printf \'%s\\n\' "$(printf \'%s\' "$(cat <<-\\HELP',
++      ...document.map(line => '\t' + line), ')")"',
++      "help_text=$( ( cat <<'HELP'", ...document, ') )',
++      'printf \'%s\\n\' "$help_text"',
++      'help_text="$(case help in help) cat <<\'HELP\'', ...document, ';; esac)"',
++      'printf \'%s\\n\' "$help_text"',
++      // Two pending redirects belong to different command substitutions.
++      'cat 3<<OUTER "$(printf \'/dev/%s\' "$(cat <<INNER',
++      'null', 'INNER', ')")"', example, 'OUTER',
++      ''
++    ].join('\n');
++    const expected = (document.slice(0, -1).join('\n') + '\n').repeat(4);
++    fs.writeFileSync(file, script);
++    // Older macOS /bin/bash rejects the unpaired quote in this otherwise
++    // literal body. The CLI assertions below apply on every host.
++    const shells = [];
++    if (spawnSync('bash', ['-c', 'v="$(cat <<EOF\n"\nEOF\n)"']).status === 0) shells.push('bash');
++    if (!spawnSync('dash', ['-c', ':']).error) shells.push('dash');
++    for (const shell of shells) {
++      const shown = spawnSync(shell, ['help.sh'], { cwd: dir, encoding: 'utf8' });
++      assert.equal(shown.status, 0, shown.stderr);
++      assert.equal(shown.stderr, '');
++      assert.equal(shown.stdout, expected);
++    }
++    const clean = runAntiTamper(dir);
++    assert.equal(clean.status, 0, clean.stdout);
++    assert.deepEqual(JSON.parse(clean.stdout).violations, []);
++    assert.equal(JSON.parse(clean.stdout).status, 'CLEAN');
++    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++
++    const activeSource = script.replace('cat <<', 'true ' + shellMarker + ' inner-rule\ncat <<')
++      + shellMarker + ' outer-rule\n';
++    fs.writeFileSync(file, activeSource);
++    const active = runAntiTamper(dir);
++    assert.equal(active.status, 4, active.stdout);
++    const report = JSON.parse(active.stdout);
++    assert.equal(report.status, 'TAMPER_DETECTED');
++    assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' inner-rule', ' outer-rule']);
++    assert.ok(report.violations.every(v => v.code === 'LINT_DISABLE_ADDED' && v.path === 'help.sh'));
++    const question = JSON.parse(fs.readFileSync(path.join(dir, report.openQuestion.path)));
++    assert.deepEqual(question.violations, report.violations.map(({ code, path }) => ({ code, path })));
++  });
++
++  it('matches Bash dollar-quoted here-document delimiters and preserves the following directive', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const cases = [
++      ["$'HELP'", 'HELP'],
++      [String.raw`PRE$'\x48\105'LP`, 'PREHELP'],
++      [String.raw`$'single\'quote'$"END"`, "single'quoteEND"],
++      [String.raw`$'A\t\cI\102\x43'`, 'A\t\tBC'],
++      [String.raw`$'\xC3'$'\xA9'`, 'é'],
++      [String.raw`$'A\0tail'B`, 'AB'],
++      [String.raw`$"DOC"$'\\'END`, 'DOC\\END'],
++      [String.raw`\$'PLAIN'`, '$PLAIN'],
++    ];
++    const file = path.join(dir, 'help.bash');
++    const body = shellMarker + ' shown-rule';
++    fs.writeFileSync(file, cases.map(([word, end]) => ['cat <<' + word, body, end, ''].join('\n')).join(''));
++    const shown = spawnSync('bash', ['--noprofile', '--norc', 'help.bash'], {
++      cwd: dir, encoding: 'utf8', env: { ...process.env, BASH_ENV: '', LC_ALL: 'C' },
++    });
++    assert.equal(shown.status, 0, shown.stderr);
++    assert.equal(shown.stderr, '');
++    assert.equal(shown.stdout, (body + '\n').repeat(cases.length));
++
++    const clean = runAntiTamper(dir);
++    assert.equal(clean.status, 0, clean.stdout);
++    const report = JSON.parse(clean.stdout);
++    assert.equal(report.status, 'CLEAN');
++    assert.deepEqual(report.violations, []);
++    assert.equal(report.openQuestion, undefined);
++    assert.equal(fs.existsSync(path.join(dir, 'reports/verification/demo/anti-tampering')), false);
++
++    fs.appendFileSync(file, shellMarker + ' active-rule\n');
++    const active = runAntiTamper(dir);
++    assert.equal(active.status, 4, active.stdout);
++    const { status, violations, openQuestion } = JSON.parse(active.stdout);
++    assert.equal(status, 'TAMPER_DETECTED');
++    assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' active-rule']);
++    const question = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
++    assert.deepEqual(question.violations, [{ code: 'LINT_DISABLE_ADDED', path: 'help.bash' }]);
++    assert.equal(question.id, openQuestion.id);
++  });
++
++  it('uses the declared shell and preserves a literal-dollar terminator in generic sh', (t) => {
++    const { dir } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'help.sh');
++    for (const [shebang, bodyLine, end] of [
++      ['#!/usr/bin/env bash', '$HELP', 'HELP'],
++      ['#!/bin/dash', 'HELP', '$HELP'],
++      ['#!/bin/sh', 'example', '$HELP'],
++    ]) {
++      fs.writeFileSync(file, [shebang, "cat <<$'HELP'", bodyLine, shellMarker + ' shown', end, shellMarker + ' active', ''].join('\n'));
++      const result = runAntiTamper(dir);
++      assert.equal(result.status, 4, result.stdout);
++      const report = JSON.parse(result.stdout);
++      assert.deepEqual(report.violations.map(v => v.detail.split(shellMarker).at(-1)), [' active']);
++      assert.ok(fs.existsSync(path.join(dir, report.openQuestion.path)));
++    }
++  });
++
++  it('reports only active shell comments before, beside and after queued here-documents', (t) => {
++    const { dir, git } = initGitRepoWithTests();
++    t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
++    const file = path.join(dir, 'help.bash');
++    // The existing redirect is outside the added-line hunk.
++    fs.writeFileSync(file, "cat <<'HELP'\nunchanged\nHELP\n");
++    assert.equal(git('add', 'help.bash').status, 0);
++    assert.equal(git('commit', '-m', 'initial shell help').status, 0);
++    fs.writeFileSync(file, [
++      "cat <<'HELP'", shellMarker + ' existing-body', 'unchanged', 'HELP',
++      "printf '%s' '<<FAKE' \\#literal # <<FAKE",
++      'echo "$((1 << 2))" <<<"here-string"; (( number = 1 << 3 ))',
++      shellMarker + ' before',
++      'cat <<FIRST 3<<-"SEC OND" 4<<\\LAST ' + shellMarker + ' beside',
++      shellMarker + ' first-body', "unmatched ' in help text", 'FIRST',
++      '\t' + shellMarker + ' second-body', '\tSEC OND',
++      shellMarker + ' last-body', 'LAST',
++      'true ' + shellMarker + ' after', '',
++    ].join('\n'));
++    const result = runAntiTamper(dir);
++    assert.equal(result.status, 4, result.stdout);
++    const { status, violations, openQuestion } = JSON.parse(result.stdout);
++    assert.equal(status, 'TAMPER_DETECTED');
++    assert.deepEqual(violations.map(v => v.detail.split(shellMarker).at(-1)), [' before', ' beside', ' after']);
++    assert.ok(violations.every(v => v.code === 'LINT_DISABLE_ADDED' && v.path === 'help.bash'));
++    const question = JSON.parse(fs.readFileSync(path.join(dir, openQuestion.path)));
++    assert.equal(question.id, openQuestion.id);
++    assert.equal(question.status, 'Provisional');
++    assert.deepEqual(question.violations, violations.map(({ code, path }) => ({ code, path })));
++  });
++
+   it('reports added lint directives in source comments with a persisted OQ', (t) => {
+     const { dir } = initGitRepoWithTests();
+     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));

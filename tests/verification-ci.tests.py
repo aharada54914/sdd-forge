@@ -9,6 +9,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import stat
 import socket
 import warnings
@@ -35,6 +36,8 @@ def module(path, name):
 P = module(ROOT / 'tests/verification-impact.py', 'ci_test_impact')
 W = P.workflow_module()
 R = W.runner_module()
+# Preserve the original case IDs when replaying the e2110862f deployment.
+RELEASED = module(ROOT / 'tests/fixtures/verification-ci/released_inputs.py', 'released_ci_inputs')
 
 
 def sha(raw):
@@ -48,6 +51,163 @@ def job_key(job, matrix):
 
 def receipt_name(run, attempt, job, matrix):
     return f'verification-receipts-{run}-{attempt}-{job_key(job, matrix)}'
+
+
+class CurrentV2WorkflowTests(unittest.TestCase):
+    required = {'v2-guardrails', 'sdd-forge-mcp-v2', 'mcp-tests', 'cloud-and-ddd', 'installers'}
+
+    @classmethod
+    def setUpClass(cls):
+        cls.workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        cls.jobs = cls.workflow['jobs']
+        cls.workloads = json.loads((ROOT / 'tests/fixtures/verification-ci/v2-workloads.json').read_bytes())['jobs']
+
+    def test_required_checks_exercises_all_five_dependency_results(self):
+        self.assertEqual(set(self.jobs), self.required | {'required-checks'})
+        aggregate = self.jobs['required-checks']
+        self.assertEqual(aggregate['name'], 'required-checks')
+        self.assertEqual(aggregate['runs-on'], 'ubuntu-latest')
+        self.assertCountEqual(aggregate['needs'], self.required)
+        self.assertEqual(aggregate['if'], '${{ always() }}')
+        self.assertIs(aggregate.get('continue-on-error', False), False)
+        step, = aggregate['steps']
+        self.assertIs(W.condition_value(step.get('if'), {}, 'Linux'), True)
+        self.assertIs(step.get('continue-on-error', False), False)
+        settings = {**self.workflow.get('defaults', {}).get('run', {}),
+                    **aggregate.get('defaults', {}).get('run', {}), **step}
+        self.assertEqual(settings.get('shell', 'bash'), 'bash')
+        self.assertEqual(settings.get('working-directory', '.'), '.')
+        self.assertEqual(step['env']['NEEDS_JSON'], '${{ toJSON(needs) }}')
+        good = {job: {'result': 'success'} for job in self.required}
+        cases = [(None, 'success')] + [(job, state) for job in sorted(self.required)
+                                       for state in ('failure', 'skipped', 'cancelled')]
+        for job, state in cases:
+            with self.subTest(job=job, result=state):
+                needs = good if job is None else {**good, job: {'result': state}}
+                run = subprocess.run(['bash', '-eo', 'pipefail', '-c', step['run']],
+                                     env={**os.environ, 'NEEDS_JSON': json.dumps(needs)},
+                                     capture_output=True, text=True, timeout=10)
+                self.assertEqual(run.returncode, 0 if job is None else 1, run.stderr)
+                if job is not None:
+                    self.assertIn(f'{job}={state}', run.stderr.splitlines())
+
+    def run_steps(self, name, row, os_name):
+        job = self.jobs[name]
+        self.assertIs(W.condition_value(job.get('if'), row, os_name), True, name)
+        self.assertIs(job.get('continue-on-error', False), False, name)
+        steps = []
+        for step in job['steps']:
+            enabled = W.condition_value(step.get('if'), row, os_name)
+            self.assertIsNotNone(enabled, (name, step.get('name', step.get('uses'))))
+            if enabled:
+                self.assertIs(step.get('continue-on-error', False), False, step.get('name'))
+                steps.append(step)
+        return steps
+
+    @staticmethod
+    def workload_commands(body):
+        """Keep executable obligations while allowing comments and literal progress messages."""
+        commands = []
+        for line in re.sub(r'\\\n[ \t]*', '', body).splitlines():
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            # A hash inside a quoted shell argument is part of the argument.
+            comment = re.fullmatch(r"""((?:'[^']*'|"(?:\\.|[^"\\])*"|\\.|[^'"\\])*?)\s+#.*""", line)
+            if comment:
+                line = comment[1].rstrip()
+            if re.fullmatch(r"""echo\s+(?:[\w ./:-]+|"[\w ./:%-]+"|'[\w ./:%-]+')""", line):
+                continue
+            commands.append(line)
+        return commands
+
+    def test_hosts_and_workloads_on_each_v2_job_route(self):
+        self.assert_workload_routes()
+
+    def test_workload_contract_accepts_presentation_and_action_patch_updates(self):
+        workflow = copy.deepcopy(self.workflow)
+        workflow.setdefault('env', {})['LOG_CONTEXT'] = 'v2'
+        steps = workflow['jobs']['v2-guardrails']['steps']
+        checkout = next(step for step in steps if step.get('uses', '').startswith('actions/checkout@'))
+        checkout['uses'] = 'actions/checkout@' + 'a' * 40
+        checkout.setdefault('with', {})['show-progress'] = False
+        consent = next(step for step in steps if 'tests/design-sync-policy.tests.py' in step.get('run', ''))
+        consent['name'] = 'Consent decisions'
+        consent['run'] = '# Updated operator note\necho "Checking consent"\n' + consent['run']
+        steps.insert(0, {'name': 'Report progress', 'run': 'echo "Starting checks"'})
+        with patch.object(self, 'workflow', workflow), patch.object(self, 'jobs', workflow['jobs']):
+            self.assert_workload_routes()
+
+    def assert_workload_routes(self):
+        systems = {'ubuntu-latest': 'Linux', 'macos-latest': 'macOS', 'windows-latest': 'Windows'}
+        routes = {
+            'v2-guardrails': ('${{ matrix.os }}', [{'os': label} for label in systems]),
+            'installers': ('${{ matrix.os }}', [{'os': 'ubuntu-latest'}, {'os': 'macos-latest'}]),
+            'sdd-forge-mcp-v2': ('ubuntu-latest', [{}]),
+            'mcp-tests': ('ubuntu-latest', [{'mcp': 'ci-mcp'}, {'mcp': 'local-env-mcp'}]),
+            'cloud-and-ddd': ('ubuntu-latest', [{'shard': 'cloud'}, {'shard': 'ddd'}]),
+        }
+        self.assertEqual(set(self.workloads), self.required)
+        for name, (runner, rows) in routes.items():
+            job = self.jobs[name]
+            self.assertEqual(job['runs-on'], runner, name)
+            self.assertCountEqual(W.matrix_rows(job), rows, name)
+            for row in rows:
+                os_name = systems[W.expand_matrix(runner, row)]
+                default_shell = 'pwsh' if os_name == 'Windows' else 'bash'
+                route = next(iter(row.values()), runner)
+                expected = [step for step in self.workloads[name] if route in step.get('routes', [route])]
+                if name == 'v2-guardrails':
+                    # Required workloads added after the pinned baseline workflow.
+                    python = 'python' if os_name == 'Windows' else 'python3'
+                    expected.append({'commands': [python + ' -B tests/sdd-domain-multitarget-foundation.tests.py']})
+                    expected.append({'commands': [python + ' -B tests/project-evidence-collector.tests.py']})
+                    if os_name == 'Linux':
+                        expected.append({'working-directory': 'tests', 'commands': [
+                            'python3 -B verification-ci.tests.py CurrentV2WorkflowTests.test_hosts_and_workloads_on_each_v2_job_route']})
+                    expected.append({'shell': 'bash', 'commands': ['node .github/scripts/check-release-source.mjs']})
+                if name == 'cloud-and-ddd' and route == 'ddd':
+                    # main added the audit binding after the pinned workflow.
+                    expected.append({'env': {'TZ': 'Asia/Tokyo'}, 'commands': [
+                        'python3 tests/workflow-state-session.tests.py GateAuditBinding']})
+                steps = [step for step in self.run_steps(name, row, os_name)
+                         if 'uses' in step or self.workload_commands(step.get('run', ''))]
+                self.assertEqual(len(steps), len(expected), (name, route))
+                for actual, contract in zip(steps, expected):
+                    with self.subTest(job=name, route=route, step=contract.get('uses') or contract['commands'][0]):
+                        env = {**self.workflow.get('env', {}), **job.get('env', {}), **actual.get('env', {})}
+                        for key, value in contract.get('env', {}).items():
+                            self.assertEqual(env.get(key), value, key)
+                        if 'uses' in contract:
+                            self.assertRegex(actual.get('uses', ''), '^' + re.escape(contract['uses']) + '@[0-9a-f]{40}$')
+                            for key, value in contract.get('with', {}).items():
+                                self.assertEqual(actual.get('with', {}).get(key), value, key)
+                            continue
+                        defaults = {**self.workflow.get('defaults', {}).get('run', {}),
+                                    **job.get('defaults', {}).get('run', {})}
+                        settings = {**defaults, **actual}
+                        self.assertEqual(settings.get('shell', default_shell), contract.get('shell', default_shell))
+                        self.assertEqual(W.expand_matrix(settings.get('working-directory', '.'), row),
+                                         W.expand_matrix(contract.get('working-directory', '.'), row))
+                        self.assertEqual(self.workload_commands(actual['run']), contract['commands'])
+
+    def test_all_three_mcp_packages_run_on_the_supported_node_floor(self):
+        matrix_job = self.jobs['mcp-tests']
+        self.assertEqual(matrix_job['defaults']['run']['working-directory'], 'mcp/${{ matrix.mcp }}')
+        self.assertCountEqual(W.matrix_rows(matrix_job), [{'mcp': 'ci-mcp'}, {'mcp': 'local-env-mcp'}])
+        for name in ('ci-mcp', 'local-env-mcp', 'sdd-forge-mcp'):
+            with self.subTest(package=name):
+                package = json.loads((ROOT / 'mcp' / name / 'package.json').read_text())
+                self.assertEqual(package['engines']['node'], '>=20.0.0')
+                standalone = name == 'sdd-forge-mcp'
+                if standalone:
+                    self.assertEqual(W.matrix_rows(self.jobs['sdd-forge-mcp-v2']), [{}])
+                row = {} if standalone else {'mcp': name}
+                steps = self.run_steps('sdd-forge-mcp-v2' if standalone else 'mcp-tests', row, 'Linux')
+                setup, = [s for s in steps if s.get('uses', '').startswith('actions/setup-node@')]
+                self.assertEqual(setup['with']['node-version'], '20')
+                self.assertEqual(W.expand_matrix(setup['with']['cache-dependency-path'], row),
+                                 f'mcp/{name}/package-lock.json')
 
 
 class TrustedParserTests(unittest.TestCase):
@@ -349,10 +509,11 @@ class BoundaryTests(unittest.TestCase):
 
 
     def test_live_receipt_uploads_bind_current_job_names_and_actual_output_paths(self):
-        workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
-        catalog = R.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+        released = RELEASED.load(self, W)
+        workflow, catalog = released.workflow, released.catalog
         identities = self.ci.expanded_jobs(workflow)
-        obligations = [row for row in W.plan_obligations(workflow, catalog) if row['receipt_required']]
+        obligations = [row for row in W.plan_obligations(workflow, catalog, released.weights) if row['receipt_required']]
+        self.assertEqual(len(obligations), 22)
         import fnmatch
         import shlex
         for obligation in obligations:
@@ -378,10 +539,9 @@ class BoundaryTests(unittest.TestCase):
             self.assertTrue(any(fnmatch.fnmatchcase(receipt, pattern) for pattern in patterns), receipt)
 
     def test_current_workflow_all_receipt_callers_match_existing_profiles(self):
-        workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
-        catalog = R.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
-        weights = R.load_weights(ROOT / 'tests/verification-timings.json')
-        obligations = [o for o in W.plan_obligations(workflow, catalog, weights) if o['receipt_required']]
+        released = RELEASED.load(self, W)
+        workflow, catalog = released.workflow, released.catalog
+        obligations = [o for o in W.plan_obligations(workflow, catalog, released.weights) if o['receipt_required']]
         expected = {
             'Test shared review launch and conditional input contracts': 'ci-shared-python',
             'Run POSIX inventory shard': 'ci-posix-fallback',
@@ -463,7 +623,7 @@ class AggregateFixture(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.scratch = Path(self.temp.name)
+        self.scratch = Path(self.temp.name).resolve(strict=True)
         self.root = self.scratch / 'repo'
         self.root.mkdir()
         self.git('init', '-q')
@@ -919,10 +1079,10 @@ class A9AggregateTests(AggregateFixture):
     def setUp(self):
         super().setUp()
         self.ci = module(SCRIPT, 'a9_ci_test')
-        live = W.load_workflow(ROOT / '.github/workflows/test.yml')
-        self.workflow['env'] = live.get('env', {})
-        for job in ('a9-advisory-inputs', 'a9-advisory'):
-            self.workflow['jobs'][job] = copy.deepcopy(live['jobs'][job])
+        # Exact protocol inputs from e2110862, the last workflow carrying the advisory jobs.
+        historical = json.loads((ROOT / 'tests/fixtures/verification-ci/a9-activation-workflow.json').read_text())
+        self.workflow.update(env=historical['env'], defaults=historical['defaults'])
+        self.workflow['jobs'].update(historical['jobs'])
         self.write('.github/workflows/test.yml', json.dumps(self.workflow))
         self.a9_base = self.commit('synthetic exact A9 workflow')
         self.normal_jobs = copy.deepcopy(self.jobs)
@@ -1477,7 +1637,7 @@ class DependencyCacheIntegrationTests(unittest.TestCase):
         self.cache = module(path, 't003_cache')
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.directory = Path(self.temp.name)
+        self.directory = Path(self.temp.name).resolve(strict=True)
         self.target = self.directory / 'pester.nupkg'
         self.payload = b'fixture dependency bytes; never executed'
         self.digest = sha(self.payload)
@@ -1543,9 +1703,13 @@ PlanFixture = module(ROOT / 'tests/verification-ci-plan.tests.py', 't003_plan_fi
 
 
 class WorkflowPlanIntegrationTests(PlanFixture):  # type: ignore[misc, valid-type]  # Runtime-loaded filename contains hyphens.
-    """Run the live planner dispatcher against isolated histories; no hosted proof."""
+    """Run the released e2110862f dispatcher against isolated fixture histories."""
+    def setUp(self):
+        super().setUp()
+        self.released = RELEASED.load(self, W)
+
     def actual_body(self):
-        workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        workflow = self.released.workflow
         self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the planner')
         steps = [s for s in workflow['jobs']['ci-plan']['steps'] if s.get('id') == 'plan']
         self.assertEqual(len(steps), 1)

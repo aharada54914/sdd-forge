@@ -65,6 +65,8 @@ ADR-0052 に基づき、ローカル CLI プラグイン導入時は **既定で
 | `--skip-mcp` | すべての MCP クライアント登録を明示スキップ（`--with-mcp` / `--mcp` との併用不可） |
 | `--mcp sdd-forge-mcp,ci-mcp` | 登録する MCP を明示指定してオプトイン（`local-env-mcp` は ADR-0052 により非推奨警告を表示） |
 
+Codex のドリフト検査は、導入先に保存した登録選択と `config.toml` を照合します。初回の既定導入では未登録が正常です。明示登録後にその設定を削除すると差分として報告します。登録選択の記録がない旧環境では従来の検査を続け、次に Codex または All を対象にインストールした時に移行します。
+
 `--with-mcp` 指定時の登録先：
 - **Claude Code**: `claude mcp add sdd-forge-mcp --scope user -- node <INSTALL_ROOT>/mcp/sdd-forge-mcp/dist/index.js`
 - **Codex CLI**: `~/.codex/config.toml`（マーカー区切りブロック追記）

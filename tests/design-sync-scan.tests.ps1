@@ -9,12 +9,8 @@
 # sweep (TEST-051), and the dual-form (POSIX ERE vs .NET) parity claim for
 # S7/P2 (TEST-084).
 #
-# ASCII-only source throughout, per the precedent
-# tests/design-system-contract.tests.ps1:57 states for this class of file:
-# any single literal the .sh twin asserts that cannot be expressed in an
-# ASCII-only .ps1 source would have its asymmetry stated as a comment at
-# the point it is created. No such literal exists in this port -- every
-# assertion below is expressible in ASCII, so no asymmetry comment appears.
+# The assertions for the current Japanese skill use the same UTF-8 text
+# as their Bash counterparts.
 #
 # Case-sensitivity sweep (AGENTS.md "Author-time sweeps" item 1, applied at
 # full strength per acceptance-tests.md's own Notes -- this is a genuine
@@ -1000,8 +996,7 @@ if (-not $BashAvailable) {
 # pre-existing tests/design-system-contract.tests.ps1 suite this task does
 # not edit. Positional/structural technique (TEST-035, TEST-045) mirrors
 # design-sync-consent's TEST-010/TEST-014, ported at parity from the .sh
-# twin (BL-008); every literal below is plain ASCII, so no asymmetry
-# comment is required at any assertion site in this block.
+# twin (BL-008).
 #
 # Baseline preservation (tasks.md Global Constraints): SKILL.md steps 1-4,
 # 6-7, "## Capability Detection", "## Ensure design-system/", "##
@@ -1033,6 +1028,7 @@ function Get-T003SectionBetween([string]$Path, [string]$Start, [string]$End) {
 }
 
 $DslFlat = Get-T003FlattenedFile $Dsl
+$DslConsentStep = Get-T003SectionBetween $Dsl '^3[.] [*][*]Resolve Egress Consent' '^[0-9]+[.] '
 $DslLoopSection = Get-T003SectionBetween $Dsl '^## Loop$' '^## '
 $DslLoopFlat = (($DslLoopSection -replace '\r?\n', ' ') -replace '\s+', ' ')
 
@@ -1069,11 +1065,8 @@ if ($DslFlat.Contains("continue directly to 6") `
 
 Write-Host ""
 Write-Host "=== TEST-033 (AC-018, SKILL.md half): the skill text states the check is egress-hygiene-only, no quality judgment ==="
-if ($DslFlat -match 'egress hygiene' `
-        -and $DslFlat -match 'no assessment of mockup quality' `
-        -and $DslFlat -match 'design fidelity' `
-        -and $DslFlat -match 'accessibility' `
-        -and $DslFlat -match 'design-system') {
+if ($DslConsentStep.Contains('この検査の対象は送信する HTML 内の仮置き表現、機密情報・個人情報に似た文字列に限る。') `
+        -and $DslConsentStep.Contains('モックアップの品質、デザインの再現度、アクセシビリティ、デザインシステムへの適合性は評価しない。')) {
     Ok "TEST-033: SKILL.md states the check is limited to egress hygiene and makes no quality/fidelity/accessibility/design-system judgment"
 } else {
     Fail "TEST-033: SKILL.md must state the egress-hygiene-only boundary in its own words"
@@ -1101,32 +1094,31 @@ if ($null -ne $t035S1 -and $null -ne $t035S2 -and $null -ne $t035S3 -and $null -
 
 Write-Host ""
 Write-Host "=== TEST-036 (AC-020): an explicit override affordance is stated; absent it, no push occurs -- silence/non-response/agent judgment is not an override ==="
-if ($DslFlat -match 'explicit human override' `
-        -and $DslFlat.Contains("Absent an explicit override") `
-        -and $DslFlat.Contains("silence") `
-        -and $DslFlat.Contains("non-response") `
-        -and $DslFlat.Contains("own judgment") `
-        -and $DslFlat.Contains("never an override") `
-        -and $DslFlat.Contains("no push occurs")) {
+if ($DslConsentStep.Contains('終了1の `review` なら、`findings` を利用者に示して回答を待つ。') `
+        -and $DslConsentStep.Contains('この `identity` の上書きを利用者が明示的に承認するまで送信しない。') `
+        -and $DslConsentStep.Contains('沈黙・無回答・エージェント自身の判断を承認として扱わない。')) {
     Ok "TEST-036: an explicit override affordance is stated; silence, non-response, or agent judgment is never an override, and absent it no push occurs"
 } else {
     Fail "TEST-036: the override affordance and its negative (no explicit approval -> no push) must both be stated"
 }
 
 Write-Host ""
-Write-Host "=== TEST-037 (AC-021.1): a fresh scan after regeneration requires its own override decision -- a prior override does not carry forward ==="
-if ($DslFlat.Contains("fresh scan after any regeneration requires its own override decision")) {
-    Ok "TEST-037: a fresh scan after any regeneration is stated to require its own override decision"
+$OverridePython = if (Get-Command python3 -ErrorAction SilentlyContinue) { 'python3' } else { 'python' }
+Write-Host "=== TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused ==="
+& $OverridePython (Join-Path $RepoRoot 'tests/fixtures/design-sync-scan/override_cases.py') ps1 TEST-037
+if ($LASTEXITCODE -eq 0) {
+    Ok "TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused"
 } else {
-    Fail "TEST-037: step 5 must state that a fresh scan after regeneration requires its own override decision"
+    Fail "TEST-037: regenerated mockups are rescanned and only an effective scan override can be reused"
 }
 
 Write-Host ""
-Write-Host "=== TEST-038 (AC-021.2): this holds even when the new scan reproduces IDENTICAL findings -- recurrence is not evidence the human need not be asked again ==="
-if ($DslFlat.Contains("reproduces findings identical to the ones already overridden")) {
-    Ok "TEST-038: the no-carry-forward rule is stated to hold even for identical findings, not only different ones"
+Write-Host "=== TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override ==="
+& $OverridePython (Join-Path $RepoRoot 'tests/fixtures/design-sync-scan/override_cases.py') ps1 TEST-038
+if ($LASTEXITCODE -eq 0) {
+    Ok "TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override"
 } else {
-    Fail "TEST-038: step 5 must state the no-carry-forward rule holds even when findings are identical to a prior override"
+    Fail "TEST-038: only identical upload bytes, paths, destination and findings reuse the scan override"
 }
 
 Write-Host ""
@@ -1147,7 +1139,8 @@ if ($DslFlat.Contains("Egress-Scan: clean")) {
 
 Write-Host ""
 Write-Host "=== TEST-041 (AC-023, clean value): Egress-Scan-At (ISO-8601) is stated for the clean branch ==="
-if ($DslFlat -match 'Egress-Scan: clean.{0,120}ISO-8601') {
+& $OverridePython (Join-Path $RepoRoot 'tests/fixtures/design-sync-scan/override_cases.py') ps1 TEST-041
+if ($LASTEXITCODE -eq 0) {
     Ok "TEST-041: the clean branch states Egress-Scan-At as an ISO-8601 timestamp"
 } else {
     Fail "TEST-041: the clean branch must state Egress-Scan-At (ISO-8601)"
@@ -1155,7 +1148,8 @@ if ($DslFlat -match 'Egress-Scan: clean.{0,120}ISO-8601') {
 
 Write-Host ""
 Write-Host "=== TEST-064 (AC-023, overridden value): Egress-Scan-At (ISO-8601) is stated for the overridden branch too, not only the exceptional one ==="
-if ($DslFlat -match 'Egress-Scan: overridden.{0,120}ISO-8601') {
+& $OverridePython (Join-Path $RepoRoot 'tests/fixtures/design-sync-scan/override_cases.py') ps1 TEST-064
+if ($LASTEXITCODE -eq 0) {
     Ok "TEST-064: the overridden branch also states Egress-Scan-At as an ISO-8601 timestamp"
 } else {
     Fail "TEST-064: the overridden branch must state Egress-Scan-At (ISO-8601), not only the clean branch"
@@ -1170,23 +1164,21 @@ function Assert-FieldRowPresent([string]$Label, [string]$Row) {
         Fail "${Label}: expected the unmodified field row $Row in $Dsl"
     }
 }
-Assert-FieldRowPresent "TEST-042 (Egress-Consent)" '| `Egress-Consent` |'
+Assert-FieldRowPresent "TEST-042 (Egress-Consent)" '| `Egress-Consent` | 送信同意の判断（`granted`、`not-permitted`、`withdrawn`） |'
 Assert-FieldRowPresent "TEST-065 (Egress-Consent-Scope)" '| `Egress-Consent-Scope` |'
 Assert-FieldRowPresent "TEST-066 (Egress-Consent-Subject)" '| `Egress-Consent-Subject` |'
-Assert-FieldRowPresent "TEST-067 (Egress-Destination)" '| `Egress-Destination` |'
+Assert-FieldRowPresent "TEST-067 (Egress-Destination)" '| `Egress-Destination` | `claude-design` で実際に `claude.ai/design` を使う場合、手順1で選んだプロジェクトの ID |'
 Assert-FieldRowPresent "TEST-068 (Egress-Consent-Expiry)" '| `Egress-Consent-Expiry` |'
 
 Write-Host ""
 Write-Host "=== TEST-043 (AC-025): on decline, no push, nothing written to Design-Source as an override, remediate before rescan -- distinguished from Egress-Consent's decline/withdrawal ==="
-if ($DslFlat.Contains("nothing is written to") `
-        -and $DslFlat.Contains("Design-Source") `
-        -and $DslFlat.Contains("as an override") `
-        -and $DslFlat -match 'remediates the flagged mockups' `
-        -and $DslFlat.Contains("distinct from") `
-        -and $DslFlat.Contains("decline or withdrawal")) {
-    Ok "TEST-043: the decline outcome (no push, nothing written as override, remediate) is stated and distinguished from Egress-Consent's own decline/withdrawal vocabulary"
+if ($DslConsentStep.Contains('上書きを辞退したら送信を止め') `
+        -and $DslConsentStep.Contains('`Design-Source` に `Egress-Scan: overridden` を記録しない') `
+        -and $DslConsentStep.Contains('指摘されたモックアップを修正してから再検査する') `
+        -and $DslConsentStep.Contains('この辞退は今回の検査結果だけに適用し、送信同意 `Egress-Consent` の辞退や撤回としては扱わない')) {
+    Ok "TEST-043: declining an override stops upload, leaves no override record, and requires remediation before rescan without changing upload consent"
 } else {
-    Fail "TEST-043: the decline outcome must be stated in full and distinguished from Egress-Consent's decline/withdrawal vocabulary"
+    Fail "TEST-043: declining an override stops upload, leaves no override record, and requires remediation before rescan without changing upload consent"
 }
 
 Write-Host ""
@@ -1256,10 +1248,8 @@ if ((Test-046NoGreenToRedFlip $DscBaselinePs1 $dscCurrentPs1) `
 
 Write-Host ""
 Write-Host "=== TEST-055 (AC-037): the skill states the exit-2 branch is unconditionally blocking, with no override affordance offered at all ==="
-if ($DslFlat -match 'unconditionally blocking' `
-        -and $DslFlat -match 'no override affordance' `
-        -and $DslFlat -match 'offered at all' `
-        -and $DslFlat -match 'tool failure') {
+if ($DslConsentStep.Contains('終了2または異常終了は検査ツールの失敗として報告する。') `
+        -and $DslConsentStep.Contains('この場合は上書き承認を提示せず、入力またはツールを復旧して再検査するまで送信しない。')) {
     Ok "TEST-055: the exit-2 branch is stated as unconditionally blocking with no override affordance offered at all, worded as a tool failure"
 } else {
     Fail "TEST-055: the exit-2 branch must state it is unconditionally blocking with no override affordance at all"
@@ -1285,7 +1275,7 @@ if ($DslFlat -match 'unconditionally blocking' `
 # that block.
 # ============================================================================
 
-$Cdw = Join-Path $RepoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md"
+$Cdw = Join-Path $RepoRoot "plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 $CdwFlat = Get-T003FlattenedFile $Cdw
 
 Write-Host ""

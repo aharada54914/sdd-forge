@@ -778,10 +778,26 @@ resource "aws_iam_policy" "wide" {
       assert.doesNotMatch(view, /機械検証済み|機械確認済み|自動照合済み|確認済み/);
     }
 
-    // 3. PASS report (even with P2 Design N/A) -> C01 stays neutral (never claims design confirmed), while trace/drift/gate remain non-claiming.
+    // 3. Legacy PASS report (without Review-Inputs-SHA256) -> recorded as freshness unconfirmed, never claimed confirmed.
     fs.writeFileSync(
       specCheckPath,
       '# Spec Check Report: truthful-api\n\n- **Verdict**: PASS\n\n## Perspective Coverage (P1–P6)\n- P2 (Design & Alternatives Rejected): N/A (config-only)\n',
+      'utf8',
+    );
+    const legacyPassData = buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir });
+    assert.equal(legacyPassData.specCheckVerdict, 'Recorded PASS (freshness unconfirmed)');
+    assert.doesNotMatch(legacyPassData.reviewPerspectives.find((p) => p.id === 'C07').reason, /確認済み/);
+
+    // 4. Current PASS report with matching Review-Inputs-SHA256 -> PASS across matrix, Markdown, and HTML.
+    const reviewHash = execFileSync(
+      process.execPath,
+      [VIEW_CLI, '--feature', 'truthful-api', '--root', dir, '--format', 'review-hash'],
+      { encoding: 'utf8' },
+    ).trim();
+    assert.match(reviewHash, /^[0-9a-f]{64}$/);
+    fs.writeFileSync(
+      specCheckPath,
+      `# Spec Check Report: truthful-api\n\n- **Verdict**: PASS\n- **Review-Inputs-SHA256**: ${reviewHash}\n\n## Perspective Coverage (P1–P6)\n- P2 (Design & Alternatives Rejected): N/A (config-only)\n`,
       'utf8',
     );
     const passData = buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir });
@@ -797,6 +813,67 @@ resource "aws_iam_policy" "wide" {
       assert.match(view, /spec-check \(PASS\)/);
       assert.doesNotMatch(view, /機械検証済み|機械確認済み|自動照合済み/);
     }
+
+    // 5. Approval/Status transition alone keeps review hash identical -> still PASS.
+    const tasksFile = path.join(dir, 'specs', 'truthful-api', 'tasks.md');
+    const origTasks = fs.readFileSync(tasksFile, 'utf8');
+    fs.writeFileSync(tasksFile, origTasks.replace('Approval: Draft', 'Approval: Approved').replace('Status: Planned', 'Status: In Progress'), 'utf8');
+    assert.equal(buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir }).specCheckVerdict, 'PASS');
+
+    // 6. Editing spec contract invalidates review hash -> Stale (previous PASS).
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'truthful-api', 'requirements.md'),
+      '# 要件: truthful-api\n- **REQ-001**: Health endpoint returns HTTP 200 with version.\n- **AC-001** (REQ-001): GET /health returns 200.\n',
+      'utf8',
+    );
+    const staleData = buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir });
+    assert.equal(staleData.specCheckVerdict, 'Stale (previous PASS)');
+    assert.doesNotMatch(staleData.reviewPerspectives.find((p) => p.id === 'C07').reason, /確認済み/);
+  });
+
+  it('V-03: render-decision-view --require-traceability refuses invalid drafts without writing output', () => {
+    const dir = trackTempDir('sdd-decision-view-v03-');
+    const featDir = path.join(dir, 'specs', 'broken-draft');
+    fs.mkdirSync(featDir, { recursive: true });
+    fs.writeFileSync(path.join(featDir, 'requirements.md'), '# Requirements\n- AC-001-A: non-standard format\n', 'utf8');
+    fs.writeFileSync(path.join(featDir, 'design.md'), '# Design\n', 'utf8');
+    fs.writeFileSync(path.join(featDir, 'tasks.md'), '# Tasks\n## T-001: colon heading\n- Approval: Draft\n', 'utf8');
+
+    const outPath = path.join(dir, 'decision-view.md');
+    const failed = spawnSync(
+      process.execPath,
+      [VIEW_CLI, '--feature', 'broken-draft', '--root', dir, '--require-traceability', '--output', outPath],
+      { encoding: 'utf8' },
+    );
+    assert.equal(failed.status, 2);
+    assert.equal(fs.existsSync(outPath), false, 'must not generate output file when traceability fails');
+
+    // Without --require-traceability, diagnostic rendering remains available.
+    const diagnostic = spawnSync(
+      process.execPath,
+      [VIEW_CLI, '--feature', 'broken-draft', '--root', dir],
+      { encoding: 'utf8' },
+    );
+    assert.equal(diagnostic.status, 0);
+
+    // Fix draft to canonical format -> --require-traceability exits 0 and writes output.
+    fs.writeFileSync(
+      path.join(featDir, 'requirements.md'),
+      '# 要件: broken-draft\n- **REQ-001**: Count lines.\n- **AC-001** (REQ-001): Returns non-blank count.\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(featDir, 'tasks.md'),
+      '# タスク: broken-draft\n\n## T-001 Implement counter\nApproval: Draft\nStatus: Planned\nRisk: low\n\n### Scope\n- `src/count.mjs`\n\n### Done When\n- AC-001 passes\n\n### Blockers\n- None\n',
+      'utf8',
+    );
+    const passed = spawnSync(
+      process.execPath,
+      [VIEW_CLI, '--feature', 'broken-draft', '--root', dir, '--require-traceability', '--output', outPath],
+      { encoding: 'utf8' },
+    );
+    assert.equal(passed.status, 0, passed.stderr);
+    assert.equal(fs.existsSync(outPath), true);
   });
 });
 
@@ -989,6 +1066,63 @@ describe('#972 review: Scope literals and lock renewal races', () => {
     );
   });
 
+  it('a concurrent release and acquire cannot remove a newly acquired lock', async () => {
+    const { acquireLock, getLockStatus, releaseLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const dir = trackTempDir('sdd-lock-release-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    const args = { feature: 'f', projectRoot: dir };
+    const first = acquireLock({ ...args, owner: 'A' });
+    assert.equal(first.acquired, true);
+    const cli = path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const child = (...args) => {
+      const res = spawnSync(process.execPath, [cli, ...args, '--feature', 'f', '--root', dir], { encoding: 'utf8' });
+      assert.ok([0, 1].includes(res.status), res.stderr);
+      return JSON.parse(res.stdout);
+    };
+    const read = fs.readFileSync;
+    let nextOwner;
+    const spy = mock.method(fs, 'readFileSync', function (...params) {
+      const value = read.apply(this, params);
+      if (!nextOwner && params[0] === first.lockPath) {
+        child('release', '--owner', 'A');
+        nextOwner = child('acquire', '--owner', 'B');
+      }
+      return value;
+    });
+    try {
+      assert.equal(releaseLock({ ...args, owner: 'A' }).released, true);
+    } finally {
+      spy.mock.restore();
+    }
+    assert.ok(nextOwner, 'both child calls overlapped the release');
+    if (!nextOwner.acquired) assert.equal(acquireLock({ ...args, owner: 'B' }).acquired, true);
+    assert.equal(getLockStatus(args).record?.owner, 'B');
+  });
+
+  it('a process exit during acquisition does not strand an intent or publish partial data', async () => {
+    const { acquireLock, getLockStatus } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const dir = trackTempDir('sdd-lock-intent-exit-');
+    fs.writeFileSync(path.join(dir, 'AGENTS.md'), '# t\n');
+    const args = { feature: 'f', projectRoot: dir };
+    const child = spawnSync(process.execPath, ['--input-type=module', '-e', `
+      import fs from 'node:fs';
+      import { acquireLock } from './plugins/sdd-quality-loop/scripts/v2/task-lock.mjs';
+      const rename = fs.renameSync;
+      fs.renameSync = (src, dest) => {
+        if (dest.endsWith('f.lock')) process.exit(90);
+        return rename(src, dest);
+      };
+      acquireLock({ feature: 'f', owner: 'A', projectRoot: process.argv[1] });
+    `, dir], { cwd: REPO_ROOT, encoding: 'utf8' });
+    assert.equal(child.status, 90, child.stderr);
+    assert.equal(getLockStatus(args).locked, false);
+    const intents = path.join(dir, '.sdd', 'lock-mutations', 'f.lock');
+    assert.equal(fs.readdirSync(intents).length, 1);
+    assert.equal(acquireLock({ ...args, owner: 'B' }).acquired, true);
+    assert.deepEqual(fs.readdirSync(intents), []);
+    assert.equal(getLockStatus(args).record.owner, 'B');
+  });
+
   it('renewal never overwrites a lock another worker took after it was read', async () => {
     const { acquireLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
     const dir = trackTempDir('sdd-lock-race-');
@@ -1112,6 +1246,60 @@ describe('#972 re-review: nested braces, bare route groups, lease renewal', () =
   });
 });
 
+describe('Wave task plans in CLI and read-only views', () => {
+  const plan = [
+    '# Tasks', '- **Approval:** `Draft`', '## Wave 1', '### T-009: Task evidence',
+    '~~~~markdown', '## Spec Amendments', '~~~', '### T-099: Example', 'Status: Done',
+    'Approval: Approved', 'REQ-099', '~~~~',
+    '- **Status:** `Implementation Complete`', '- **Approval:** `Approved`', '- **Risk:** `medium`',
+    '- **Covers:** `REQ-012`', '- **Verification (`AC-012`):** local check',
+    '- **Scope:** `src/{one,two}.mjs`, `src/app/(admin)/ui.ts`（`UI` のみ）',
+    '### Blockers', 'T-008', '## Wave 2', 'REQ-090', '## T-010 Legacy', 'Status: Planned', 'Approval: Draft',
+  ].join('\n');
+
+  it('resolves real H3 metadata, scope and blockers with the same task boundaries as the gate', async () => {
+    const { parseTasksSummary, extractScopePaths } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const { parseTaskBlock } = await import('../plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs');
+    const tasks = parseTasksSummary(plan);
+    assert.deepEqual(tasks.map((t) => t.id), ['T-009', 'T-010']);
+    const task = tasks[0];
+    assert.equal(task.title, 'Task evidence');
+    assert.equal(task.status, 'Implementation Complete');
+    assert.equal(task.approval, 'Approved');
+    assert.equal(task.risk, 'standard');
+    assert.deepEqual(task.blockers, ['T-008']);
+    assert.deepEqual(task.acRefs, ['AC-012']);
+    assert.doesNotMatch(task.block, /REQ-099|REQ-090/);
+    const paths = ['src/one.mjs', 'src/two.mjs', 'src/app/(admin)/ui.ts'];
+    assert.deepEqual(extractScopePaths(task.block), paths);
+    assert.deepEqual(parseTaskBlock(plan, task.id), {
+      taskId: task.id, approval: task.approval, status: task.status, risk: task.risk, scopePaths: paths,
+    });
+    assert.equal(parseTaskBlock(plan, 'T-099'), null);
+    assert.equal(parseTaskBlock('### T-009: Empty\n## Wave 2\nApproval: Approved', 'T-009').approval, null);
+  });
+
+  it('binds fenced bytes and task references while normalizing a real lifecycle transition', async () => {
+    const { featureEvidenceInputs, diffEvidenceInputs, taskApprovalBaseline } =
+      await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
+    const input = (text) => featureEvidenceInputs({ readText: (rel) => rel.endsWith('/tasks.md') ? text : null }, { feature: 'f' }).get('T-009');
+    const baseline = (text) => taskApprovalBaseline(text, 'tasks.md');
+    const before = input(plan);
+    assert.deepEqual(Object.keys(before.ids), ['AC-012', 'REQ-012']);
+    const moved = plan.replace('`Implementation Complete`', '`Done`').replace('`Approved`', '`Draft`');
+    assert.deepEqual(diffEvidenceInputs(before, input(moved)), []);
+    assert.deepEqual(diffEvidenceInputs(before, input(plan.replace('REQ-090', 'REQ-091'))), []);
+    assert.deepEqual(baseline(plan).taskApprovals, { 'T-009': 'Approved', 'T-010': 'Draft' });
+    assert.equal(baseline(moved).taskApprovals['T-009'], 'Draft');
+    assert.equal(baseline(plan).approvalContractSha256, baseline(moved).approvalContractSha256);
+    for (const changed of [plan.replace('Status: Done', 'Status: Planned'), plan.replace('Approval: Approved', 'Approval: Draft')]) {
+      assert.deepEqual(diffEvidenceInputs(before, input(changed)), ['task']);
+      assert.notEqual(baseline(changed).approvalContractSha256, baseline(plan).approvalContractSha256);
+    }
+    assert.notEqual(baseline(plan.replace('`Draft`', '`Approved`')).approvalContractSha256, baseline(plan).approvalContractSha256);
+  });
+});
+
 describe('#972 review 4: wrapped prose, table cells, filesystems without hard links', () => {
   const evidence = async (files) => {
     const { featureEvidenceInputs, diffEvidenceInputs } = await import('../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs');
@@ -1119,6 +1307,26 @@ describe('#972 review 4: wrapped prose, table cells, filesystems without hard li
     return { before: featureEvidenceInputs(io, { feature: 'f' }).get('T-001'), now: () => featureEvidenceInputs(io, { feature: 'f' }).get('T-001'), diffEvidenceInputs };
   };
   const tasks = '# t\n\n## T-001 x\nApproval: Approved\nStatus: Done\n\n### Done When\n- AC-001\n';
+
+  it('binds SELF criteria, linked requirements and NFRs by their full IDs', async () => {
+    const rel = 'specs/f/requirements.md';
+    const files = {
+      'specs/f/tasks.md': tasks.replace('AC-001', 'SELF-AC-001'),
+      [rel]: [
+        '| SELF-AC-001 | SELF-REQ-006, NFR-001 |',
+        '| AC-001 | REQ-006 |',
+        '- **SELF-REQ-006** Exact identity',
+        '- **REQ-006** Other scope',
+        '- **NFR-001** Resource budget',
+      ].join('\n'),
+    };
+    const e = await evidence(files);
+    assert.deepEqual(Object.keys(e.before.ids), ['NFR-001', 'SELF-AC-001', 'SELF-REQ-006']);
+    files[rel] = files[rel].replace('Other scope', 'Unrelated change');
+    assert.deepEqual(e.diffEvidenceInputs(e.before, e.now()), []);
+    files[rel] = files[rel].replace('Exact identity', 'Changed identity').replace('Resource budget', 'Changed budget');
+    assert.deepEqual(e.diffEvidenceInputs(e.before, e.now()), ['NFR-001', 'SELF-REQ-006']);
+  });
 
   it('a wrapped line that starts with an ID stays part of its entry', async () => {
     const files = { 'specs/f/requirements.md': '# r\n\n- **AC-001**: GET /health answers and per\n  AC-001 the body is JSON; it must never\n  return a 500 status.\n', 'specs/f/tasks.md': tasks };

@@ -1,0 +1,13 @@
+diff --git a/specs/verification-first-factory/tasks.md b/specs/verification-first-factory/tasks.md
+index ba474e043..8bc252e19 100644
+--- a/specs/verification-first-factory/tasks.md
++++ b/specs/verification-first-factory/tasks.md
+@@ -78,7 +78,7 @@ T-001
+ T-001
+ 
+ ### T-006: 本体公式 TLA+ モデル（`TaskLock.tla` / `GateLifecycle.tla`）＆ カテゴリ3重複列挙テスト圧縮
+-- **Status:** `Implementation Complete`
++- **Status:** `Done`
+ - **Approval:** `Approved`
+ - **Risk:** `high`
+ - **Covers:** `SELF-REQ-001`, `SELF-REQ-002`, `SELF-REQ-006`（カテゴリ3）
