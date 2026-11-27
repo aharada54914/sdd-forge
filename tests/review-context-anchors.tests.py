@@ -225,9 +225,7 @@ def main():
     args = parser.parse_args()
     sources = {name: (args.repo / path).read_text() for name, path in SUBJECTS.items()}
     document = (args.repo / 'plugins/sdd-review-loop/references/review-context-boundary.md').read_text()
-    reviewer = (args.repo / 'plugins/sdd-review-loop/agents/impl-reviewer-a.md').read_text()
-    if 'Issue #143' not in reviewer:
-        raise ValueError('reviewer lost the documented Issue #143 carve-out')
+    # The impl-reviewer-a Issue #143 carve-out check retired with the role (ADR-0051 decision 2, 2026-11-28).
     resolved = resolve(sources, document)
     if args.list:
         for name, subject, _ in ANCHORS:
