@@ -98,7 +98,7 @@ export function finishTask(
 
   if (status === "Done" && profile === "lite" &&
       !(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId, feature)) {
-    fail("done-quality-gate-verdict-fail", `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it with VERDICT: PASS`);
+    fail("done-quality-gate-verdict-fail", `${taskId} is Done but no quality-gate report for feature ${feature} in ${reportsDir} mentions it with VERDICT: PASS`);
   }
 
   let blockersNonEmpty = false;
@@ -200,7 +200,7 @@ function validateDoneEvidence(
   if (qgMatches.length === 0) {
     fail(
       "done-quality-gate-report-missing",
-      `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it`,
+      `${taskId} is Done but no quality-gate report for feature ${feature} in ${reportsDir} mentions it`,
     );
   } else if (!(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId, feature)) {
     fail(

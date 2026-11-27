@@ -37402,26 +37402,50 @@ function isExecutionCoverageComplete(parsed) {
   const sensors = checks.nonFunctionalSensors;
   return Array.isArray(commands) && commands.length > 0 && drift?.skipped !== true && sensors?.skipped !== true;
 }
-var FEATURE_LINE = /^Feature:[ \t]*(.*?)[ \t]*$/m;
-function isReportForFeature(contents, feature) {
-  const declared = FEATURE_LINE.exec(contents.replace(/\r\n/g, "\n"));
-  return declared === null || declared[1] === feature;
+var FEATURE_LINE = /^[ \t*-]*(?:\*\*)?feature(?:\*\*)?[ \t]*:(?:\*\*)?[ \t]*(.*?)[ \t]*$/i;
+var SPEC_SLUG = /^[a-z0-9][a-z0-9-]*$/;
+function declaredFeature(contents) {
+  let activeFence = null;
+  for (const line of contents.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").split("\n")) {
+    const fence = /^(`{3,}|~{3,})/.exec(line.trimStart());
+    if (activeFence !== null) {
+      if (line.trimStart().startsWith(activeFence)) activeFence = null;
+      continue;
+    }
+    if (fence) {
+      activeFence = fence[1] ?? "```";
+      continue;
+    }
+    const match = FEATURE_LINE.exec(line);
+    if (match) return (match[1] ?? "").replace(/^[`*]+|[`*]+$/g, "").trim();
+  }
+  return void 0;
+}
+function featureFromFileName(root, relFilePath, taskId) {
+  const base = relFilePath.slice(relFilePath.lastIndexOf("/") + 1);
+  const at = base.lastIndexOf(`-${taskId}.`);
+  if (at <= 0) return void 0;
+  const parts = base.slice(0, at).split("-");
+  for (let first = 0; first < parts.length; first++) {
+    const slug = parts.slice(first).join("-");
+    if (SPEC_SLUG.test(slug) && guardedDirExists(root, `specs/${slug}`)) return slug;
+  }
+  return void 0;
+}
+function isReportForFeature(root, relFilePath, contents, taskId, feature) {
+  const named = featureFromFileName(root, relFilePath, taskId);
+  const declared = declaredFeature(contents);
+  return (named === void 0 || named === feature) && (declared === void 0 || declared === feature);
 }
 function isQualityGatePassContent(relFilePath, contents) {
   if (relFilePath.endsWith(".execution.json")) return false;
   return parseReviewReportVerdict(contents) === "PASS";
 }
 function qualityGateReportsFor(root, relDir, taskId, feature) {
-  return anyFileContaining(root, relDir, taskId).filter((relFilePath) => {
-    const read = guardedRead(root, relFilePath);
-    return read.ok && isReportForFeature(read.data.contents, feature);
-  });
+  return createReportLookup().qualityGateReportsFor(root, relDir, taskId, feature);
 }
 function hasQualityGateVerdictPass(root, relDir, taskId, feature) {
-  return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
-    const read = guardedRead(root, relFilePath);
-    return read.ok && isReportForFeature(read.data.contents, feature) && isQualityGatePassContent(relFilePath, read.data.contents);
-  });
+  return createReportLookup().hasQualityGateVerdictPass(root, relDir, taskId, feature);
 }
 function createReportLookup() {
   const roots = /* @__PURE__ */ new Map();
@@ -37455,8 +37479,8 @@ function createReportLookup() {
     }),
     anyFileContaining: (root, relDir, pattern) => matching(root, relDir, pattern).map((file2) => file2.path),
     hasAnyFileMentioning: (root, relDir, taskId) => matching(root, relDir, taskId).length > 0,
-    qualityGateReportsFor: (root, relDir, taskId, feature) => matching(root, relDir, taskId).filter((file2) => isReportForFeature(file2.contents, feature)).map((file2) => file2.path),
-    hasQualityGateVerdictPass: (root, relDir, taskId, feature) => matching(root, relDir, taskId).some((file2) => isReportForFeature(file2.contents, feature) && isQualityGatePassContent(file2.path, file2.contents))
+    qualityGateReportsFor: (root, relDir, taskId, feature) => matching(root, relDir, taskId).filter((file2) => isReportForFeature(root, file2.path, file2.contents, taskId, feature)).map((file2) => file2.path),
+    hasQualityGateVerdictPass: (root, relDir, taskId, feature) => matching(root, relDir, taskId).some((file2) => isReportForFeature(root, file2.path, file2.contents, taskId, feature) && isQualityGatePassContent(file2.path, file2.contents))
   };
 }
 
@@ -41114,7 +41138,7 @@ function finishTask(draft, root, feature, tasksDir, reportsDir, implReportsDir, 
     }
   }
   if (status === "Done" && profile === "lite" && !(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId, feature)) {
-    fail("done-quality-gate-verdict-fail", `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it with VERDICT: PASS`);
+    fail("done-quality-gate-verdict-fail", `${taskId} is Done but no quality-gate report for feature ${feature} in ${reportsDir} mentions it with VERDICT: PASS`);
   }
   let blockersNonEmpty = false;
   if (status === "Blocked") {
@@ -41195,7 +41219,7 @@ function validateDoneEvidence(root, feature, taskId, taskRisk, tasksDir, reports
   if (qgMatches.length === 0) {
     fail(
       "done-quality-gate-report-missing",
-      `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it`
+      `${taskId} is Done but no quality-gate report for feature ${feature} in ${reportsDir} mentions it`
     );
   } else if (!(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId, feature)) {
     fail(

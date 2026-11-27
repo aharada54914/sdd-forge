@@ -110,3 +110,73 @@ test("evidence_find_missing: another feature's PASS report does not satisfy the 
     cleanup();
   }
 });
+
+function doneFails(name: string, files: Record<string, string>, expected: boolean): void {
+  const { root, cleanup } = makeTempSddRoot(`sdd-done-scope-${name}`);
+  try {
+    v2Feature(root.path);
+    writeFile(root.path, "specs/other/tasks.md", DONE_TASK);
+    writeFile(root.path, "specs/demo-extra/tasks.md", DONE_TASK);
+    for (const [path, contents] of Object.entries(files)) writeFile(root.path, path, contents);
+    const result = parseTaskState(root, "demo", "specs/demo/tasks.md");
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(result.data.failures.length > 0, expected, `${name}: ${JSON.stringify(result.data.failures)}`);
+  } finally {
+    cleanup();
+  }
+}
+
+const OTHER_REPORT_SHAPES: Record<string, string> = {
+  "gate-template": "# SDD Gate Report: other / T-001\n\n- **Task ID**: T-001\n- **Feature**: other\n- **VERDICT**: PASS\n",
+  "bullet": "- Task ID: T-001\n- Feature: other\nVERDICT: PASS\n",
+  "bold-colon-inside": "**Task ID:** T-001\n**Feature:** other\nVERDICT: PASS\n",
+  "backticks": "Task ID: T-001\nFeature: `other`\nVERDICT: PASS\n",
+  "bom": "﻿Feature: other\nTask ID: T-001\nVERDICT: PASS\n",
+  "lowercase": "task id: T-001\nfeature: other\nVERDICT: PASS\n",
+};
+
+for (const [shape, contents] of Object.entries(OTHER_REPORT_SHAPES)) {
+  test(`v2 Done: another feature's report in the ${shape} shape is not evidence`, () => {
+    doneFails(shape, { "reports/quality-gate/r.md": contents }, true);
+  });
+}
+
+test("v2 Done: this feature's report in the gate-template shape is evidence", () => {
+  doneFails("own-template", {
+    "reports/quality-gate/demo-T-001.md": "# SDD Gate Report: demo / T-001\n\n- **Task ID**: T-001\n- **Feature**: demo\n- **VERDICT**: PASS\n",
+  }, false);
+});
+
+test("v2 Done: block-quoted and fenced Feature lines are not the declaration", () => {
+  doneFails("quoted", {
+    "reports/quality-gate/r.md": "Task ID: T-001\n> Feature: other\n```\nFeature: other\n```\nFeature: demo\nVERDICT: PASS\n",
+  }, false);
+});
+
+test("v2 Done: a report file named for another feature is not evidence", () => {
+  doneFails("filename", { "reports/quality-gate/2026-07-15T133723Z-other-T-001.md": report(null) }, true);
+});
+
+test("v2 Done: the longest feature name in the file name wins", () => {
+  doneFails("filename-longest", { "reports/quality-gate/2026-07-15T133723Z-demo-extra-T-001.md": report(null) }, true);
+  doneFails("filename-own", { "reports/quality-gate/2026-07-15T133723Z-demo-T-001.md": report(null) }, false);
+});
+
+test("v2 Done: a file name whose prefix is no spec directory still counts", () => {
+  doneFails("filename-unknown", { "reports/quality-gate/2026-07-15T133723Z-T-001.md": report(null) }, false);
+});
+
+test("Done failure names the feature it looked for", () => {
+  const { root, cleanup } = makeTempSddRoot("sdd-done-scope-message");
+  try {
+    v2Feature(root.path);
+    const result = parseTaskState(root, "demo", "specs/demo/tasks.md");
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(findFailure(result.data.failures, "done-quality-gate-report-missing")?.message,
+      "T-001 is Done but no quality-gate report for feature demo in reports/quality-gate mentions it");
+  } finally {
+    cleanup();
+  }
+});

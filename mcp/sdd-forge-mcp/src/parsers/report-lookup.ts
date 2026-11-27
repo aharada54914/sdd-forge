@@ -16,7 +16,7 @@
  * matching the shell's.
  */
 
-import { guardedRead, listGuardedFilesWithDiagnostics } from "../path-guard.js";
+import { guardedDirExists, guardedRead, listGuardedFilesWithDiagnostics } from "../path-guard.js";
 import type { SddRoot } from "../root.js";
 import { parseReviewReportVerdict } from "./review-verdict.js";
 
@@ -121,16 +121,57 @@ export function isExecutionCoverageComplete(parsed: Record<string, unknown>): bo
   );
 }
 
-const FEATURE_LINE = /^Feature:[ \t]*(.*?)[ \t]*$/m;
+// An identity line as the report templates write it: `Feature: x`,
+// `- **Feature**: x` (sdd-gate-report.md) or `**Feature:** x`.
+const FEATURE_LINE = /^[ \t*-]*(?:\*\*)?feature(?:\*\*)?[ \t]*:(?:\*\*)?[ \t]*(.*?)[ \t]*$/i;
+const SPEC_SLUG = /^[a-z0-9][a-z0-9-]*$/;
+
+/** The first `Feature:` identity line outside block quotes and fenced code, if any. */
+function declaredFeature(contents: string): string | undefined {
+  let activeFence: string | null = null;
+  for (const line of contents.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").split("\n")) {
+    const fence = /^(`{3,}|~{3,})/.exec(line.trimStart());
+    if (activeFence !== null) {
+      if (line.trimStart().startsWith(activeFence)) activeFence = null;
+      continue;
+    }
+    if (fence) {
+      activeFence = fence[1] ?? "```";
+      continue;
+    }
+    const match = FEATURE_LINE.exec(line);
+    if (match) return (match[1] ?? "").replace(/^[`*]+|[`*]+$/g, "").trim();
+  }
+  return undefined;
+}
+
+/**
+ * The feature a report's file name carries (`<feature>-T-NNN.md`, or with a
+ * timestamp in front): the longest dash-separated suffix of the part before
+ * the task id that names an existing `specs/` directory.
+ */
+function featureFromFileName(root: SddRoot, relFilePath: string, taskId: string): string | undefined {
+  const base = relFilePath.slice(relFilePath.lastIndexOf("/") + 1);
+  const at = base.lastIndexOf(`-${taskId}.`);
+  if (at <= 0) return undefined;
+  const parts = base.slice(0, at).split("-");
+  for (let first = 0; first < parts.length; first++) {
+    const slug = parts.slice(first).join("-");
+    if (SPEC_SLUG.test(slug) && guardedDirExists(root, `specs/${slug}`)) return slug;
+  }
+  return undefined;
+}
 
 /**
  * Task ids are unique only within a feature, so a quality-gate report counts
- * for `feature` unless its first `Feature:` line names another one. Reports
- * written before the identity block was required have no such line and count.
+ * for `feature` unless its file name or its first `Feature:` line names
+ * another one. Reports written before the identity block was required, with
+ * neither, still count.
  */
-function isReportForFeature(contents: string, feature: string): boolean {
-  const declared = FEATURE_LINE.exec(contents.replace(/\r\n/g, "\n"));
-  return declared === null || declared[1] === feature;
+function isReportForFeature(root: SddRoot, relFilePath: string, contents: string, taskId: string, feature: string): boolean {
+  const named = featureFromFileName(root, relFilePath, taskId);
+  const declared = declaredFeature(contents);
+  return (named === undefined || named === feature) && (declared === undefined || declared === feature);
 }
 
 function isQualityGatePassContent(relFilePath: string, contents: string): boolean {
@@ -143,10 +184,7 @@ function isQualityGatePassContent(relFilePath: string, contents: string): boolea
 
 /** Every quality-gate report under `relDir` that mentions `taskId` and belongs to `feature`. */
 export function qualityGateReportsFor(root: SddRoot, relDir: string, taskId: string, feature: string): string[] {
-  return anyFileContaining(root, relDir, taskId).filter((relFilePath) => {
-    const read = guardedRead(root, relFilePath);
-    return read.ok && isReportForFeature(read.data.contents, feature);
-  });
+  return createReportLookup().qualityGateReportsFor(root, relDir, taskId, feature);
 }
 
 /**
@@ -154,11 +192,7 @@ export function qualityGateReportsFor(root: SddRoot, relDir: string, taskId: str
  * at least one independent report's verdict is PASS (see review-verdict.ts).
  */
 export function hasQualityGateVerdictPass(root: SddRoot, relDir: string, taskId: string, feature: string): boolean {
-  return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
-    const read = guardedRead(root, relFilePath);
-    return read.ok && isReportForFeature(read.data.contents, feature) &&
-      isQualityGatePassContent(relFilePath, read.data.contents);
-  });
+  return createReportLookup().hasQualityGateVerdictPass(root, relDir, taskId, feature);
 }
 
 interface ReportDirectory {
@@ -213,9 +247,12 @@ export function createReportLookup(): ReportLookup {
     anyFileContaining: (root, relDir, pattern) => matching(root, relDir, pattern).map(file => file.path),
     hasAnyFileMentioning: (root, relDir, taskId) => matching(root, relDir, taskId).length > 0,
     qualityGateReportsFor: (root, relDir, taskId, feature) =>
-      matching(root, relDir, taskId).filter(file => isReportForFeature(file.contents, feature)).map(file => file.path),
+      matching(root, relDir, taskId)
+        .filter(file => isReportForFeature(root, file.path, file.contents, taskId, feature))
+        .map(file => file.path),
     hasQualityGateVerdictPass: (root, relDir, taskId, feature) =>
       matching(root, relDir, taskId).some(file =>
-        isReportForFeature(file.contents, feature) && isQualityGatePassContent(file.path, file.contents)),
+        isReportForFeature(root, file.path, file.contents, taskId, feature) &&
+        isQualityGatePassContent(file.path, file.contents)),
   };
 }
