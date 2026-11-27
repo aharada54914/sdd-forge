@@ -162,6 +162,10 @@ class CurrentV2WorkflowTests(unittest.TestCase):
                     python = 'python' if os_name == 'Windows' else 'python3'
                     expected.append({'commands': [python + ' -B tests/sdd-domain-multitarget-foundation.tests.py']})
                     expected.append({'commands': [python + ' -B tests/project-evidence-collector.tests.py']})
+                    # Q13: the release loop gate runs on five routes, as in v1.26.0.
+                    expected.append({'shell': 'bash', 'commands': ['bash ./tests/release-loop-gate.tests.sh']})
+                    if os_name != 'Windows':
+                        expected.append({'shell': 'pwsh', 'commands': ['./tests/release-loop-gate.tests.ps1']})
                     if os_name == 'Linux':
                         expected.append({'working-directory': 'tests', 'commands': [
                             'python3 -B verification-ci.tests.py CurrentV2WorkflowTests.test_hosts_and_workloads_on_each_v2_job_route']})
