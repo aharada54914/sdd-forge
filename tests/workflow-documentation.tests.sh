@@ -1,80 +1,68 @@
 #!/usr/bin/env bash
-# Regression coverage for the full SDD review-chain documentation.
+# Regression coverage for the SDD Core (v2) review-chain documentation.
+#
+# The v1 three-loop chain (spec/impl/task review loops, the bootstrap
+# interviewer and the Lite track) was retired by ADR-0051 decision 2; its
+# assertions were retired on 2026-11-28 (T-010 suite disposition plan). The
+# same guarantee now holds for the v2 flow: the user-facing guides name the
+# risk-scaled pre-implementation check and the independent completion gate,
+# in order, around the human approval.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DOCS=(
-  "README.md"
-  "docs/workflow-guide.md"
-  "docs/contributor/workflow-detail.md"
-  "docs/skill-reference.md"
-  "docs/contributor/skill-reference-detail.md"
-  "docs/troubleshooting.md"
-)
+README="${ROOT}/README.md"
+GUIDE="${ROOT}/docs/workflow-guide.md"
+RUN_SKILL="${ROOT}/plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
+AGENTS="${ROOT}/AGENTS.md"
 
 fail() {
   printf 'not ok: %s\n' "$1" >&2
   exit 1
 }
 
-for document in "${DOCS[@]}"; do
-  content="${ROOT}/${document}"
-  for stage in spec-review-loop impl-review-loop task-review-loop; do
-    grep -Fq "$stage" "$content" || fail "$document must name $stage"
-  done
-  grep -Eqi 'independent|独立' "$content" || fail "$document must describe independent review"
-done
-
-grep -Fq 'P --> W[workflow-retrospective' "${ROOT}/docs/workflow-guide.md" || \
-  fail "workflow diagram must keep the retrospective node distinct from spec review"
-
-workflow_guide="${ROOT}/docs/workflow-guide.md"
-assert_section_review_order() {
-  local name="$1" start="$2" end="$3" section spec_line impl_line task_line
-  section="$(awk -v start="$start" -v end="$end" 'index($0, "### " start " ") == 1 { active=1 } active { print } active && index($0, "### " end " ") == 1 { exit }' "$workflow_guide")"
-  spec_line="$(grep -n -m1 -F 'spec-review-loop' <<<"$section" | cut -d: -f1 || true)"
-  impl_line="$(grep -n -m1 -F 'impl-review-loop' <<<"$section" | cut -d: -f1 || true)"
-  task_line="$(grep -n -m1 -F 'task-review-loop' <<<"$section" | cut -d: -f1 || true)"
-  [[ -n "$spec_line" && -n "$impl_line" && -n "$task_line" &&
-     "$spec_line" -lt "$impl_line" && "$impl_line" -lt "$task_line" ]] || \
-    fail "$name flow must run spec-review-loop, impl-review-loop, and task-review-loop in order"
+line_of() {
+  # First line number of a fixed string in a file; empty when absent.
+  grep -n -m1 -F -- "$2" "$1" | cut -d: -f1 || true
 }
 
-assert_section_review_order "feature" "3.1" "3.2"
-assert_section_review_order "bugfix" "3.2" "3.3"
-assert_section_review_order "refactor" "3.3" "3.4"
-
-grep -Fq 'ステップ 3b/3c/3e のレビューゲート' "$workflow_guide" || \
-  fail "lite profile must identify all three review gates"
-
-agents="${ROOT}/AGENTS.md"
-for stage in spec-review-loop impl-review-loop task-review-loop; do
-  grep -Fq "$stage" "$agents" || fail "AGENTS.md must require $stage"
+for document in "$README" "$GUIDE"; do
+  name="${document#"$ROOT"/}"
+  grep -Fq 'spec-check' "$document" || fail "$name must name the spec-check pre-implementation review"
+  grep -Fq 'sdd-gate' "$document" || fail "$name must name the sdd-gate completion gate"
+  grep -Fq '独立レビュー1回' "$document" || fail "$name must state that sdd-gate includes one independent review"
 done
-grep -Eq 'cross-epic.*merge state.*task plan|task plan.*cross-epic.*merge state' "$agents" || \
+
+# The standard flow diagram orders: specification -> spec-check -> human
+# approval -> baseline -> implementation -> sdd-gate -> Done.
+spec_check="$(line_of "$GUIDE" 'C{"spec-check')"
+approval="$(line_of "$GUIDE" '人間: Approval: Approved')"
+baseline="$(line_of "$GUIDE" 'record-spec-baseline.mjs')"
+gate="$(line_of "$GUIDE" 'GATE{"sdd-gate')"
+done_node="$(line_of "$GUIDE" 'GATE -->|PASS| DONE')"
+[[ -n "$spec_check" && -n "$approval" && -n "$baseline" && -n "$gate" && -n "$done_node" &&
+   "$spec_check" -lt "$approval" && "$approval" -lt "$baseline" &&
+   "$baseline" -lt "$gate" && "$gate" -lt "$done_node" ]] ||
+  fail "workflow guide must order spec-check, human approval, baseline, sdd-gate and Done"
+grep -Fq 'C -->|NEEDS_FIX| B' "$GUIDE" || fail "spec-check NEEDS_FIX must return to the specification"
+grep -Fq 'GATE -->|FAIL / UNDECLARED_DRIFT| IMP' "$GUIDE" ||
+  fail "sdd-gate FAIL or undeclared drift must return to implementation"
+grep -Fq '(low:省略 / standard:1体 / high:2視点並列)' "$GUIDE" ||
+  fail "spec-check must scale by risk: low skipped, standard one reviewer, high two perspectives"
+grep -Fq 'P --> W[workflow-retrospective' "$GUIDE" ||
+  fail "workflow diagram must keep the retrospective node distinct from the review chain"
+
+# Every bootstrap mode that writes a specification reaches spec-check.
+for mode in feature bugfix refactor project; do
+  grep -Eq "^\\| \`${mode}\` \\|[^|]*sdd-core-spec\` → \`spec-check\` \\|" "$RUN_SKILL" ||
+    fail "bootstrap ${mode} mode must run sdd-core-spec and then spec-check"
+done
+grep -Fq -- '--skip-check' "$RUN_SKILL" || fail "bootstrap must document how spec-check is skipped explicitly"
+
+# This repository's own contributor workflow (AGENTS.md) is unchanged.
+for stage in spec-review-loop impl-review-loop task-review-loop; do
+  grep -Fq "$stage" "$AGENTS" || fail "AGENTS.md must require $stage"
+done
+grep -Eq 'cross-epic.*merge state.*task plan|task plan.*cross-epic.*merge state' "$AGENTS" ||
   fail "AGENTS.md must tell review lanes to compare cross-epic merge state against the task plan"
 
-interviewer="${ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-grep -Fq '/sdd-review-loop:spec-review-loop --feature <feature>' "$interviewer" || \
-  fail "bootstrap interviewer must invoke the namespaced specification review command"
-
-spec_line="$(grep -n -m1 -F '/sdd-review-loop:spec-review-loop --feature <feature>' "$interviewer" | cut -d: -f1)"
-impl_line="$(grep -n -m1 -F '/sdd-review-loop:impl-review-loop --feature <feature>' "$interviewer" | cut -d: -f1)"
-task_line="$(grep -n -m1 -F '/sdd-review-loop:task-review-loop --feature <feature>' "$interviewer" | cut -d: -f1)"
-[[ "$spec_line" -lt "$impl_line" && "$impl_line" -lt "$task_line" ]] || \
-  fail "bootstrap interviewer review commands must be ordered spec, implementation-policy, task"
-
-run_skill="${ROOT}/plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
-run_full="$(sed -n '/^### `feature` .*full track)/,/^### Lite track/p' "$run_skill")"
-for stage in spec-review-loop impl-review-loop task-review-loop; do
-  grep -Fq "$stage" <<<"$run_full" || fail "bootstrap run full track must name $stage"
-done
-run_spec_line="$(grep -n -m1 -F 'spec-review-loop' <<<"$run_full" | cut -d: -f1)"
-run_impl_line="$(grep -n -m1 -F 'impl-review-loop' <<<"$run_full" | cut -d: -f1)"
-run_task_line="$(grep -n -m1 -F 'task-review-loop' <<<"$run_full" | cut -d: -f1)"
-[[ "$run_spec_line" -lt "$run_impl_line" && "$run_impl_line" -lt "$run_task_line" ]] || \
-  fail "bootstrap run full track review commands must be ordered spec, implementation-policy, task"
-grep -Fq 'skip all three review loops' "$run_skill" || \
-  fail "bootstrap run lite track must explicitly skip all three review loops"
-
-printf 'ok: full SDD documentation names the three independent review stages in order\n'
+printf 'ok: SDD Core documentation orders spec-check, human approval and the independent sdd-gate\n'
