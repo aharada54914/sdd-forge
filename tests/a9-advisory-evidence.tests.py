@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Synthetic Git/CLI regressions; never issue real approvals or release evidence."""
 import copy
+import hashlib
 import contextlib
 import io
 import importlib.util
 import json
 import os
-import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -530,11 +530,22 @@ class RequestAndWorkflowTests(unittest.TestCase):
             manifest=observer.document(record['artifacts']['facet_manifest'])
             self.assertNotIn('sdd-ship', manifest['affected_components'])
 
+    # v2 (220f60af) removed the A9 advisory jobs from CI. Their step bodies are
+    # exercised from the checked-in snapshot, whose two jobs equal the
+    # a9-advisory-inputs and a9-advisory jobs of v1.26.0 (b193c75be2) and of
+    # e2110862, the last workflow carrying them.
+    ADVISORY_WORKFLOW = ROOT/'tests/fixtures/verification-ci/a9-activation-workflow.json'
+    ADVISORY_JOBS_SHA256 = '61d5c50c17b50a0cbfbf2ddb1fd9a0d91346cac7baec8ab647eab246c0df82a7'
+
     def workflow_body(self, name):
-        text=(ROOT/'.github/workflows/test.yml').read_text()
-        match=re.search(r'^      - name: '+re.escape(name)+r'\n(?:(?!^      - |^  [a-z]).*\n)*?        run: \|\n((?:^          .*\n|^\s*\n)*)',text,re.M)
-        self.assertIsNotNone(match, name)
-        return '\n'.join(line[10:] for line in match[1].splitlines())
+        jobs=json.loads(self.ADVISORY_WORKFLOW.read_text())['jobs']
+        canonical=json.dumps(jobs,sort_keys=True,separators=(',',':')).encode()
+        self.assertEqual(hashlib.sha256(canonical).hexdigest(), self.ADVISORY_JOBS_SHA256,
+                         'A9 advisory workflow snapshot no longer matches v1.26.0')
+        bodies=[step['run'] for job in jobs.values() for step in job['steps']
+                if step.get('name')==name and 'run' in step]
+        self.assertEqual(len(bodies), 1, name)
+        return bodies[0]
 
     def run_workflow_body(self, body, root, env):
         bash = 'bash'
