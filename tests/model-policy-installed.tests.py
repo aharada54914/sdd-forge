@@ -735,7 +735,6 @@ SESSION_RUNTIME = [
     'plugins/sdd-implementation/scripts/session-models.py',
     'plugins/sdd-implementation/scripts/model-discovery.py',
     'plugins/sdd-implementation/scripts/session-model-start.py',
-    'plugins/sdd-implementation/scripts/session-panelist.py',
     'plugins/sdd-implementation/skills/model-selection/SKILL.md',
     'plugins/sdd-implementation/gemini/gemini-extension.json',
     'plugins/sdd-implementation/hooks/claude-hooks.json',
@@ -746,18 +745,31 @@ SESSION_RUNTIME = [
     'plugins/sdd-bootstrap/gemini-extension.json',
     'plugins/sdd-ship/gemini-extension.json',
     'plugins/sdd-domain/gemini-extension.json',
-    'plugins/sdd-lite/gemini-extension.json',
     'plugins/sdd-review-loop/gemini-extension.json',
 ]
 MANAGED_RUNTIME = sorted([ADAPTER, *launch.TRUSTED_PATHS, *SESSION_RUNTIME])
-# Union of install.sh REQUIRED_PATHS and install.ps1 Get-RequiredPaths (non-cloud) at authoring time; the positive
-# installs prove this minimal package satisfies the actual installer contract.
-INSTALLER_REQUIRED = sorted({'.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json', *CODEX,
-                             'plugins/sdd-bootstrap/skills/bootstrap/SKILL.md', 'plugins/sdd-ship/skills/ship/SKILL.md',
-                             *('plugins/' + plugin + '/' + manifest + '/plugin.json'
-                               for plugin in ('sdd-bootstrap', 'sdd-implementation', 'sdd-quality-loop', 'sdd-lite',
-                                              'sdd-review-loop', 'sdd-ship', 'sdd-domain')
-                               for manifest in ('.codex-plugin', '.claude-plugin', '.plugin'))})
+def installer_required_paths():
+    """Union of install.sh REQUIRED_PATHS and install.ps1 Get-RequiredPaths (non-cloud), read from the current
+    installers so the minimal package tracks the v2 installer contract; the positive installs prove it suffices."""
+    shell = (ROOT / 'install.sh').read_text(encoding='utf-8')
+    block = re.search(r'^REQUIRED_PATHS=\(\n(.*?)^\)\n', shell, re.S | re.M)
+    powershell = (ROOT / 'install.ps1').read_text(encoding='utf-8')
+    function = re.search(r'^function Get-RequiredPaths \{\n(.*?)^\}\n', powershell, re.S | re.M)
+    if not block or not function:
+        raise AssertionError('installer required-path lists not found; fixture setup failure')
+    paths = set(re.findall(r'^\s*"([^"$]+)"\s*$', block[1], re.M))
+    literal = re.search(r'\$paths = @\((.*?)\n    \)\n', function[1], re.S)
+    names = re.search(r'\$allPluginNames = @\(([^)]*)\)', function[1])
+    loop = re.search(r'foreach \(\$plugin in \$allPluginNames\) \{(.*?)\n    \}', function[1], re.S)
+    if not literal or not names or not loop:
+        raise AssertionError('install.ps1 Get-RequiredPaths shape changed; fixture setup failure')
+    paths |= set(re.findall(r'"([^"$]+)"', literal[1]))
+    paths |= {'plugins/' + name + '/' + manifest for name in re.findall(r'"([^"]+)"', names[1])
+              for manifest in re.findall(r'"plugins/\$plugin/([^"$]+)"', loop[1])}
+    return paths
+
+
+INSTALLER_REQUIRED = sorted({*installer_required_paths(), *CODEX})
 WFI_INSTALLER_SOURCES = ['plugins/sdd-quality-loop/agents/wfi-auditor-a.md',
                          'plugins/sdd-quality-loop/agents/wfi-auditor-b.md',
                          'plugins/sdd-quality-loop/references/wfi-category-guide.md',
