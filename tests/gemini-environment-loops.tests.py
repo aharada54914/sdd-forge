@@ -9,7 +9,7 @@ Runs natively on Windows, Linux, and macOS without fabricating live LLM inferenc
   including extension linking/unlinking and SDD_GEMINI_DIR/settings.json MCP upsert/remove.
 - model-selection loop on host gemini-cli and 3-AI hosts (claude-code / codex-cli / gemini-cli).
 - bootstrap / ship / ddd loops on Gemini across Python, Node, and PowerShell guards
-  including Windows backslash paths and native check-hook-activation-handshake.
+  including Windows backslash paths (v2 soft guard; the v1 handshake retired 2026-11-28).
 - Full 3-AI cross-operation handoff (Claude Code <-> Codex CLI <-> Gemini CLI)
   enforcing identical safety boundaries on one shared repository workspace.
 """
@@ -31,7 +31,6 @@ IS_WINDOWS = os.name == "nt"
 PLUGINS = [
     "sdd-bootstrap",
     "sdd-ship",
-    "sdd-lite",
     "sdd-domain",
     "sdd-review-loop",
     "sdd-quality-loop",
@@ -40,10 +39,20 @@ PLUGINS = [
     "sdd-aws-cloud",
 ]
 MANAGED_MCPS = ("sdd-forge-mcp", "local-env-mcp", "ci-mcp")
+# v2 (ADR-0051 decisions 1 and 3): one Node soft guard replaces the Python hard guard and the
+# hook activation handshake on every host. The handshake tests retired on 2026-11-28.
+SOFT_GUARD = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "v2" / "sdd-soft-guard.mjs"
+GEMINI_SUBDIR_PLUGINS = ("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop")
+
+
+def _soft_guard(work, mode, payload):
+    return _run(["node", str(SOFT_GUARD), "--root", str(work), "--emit", mode], cwd=work,
+                env={"CLAUDE_PROJECT_DIR": str(work)}, input_text=json.dumps(payload))
 
 
 def _manifest_dir(plugin: str) -> Path:
-    if plugin in ("sdd-implementation", "sdd-quality-loop"):
+    # The installer links these from their gemini/ subdirectory (install.sh install_gemini_plugins).
+    if plugin in GEMINI_SUBDIR_PLUGINS:
         return ROOT / "plugins" / plugin / "gemini"
     return ROOT / "plugins" / plugin
 
@@ -133,7 +142,7 @@ def _norm_slash(text: str) -> str:
 
 
 class GeminiPackagingTests(unittest.TestCase):
-    def test_all_nine_plugins_have_valid_gemini_extension_and_commands(self):
+    def test_all_v2_plugins_have_valid_gemini_extension_and_commands(self):
         versions = set()
         for plugin in PLUGINS:
             ext_dir = _manifest_dir(plugin)
@@ -167,8 +176,8 @@ class GeminiPackagingTests(unittest.TestCase):
             if isinstance(hook, dict) and "command" in hook
         ]
         self.assertTrue(
-            any("sdd-hook-guard.py" in cmd and "--emit gemini" in cmd for cmd in commands),
-            f"BeforeTool hook must invoke sdd-hook-guard.py --emit gemini; got {commands}",
+            any("scripts/v2/sdd-soft-guard.mjs" in cmd and "--emit gemini" in cmd for cmd in commands),
+            f"BeforeTool hook must invoke the v2 sdd-soft-guard.mjs --emit gemini; got {commands}",
         )
         # Ensure sdd-implementation does NOT have conventional hooks/hooks.json
         self.assertFalse((ROOT / "plugins" / "sdd-implementation" / "hooks" / "hooks.json").exists())
@@ -274,6 +283,9 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
                     str(install_root),
                     "--source-directory",
                     str(self.source_repo),
+                    # v2 installs MCP servers only on explicit opt-in (install.sh --mcp).
+                    "--mcp",
+                    ",".join(MANAGED_MCPS),
                 ],
                 env=env,
             )
@@ -281,7 +293,7 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
 
             calls = gemini_log.read_text(encoding="utf-8").splitlines()
             expected_targets = [
-                str((install_root / "plugins" / "sdd-bootstrap").resolve()),
+                str((install_root / "plugins" / "sdd-bootstrap" / "gemini").resolve()),
                 str((install_root / "plugins" / "sdd-ship").resolve()),
                 str((install_root / "plugins" / "sdd-domain").resolve()),
                 str((install_root / "plugins" / "sdd-quality-loop" / "gemini").resolve()),
@@ -289,7 +301,7 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
             ]
             for target in expected_targets:
                 self.assertTrue(
-                    any(line == f"extensions link {target}" for line in calls),
+                    any(line == f"extensions link --consent {target}" for line in calls),
                     f"expected link for {target}, got {calls}",
                 )
 
@@ -383,12 +395,13 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
             install_cmd = (
                 f"& '{ROOT / 'install.ps1'}' -Target Gemini "
                 f"-Plugins @('sdd-bootstrap','sdd-quality-loop','sdd-implementation') "
-                f"-InstallRoot '{install_root}' -SourceDirectory '{self.source_repo}'"
+                f"-InstallRoot '{install_root}' -SourceDirectory '{self.source_repo}' "
+                f"-Mcp {','.join(MANAGED_MCPS)}"  # v2 installs MCP servers only on explicit opt-in.
             )
             res = _run([pwsh, "-NoProfile", "-Command", install_cmd], env=env)
             self.assertEqual(res.returncode, 0, res.stdout + "\n" + res.stderr)
             calls = [_norm_slash(line) for line in gemini_log.read_text(encoding="utf-8").splitlines()]
-            self.assertTrue(any("sdd-bootstrap" in line for line in calls), calls)
+            self.assertTrue(any("sdd-bootstrap/gemini" in line for line in calls), calls)
             self.assertTrue(any("sdd-quality-loop/gemini" in line for line in calls), calls)
             self.assertTrue(any("sdd-implementation/gemini" in line for line in calls), calls)
 
@@ -412,137 +425,6 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
 
 
 class GeminiLoopBehaviorTests(unittest.TestCase):
-    def test_bootstrap_hook_handshake_end_to_end_via_real_guard(self):
-        handshake = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "check-hook-activation-handshake.py"
-        guard = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.py"
-
-        with tempfile.TemporaryDirectory() as tmp:
-            work = Path(tmp)
-            (work / "sdd").mkdir()
-
-            emit = _run([sys.executable, str(handshake), "--emit-challenge"], cwd=work)
-            self.assertEqual(emit.returncode, 0, emit.stderr)
-            challenge = json.loads(emit.stdout)
-            nonce = challenge["nonce"]
-            gemini_req = challenge["tool_call_template"]["gemini-cli"]
-            self.assertEqual(gemini_req["tool_name"], "write_file")
-            self.assertEqual(gemini_req["tool_input"]["file_path"], "sdd/.hook-canary-sentinel")
-            self.assertEqual(gemini_req["tool_input"]["content"], f"sdd-hook-challenge:{nonce}")
-
-            guard_res = _run(
-                [sys.executable, str(guard), "--emit", "gemini"],
-                cwd=work,
-                env={"CLAUDE_PROJECT_DIR": str(work)},
-                input_text=json.dumps(gemini_req),
-            )
-            self.assertEqual(guard_res.returncode, 0, guard_res.stderr)
-            guard_json = json.loads(guard_res.stdout)
-            self.assertEqual(guard_json["decision"], "deny")
-
-            evidence = {
-                "schema": "sdd-gemini-host-denial/v1",
-                "runtime": "gemini-cli",
-                "nonce": nonce,
-                "executed": False,
-                "raw_request": gemini_req,
-                "raw_result": guard_json,
-            }
-            ev_path = work / "recorded-gemini-denial.json"
-            ev_path.write_text(json.dumps(evidence), encoding="utf-8")
-
-            verify = _run(
-                [
-                    sys.executable,
-                    str(handshake),
-                    "--verify-response",
-                    "--nonce",
-                    nonce,
-                    "--recorded-result",
-                    str(ev_path),
-                    "--runtime",
-                    "gemini-cli",
-                ],
-                cwd=work,
-            )
-            self.assertEqual(verify.returncode, 0, verify.stdout + "\n" + verify.stderr)
-            verdict = json.loads(verify.stdout)
-            self.assertEqual(verdict["status"], "HOOK_ACTIVE")
-            self.assertFalse((work / "sdd" / ".hook-canary-sentinel").exists())
-
-    def test_native_powershell_guard_and_handshake_with_windows_paths(self):
-        pwsh = shutil.which("pwsh")
-        if not pwsh:
-            self.skipTest("pwsh not available")
-        guard_ps1 = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.ps1"
-        guard_py = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.py"
-        guard_js = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.js"
-        handshake_ps1 = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "check-hook-activation-handshake.ps1"
-        node = shutil.which("node")
-
-        with tempfile.TemporaryDirectory() as tmp:
-            work = Path(tmp)
-            (work / "sdd").mkdir()
-
-            # Real PowerShell handshake challenge -> PowerShell guard -> PowerShell verify
-            emit = _run([pwsh, "-NoProfile", "-File", str(handshake_ps1), "--emit-challenge"], cwd=work)
-            self.assertEqual(emit.returncode, 0, emit.stdout + "\n" + emit.stderr)
-            challenge = json.loads(emit.stdout)
-            nonce = challenge["nonce"]
-            gemini_req = challenge["tool_call_template"]["gemini-cli"]
-
-            ps_guard = _run(
-                [pwsh, "-NoProfile", "-File", str(guard_ps1), "-Emit", "gemini"],
-                cwd=work,
-                env={"CLAUDE_PROJECT_DIR": str(work)},
-                input_text=json.dumps(gemini_req),
-            )
-            self.assertEqual(ps_guard.returncode, 0, ps_guard.stdout + "\n" + ps_guard.stderr)
-            ps_decision = json.loads(ps_guard.stdout)
-            self.assertEqual(ps_decision.get("decision"), "deny")
-
-            ev_path = work / "ps-gemini-denial.json"
-            ev_path.write_text(
-                json.dumps({"nonce": nonce, "executed": False, "decision": ps_decision["decision"]}),
-                encoding="utf-8",
-            )
-            verify = _run(
-                [
-                    pwsh,
-                    "-NoProfile",
-                    "-File",
-                    str(handshake_ps1),
-                    "--verify-response",
-                    "--nonce",
-                    nonce,
-                    "--recorded-result",
-                    str(ev_path),
-                    "--runtime",
-                    "gemini-cli",
-                ],
-                cwd=work,
-            )
-            self.assertEqual(verify.returncode, 0, verify.stdout + "\n" + verify.stderr)
-            self.assertEqual(json.loads(verify.stdout)["status"], "HOOK_ACTIVE")
-
-            # Verify Windows backslash paths are denied identically across ps1, py, and js
-            win_payloads = [
-                {"tool_name": "write_file", "tool_input": {"file_path": r"specs\demo\tasks.md", "content": "Approval: Approved"}},
-                {"tool_name": "replace", "tool_input": {"file_path": r"sdd\domain\context-map.md", "new_string": "Domain-Model-Status: Approved"}},
-                {"tool_name": "write_file", "tool_input": {"file_path": r"plugins\sdd-quality-loop\gemini\hooks\hooks.json", "content": "{}"}},
-            ]
-            for payload in win_payloads:
-                raw = json.dumps(payload)
-                r_ps = _run([pwsh, "-NoProfile", "-File", str(guard_ps1), "-Emit", "gemini"], cwd=work, env={"CLAUDE_PROJECT_DIR": str(work)}, input_text=raw)
-                r_py = _run([sys.executable, str(guard_py), "--emit", "gemini"], cwd=work, env={"CLAUDE_PROJECT_DIR": str(work)}, input_text=raw)
-                self.assertEqual(r_ps.returncode, 0, r_ps.stderr)
-                self.assertEqual(r_py.returncode, 0, r_py.stderr)
-                self.assertEqual(json.loads(r_ps.stdout)["decision"], "deny", payload)
-                self.assertEqual(json.loads(r_py.stdout)["decision"], "deny", payload)
-                if node:
-                    r_js = _run([node, str(guard_js), "--emit", "gemini"], cwd=work, env={"CLAUDE_PROJECT_DIR": str(work)}, input_text=raw)
-                    self.assertEqual(r_js.returncode, 0, r_js.stderr)
-                    self.assertEqual(json.loads(r_js.stdout)["decision"], "deny", payload)
-
     def test_bootstrap_structure_and_design_sync_scripts(self):
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
@@ -567,36 +449,26 @@ class GeminiLoopBehaviorTests(unittest.TestCase):
             self.assertEqual(res.returncode, 0, res.stdout + "\n" + res.stderr)
 
     def test_ship_loop_guard_and_gate_scripts(self):
-        guard = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.py"
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
             (work / "specs" / "demo").mkdir(parents=True)
             (work / "specs" / "demo" / "requirements.md").write_text("# Requirements\nReal content.\n", encoding="utf-8")
+            (work / "specs" / "demo" / "tasks.md").write_text("# Tasks\n\n## T-001 Demo\nApproval: Draft\n", encoding="utf-8")
 
-            # Guard blocks tasks.md self-approval, SDD_SUDO, and protected Gemini hooks
-            for payload in (
-                {"tool_name": "write_file", "tool_input": {"file_path": "specs/demo/tasks.md", "content": "Approval: Approved"}},
-                {"tool_name": "write_file", "tool_input": {"file_path": "plugins/sdd-quality-loop/gemini/hooks/hooks.json", "content": "{}"}},
-                {"tool_name": "write_file", "tool_input": {"file_path": "/tmp/SDD_SUDO", "content": "x"}},
-                {"tool_name": "run_shell_command", "tool_input": {"command": "printf x > /tmp/SDD_SUDO"}},
-            ):
-                res = _run(
-                    [sys.executable, str(guard), "--emit", "gemini"],
-                    cwd=work,
-                    env={"CLAUDE_PROJECT_DIR": str(work)},
-                    input_text=json.dumps(payload),
-                )
-                self.assertEqual(res.returncode, 0)
+            # The v2 soft guard denies Gemini self-approval in either form the gate accepts.
+            # (Protected hook files and SDD_SUDO were v1 hard-guard concerns; ADR-0051 decisions 1 and 3.)
+            for approved in ("Approval: Approved", "- **Approval:** `Approved`"):
+                payload = {"tool_name": "write_file", "tool_input": {
+                    "file_path": "specs/demo/tasks.md", "content": "# Tasks\n\n## T-001 Demo\n" + approved + "\n"}}
+                res = _soft_guard(work, "gemini", payload)
+                self.assertEqual(res.returncode, 0, res.stderr)
                 self.assertEqual(json.loads(res.stdout)["decision"], "deny", payload)
+            benign = _soft_guard(work, "gemini", {"tool_name": "write_file", "tool_input": {"file_path": "src/app.py", "content": "ok"}})
+            self.assertEqual(json.loads(benign.stdout)["decision"], "allow", benign.stdout + benign.stderr)
 
             # Kill-switch AGENT_STOP trips fail-closed denial even for benign write_file
             (work / "AGENT_STOP").write_text("stop\n", encoding="utf-8")
-            stopped = _run(
-                [sys.executable, str(guard), "--emit", "gemini"],
-                cwd=work,
-                env={"CLAUDE_PROJECT_DIR": str(work)},
-                input_text=json.dumps({"tool_name": "write_file", "tool_input": {"file_path": "src/app.py", "content": "ok"}}),
-            )
+            stopped = _soft_guard(work, "gemini", {"tool_name": "write_file", "tool_input": {"file_path": "src/app.py", "content": "ok"}})
             self.assertEqual(stopped.returncode, 0)
             self.assertEqual(json.loads(stopped.stdout)["decision"], "deny")
             (work / "AGENT_STOP").unlink()
@@ -627,23 +499,12 @@ class GeminiLoopBehaviorTests(unittest.TestCase):
             self.assertEqual(cl.returncode, 0, cl.stdout + "\n" + cl.stderr)
 
     def test_ddd_domain_loop_guard_and_contract_validator(self):
-        guard = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.py"
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
-            res = _run(
-                [sys.executable, str(guard), "--emit", "gemini"],
-                cwd=work,
-                env={"CLAUDE_PROJECT_DIR": str(work)},
-                input_text=json.dumps(
-                    {
-                        "tool_name": "replace",
-                        "tool_input": {
-                            "file_path": "sdd/domain/context-map.md",
-                            "new_string": "Domain-Model-Status: Approved",
-                        },
-                    }
-                ),
-            )
+            res = _soft_guard(work, "gemini", {
+                "tool_name": "replace",
+                "tool_input": {"file_path": "sdd/domain/context-map.md", "new_string": "Domain-Model-Status: Approved"},
+            })
             self.assertEqual(res.returncode, 0)
             self.assertEqual(json.loads(res.stdout)["decision"], "deny")
 
@@ -708,75 +569,28 @@ class CrossAiOperationTests(unittest.TestCase):
                 self.assertIn(f'"session_id": "sess-{host}"', ctx)
 
     def test_three_ai_guard_enforces_identical_boundaries_across_native_tools(self):
-        guard = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.py"
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
+            (work / "specs" / "demo").mkdir(parents=True)
+            (work / "specs" / "demo" / "tasks.md").write_text("# Tasks\n\n## T-001 Demo\nApproval: Draft\n", encoding="utf-8")
+            # The same v2 boundary on each host's native tools: no self-approval of a task or of
+            # the domain model. (The v1 SDD_SUDO cases retired with sudo mode, ADR-0051 decision 1.)
             cases = [
-                # Claude Code native Write/Bash
-                ("claude-write-approval", "exit", {"tool_name": "Write", "tool_input": {"file_path": "specs/demo/tasks.md", "content": "Approval: Approved"}}),
-                ("claude-bash-sudo", "exit", {"tool_name": "Bash", "tool_input": {"command": "printf x > /tmp/SDD_SUDO"}}),
-                # Codex CLI native apply_patch/exec_command
-                ("codex-patch-approval", "exit", {"tool_name": "apply_patch", "tool_input": {"command": "*** Begin Patch\n*** Update File: specs/demo/tasks.md\n+Approval: Approved\n*** End Patch"}}),
-                ("codex-exec-sudo", "exit", {"tool_name": "exec_command", "tool_input": {"command": "printf x > /tmp/SDD_SUDO"}}),
-                # Gemini CLI native write_file/replace/run_shell_command
-                ("gemini-write-approval", "gemini", {"tool_name": "write_file", "tool_input": {"file_path": "specs/demo/tasks.md", "content": "Approval: Approved"}}),
+                ("claude-write-approval", "exit", {"tool_name": "Write", "tool_input": {"file_path": "specs/demo/tasks.md", "content": "# Tasks\n\n## T-001 Demo\nApproval: Approved\n"}}),
+                ("codex-patch-approval", "exit", {"tool_name": "apply_patch", "tool_input": {"command": "*** Begin Patch\n*** Update File: specs/demo/tasks.md\n-Approval: Draft\n+Approval: Approved\n*** End Patch"}}),
+                ("gemini-write-approval", "gemini", {"tool_name": "write_file", "tool_input": {"file_path": "specs/demo/tasks.md", "content": "# Tasks\n\n## T-001 Demo\n- **Approval:** `Approved`\n"}}),
                 ("gemini-replace-domain", "gemini", {"tool_name": "replace", "tool_input": {"file_path": "sdd/domain/context-map.md", "new_string": "Domain-Model-Status: Approved"}}),
-                ("gemini-shell-sudo", "gemini", {"tool_name": "run_shell_command", "tool_input": {"command": "printf x > /tmp/SDD_SUDO"}}),
             ]
             for label, mode, payload in cases:
-                res = _run(
-                    [sys.executable, str(guard), "--emit", mode],
-                    cwd=work,
-                    env={"CLAUDE_PROJECT_DIR": str(work)},
-                    input_text=json.dumps(payload),
-                )
+                res = _soft_guard(work, mode, payload)
                 if mode == "exit":
                     self.assertEqual(res.returncode, 2, f"{label}: expected exit 2, got {res.returncode}")
                 else:
                     self.assertEqual(res.returncode, 0, f"{label}: expected exit 0")
                     self.assertEqual(json.loads(res.stdout).get("decision"), "deny", f"{label}: expected deny")
 
-    def test_three_ai_hook_handshake_accepts_all_three_hosts(self):
-        handshake = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "check-hook-activation-handshake.py"
-        with tempfile.TemporaryDirectory() as tmp:
-            work = Path(tmp)
-            (work / "sdd").mkdir()
-            emit = _run([sys.executable, str(handshake), "--emit-challenge"], cwd=work)
-            self.assertEqual(emit.returncode, 0, emit.stderr)
-            challenge = json.loads(emit.stdout)
-            nonce = challenge["nonce"]
-            for rt in ("claude-code", "codex-cli", "gemini-cli"):
-                self.assertIn(rt, challenge["tool_call_template"])
-                self.assertIn(rt, challenge["recorded_result_template"])
-
-            evidence_by_runtime = {
-                "claude-code": {"nonce": nonce, "executed": False, "guard_emit_mode": "exit", "exit_code": 2},
-                "codex-cli": {"nonce": nonce, "executed": False, "plugin_hooks_enabled": True, "denied_by_plugin_hooks": True},
-                "gemini-cli": {"nonce": nonce, "executed": False, "decision": "deny"},
-            }
-            for rt, ev in evidence_by_runtime.items():
-                p = work / f"ev-{rt}.json"
-                p.write_text(json.dumps(ev), encoding="utf-8")
-                ver = _run(
-                    [
-                        sys.executable,
-                        str(handshake),
-                        "--verify-response",
-                        "--nonce",
-                        nonce,
-                        "--recorded-result",
-                        str(p),
-                        "--runtime",
-                        rt,
-                    ],
-                    cwd=work,
-                )
-                self.assertEqual(ver.returncode, 0, f"{rt}: {ver.stdout} {ver.stderr}")
-                self.assertEqual(json.loads(ver.stdout)["status"], "HOOK_ACTIVE")
-
     def test_three_ai_workspace_handoff_bootstrap_to_ship_gates(self):
         """Simulate cross-AI handoff: Claude/Gemini/Codex sharing one SDD workspace."""
-        guard = ROOT / "plugins" / "sdd-quality-loop" / "scripts" / "sdd-hook-guard.py"
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
             spec_dir = work / "specs" / "cross-ai-demo"
@@ -794,12 +608,7 @@ class CrossAiOperationTests(unittest.TestCase):
                 ("exit", {"tool_name": "apply_patch", "tool_input": {"command": "*** Begin Patch\n*** Update File: specs/cross-ai-demo/tasks.md\n+Approval: Approved\n*** End Patch"}}),
                 ("gemini", {"tool_name": "replace", "tool_input": {"file_path": "specs/cross-ai-demo/tasks.md", "new_string": "Approval: Approved"}}),
             ):
-                res = _run(
-                    [sys.executable, str(guard), "--emit", mode],
-                    cwd=work,
-                    env={"CLAUDE_PROJECT_DIR": str(work)},
-                    input_text=json.dumps(tool_payload),
-                )
+                res = _soft_guard(work, mode, tool_payload)
                 if mode == "exit":
                     self.assertEqual(res.returncode, 2)
                 else:
