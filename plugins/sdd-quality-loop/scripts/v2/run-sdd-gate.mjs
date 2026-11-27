@@ -40,9 +40,54 @@ import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.m
 import { runAgentLint } from './run-agent-lint.mjs';
 import { runFormalGate } from './run-formal-gate.mjs';
 import { runSecurityGate } from './run-security-gate.mjs';
+import { profilePhase, recordStartup } from './runtime-profile.mjs';
+import { openScanCache } from './scan-cache.mjs';
 import { acquireLock, releaseLock } from './task-lock.mjs';
 import { isApprovedValue, parseTaskBlock, taskEvidenceInputs } from './v2-readonly-core.mjs';
-import { globToRegExp } from './v2-pure-lib.mjs';
+import { globToRegExp, sha256Text } from './v2-pure-lib.mjs';
+
+/**
+ * Async glob helper powered by Node.js built-in `fs.promises.glob` (ADR-0055).
+ */
+export async function discoverFilesWithGlob(projectRoot, patterns) {
+  const root = path.resolve(projectRoot);
+  const patternList = Array.isArray(patterns) ? patterns : [patterns];
+  const collected = new Set();
+  for (const pattern of patternList) {
+    for await (const entry of fs.promises.glob(pattern, { cwd: root })) {
+      collected.add(normalizeRelPath(entry));
+    }
+  }
+  return [...collected].sort();
+}
+
+/**
+ * Unified single-invocation Git status helper using `--porcelain=v2 -z` (ADR-0055).
+ */
+export function readGitStatusPorcelainV2(projectRoot) {
+  const out = execFileSync('git', ['-C', projectRoot, 'status', '--porcelain=v2', '-z'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  const entries = [];
+  for (const raw of out.split('\0').filter(Boolean)) {
+    if (raw.startsWith('? ')) {
+      entries.push({ kind: 'untracked', path: normalizeRelPath(raw.slice(2)) });
+    } else if (raw.startsWith('1 ') || raw.startsWith('2 ')) {
+      const parts = raw.split(' ');
+      const rel = parts.slice(raw.startsWith('2 ') ? 9 : 8).join(' ');
+      entries.push({ kind: 'tracked', xy: parts[1] || '..', path: normalizeRelPath(rel) });
+    }
+  }
+  return entries;
+}
+
+/**
+ * AbortSignal.timeout()-backed helper for bounded async operations (ADR-0055).
+ */
+export function createTimeoutSignal(timeoutMs = 30000) {
+  return AbortSignal.timeout(Math.max(1, Number(timeoutMs) || 30000));
+}
 
 const SAMPLE_COUNT = 20;
 const DEFAULT_RATIO = 1.10;
@@ -397,23 +442,42 @@ function maskUnchangedPatchLines(lines) {
   }
 }
 
-function scanPlaceholders(projectRoot, changedFiles) {
+export function scanPlaceholders(projectRoot, changedFiles, scanCache = null) {
   const findings = [];
   const scannedFiles = [];
   for (const rel of changedFiles) {
     if (!isPlaceholderScanTarget(rel)) continue;
     const abs = path.join(projectRoot, rel);
-    if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) continue;
+    if (!fs.existsSync(abs)) continue;
+    const st = fs.statSync(abs);
+    if (!st.isFile()) continue;
+    const cached = scanCache ? scanCache.get('placeholders', rel, st) : null;
+    if (cached !== null) {
+      if (!cached.binary) {
+        scannedFiles.push(rel);
+        findings.push(...cached.findings);
+      }
+      continue;
+    }
     const bytes = fs.readFileSync(abs);
     // Git uses a NUL byte in the first 8000 bytes to identify binary content.
-    if (bytes.subarray(0, 8000).includes(0)) continue;
+    if (bytes.subarray(0, 8000).includes(0)) {
+      if (scanCache) scanCache.set('placeholders', rel, st, '', { binary: true, findings: [] });
+      continue;
+    }
     scannedFiles.push(rel);
-    const lines = normalizeNewlines(bytes.toString('utf8')).split('\n');
+    const text = bytes.toString('utf8');
+    const fileFindings = [];
+    const lines = normalizeNewlines(text).split('\n');
     if (/\.(?:patch|diff)$/i.test(rel)) maskUnchangedPatchLines(lines);
     for (let i = 0; i < lines.length; i += 1) {
       if (PLACEHOLDER_RE.test(lines[i])) {
-        findings.push({ file: rel, line: i + 1, text: lines[i].trim().slice(0, 160) });
+        fileFindings.push({ file: rel, line: i + 1, text: lines[i].trim().slice(0, 160) });
       }
+    }
+    findings.push(...fileFindings);
+    if (scanCache) {
+      scanCache.set('placeholders', rel, st, sha256Text(text), { binary: false, findings: fileFindings });
     }
   }
   return {
@@ -1098,6 +1162,7 @@ export function runSddGate({
   }
 
   let outcome;
+  const scanCache = openScanCache(root);
   try {
     const taskCheckErrors = [];
     if (!isApprovedValue(taskState.approval)) {
@@ -1209,12 +1274,19 @@ export function runSddGate({
 
     const placeholders = failFastStoppedAt
       ? { passed: true, skipped: true, scannedFiles: [], findings: [] }
-      : scanPlaceholders(root, resolvedChanged);
+      : profilePhase('scan', 'placeholders', () => scanPlaceholders(root, resolvedChanged, scanCache), {
+          fileCount: resolvedChanged.length,
+        });
     if (failFast && !placeholders.passed) failFastStoppedAt = 'placeholders';
     const nonFunctionalSensors =
       skipSensors || failFastStoppedAt
         ? { skipped: true, passed: true, findings: [] }
-        : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
+        : {
+            skipped: false,
+            ...profilePhase('scan', 'non-functional-sensors', () => scanNonFunctionalSensors(root, resolvedChanged), {
+              fileCount: resolvedChanged.length,
+            }),
+          };
     if (failFast && !nonFunctionalSensors.passed) failFastStoppedAt = 'nonFunctionalSensors';
     const openQuestions = failFastStoppedAt
       ? { passed: true, blocking: false, provisionalCount: 0, provisionalIds: [] }
@@ -1240,7 +1312,12 @@ export function runSddGate({
       ? { skipped: true, passed: true, status: 'SKIPPED' }
       : checkConceptTest(root, feature);
     if (failFast && !conceptTest.passed) failFastStoppedAt = 'conceptTest';
-    const commandResults = failFastStoppedAt || !conceptTest.passed ? [] : runVerificationCommands(root, commands, failFast);
+    const commandResults =
+      failFastStoppedAt || !conceptTest.passed
+        ? []
+        : profilePhase('exec', 'verification-commands', () => runVerificationCommands(root, commands, failFast), {
+            commandCount: commands.length,
+          });
     const allCommandsPassed = commandResults.every((r) => r.passed);
 
     if (failFast && !allCommandsPassed) failFastStoppedAt = 'commands';
@@ -1370,6 +1447,11 @@ export function runSddGate({
     outcome = { result, outputPath: resolvedOutput };
     return outcome;
   } finally {
+    try {
+      scanCache.close();
+    } catch {
+      // ignore cache close errors
+    }
     if (acquiredLockForRelease && lockOwner) {
       try {
         const cleanup = releaseLock({ feature, taskId: taskState.taskId, owner: lockOwner, projectRoot: root });
@@ -1472,7 +1554,12 @@ function parseArgs(argv) {
 }
 
 function main() {
-  const opts = parseArgs(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  if (argv.includes('--warmup')) {
+    process.exit(0);
+  }
+  recordStartup('run-sdd-gate');
+  const opts = parseArgs(argv);
   if (!opts.feature || !opts.taskId) {
     process.stderr.write(
       'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>] [--role implementer] [--mode standard|rebuild] [--baseline-cmd <cmd> --candidate-cmd <cmd>] [--nfr-budget <path>] [--lock-owner <id>] [--anti-tamper] [--agent-lint] [--security-gate] [--formal-tla <path> --formal-cfg <path> --formal-trace <path> --formal-round <n>] [--fail-fast] [--output <path>] [--skip-drift] [--skip-sensors]\n',

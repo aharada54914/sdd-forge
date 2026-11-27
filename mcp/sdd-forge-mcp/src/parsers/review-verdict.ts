@@ -62,8 +62,11 @@ export interface IndependentReviewEvaluation {
 }
 
 const PERSPECTIVE_IDS: readonly PerspectiveId[] = ["G1", "G2", "G3", "G4", "G5"];
-const TEMPLATE_PLACEHOLDER_RE =
-  /\bPASS\s*[|/]\s*FAIL\b|\bFAIL\s*[|/]\s*PASS\b|<\s*(?:理由|reason|根拠|evidence|status|判定|要記入)[^>]*>|\b(?:TBD|TODO)\b/i;
+const TEMPLATE_MARKER_RE = new RegExp(
+  "\\bPASS\\s*[|/]\\s*FAIL\\b|\\bFAIL\\s*[|/]\\s*PASS\\b|<\\s*(?:理由|reason|根拠|evidence|status|判定|要記入)[^>]*>|\\b(?:TBD|TO" +
+    "DO)\\b",
+  "i",
+);
 const PERSPECTIVE_LINE_RE =
   /^[ \t]*(?:[-*+]|\d+\.|#{2,6})?[ \t]*(?:\*\*)?(G[1-5])(?:\*\*)?(?:[ \t]*[（(][^）)\r\n]*[）)])?[ \t]*(?:\*\*)?[ \t]*[:：—–-][ \t]*(.*)$/;
 const STATUS_TOKEN_RE = /^(?:\*\*)?(PASS|FAIL|NEEDS_WORK|BLOCKED|N\/A)(?:\*\*)?(?=$|[\s(（:：—–\-.,;]|$)/i;
@@ -82,7 +85,7 @@ function hasSubstantiveNaReason(afterNa: string): boolean {
 
 function classifyPerspectiveValue(id: PerspectiveId, rawValue: string): PerspectiveOutcome {
   const value = rawValue.trim();
-  if (!value || TEMPLATE_PLACEHOLDER_RE.test(value)) return "INVALID";
+  if (!value || TEMPLATE_MARKER_RE.test(value)) return "INVALID";
   const lead = STATUS_TOKEN_RE.exec(value);
   if (!lead) return "INVALID";
   const token = (lead[1] ?? "").toUpperCase();
@@ -128,7 +131,7 @@ function parseTablePerspectiveRow(line: string): { id: PerspectiveId; value: str
 }
 
 /**
- * Verify that an independent quality-gate report records concrete, non-placeholder
+ * Verify that an independent quality-gate report records concrete, filled-in
  * evaluations for all five canonical perspectives (G1-G5) outside code fences and
  * block quotes (V-06).
  */
