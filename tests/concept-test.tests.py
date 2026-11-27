@@ -1033,6 +1033,21 @@ class DomainContractRawTextTests(unittest.TestCase):
         self.assertIn('V2-DUPLICATE-KEY: contexts[1]: member "name" appears more than once',
                       self.check('item', text, 1))
 
+    def test_member_names_compare_after_escapes_are_decoded(self):
+        text = self.base.replace('{"schema": "domain-contract/v2"',
+                                 '{"\\u0073chema": "domain-contract/v2", "schema": "domain-contract/v2"', 1)
+        self.assertIn('V2-DUPLICATE-KEY: root: member "schema" appears more than once',
+                      self.check('escaped', text, 1))
+
+    def test_every_repeating_object_is_reported_innermost_first(self):
+        text = self.base.replace('{"schema": "domain-contract/v2"',
+                                 '{"schema": "domain-contract/v2", "schema": "domain-contract/v2"', 1)
+        text = text.replace('"name": "shelving"', '"name": "shelving", "name": "a\\nb", "name": "x"', 1)
+        stderr = self.check('order', text, 1)
+        self.assertEqual(['V2-DUPLICATE-KEY: contexts[1]: member "name" appears more than once',
+                          'V2-DUPLICATE-KEY: root: member "schema" appears more than once'],
+                         stderr.splitlines())
+
     def test_same_member_name_in_sibling_objects_is_accepted(self):
         self.check('siblings', self.base, 0)
 

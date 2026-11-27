@@ -13,6 +13,7 @@
 
 ### Fixed
 
+- **ドメイン契約の事前検証が重複キーを通していた件、PowerShell 7.0〜7.4 で日付形式の文字列を型違いとしていた件**: `validate-domain-contract`（.sh と .ps1）は、同じオブジェクトに同じメンバー名が2回ある契約を通していたが、Concept Test の読み込みはこれを拒否するため、事前検証を通った契約が後で止まっていた。両版とも `V2-DUPLICATE-KEY: <場所>: member "<名前>" appears more than once` で拒否する（エスケープを解いた名前で比べる）。また .ps1 版は PowerShell 7.0〜7.4 で `"2026-11-27T00:00:00Z"` のような文字列を日時に変換してしまい `V2-TYPE-MISMATCH` を出していた。この変換を止め、.sh 版と同じく文字列として扱う。
 - **MCP の完了判定が別 feature の品質ゲート報告を拾う**: タスク ID は feature ごとにしか一意でないのに、`get_task_state`・`evidence_find_missing`・`get_next_sdd_command` などの完了判定が `reports/quality-gate/` 全体からタスク ID を含む報告を探していた。別 feature の PASS 報告で完了と判定されたり、別 feature の報告しかないのに「報告はあるが PASS でない」と判定されたりした。ファイル名（`<feature>-T-NNN.md`、先頭に時刻が付く形も含む）か、最初の `Feature:` 行（`- **Feature**: x` などテンプレートの書き方も含む。引用とコードブロックの中は除く）が別の feature を指す報告を除外する。どちらもない古い報告は従来どおり数える。失敗メッセージには探した feature 名を入れる。シェル版の `check-task-state` は既に証跡バンドルが指す報告だけを見ている。
 - **導入スキルの検査スクリプトのパス**: `sdd-adopt` が構造検査を `scripts/check-sdd-structure.sh`（スキルのフォルダー基準では存在しない）と案内していた。配布先のパス `<installed-root>/plugins/sdd-bootstrap/scripts/check-sdd-structure.sh` に直し、スキルが示す配布物のパスがすべて実在することを試験で検査する。実ホスト（Claude Code）での `/sdd-bootstrap:bootstrap adopt` 実行で判明。
 - **Codex の版別導入で DDD の Concept Test が止まる件（#812、回避策と再現試験）**: Codex はプラグインを版ごとのフォルダーに導入するため、Concept Test が他プラグインと共通定義を見つけられず `BLOCK` になる。品質ゲートの停止メッセージに原因と回避策（sdd-forge のソースから直接実行）を示し、障害対応ガイドに手順を追加。配布定義どおりの配置を再現する試験 `tests/codex-versioned-cache.tests.py` を CI に追加（修正までは想定失敗として記録）。DDD を使わない機能には影響しない。

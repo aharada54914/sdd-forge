@@ -168,3 +168,28 @@ is required`.
   the Concept Test's own `_schema_validate`, checks that the twins print
   identical stderr, and checks that the schema uses only keywords the twins
   encode.
+
+## Follow-up (2026-11-27): duplicate member names and date-like strings
+
+This section supersedes two statements above: the "Limitation" paragraph
+under "New guarantee" (PowerShell 7.0–7.4 date coercion) and the "Not
+covered" paragraph (duplicate keys). Where they disagree, this section wins.
+
+- Duplicate member names: both twins now report every object that repeats a
+  member name, as
+  `V2-DUPLICATE-KEY: <path>: member "<name>" appears more than once`
+  (`root` for the top-level object), and stop before the structure checks.
+  Names compare after JSON escapes are decoded (`"schema"` repeats
+  `"schema"`). Objects are reported in the order their closing braces
+  appear; within one object, names in the order they first repeat. The parse
+  step itself is unchanged: such a document is well-formed JSON for both
+  twins, and only this separate rule rejects it, so the Concept Test parser
+  and the pre-publish validator agree.
+- Date-like strings: on PowerShell 6.0–7.4 the `.ps1` twin turns off
+  Newtonsoft's date parsing for its one `ConvertFrom-Json` call and restores
+  the process-wide setting afterwards. PowerShell 7.5+ keeps using
+  `-DateKind String`. Windows PowerShell 5.1 does not convert ISO strings.
+- Verification: `tests/concept-test.tests.py` `DomainContractRawTextTests`
+  (root, nested, array-item and escaped duplicates, report order, sibling
+  objects, ISO date and date-only strings), run on both twins with identical
+  stderr; checked with pwsh 7.4.6, the affected range.
