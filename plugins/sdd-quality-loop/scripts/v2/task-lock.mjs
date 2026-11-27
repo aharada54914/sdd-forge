@@ -26,6 +26,33 @@ import { assertValidFeatureName, resolveExplicitOrAutoRoot, isMainModule } from 
 
 const DEFAULT_TTL_SECONDS = 1800;
 
+/**
+ * Temporal-first UTC timestamp helpers (ADR-0055).
+ * Uses Node.js 26+ built-in `Temporal.Now.instant()` when present and falls
+ * back to `Date` on Node 24/25 runtimes with identical ISO-8601 output.
+ */
+export function computeLockWindow(ttlSeconds = DEFAULT_TTL_SECONDS) {
+  const safeTtl = Number.isFinite(ttlSeconds) && ttlSeconds > 0 ? Math.trunc(ttlSeconds) : DEFAULT_TTL_SECONDS;
+  const temporal = globalThis.Temporal;
+  if (temporal?.Now && typeof temporal.Now.instant === 'function') {
+    const now = temporal.Now.instant();
+    const expires = now.add({ seconds: safeTtl });
+    return {
+      acquiredAt: now.toString(),
+      expiresAt: expires.toString(),
+      ttlSeconds: safeTtl,
+      clock: 'Temporal',
+    };
+  }
+  const nowMs = Date.now();
+  return {
+    acquiredAt: new Date(nowMs).toISOString(),
+    expiresAt: new Date(nowMs + safeTtl * 1000).toISOString(),
+    ttlSeconds: safeTtl,
+    clock: 'Date',
+  };
+}
+
 function lockFileName(feature, taskId) {
   assertValidFeatureName(feature);
   if (taskId) {
@@ -267,6 +294,44 @@ export function releaseLock({ feature, taskId = null, projectRoot = null, owner 
     removeQuietly(leasePath(lockPath));
     return { released: true, existed: true, lockPath };
   });
+}
+
+/**
+ * Explicit Resource Management handle for `using` / `await using` (ADR-0055).
+ * Deterministically releases the acquired task lock when leaving scope.
+ */
+export function acquireTaskLockHandle({
+  feature,
+  taskId = null,
+  projectRoot = null,
+  owner = null,
+  ttlSeconds = DEFAULT_TTL_SECONDS,
+  breakStale = false,
+}) {
+  const effectiveOwner = owner || `handle-${process.pid}-${randomUUID().slice(0, 8)}`;
+  const result = acquireLock({
+    feature,
+    taskId,
+    projectRoot,
+    owner: effectiveOwner,
+    ttlSeconds,
+    breakStale,
+  });
+  let disposed = false;
+  const dispose = () => {
+    if (disposed || !result.acquired) return;
+    disposed = true;
+    releaseLock({ feature, taskId, projectRoot, owner: effectiveOwner });
+  };
+  return {
+    ...result,
+    owner: effectiveOwner,
+    release: dispose,
+    [Symbol.dispose]: dispose,
+    async [Symbol.asyncDispose]() {
+      dispose();
+    },
+  };
 }
 
 function parseArgs(argv) {

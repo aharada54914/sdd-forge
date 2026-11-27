@@ -98,7 +98,11 @@ function parseArgs(argv) {
 
 const isMain = isMainModule(import.meta.url, 'render-decision-view.mjs');
 if (isMain) {
-  const opts = parseArgs(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  if (argv.includes('--warmup')) {
+    process.exit(0);
+  }
+  const opts = parseArgs(argv);
   if (!opts.feature || (opts.format !== 'markdown' && opts.format !== 'html' && opts.format !== 'review-hash')) {
     process.stderr.write(
       'Usage: node render-decision-view.mjs --feature <feature> [--root <dir>] [--format markdown|html|review-hash] [--output <path>] [--require-traceability]\n',

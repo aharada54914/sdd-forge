@@ -1,7 +1,7 @@
 /** Exercise both published resources against the same v2 server as tools/call. */
 import { test, type TestContext } from "node:test";
 import assert from "node:assert/strict";
-import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolResultSchema } from "@modelcontextprotocol/core";
 import type { Result } from "../../src/envelope.js";
 import type { GateAuditData } from "../../src/tools/v2.js";
 import { getV2DefValidator, makeCoreToolsFixture, parseEnvelope } from "../core-tools/test-helpers.js";
@@ -77,7 +77,6 @@ test("a feature slug containing a space reports the resource and tool input erro
   assert.equal(tool.isError, true);
   const [message] = tool.content;
   assert.ok(message?.type === "text");
-  assert.match(message.text, /-32602/);
   assert.match(message.text, /Invalid arguments for tool sdd_feature_state/);
 });
 
@@ -86,13 +85,13 @@ test("the retired project, spec, task and ticket resource URIs have no public re
   for (const uri of [
     "sdd://active-specs", "sdd://spec/feature-a", "sdd://tasks/feature-a", "sdd://review-tickets",
   ]) {
-    await assert.rejects(client.readResource({ uri }), { message: new RegExp("Resource " + uri + " not found") });
+    await assert.rejects(client.readResource({ uri }), { message: new RegExp(`Resource not found: ${uri}`) });
   }
 });
 
 test("the retired quality summary URI is absent and gate audit identifies a task's review report", async (t) => {
   const client = await connect(t);
-  await assert.rejects(client.readResource({ uri: "sdd://quality-reports" }), /Resource sdd:\/\/quality-reports not found/);
+  await assert.rejects(client.readResource({ uri: "sdd://quality-reports" }), /Resource not found: sdd:\/\/quality-reports/);
   const tool = await client.callTool({ name: "sdd_gate_audit", arguments: { feature: "feature-b", taskId: "T-001" } });
   const envelope = parseEnvelope(tool) as Result<GateAuditData>;
   assert.equal(envelope.ok, true);

@@ -8,7 +8,7 @@
  * exclusively for the MCP JSON-RPC stdio transport.
  */
 
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import { isSddRoot, resolveRoot, type SddRoot } from "./root.js";
 import { buildServer } from "./server.js";
 import { startStatusView } from "./status-view.js";
@@ -16,6 +16,11 @@ import { DashboardReader, selectPresentation } from './dashboard/snapshot.js';
 import { dashboardPage } from '../ui/dashboard-page.js';
 
 async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  if (args.includes("--warmup")) {
+    return;
+  }
+
   let root: SddRoot;
   try {
     root = resolveRoot();
@@ -38,7 +43,6 @@ async function main(): Promise<void> {
   };
   process.stderr.write(`${JSON.stringify(startupInfo)}\n`);
 
-  const args = process.argv.slice(2);
   if (args.includes('--dashboard-snapshot') || args.includes('--dashboard-stream') || args.includes('--dashboard-monitor-stream')) {
     const reader = new DashboardReader(root);
     const emit = () => {

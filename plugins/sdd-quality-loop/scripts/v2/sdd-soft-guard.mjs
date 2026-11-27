@@ -652,7 +652,11 @@ async function readStdin() {
 }
 
 async function main() {
-  const { emit, projectRoot } = parseArgs(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  if (argv.includes('--warmup')) {
+    process.exit(0);
+  }
+  const { emit, projectRoot } = parseArgs(argv);
   const raw = await readStdin();
 
   let parsed = {};

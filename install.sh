@@ -1832,6 +1832,13 @@ fi
 place_mcp_servers_if_selected "$SOURCE_ROOT" "$STAGING_ROOT"
 stage_codex_receipt || exit 1
 
+# Stage 2 hybrid pre-generated portable Node.js Compile Cache (ADR-0055).
+if [[ "${SDD_SKIP_COMPILE_CACHE:-0}" != "1" ]] && command -v node >/dev/null 2>&1 \
+    && [[ -f "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs" ]]; then
+    node "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs" \
+        --root "$STAGING_ROOT" --cache-dir "$STAGING_ROOT/.sdd-compile-cache" >/dev/null 2>&1 || true
+fi
+
 # Backup existing install — generate a unique path without pre-creating it
 # so that `mv` renames the directory rather than moving it inside.
 if [[ -d "$INSTALL_ROOT" ]]; then

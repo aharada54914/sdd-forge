@@ -550,7 +550,7 @@ class PayloadChecks(unittest.TestCase):
         want_mcp = {k: v for name in names for k, v in self.fx.mcp_expected(name).items()}
         self.assertEqual({k: v for k, v in actual.items() if k.startswith("mcp/")}, want_mcp,
                          "mcp/ must hold exactly dist/index.js and package.json of the selected servers")
-        rest = {k: v for k, v in actual.items() if not k.startswith("mcp/")}
+        rest = {k: v for k, v in actual.items() if not k.startswith("mcp/") and not k.startswith(".sdd-compile-cache/")}
         self.assertEqual([rel for rel in CLOSURE if rel not in rest], [], "runtime closure missing from the install")
         if self.fx.expected is None:  # no manifest in the source: installed bytes must still be source bytes
             self.assertEqual({k: rest.get(k) for k in EMPTY_CODEX_RECEIPT}, EMPTY_CODEX_RECEIPT)
@@ -875,8 +875,11 @@ class PayloadChecks(unittest.TestCase):
             root = self.root_for("crlf-manifest")
             with manifest_bytes(self.fx, crlf):
                 self.install_ok(root, source=self.fx.path, skip_mcp=True)
-            self.assertEqual(installed_files(root), {**self.fx.expected, **EMPTY_CODEX_RECEIPT, **self.fx.mcp_expected(ALWAYS_PLACED_MCP),
-                                                     MANIFEST: hashlib.sha256(crlf).hexdigest()})
+            self.assertEqual(
+                {k: v for k, v in installed_files(root).items() if not k.startswith(".sdd-compile-cache/")},
+                {**self.fx.expected, **EMPTY_CODEX_RECEIPT, **self.fx.mcp_expected(ALWAYS_PLACED_MCP),
+                 MANIFEST: hashlib.sha256(crlf).hexdigest()},
+            )
 
 
 def main():

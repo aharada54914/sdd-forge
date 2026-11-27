@@ -17,6 +17,7 @@
 install-payload.txt
 
 # --- Shared runtime (needed by installed plugins, agents, and registration) -
+.sdd-compile-cache/
 .agents/plugins/marketplace.json
 .claude-plugin/marketplace.json
 .codex/agents/

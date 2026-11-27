@@ -1753,6 +1753,14 @@ try {
     Install-McpServersIfSelected -SourceRootPath $sourceRoot -InstallRootPath $stagingRoot
     Copy-CodexRegistrationReceipt -PreviousRoot $InstallRoot -Stage $stagingRoot
 
+    # Stage 2 hybrid pre-generated portable Node.js Compile Cache (ADR-0055).
+    $compileCacheScript = Join-Path $stagingRoot "plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs"
+    if (($env:SDD_SKIP_COMPILE_CACHE -ne "1") -and (Get-Command "node" -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath $compileCacheScript -PathType Leaf)) {
+        try {
+            & node $compileCacheScript --root $stagingRoot --cache-dir (Join-Path $stagingRoot ".sdd-compile-cache") 2>$null | Out-Null
+        } catch { }
+    }
+
     if (Test-Path -LiteralPath $InstallRoot) {
         $backupRoot = Join-Path $installParent ("sdd-plugins-backup-" + [guid]::NewGuid())
         Move-Item -LiteralPath $InstallRoot -Destination $backupRoot
