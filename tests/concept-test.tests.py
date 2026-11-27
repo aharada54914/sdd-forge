@@ -1051,6 +1051,17 @@ class DomainContractRawTextTests(unittest.TestCase):
     def test_same_member_name_in_sibling_objects_is_accepted(self):
         self.check('siblings', self.base, 0)
 
+    @unittest.skipUnless(PWSH, 'pwsh is not installed')
+    def test_ps1_scanner_stays_linear_in_nesting_depth(self):
+        # The scanner keeps an explicit stack so deep nesting cannot exhaust
+        # it; a full path string per open container made memory quadratic.
+        path = self.directory / 'deep.json'
+        path.write_text('[' * 60000 + ']' * 60000, encoding='utf-8')
+        result = subprocess.run([PWSH, '-NoProfile', '-NonInteractive', '-File', str(VALIDATOR.with_suffix('.ps1')),
+                                 str(path)], capture_output=True, text=True, timeout=60)
+        self.assertEqual(1, result.returncode, result.stderr)
+        self.assertNotIn('V2-INTERNAL', result.stderr)
+
     def test_iso_date_like_strings_stay_strings(self):
         document = copy.deepcopy(AGREEMENT_BASE)
         document['contexts'][0]['description'] = '2026-11-27T00:00:00Z'

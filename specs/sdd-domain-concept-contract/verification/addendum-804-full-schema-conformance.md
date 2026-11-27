@@ -179,7 +179,7 @@ covered" paragraph (duplicate keys). Where they disagree, this section wins.
   member name, as
   `V2-DUPLICATE-KEY: <path>: member "<name>" appears more than once`
   (`root` for the top-level object), and stop before the structure checks.
-  Names compare after JSON escapes are decoded (`"schema"` repeats
+  Names compare after JSON escapes are decoded (`"\u0073chema"` repeats
   `"schema"`). Objects are reported in the order their closing braces
   appear; within one object, names in the order they first repeat. The parse
   step itself is unchanged: such a document is well-formed JSON for both
