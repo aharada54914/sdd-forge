@@ -5,7 +5,7 @@
 
 import { isJsonObject } from "./json-object.js";
 import { verifyEvidenceBundle } from "./evidence-bundle.js";
-import { anyFileContaining, hasAnyFileMentioning, hasQualityGateVerdictPass, type ReportLookup } from "./report-lookup.js";
+import { hasAnyFileMentioning, hasQualityGateVerdictPass, qualityGateReportsFor, type ReportLookup } from "./report-lookup.js";
 import { guardedExists, guardedExistsNonEmpty, guardedRead } from "../path-guard.js";
 import type { SddRoot } from "../root.js";
 import {
@@ -39,6 +39,7 @@ export function isApprovedShape(value: string): value is Exclude<Approval, "Draf
 export function finishTask(
   draft: TaskDraft,
   root: SddRoot,
+  feature: string,
   tasksDir: string,
   reportsDir: string,
   implReportsDir: string,
@@ -83,7 +84,7 @@ export function finishTask(
   }
 
   if (status === "Done" && profile === "full") {
-    validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail, reportLookup);
+    validateDoneEvidence(root, feature, taskId, draft.risk, tasksDir, reportsDir, fail, reportLookup);
   }
 
   if (status === "Implementation Complete" || (status === "Done" && profile === "lite")) {
@@ -96,8 +97,8 @@ export function finishTask(
   }
 
   if (status === "Done" && profile === "lite" &&
-      !(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId)) {
-    fail("done-quality-gate-verdict-fail", `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it with VERDICT: PASS`);
+      !(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId, feature)) {
+    fail("done-quality-gate-verdict-fail", `${taskId} is Done but no quality-gate report for feature ${feature} in ${reportsDir} mentions it with VERDICT: PASS`);
   }
 
   let blockersNonEmpty = false;
@@ -126,6 +127,7 @@ export function finishTask(
 /** Reproduces the awk `finish()` function's `status == "Done"` block: evidence bundle + contract + quality-gate report checks. */
 function validateDoneEvidence(
   root: SddRoot,
+  feature: string,
   taskId: string,
   taskRisk: string,
   tasksDir: string,
@@ -194,13 +196,13 @@ function validateDoneEvidence(
     }
   }
 
-  const qgMatches = (reportLookup?.anyFileContaining ?? anyFileContaining)(root, reportsDir, taskId);
+  const qgMatches = (reportLookup?.qualityGateReportsFor ?? qualityGateReportsFor)(root, reportsDir, taskId, feature);
   if (qgMatches.length === 0) {
     fail(
       "done-quality-gate-report-missing",
-      `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it`,
+      `${taskId} is Done but no quality-gate report for feature ${feature} in ${reportsDir} mentions it`,
     );
-  } else if (!(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId)) {
+  } else if (!(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId, feature)) {
     fail(
       "done-quality-gate-verdict-fail",
       `${taskId} is Done but quality-gate report does not contain VERDICT: PASS: ${qgMatches[0]}`,

@@ -91,7 +91,7 @@ export function parseTaskState(
 
   const finish = (): void => {
     if (draft !== undefined) {
-      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile.data);
+      finishTask(draft, root, feature, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup, profile.data);
     }
   };
 

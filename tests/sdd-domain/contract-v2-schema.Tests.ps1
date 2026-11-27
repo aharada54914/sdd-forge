@@ -2174,10 +2174,13 @@ Describe "domain-contract.v1 suite non-regression closure (TEST-015, AC-015, REQ
 # The parity target is `json.loads`, not RFC 8259: the ticket fixes the .ps1
 # twin against the .sh twin and forbids changing the .sh twin. So the three
 # documents python3 accepts as extensions to RFC 8259 -- NaN, Infinity and
-# duplicate object keys -- must stay ACCEPTED here. A .ps1 twin that "improved"
-# on json.loads by rejecting them would be a new divergence in the opposite
-# direction, not a fix, so those classes are pinned below alongside the twelve
-# that must reject.
+# duplicate object keys -- must stay ACCEPTED by the parse step here. A .ps1
+# twin that "improved" on json.loads by rejecting them would be a new
+# divergence in the opposite direction, not a fix, so those classes are pinned
+# below alongside the twelve that must reject. (Since the follow-up to #804,
+# both twins then report a duplicated member name as V2-DUPLICATE-KEY, because
+# the Concept Test parser rejects it; that is a separate rule, not a parse
+# failure, and tests/concept-test.tests.py DomainContractRawTextTests covers it.)
 #
 # These are RT-20260819-001 regression fixtures, NOT additions to tasks.md's
 # `## Negative Fixture Allocation` table: the T-002/T-003/T-004 fixture counts
@@ -2296,7 +2299,7 @@ $rtParityCases = @(
         -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"version": "1.0.0"' -Replace '"version": NaN'))),
     (New-RtParityCase -Class "class 15 Infinity literal (json.loads accepts it; over-rejecting is a new divergence)" -Verdict "accept" `
         -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"version": "1.0.0"' -Replace '"version": Infinity'))),
-    (New-RtParityCase -Class "class 16 duplicate object key (json.loads accepts it, last value wins)" -Verdict "accept" `
+    (New-RtParityCase -Class "class 16 duplicate object key (json.loads parses it; reported as V2-DUPLICATE-KEY, not V2-PARSE)" -Verdict "accept" `
         -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"version": "1.0.0"' -Replace '"version": "9.9.9", "version": "1.0.0"')))
 )
 

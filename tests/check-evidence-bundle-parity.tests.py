@@ -215,6 +215,37 @@ class MisCasedInputTests(unittest.TestCase):
             })
         self.assert_rejected(mutate, "unsupported signature alg: HMAC-SHA256")
 
+    def test_signed_fields_must_be_strings(self):
+        # Python's str() and PowerShell's [string] render a number, array or
+        # object differently, so the signed canonical form would differ.
+        for field, value in (("required_workflow", 5), ("required_workflow", ["full"]),
+                             ("required_workflow", {"name": "full"}), ("git_commit", 7)):
+            with self.subTest(field=field, value=value):
+                def mutate(fx):
+                    fx.contract["risk"] = "critical"
+                    fx.bundle.update({
+                        "risk": "critical", "spec_revision": "a" * 64, "build_env": {"os": "linux"},
+                        "review_verdict": {"verdict": "PASS"},
+                        "signature": {"alg": "hmac-sha256", "value": "ab"},
+                    })
+                    fx.bundle[field] = value
+                self.assert_rejected(mutate, "critical bundle field %s must be a string" % field)
+
+    def test_mis_cased_signed_field_name_is_not_type_checked(self):
+        with tempfile.TemporaryDirectory() as base:
+            fx = Fixture(base)
+            fx.contract["risk"] = "critical"
+            fx.bundle.update({
+                "risk": "critical", "spec_revision": "a" * 64, "build_env": {"os": "linux"},
+                "review_verdict": {"verdict": "PASS"}, "Required_Workflow": 5,
+                "signature": {"alg": "hmac-sha256", "value": "ab"},
+            })
+            bundle = fx.write()
+            for name, run in runners():
+                with self.subTest(runner=name):
+                    result = run(bundle, fx.root, fx.root)
+                    self.assertNotIn("must be a string", result.stdout + result.stderr)
+
     def test_upper_case_risk_is_not_a_provenance_tier(self):
         with tempfile.TemporaryDirectory() as base:
             fx = Fixture(base)
@@ -278,6 +309,54 @@ class StrictValueTests(unittest.TestCase):
         for order in ("code-point", "utf-16"):
             with self.subTest(order=order):
                 self.assert_absent(mutate, "HMAC mismatch", sign=True, order=order)
+
+    def test_mis_cased_signed_keys_read_as_absent_on_both_runners(self):
+        # Python's dict lookup is exact-case; a PowerShell property read is not.
+        os.environ["SDD_EVIDENCE_KEY"] = "parity-key"
+        self.addCleanup(os.environ.pop, "SDD_EVIDENCE_KEY", None)
+        def mutate(fx):
+            self.critical(fx, False)
+            fx.bundle["Required_Workflow"] = "full"
+        self.assert_absent(mutate, "HMAC mismatch", sign=True)
+
+    def test_mis_cased_validated_keys_fail_on_both_runners(self):
+        # A signed critical bundle whose validated field is mis-cased: Python
+        # reads it as absent and fails, so the .ps1 port must fail too.
+        os.environ["SDD_EVIDENCE_KEY"] = "parity-key"
+        self.addCleanup(os.environ.pop, "SDD_EVIDENCE_KEY", None)
+        cases = {
+            "review_verdict.Verdict": lambda b: b.update(review_verdict={"Verdict": "PASS"}),
+            "Spec_Revision": lambda b: b.update(Spec_Revision=b.pop("spec_revision")),
+            "Task_ID": lambda b: b.update(Task_ID=b.pop("task_id")),
+            "Risk": lambda b: b.update(Risk=b.pop("risk")),
+            "build_env.OS": lambda b: b.update(build_env={"OS": "linux"}),
+        }
+        cases["control"] = lambda b: None
+        for label, change in cases.items():
+            with self.subTest(case=label), tempfile.TemporaryDirectory() as base:
+                fx = Fixture(base)
+                self.critical(fx, False)
+                # Everything a critical contract requires, so the control passes.
+                fx.contract["required_workflow"] = "tdd"
+                for check_id in ("acceptance-tests", "regression", "requirement-traceability"):
+                    log = fx.root / "qg" / (check_id + ".log")
+                    log.write_text(check_id + " ok\n", encoding="utf-8")
+                    fx.contract["checks"].append({"id": check_id, "required": True, "passes": True,
+                                                  "evidence": "qg/" + log.name})
+                for check in fx.contract["checks"]:
+                    check["red_evidence"] = check["green_evidence"] = check["evidence"]
+                bundle = fx.write()
+                data = json.loads(bundle.read_text(encoding="utf-8"))
+                change(data)
+                data["signature"]["value"] = hmac.new(b"parity-key", canonical(data).encode("utf-8"),
+                                                      hashlib.sha256).hexdigest()
+                bundle.write_text(json.dumps(data), encoding="utf-8")
+                codes = {}
+                for name, run in runners():
+                    if run is None:
+                        continue
+                    codes[name] = run(bundle, fx.root, fx.root).returncode
+                self.assertEqual(set(codes.values()), {0 if label == "control" else 1}, codes)
 
     def test_wrong_key_still_fails_the_signature(self):
         os.environ["SDD_EVIDENCE_KEY"] = "another-key"

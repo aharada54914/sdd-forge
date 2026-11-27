@@ -104,6 +104,33 @@ function Get-Sha256 {
     return (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
 }
 
+function Remove-NonLowercaseMembers {
+    # The .sh twin reads every JSON key by its exact lowercase name
+    # (dict.get), so a mis-cased key such as Verdict or Spec_Revision is
+    # absent there. A PowerShell property read ignores case and would find
+    # it. Every key this checker reads is lowercase, so dropping each member
+    # whose name has an upper-case letter makes every read here see exactly
+    # what Python sees. pwsh 7 cannot hold verdict and Verdict in one object
+    # (ConvertFrom-Json throws), so no exact-case value is ever dropped.
+    param($Value)
+    $pending = New-Object System.Collections.Stack
+    $pending.Push($Value)
+    while ($pending.Count -gt 0) {
+        $item = $pending.Pop()
+        if ($item -is [PSCustomObject]) {
+            foreach ($property in @($item.PSObject.Properties)) {
+                if ($property.Name -cne $property.Name.ToLowerInvariant()) {
+                    $item.PSObject.Properties.Remove($property.Name)
+                } else {
+                    $pending.Push($property.Value)
+                }
+            }
+        } elseif ($item -is [System.Array]) {
+            foreach ($element in $item) { $pending.Push($element) }
+        }
+    }
+}
+
 # --- Signing verification helpers (T-007a) ---
 
 # v1 signers sorted artifact pairs differently: the Python signer by code point,
@@ -157,6 +184,7 @@ function Get-EvidenceCanonical {
 
 $bundleJson = Get-Content -Raw -Encoding Utf8 -LiteralPath $BundlePath
 $bundle = $bundleJson | ConvertFrom-Json
+Remove-NonLowercaseMembers $bundle
 if ($bundleJson.TrimStart() -notmatch '^\{' -or $bundle -isnot [PSCustomObject]) {
     [Console]::Error.WriteLine('check-evidence-bundle: bundle must be a JSON object')
     exit 1
@@ -214,6 +242,7 @@ if ($contractInfo) {
     try {
         $contractJson = Get-Content -Raw -Encoding Utf8 -LiteralPath $contractInfo.Resolved
         $contract = $contractJson | ConvertFrom-Json
+        Remove-NonLowercaseMembers $contract
         if ($contractJson.TrimStart() -notmatch '^\{' -or $contract -isnot [PSCustomObject]) {
             $contract = $null
             throw 'verification_contract must be a JSON object'
@@ -400,6 +429,15 @@ if (@("high", "critical") -ccontains $effectiveRisk) {
 
 # Critical-only signature verification (T-007a)
 if ($effectiveRisk -ceq "critical") {
+    # The signed canonical form renders these with Python's str() in the .sh
+    # twin; [string] renders a number, array or object differently, so only a
+    # string (or an absent field) can be verified the same way by both.
+    foreach ($field in @("task_id", "feature", "risk", "required_workflow", "spec_revision", "git_commit")) {
+        $value = $bundle.$field
+        if ($null -ne $value -and $value -isnot [string]) {
+            Add-Failure "critical bundle field $field must be a string"
+        }
+    }
     if ($gitGeneratedDirty) {
         Add-Failure "critical bundle must not be generated with a dirty working tree (git_generated_dirty=true)"
     }

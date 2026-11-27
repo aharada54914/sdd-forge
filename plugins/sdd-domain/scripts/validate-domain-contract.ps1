@@ -868,6 +868,35 @@ function Get-StrictJsonStringEnd {
     return -1
 }
 
+function Get-StrictJsonStringValue {
+    # Decodes one string literal that Get-StrictJsonStringEnd has already
+    # accepted (Start at its opening quote, End just past its closing quote),
+    # so member names compare by value the way python3 compares them:
+    # "\u0061" and "a" are the same name.
+    param([char[]]$Chars, [int]$Start, [int]$End)
+    $builder = New-Object System.Text.StringBuilder
+    $index = $Start + 1
+    while ($index -lt $End - 1) {
+        $code = [int]$Chars[$index]
+        if ($code -ne 92) { [void]$builder.Append($Chars[$index]); $index++; continue }
+        $escape = [int]$Chars[$index + 1]
+        if ($escape -eq 117) {
+            $hex = New-Object string ($Chars, ($index + 2), 4)
+            [void]$builder.Append([char][Convert]::ToInt32($hex, 16))
+            $index += 6
+            continue
+        }
+        if ($escape -eq 98) { [void]$builder.Append([char]8) }
+        elseif ($escape -eq 102) { [void]$builder.Append([char]12) }
+        elseif ($escape -eq 110) { [void]$builder.Append([char]10) }
+        elseif ($escape -eq 114) { [void]$builder.Append([char]13) }
+        elseif ($escape -eq 116) { [void]$builder.Append([char]9) }
+        else { [void]$builder.Append([char]$escape) }
+        $index += 2
+    }
+    return $builder.ToString()
+}
+
 function Get-StrictJsonNumberEnd {
     # Consumes the longest prefix at $Start matching python3's number grammar
     #     -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?
@@ -922,13 +951,17 @@ function Test-StrictJsonText {
     # `json.loads` accepts -- no more and no less -- so the two twins reach
     # the same verdict on the same bytes (REQ-006, design.md DD-7).
     #
-    # The parity target is `json.loads`, NOT RFC 8259. python3 accepts three
-    # things RFC 8259 forbids -- the bare literals NaN, Infinity and
-    # -Infinity, and duplicate object keys (last value wins) -- so this
-    # scanner accepts them too. "Improving" on json.loads by rejecting them
-    # would replace one twin divergence with another in the opposite
+    # The parity target is `json.loads`, NOT RFC 8259. python3 accepts things
+    # RFC 8259 forbids -- the bare literals NaN, Infinity and -Infinity -- so
+    # this scanner accepts them too. "Improving" on json.loads by rejecting
+    # them would replace one twin divergence with another in the opposite
     # direction, which is why they are called out here rather than left to
     # look like oversights.
+    #
+    # Duplicate member names are well-formed here, as in json.loads, but the
+    # Concept Test parser rejects them, so each object's repeated names are
+    # collected into $Duplicates when the object closes: the order the .sh
+    # twin's post-order walk reports them in.
     #
     # Written as one pass over the text with an EXPLICIT container stack
     # rather than mutual recursion, so a deeply nested document cannot
@@ -936,14 +969,26 @@ function Test-StrictJsonText {
     # integer character codes, never characters or strings through -eq: -eq
     # is case-insensitive in PowerShell, which would silently accept \U as an
     # escape prefix and `NAN` as a literal.
-    param([string]$Text)
+    param([string]$Text, [System.Collections.Generic.List[string]]$Duplicates)
 
     $chars = $Text.ToCharArray()
     $limit = $chars.Length
     $position = 0
 
-    # 123 marks an open object on the stack, 91 an open array.
+    # 123 marks an open object on the stack, 91 an open array. $path holds
+    # the innermost open container's path (the .sh twin's member_path() and
+    # "%s[%d]"); the parallel lists hold, per open container: the length of
+    # its path, so closing it truncates $path back to its parent's (memory and
+    # work stay linear in the nesting depth), its member names so far and the
+    # names that repeated (objects, created on first use), and its next item
+    # index (arrays).
     $stack = New-Object 'System.Collections.Generic.List[int]'
+    $path = New-Object System.Text.StringBuilder
+    $pathLengths = New-Object 'System.Collections.Generic.List[int]'
+    $names = New-Object 'System.Collections.Generic.List[object]'
+    $repeated = New-Object 'System.Collections.Generic.List[object]'
+    $counts = New-Object 'System.Collections.Generic.List[int]'
+    $memberName = ''
 
     # value          -- a value must start here
     # value-or-close -- a value or the ']' of an empty array
@@ -952,6 +997,25 @@ function Test-StrictJsonText {
     # after          -- a complete value was just read
     $state = 'value'
     $documentComplete = $false
+
+    # Pops the innermost container. Defined inside this function so it reads
+    # and changes this call's lists through PowerShell's dynamic scope.
+    function Close-StrictJsonContainer {
+        $top = $stack.Count - 1
+        if ($null -ne $repeated[$top] -and $null -ne $Duplicates) {
+            $where = $path.ToString()
+            if ($where.Length -eq 0) { $where = 'root' }
+            foreach ($name in $repeated[$top]) {
+                $Duplicates.Add($where + ': member "' + (ConvertTo-SafeText $name) + '" appears more than once')
+            }
+        }
+        $stack.RemoveAt($top)
+        $pathLengths.RemoveAt($top)
+        if ($top -gt 0) { $path.Length = $pathLengths[$top - 1] } else { $path.Length = 0 }
+        $names.RemoveAt($top)
+        $repeated.RemoveAt($top)
+        $counts.RemoveAt($top)
+    }
 
     while ($true) {
         # RFC 8259 and python's whitespace class agree on exactly four
@@ -967,13 +1031,13 @@ function Test-StrictJsonText {
             if ($position -ge $limit) { return $false }
             $code = [int]$chars[$position]
             if ($stack[$stack.Count - 1] -eq 123) {
-                if ($code -eq 125) { $position++; $stack.RemoveAt($stack.Count - 1); continue }
+                if ($code -eq 125) { $position++; Close-StrictJsonContainer; continue }
                 # A ',' inside an object must be followed by another member
                 # name, never by '}'. That is the trailing-comma rejection.
                 if ($code -eq 44) { $position++; $state = 'key'; continue }
                 return $false
             }
-            if ($code -eq 93) { $position++; $stack.RemoveAt($stack.Count - 1); continue }
+            if ($code -eq 93) { $position++; Close-StrictJsonContainer; continue }
             if ($code -eq 44) { $position++; $state = 'value'; continue }
             return $false
         }
@@ -981,7 +1045,7 @@ function Test-StrictJsonText {
         if ($state -ceq 'key-or-close') {
             if ($position -lt $limit -and [int]$chars[$position] -eq 125) {
                 $position++
-                $stack.RemoveAt($stack.Count - 1)
+                Close-StrictJsonContainer
                 $state = 'after'
                 continue
             }
@@ -994,6 +1058,12 @@ function Test-StrictJsonText {
             if ($position -ge $limit -or [int]$chars[$position] -ne 34) { return $false }
             $end = Get-StrictJsonStringEnd -Chars $chars -Start $position
             if ($end -lt 0) { return $false }
+            $memberName = Get-StrictJsonStringValue -Chars $chars -Start $position -End $end
+            $top = $stack.Count - 1
+            if (-not $names[$top].Add($memberName)) {
+                if ($null -eq $repeated[$top]) { $repeated[$top] = New-Object 'System.Collections.Generic.List[string]' }
+                if (-not $repeated[$top].Contains($memberName)) { $repeated[$top].Add($memberName) }
+            }
             $position = $end
             while ($position -lt $limit) {
                 $code = [int]$chars[$position]
@@ -1008,7 +1078,7 @@ function Test-StrictJsonText {
         if ($state -ceq 'value-or-close') {
             if ($position -lt $limit -and [int]$chars[$position] -eq 93) {
                 $position++
-                $stack.RemoveAt($stack.Count - 1)
+                Close-StrictJsonContainer
                 $state = 'after'
                 continue
             }
@@ -1017,8 +1087,34 @@ function Test-StrictJsonText {
 
         if ($position -ge $limit) { return $false }
         $code = [int]$chars[$position]
-        if ($code -eq 123) { $stack.Add(123); $position++; $state = 'key-or-close'; continue }
-        if ($code -eq 91) { $stack.Add(91); $position++; $state = 'value-or-close'; continue }
+        $index = -1
+        if ($stack.Count -gt 0 -and $stack[$stack.Count - 1] -eq 91) {
+            $index = $counts[$stack.Count - 1]
+            $counts[$stack.Count - 1] = $counts[$stack.Count - 1] + 1
+        }
+        if ($code -eq 123 -or $code -eq 91) {
+            $stack.Add($code)
+            if ($stack.Count -gt 1) {
+                if ($index -ge 0) {
+                    [void]$path.Append('[').Append($index).Append(']')
+                } elseif ($path.Length -eq 0) {
+                    [void]$path.Append((ConvertTo-SafeText $memberName))
+                } else {
+                    [void]$path.Append('.').Append((ConvertTo-SafeText $memberName))
+                }
+            }
+            $pathLengths.Add($path.Length)
+            if ($code -eq 123) {
+                $names.Add((New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)))
+            } else {
+                $names.Add($null)
+            }
+            $repeated.Add($null)
+            $counts.Add(0)
+            $position++
+            if ($code -eq 123) { $state = 'key-or-close' } else { $state = 'value-or-close' }
+            continue
+        }
         if ($code -eq 34) {
             $end = Get-StrictJsonStringEnd -Chars $chars -Start $position
             if ($end -lt 0) { return $false }
@@ -1121,20 +1217,44 @@ function Invoke-Validation {
     # now decides; ConvertFrom-Json only builds the object afterwards, and
     # its own failure still falls back to the same single V2-PARSE line, so
     # the parse step stays fail-closed either way.
-    if (-not (Test-StrictJsonText $text)) {
+    $duplicates = New-Object 'System.Collections.Generic.List[string]'
+    if (-not (Test-StrictJsonText -Text $text -Duplicates $duplicates)) {
         Add-Violation 'V2-PARSE' 'input is not well-formed JSON and was not parsed further'
         return (Complete-Validation)
     }
+    if ($duplicates.Count -gt 0) {
+        foreach ($duplicate in $duplicates) { Add-Violation 'V2-DUPLICATE-KEY' $duplicate }
+        return (Complete-Validation)
+    }
     $document = $null
+    # ConvertFrom-Json turns ISO-date-like strings into DateTime unless told
+    # not to: -DateKind String from pwsh 7.5, Newtonsoft's default settings
+    # on pwsh 6.0-7.4 (process-wide, so restored afterwards). Windows
+    # PowerShell 5.1 has neither and does not convert ISO strings.
+    $newtonsoft = 'Newtonsoft.Json.JsonConvert' -as [type]
+    $settingsType = 'Newtonsoft.Json.JsonSerializerSettings' -as [type]
+    $previousSettings = $null
+    $replacedSettings = $false
     try {
         $jsonOptions = @{ InputObject = $text }
         if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
             $jsonOptions.DateKind = 'String'
+        } elseif ($null -ne $newtonsoft -and $null -ne $settingsType) {
+            $previousSettings = $newtonsoft::DefaultSettings
+            $factory = [Func[object]].GetGenericTypeDefinition().MakeGenericType($settingsType)
+            $newtonsoft::DefaultSettings = ({
+                $settings = New-Object Newtonsoft.Json.JsonSerializerSettings
+                $settings.DateParseHandling = 'None'
+                $settings
+            } -as $factory)
+            $replacedSettings = $true
         }
         $document = ConvertFrom-Json @jsonOptions
     } catch {
         Add-Violation 'V2-PARSE' 'input is not well-formed JSON and was not parsed further'
         return (Complete-Validation)
+    } finally {
+        if ($replacedSettings) { $newtonsoft::DefaultSettings = $previousSettings }
     }
 
     # --- Step (b): dispatch on the declared `schema` value (DD-6) ----------

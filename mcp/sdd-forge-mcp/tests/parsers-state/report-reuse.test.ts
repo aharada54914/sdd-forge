@@ -49,7 +49,7 @@ for (const boundary of ["parseTaskState", "listActiveSpecs"]) {
 
 import {
   anyFileContaining, anyFileContainingWithDiagnostics, createReportLookup,
-  hasAnyFileMentioning, hasQualityGateVerdictPass,
+  hasAnyFileMentioning, hasQualityGateVerdictPass, qualityGateReportsFor,
 } from "../../src/parsers/report-lookup.js";
 import { join } from "node:path";
 
@@ -71,12 +71,13 @@ test("snapshot matches legacy whole words, all matching reports, order and diagn
         anyFileContainingWithDiagnostics(fixture.root, dir, id));
       assert.deepEqual(lookup.anyFileContainingWithDiagnostics(fixture.root, dir, id).matches, anyFileContaining(fixture.root, dir, id));
       assert.equal(lookup.hasAnyFileMentioning(fixture.root, dir, id), hasAnyFileMentioning(fixture.root, dir, id));
-      assert.equal(lookup.hasQualityGateVerdictPass(fixture.root, dir, id), hasQualityGateVerdictPass(fixture.root, dir, id));
+      assert.equal(lookup.hasQualityGateVerdictPass(fixture.root, dir, id, "demo"), hasQualityGateVerdictPass(fixture.root, dir, id, "demo"));
+      assert.deepEqual(lookup.qualityGateReportsFor(fixture.root, dir, id, "demo"), qualityGateReportsFor(fixture.root, dir, id, "demo"));
     }
   }
   assert.deepEqual(lookup.anyFileContainingWithDiagnostics(fixture.root, qualityDir, "T-001").matches, [`${qualityDir}/a.md`, `${qualityDir}/c.md`]);
-  assert.equal(lookup.hasQualityGateVerdictPass(fixture.root, qualityDir, "T-001"), true);
-  assert.equal(lookup.hasQualityGateVerdictPass(fixture.root, qualityDir, "T-002"), false);
+  assert.equal(lookup.hasQualityGateVerdictPass(fixture.root, qualityDir, "T-001", "demo"), true);
+  assert.equal(lookup.hasQualityGateVerdictPass(fixture.root, qualityDir, "T-002", "demo"), false);
   assert.equal(lookup.hasAnyFileMentioning(fixture.root, qualityDir, "T-099"), false);
   const result = lookup.anyFileContainingWithDiagnostics(fixture.root, qualityDir, "T-001");
   assert.ok(result.errors.some(e => e.reason === "Path matches a denylisted file."));
@@ -108,7 +109,7 @@ test("partial listing and file-read failures keep legacy diagnostics and readabl
     { path: `${qualityDir}/nested`, reason: "fixture listing denied" },
   ] });
   assert.deepEqual(lookup.anyFileContainingWithDiagnostics(fixture.root, qualityDir, "T-001"), legacy);
-  assert.equal(lookup.hasQualityGateVerdictPass(fixture.root, qualityDir, "T-001"), false);
+  assert.equal(lookup.hasQualityGateVerdictPass(fixture.root, qualityDir, "T-001", "demo"), false);
 });
 
 test("root identity isolates snapshots even when directory names and task IDs coincide", (t) => {
@@ -117,10 +118,10 @@ test("root identity isolates snapshots even when directory names and task IDs co
   writeFile(a.dir, `${qualityDir}/report.md`, "T-001\nVERDICT: PASS");
   writeFile(b.dir, `${qualityDir}/report.md`, "T-002\nVERDICT: FAIL");
   const lookup = createReportLookup();
-  assert.equal(lookup.hasQualityGateVerdictPass(a.root, qualityDir, "T-001"), true);
+  assert.equal(lookup.hasQualityGateVerdictPass(a.root, qualityDir, "T-001", "demo"), true);
   assert.equal(lookup.hasAnyFileMentioning(b.root, qualityDir, "T-001"), false);
   assert.equal(lookup.hasAnyFileMentioning(b.root, qualityDir, "T-002"), true);
-  assert.equal(lookup.hasQualityGateVerdictPass(b.root, qualityDir, "T-002"), false);
+  assert.equal(lookup.hasQualityGateVerdictPass(b.root, qualityDir, "T-002", "demo"), false);
 });
 
 test("new parser requests see changed, replaced, deleted and denied reports, never stale PASS", (t) => {
@@ -184,7 +185,7 @@ test("directory symlink escape is denied identically, including replacement betw
   t.after(fixture.cleanup); t.after(other.cleanup);
   writeFile(fixture.dir, `${qualityDir}/report.md`, "T-001\nVERDICT: PASS");
   writeFile(other.dir, "reports/report.md", "T-001\nVERDICT: PASS");
-  assert.equal(createReportLookup().hasQualityGateVerdictPass(fixture.root, qualityDir, "T-001"), true);
+  assert.equal(createReportLookup().hasQualityGateVerdictPass(fixture.root, qualityDir, "T-001", "demo"), true);
   fs.rmSync(join(fixture.dir, qualityDir), { recursive: true });
   fs.symlinkSync(join(other.dir, "reports"), join(fixture.dir, qualityDir), "junction");
   const result = createReportLookup().anyFileContainingWithDiagnostics(fixture.root, qualityDir, "T-001");

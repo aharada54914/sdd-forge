@@ -149,6 +149,51 @@ def json_type_name(value):
     return "unknown"
 
 
+class JsonMembers(dict):
+    """A parsed JSON object that also keeps every member in document order,
+    duplicates included. dict(pairs) gives json.loads' last-wins value, so the
+    rest of the validator reads it like any other object."""
+
+
+def keep_members(pairs):
+    members = JsonMembers(pairs)
+    members.pairs = pairs
+    return members
+
+
+def member_path(path, key):
+    return safe(key) if path == "" else "%s.%s" % (path, safe(key))
+
+
+def check_duplicate_members(document, add_violation):
+    """The Concept Test parser rejects a duplicated member name, so this
+    pre-publish check does too. Objects are reported in the order their
+    closing braces appear, which is the order the .ps1 twin's scanner sees
+    them; within an object, names in the order they first repeat."""
+    stack = [(document, "", False)]
+    while stack:
+        value, path, closed = stack.pop()
+        if isinstance(value, JsonMembers):
+            if closed:
+                seen, repeated = set(), []
+                for key, _ in value.pairs:
+                    if key in seen and key not in repeated:
+                        repeated.append(key)
+                    seen.add(key)
+                for key in repeated:
+                    add_violation(
+                        "V2-DUPLICATE-KEY",
+                        '%s: member "%s" appears more than once' % (path or "root", safe(key)),
+                    )
+            else:
+                stack.append((value, path, True))
+                for key, child in reversed(value.pairs):
+                    stack.append((child, member_path(path, key), False))
+        elif isinstance(value, list):
+            for index in range(len(value) - 1, -1, -1):
+                stack.append((value[index], "%s[%d]" % (path, index), False))
+
+
 def finish():
     for line in violations:
         sys.stderr.write(line + "\n")
@@ -755,9 +800,12 @@ def run(path):
     if text[:1] == "\ufeff":
         text = text[1:]
     try:
-        document = json.loads(text)
+        document = json.loads(text, object_pairs_hook=keep_members)
     except ValueError:
         add("V2-PARSE", "input is not well-formed JSON and was not parsed further")
+        finish()
+    check_duplicate_members(document, add)
+    if violations:
         finish()
 
     # --- Step (b): dispatch on the declared `schema` value (DD-6) ----------
