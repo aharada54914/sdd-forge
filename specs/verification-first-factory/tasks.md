@@ -149,7 +149,7 @@ T-003, T-006, T-009
 
 ### T-011: 実 PR の Shadow 所見を評価して利用者既定を strict に昇格
 - **Status:** `Planned`
-- **Approval:** `Draft`
+- **Approval:** `Approved`
 - **Risk:** `high`
 - **Covers:** `SELF-REQ-005`, `SELF-AC-005`, `NFR-004`
 - **Scope:** `plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs` の `formal_verification.mode`・`agent_lint.mode`・`security_audit.mode` のうち個別承認したキー、`sdd/guardrails.example.yaml`、`specs/verification-first-factory/verification/T-011/` の昇格判断記録。各ゲートの有効化は引き続き利用者が選ぶ。

@@ -154,6 +154,12 @@ make_stubs() {
         chmod +x "${bin_dir}/${cmd}"
     done
 
+    # These clients also participate in Target All.
+    for cmd in agy gemini; do
+        printf '%s\n' '#!/bin/sh' 'exit 0' > "${bin_dir}/${cmd}"
+        chmod +x "${bin_dir}/${cmd}"
+    done
+
     # Report a Node version that clears the >= 26.13.0 gate, so MCP placement
     # runs on every host regardless of the real toolchain.
     printf '%s\n%s\n' '#!/bin/sh' 'echo v26.13.0' > "${bin_dir}/node"
@@ -191,26 +197,22 @@ run_case() {
         echo "keep" > "${INSTALL_ROOT_PATH}/existing.marker"
     fi
 
-    local original_path="$PATH"
-    local original_codex_home="${SDD_CODEX_HOME:-}"
-    export PATH="${bin_dir}:${original_path}"
-    export SDD_CODEX_HOME="${TEST_ROOT}/codex-home"
-
     RC=0
-    OUT="$(bash "$INSTALLER" \
-        --source-directory "$SOURCE_FIXTURE" \
-        --install-root "$INSTALL_ROOT_PATH" \
-        --target All \
-        --plugins sdd-bootstrap \
-        --mcp sdd-forge-mcp \
-        2>&1)" || RC=$?
+    OUT="$(
+        export PATH="${bin_dir}:$PATH"
+        export SDD_CURSOR_DIR="${TEST_ROOT}/cursor-dir"
+        export SDD_VSCODE_USER_DIR="${TEST_ROOT}/vscode-user-dir"
+        export SDD_GEMINI_DIR="${TEST_ROOT}/gemini-dir"
+        export SDD_ANTIGRAVITY_CONFIG_DIR="${TEST_ROOT}/antigravity-config-dir"
+        export SDD_CODEX_HOME="${TEST_ROOT}/codex-home"
+        bash "$INSTALLER" \
+            --source-directory "$SOURCE_FIXTURE" \
+            --install-root "$INSTALL_ROOT_PATH" \
+            --target All \
+            --plugins sdd-bootstrap \
+            --mcp sdd-forge-mcp 2>&1
+    )" || RC=$?
 
-    export PATH="$original_path"
-    if [[ -z "$original_codex_home" ]]; then
-        unset SDD_CODEX_HOME
-    else
-        export SDD_CODEX_HOME="$original_codex_home"
-    fi
     LOG="$(cat "$log_path")"
 }
 

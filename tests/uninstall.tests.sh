@@ -10,6 +10,14 @@ UNINSTALLER="${REPO_ROOT}/uninstall.sh"
 # shellcheck source=tests/lib/fixture-matrix-builder.sh
 source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
 ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain sdd-azure-cloud sdd-aws-cloud"
+# The MCP cleanup for Target All also checks clients outside each scenario.
+host_config_root="$(mktemp -d)"
+trap 'rm -rf "$host_config_root"' EXIT
+export SDD_CURSOR_DIR="$host_config_root/cursor_dir"
+export SDD_VSCODE_USER_DIR="$host_config_root/vscode_user_dir"
+export SDD_GEMINI_DIR="$host_config_root/gemini_dir"
+export SDD_ANTIGRAVITY_CONFIG_DIR="$host_config_root/antigravity_config_dir"
+export SDD_CODEX_HOME="$host_config_root/codex_home"
 PASS=0
 FAIL=0
 
@@ -24,7 +32,7 @@ make_fake_commands() {
     local log_path="$2"
     local omit_cmd="${3:-}"
     mkdir -p "$bin_dir"
-    for cmd in codex claude copilot; do
+    for cmd in codex claude copilot agy gemini; do
         [[ "$cmd" == "$omit_cmd" ]] && continue
         local shim="${bin_dir}/${cmd}"
         cat > "$shim" <<SHIM

@@ -209,6 +209,16 @@ function New-Stubs {
         }
     }
 
+    foreach ($client in @('agy', 'gemini')) {
+        if ($isWindowsPlatform) {
+            Set-Content -Path (Join-Path $BinRoot "$client.cmd") -Value '@exit /b 0' -Encoding Ascii
+        } else {
+            $clientPath = Join-Path $BinRoot $client
+            Set-Content -Path $clientPath -Value "#!/bin/sh`nexit 0" -Encoding Utf8NoBOM
+            & chmod +x $clientPath
+        }
+    }
+
     # Report a Node version that clears the >= 26.13.0 gate, so MCP placement
     # runs on every host regardless of the real toolchain.
     if ($isWindowsPlatform) {
@@ -277,9 +287,13 @@ function Invoke-IdempotencyScenario {
     }
 
     $originalPath = $env:PATH
-    $originalCodexHome = $env:SDD_CODEX_HOME
     $env:PATH = "$binRoot$([System.IO.Path]::PathSeparator)$originalPath"
-    $env:SDD_CODEX_HOME = Join-Path $testRoot "codex-home"
+    $savedEnvironment = @{}
+    foreach ($name in @('SDD_CURSOR_DIR', 'SDD_VSCODE_USER_DIR', 'SDD_GEMINI_DIR', 'SDD_ANTIGRAVITY_CONFIG_DIR', 'SDD_CODEX_HOME', 'SDD_CLAUDE_BIN')) {
+        $savedEnvironment[$name] = [Environment]::GetEnvironmentVariable($name)
+        if ($name -eq 'SDD_CLAUDE_BIN') { Remove-Item Env:SDD_CLAUDE_BIN -ErrorAction SilentlyContinue }
+        else { Set-Item "Env:$name" (Join-Path $testRoot $name) }
+    }
 
     # Resolved while the stub PATH is in effect. Reading it after the finally
     # block restores PATH would report the host's real node and say nothing
@@ -303,11 +317,9 @@ function Invoke-IdempotencyScenario {
     }
     finally {
         $env:PATH = $originalPath
-        if ($null -eq $originalCodexHome) {
-            Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue
-        }
-        else {
-            $env:SDD_CODEX_HOME = $originalCodexHome
+        foreach ($name in $savedEnvironment.Keys) {
+            if ($null -eq $savedEnvironment[$name]) { Remove-Item "Env:$name" -ErrorAction SilentlyContinue }
+            else { Set-Item "Env:$name" $savedEnvironment[$name] }
         }
         if ($BreakPlacement) {
             if ($lockStream) { $lockStream.Dispose() }
