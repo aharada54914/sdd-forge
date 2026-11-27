@@ -339,7 +339,8 @@ if ($nonEmptyOk -eq "true") {
 # ---------------------------------------------------------------------------
 # TEST-004 (AC-004): self-registration forcing
 # ---------------------------------------------------------------------------
-Write-Output "=== TEST-004: registration forcing (run-all.sh / run-all.ps1 / test.yml) ==="
+# v2: the verification catalog is the canonical registry; the v1 test.yml step requirement retired (2026-11-28).
+Write-Output "=== TEST-004: registration forcing (verification catalog via run-all.sh / run-all.ps1) ==="
 
 $canonicalBasenames = @("loop-inventory.tests", "loop-driver.tests", "loop-consistency.tests", "loop-escalation.tests")
 
@@ -347,8 +348,7 @@ function Test-RegisteredSh([string]$Basename, [string]$Runner = $runAllSh) {
     # The POSIX runner loads its inventory rather than spelling out each suite.
     $listed = @(& bash $Runner --list)
     $inRunAll = ($LASTEXITCODE -eq 0 -and $listed -ccontains "tests/$Basename.sh")
-    $inYml = (Select-String -LiteralPath $testYml -Pattern ([regex]::Escape("$Basename.sh")) -Quiet -ErrorAction SilentlyContinue)
-    return ($inRunAll -and $inYml)
+    return $inRunAll
 }
 foreach ($mutation in @('missing', 'near-match', 'case', 'failed-list')) {
     $probe = Join-Path $work "registration-$mutation.sh"
@@ -368,8 +368,7 @@ foreach ($mutation in @('missing', 'near-match', 'case', 'failed-list')) {
 }
 function Test-RegisteredPs1([string]$Basename) {
     $inRunAll = (((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) -split "`n") -ccontains "tests/$Basename.ps1")
-    $inYml = (Select-String -LiteralPath $testYml -Pattern ([regex]::Escape("$Basename.ps1")) -Quiet -ErrorAction SilentlyContinue)
-    return ($inRunAll -and $inYml)
+    return $inRunAll
 }
 
 foreach ($basename in $canonicalBasenames) {
@@ -378,9 +377,9 @@ foreach ($basename in $canonicalBasenames) {
 
     if ($basename -eq "loop-inventory.tests" -or (Test-Path -LiteralPath $shPath)) {
         if (Test-RegisteredSh $basename) {
-            Ok "TEST-004.1: $basename.sh is registered in run-all.sh and test.yml"
+            Ok "TEST-004.1: $basename.sh is registered in the verification catalog (run-all.sh)"
         } else {
-            Fail "TEST-004.1: $basename.sh exists but is NOT registered in run-all.sh and/or test.yml"
+            Fail "TEST-004.1: $basename.sh exists but is NOT registered in the verification catalog (run-all.sh)"
         }
     } else {
         Write-Output "SKIP: TEST-004.1 $basename.sh not yet on disk (later Pillar-A task)"
@@ -388,9 +387,9 @@ foreach ($basename in $canonicalBasenames) {
 
     if ($basename -eq "loop-inventory.tests" -or (Test-Path -LiteralPath $ps1Path)) {
         if (Test-RegisteredPs1 $basename) {
-            Ok "TEST-004.2: $basename.ps1 is registered in run-all.ps1 and test.yml"
+            Ok "TEST-004.2: $basename.ps1 is registered in the verification catalog (run-all.ps1)"
         } else {
-            Fail "TEST-004.2: $basename.ps1 exists but is NOT registered in run-all.ps1 and/or test.yml"
+            Fail "TEST-004.2: $basename.ps1 exists but is NOT registered in the verification catalog (run-all.ps1)"
         }
     } else {
         Write-Output "SKIP: TEST-004.2 $basename.ps1 not yet on disk (later Pillar-A task)"
