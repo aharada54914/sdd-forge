@@ -1062,6 +1062,19 @@ class DomainContractRawTextTests(unittest.TestCase):
         self.assertEqual(1, result.returncode, result.stderr)
         self.assertNotIn('V2-INTERNAL', result.stderr)
 
+    @unittest.skipUnless(PWSH, 'pwsh is not installed')
+    def test_ps1_reports_a_duplicate_at_every_level_in_linear_time(self):
+        depth = 3000
+        path = self.directory / 'deep-duplicates.json'
+        path.write_text('{"a":1,"a":1,"k":' * depth + '0' + '}' * depth, encoding='utf-8')
+        result = subprocess.run([PWSH, '-NoProfile', '-NonInteractive', '-File', str(VALIDATOR.with_suffix('.ps1')),
+                                 str(path)], capture_output=True, text=True, timeout=60)
+        lines = result.stderr.splitlines()
+        self.assertEqual(depth, len(lines), result.stderr[-500:])
+        self.assertEqual('V2-DUPLICATE-KEY: ' + '.'.join(['k'] * (depth - 1)) + ': member "a" appears more than once',
+                         lines[0])
+        self.assertEqual('V2-DUPLICATE-KEY: root: member "a" appears more than once', lines[-1])
+
     def test_iso_date_like_strings_stay_strings(self):
         document = copy.deepcopy(AGREEMENT_BASE)
         document['contexts'][0]['description'] = '2026-11-27T00:00:00Z'
