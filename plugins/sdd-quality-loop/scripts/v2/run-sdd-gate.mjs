@@ -866,8 +866,47 @@ function v1Retired(feature) {
 
 const CONCEPT_BLOB_LIMIT = 16 * 1024 * 1024;
 const conceptWindows = process.platform === 'win32';
-const conceptScript = fileURLToPath(new URL(
-  `../../../sdd-domain/scripts/validate-concept-test.${conceptWindows ? 'ps1' : 'sh'}`, import.meta.url));
+const conceptScriptName = `validate-concept-test.${conceptWindows ? 'ps1' : 'sh'}`;
+const SAFE_PLUGIN_VERSION_RE = /^[0-9A-Za-z][0-9A-Za-z._+-]*$/;
+
+function readPluginManifest(pluginDir) {
+  for (const rel of ['.codex-plugin/plugin.json', '.claude-plugin/plugin.json', '.plugin/plugin.json']) {
+    const manifestPath = path.join(pluginDir, rel);
+    if (!fs.existsSync(manifestPath)) continue;
+    try {
+      const parsed = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      const version = typeof parsed?.version === 'string' ? parsed.version.trim() : '';
+      if (parsed && typeof parsed.name === 'string' && SAFE_PLUGIN_VERSION_RE.test(version)) {
+        return { name: parsed.name.trim(), version };
+      }
+    } catch {
+      // Ignore unreadable or malformed manifest candidates and try the next one.
+    }
+  }
+  return null;
+}
+
+export function resolveConceptValidatorScript(gateModuleUrl = import.meta.url, scriptName = conceptScriptName) {
+  const sibling = fileURLToPath(new URL(`../../../sdd-domain/scripts/${scriptName}`, gateModuleUrl));
+  if (fs.existsSync(sibling)) return sibling;
+
+  // Per-plugin, per-version cache layout: <cache>/<marketplace>/<plugin>/<version>/scripts/v2/run-sdd-gate.mjs
+  const gateDir = path.dirname(fileURLToPath(gateModuleUrl));
+  const pluginRoot = path.resolve(gateDir, '..', '..');
+  const selfManifest = readPluginManifest(pluginRoot);
+  if (!selfManifest || selfManifest.name !== 'sdd-quality-loop') return sibling;
+
+  const marketplaceRoot = path.resolve(pluginRoot, '..', '..');
+  const candidateDomainRoot = path.join(marketplaceRoot, 'sdd-domain', selfManifest.version);
+  const domainManifest = readPluginManifest(candidateDomainRoot);
+  if (!domainManifest || domainManifest.name !== 'sdd-domain' || domainManifest.version !== selfManifest.version) {
+    return sibling;
+  }
+  const versionedScript = path.join(candidateDomainRoot, 'scripts', scriptName);
+  return fs.existsSync(versionedScript) ? versionedScript : sibling;
+}
+
+const conceptScript = resolveConceptValidatorScript();
 function runConceptValidator(args, options) {
   return spawnSync(conceptWindows ? 'pwsh' : 'sh', [
     ...(conceptWindows ? ['-NoProfile', '-File'] : []), conceptScript, ...args,

@@ -1,9 +1,89 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $schemaPath = Join-Path $repositoryRoot "contracts/design-system.contract.v1.schema.json"
 $tokensPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-tokens.template.json"
+
+# V-08: Detect v2 layout (sdd-core-spec + sdd-gate, no retired sdd-bootstrap-interviewer / sdd-lite)
+# and route to the current v2 design-system contract checks while retaining the legacy v1 branch below.
+$isLegacyV1Layout = (Test-Path -LiteralPath (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md")) -and
+    (Test-Path -LiteralPath (Join-Path $repositoryRoot "plugins/sdd-lite/templates/design-lite.md"))
+
+if (-not $isLegacyV1Layout) {
+    $v2Pass = 0
+    $v2Fail = 0
+    function Assert-V2Check([string]$label, [scriptblock]$body) {
+        try {
+            & $body
+            $script:v2Pass++
+            Write-Host "PASS: $label"
+        } catch {
+            $script:v2Fail++
+            Write-Host "FAIL: $label -- $($_.Exception.Message)"
+        }
+    }
+
+    Assert-V2Check "V2-DS-001 token contract schema and template metadata" {
+        $schema = Get-Content -Raw -Encoding Utf8 $schemaPath | ConvertFrom-Json
+        $tokens = Get-Content -Raw -Encoding Utf8 $tokensPath | ConvertFrom-Json
+        if ($schema.'$id' -ne 'https://sdd-forge.dev/contracts/design-system.contract.v1.schema.json') { throw "schema `$id mismatch" }
+        if ($schema.properties.meta.properties.schema.const -cne 'design-system-contract/v1') { throw "schema const mismatch" }
+        if ($tokens.meta.schema -cne 'design-system-contract/v1') { throw "tokens meta.schema mismatch" }
+        if ($tokens.meta.version -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') { throw "tokens meta.version invalid" }
+        if (@('design-sync-loop','ui-ux-pro-max','manual','figma-dtcg-import') -notcontains $tokens.meta.generated_by) { throw "tokens meta.generated_by invalid" }
+        if ($tokens.meta.profile -ne 'custom') { throw "tokens meta.profile invalid" }
+    }
+
+    Assert-V2Check "V2-DS-002 DTCG token groups, types, and values" {
+        $tokens = Get-Content -Raw -Encoding Utf8 $tokensPath | ConvertFrom-Json
+        foreach ($group in @('color','typography','spacing')) {
+            if ($null -eq $tokens.$group) { throw "token group $group missing" }
+        }
+        if ($tokens.color.primary.'$type' -ne 'color') { throw "color.primary `$type invalid" }
+        if ($tokens.color.primary.'$value' -notmatch '^#[0-9a-fA-F]{6}$') { throw "color.primary `$value invalid" }
+        & node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") design-system ([System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName)
+        if ($LASTEXITCODE -ne 0) { throw "bootstrap-core-contracts design-system failed" }
+    }
+
+    Assert-V2Check "V2-DS-003 design-system and ui-patterns templates" {
+        $dsPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-system.template.md"
+        $uipPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/templates/ui-patterns.template.md"
+        $ds = Get-Content -Raw -Encoding Utf8 $dsPath
+        $uip = Get-Content -Raw -Encoding Utf8 $uipPath
+        $em = [string][char]0x2014
+        foreach ($section in @("## Layer 1 $em Tokens (machine-extracted)", "## Layer 2 $em Do / Don't (component conventions)", "## Layer 3 $em Review checklist (human-curated)", '## Change Process')) {
+            if ($ds -notmatch [regex]::Escape($section)) { throw "design-system template missing $section" }
+        }
+        if ($ds -notmatch 'WCAG 2\.2 AA') { throw "design-system template missing WCAG 2.2 AA" }
+        foreach ($section in @('## Actions', '## Dialogs', '## Icons', '## Flow', '## States', '## Cognitive Load')) {
+            if ($uip -notmatch [regex]::Escape($section)) { throw "ui-patterns template missing $section" }
+        }
+    }
+
+    Assert-V2Check "V2-DS-004 visual verification and evaluator wiring" {
+        $dsl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md")
+        $vvl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md")
+        $gate = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md")
+        $core = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md")
+        foreach ($needle in @('design-tokens.json', 'Figma DTCG JSON', 'MASTER.md')) {
+            if ($dsl -notmatch [regex]::Escape($needle)) { throw "design-sync-loop missing $needle" }
+        }
+        foreach ($needle in @('design-system/{design-tokens.json,ui-patterns.md}', 'sdd-gate')) {
+            if ($vvl -notmatch [regex]::Escape($needle)) { throw "visual-verify-loop missing $needle" }
+        }
+        foreach ($scriptRel in @("plugins/sdd-quality-loop/scripts/check-design-system.ps1", "plugins/sdd-quality-loop/scripts/check-design-system.sh")) {
+            if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $scriptRel) -PathType Leaf)) { throw "missing $scriptRel" }
+        }
+        if ($gate -notmatch '\*\*G5\*\*' -or $gate -notmatch 'design-system/') { throw "sdd-gate missing G5 design-system check" }
+        if ($core -notmatch 'design-system/') { throw "sdd-core-spec missing design-system reference" }
+    }
+
+    Write-Host "PASS: $v2Pass"
+    Write-Host "FAIL: $v2Fail"
+    if ($v2Fail -gt 0) { exit 1 }
+    exit 0
+}
 
 & node (Join-Path $PSScriptRoot "lib/bootstrap-core-contracts.mjs") design-system ([System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName)
 if ($LASTEXITCODE -ne 0) { throw "not ok: Core design-system contract" }

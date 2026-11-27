@@ -209,6 +209,22 @@ def symlinks_ok():
 # ---------------------------------------------------------------------------
 # Source fixture
 # ---------------------------------------------------------------------------
+DOMAIN_CONCEPT_RUNTIME = {
+    "plugins/sdd-domain/runtime/lib/py-dispatch.ps1": "plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1",
+    "plugins/sdd-domain/runtime/lib/py-dispatch.sh": "plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh",
+    "plugins/sdd-domain/runtime/lib/native-arguments.ps1": "plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1",
+    "plugins/sdd-domain/runtime/scripts/validate-approval-sidecar.py": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+    "plugins/sdd-domain/runtime/scripts/review-conditional-inputs.py": "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+    "plugins/sdd-domain/runtime/scripts/canonicalize-sdd-yaml.py": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+    "plugins/sdd-domain/runtime/contracts/concept-test.v1.schema.json": "contracts/concept-test.v1.schema.json",
+    "plugins/sdd-domain/runtime/contracts/concept-test.v2.schema.json": "contracts/concept-test.v2.schema.json",
+    "plugins/sdd-domain/runtime/contracts/concept-test-decision.v1.schema.json": "contracts/concept-test-decision.v1.schema.json",
+    "plugins/sdd-domain/runtime/contracts/domain-contract.v2.schema.json": "contracts/domain-contract.v2.schema.json",
+    "plugins/sdd-domain/runtime/contracts/approval-sidecar.schema.json": "contracts/approval-sidecar.schema.json",
+    "plugins/sdd-domain/runtime/contracts/approver-registry.schema.json": "contracts/approver-registry.schema.json",
+}
+
+
 class Fixture:
     """Bounded runtime copy of the repository + FAKE development content, as a Git worktree."""
 
@@ -221,9 +237,18 @@ class Fixture:
         self.tracked = [rel for rel in self.git("ls-files", "-z").stdout.split("\0") if rel]
         self.has_manifest = (self.path / MANIFEST).is_file()
         entries = self.entries()
-        self.expected = None if not self.has_manifest else {
-            rel: sha256(self.path / rel) for rel in self.tracked
-            if (self.path / rel).is_file() and not (self.path / rel).is_symlink() and admitted(rel, entries)}
+        if not self.has_manifest:
+            self.expected = None
+        else:
+            expected = {
+                rel: sha256(self.path / rel) for rel in self.tracked
+                if (self.path / rel).is_file() and not (self.path / rel).is_symlink() and admitted(rel, entries)
+            }
+            if any(rel.startswith("plugins/sdd-domain/") for rel in expected):
+                for dest, src in DOMAIN_CONCEPT_RUNTIME.items():
+                    if src in expected:
+                        expected[dest] = expected[src]
+            self.expected = expected
 
     def close(self):
         rmtree(self.base)
@@ -530,7 +555,8 @@ class PayloadChecks(unittest.TestCase):
         if self.fx.expected is None:  # no manifest in the source: installed bytes must still be source bytes
             self.assertEqual({k: rest.get(k) for k in EMPTY_CODEX_RECEIPT}, EMPTY_CODEX_RECEIPT)
             changed = [k for k, v in rest.items() if k not in EMPTY_CODEX_RECEIPT and
-                       (not (self.fx.path / k).is_file() or sha256(self.fx.path / k) != v)]
+                       (not (self.fx.path / DOMAIN_CONCEPT_RUNTIME.get(k, k)).is_file()
+                        or sha256(self.fx.path / DOMAIN_CONCEPT_RUNTIME.get(k, k)) != v)]
             self.assertEqual(changed, [], "installed files differ from the source")
         else:
             want = {**self.fx.expected, **EMPTY_CODEX_RECEIPT}

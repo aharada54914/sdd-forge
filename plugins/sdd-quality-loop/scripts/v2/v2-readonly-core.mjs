@@ -1530,6 +1530,102 @@ export function buildReviewPerspectiveMatrix({
   return matrix;
 }
 
+export function computeSpecReviewInputsHash(io, { feature }) {
+  assertValidFeatureName(feature);
+  const featureDirRel = `specs/${feature}`;
+  const files = ['requirements.md', 'design.md', 'tasks.md'].map((name) => {
+    const raw = io.readText(`${featureDirRel}/${name}`);
+    if (raw === null) return { name, present: false, sha256: null };
+    let normalized = normalizeNewlines(raw);
+    if (name === 'tasks.md') {
+      normalized = normalizeTaskFields(normalized, { approval: true });
+    }
+    return { name, present: true, sha256: sha256Text(normalized.trim()) };
+  });
+  return sha256Text(JSON.stringify({ schema: 'sdd-spec-review-inputs/v1', feature, files }));
+}
+
+export function evaluateSpecCheckReport(specCheckRaw, currentInputsHash) {
+  if (specCheckRaw === null || specCheckRaw === undefined) {
+    return {
+      rawVerdict: null,
+      recordedHash: null,
+      freshness: 'not-run',
+      displayVerdict: 'Not Run',
+      confirmed: false,
+    };
+  }
+  const header = stripFencedCodeBlocks(String(specCheckRaw)).split(/^##[ \t]/m, 1)[0] ?? '';
+  const verdictMatches = [...header.matchAll(/^[ \t]*(?:-[ \t]+)?\*\*Verdict\*\*:[ \t]*([^\r\n]*)$/gm)];
+  const rawVerdict = verdictMatches.length === 1 ? verdictMatches[0][1].trim() : null;
+  const validVerdict = rawVerdict === 'PASS' || rawVerdict === 'PASS_WITH_NOTES' || rawVerdict === 'NEEDS_FIX';
+
+  const hashMatches = [
+    ...header.matchAll(/^[ \t]*(?:-[ \t]+)?(?:\*\*)?Review-Inputs-SHA256(?:\*\*)?:[ \t]*([^\r\n]*)$/gm),
+  ];
+  let recordedHash = null;
+  let hashInvalid = false;
+  if (hashMatches.length === 1) {
+    const candidate = hashMatches[0][1].trim().replace(/^[`]+|[`]+$/g, '');
+    if (/^[0-9a-fA-F]{64}$/.test(candidate)) {
+      recordedHash = candidate.toLowerCase();
+    } else {
+      hashInvalid = true;
+    }
+  } else if (hashMatches.length > 1) {
+    hashInvalid = true;
+  }
+
+  if (!validVerdict || hashInvalid) {
+    return {
+      rawVerdict: validVerdict ? rawVerdict : null,
+      recordedHash,
+      freshness: 'invalid',
+      displayVerdict: 'Recorded',
+      confirmed: false,
+    };
+  }
+
+  if (rawVerdict === 'PASS' || rawVerdict === 'PASS_WITH_NOTES') {
+    if (recordedHash === null) {
+      return {
+        rawVerdict,
+        recordedHash: null,
+        freshness: 'unconfirmed',
+        displayVerdict: `Recorded ${rawVerdict} (freshness unconfirmed)`,
+        confirmed: false,
+      };
+    }
+    if (recordedHash === currentInputsHash) {
+      return {
+        rawVerdict,
+        recordedHash,
+        freshness: 'current',
+        displayVerdict: rawVerdict,
+        confirmed: true,
+      };
+    }
+    return {
+      rawVerdict,
+      recordedHash,
+      freshness: 'stale',
+      displayVerdict: `Stale (previous ${rawVerdict})`,
+      confirmed: false,
+    };
+  }
+
+  // rawVerdict === 'NEEDS_FIX'
+  const freshness =
+    recordedHash === null ? 'unconfirmed' : recordedHash === currentInputsHash ? 'current' : 'stale';
+  return {
+    rawVerdict,
+    recordedHash,
+    freshness,
+    displayVerdict: freshness === 'stale' ? 'Stale (previous NEEDS_FIX)' : 'NEEDS_FIX',
+    confirmed: false,
+  };
+}
+
 export function buildDecisionViewDataCore(io, { feature, config = null }) {
   assertValidFeatureName(feature);
   const featureDirRel = `specs/${feature}`;
@@ -1581,11 +1677,10 @@ export function buildDecisionViewDataCore(io, { feature, config = null }) {
   const domains = detectDomains(`${reqText}\n${designText}\n${tasksText}`);
 
   const specCheckRel = `reports/spec-check/${feature}.md`;
-  let specCheckVerdict = 'Not Run';
+  const specReviewInputsHash = computeSpecReviewInputsHash(io, { feature });
   const specCheckRaw = io.readText(specCheckRel);
-  if (specCheckRaw !== null) {
-    specCheckVerdict = (specCheckRaw.match(/\*\*Verdict\*\*:\s*([A-Z_]+)/) || [])[1] || 'Recorded';
-  }
+  const specCheckEvaluation = evaluateSpecCheckReport(specCheckRaw, specReviewInputsHash);
+  const specCheckVerdict = specCheckEvaluation.displayVerdict;
 
   const gateResults = [];
   for (const entry of io.listDir('reports/quality-gate')) {

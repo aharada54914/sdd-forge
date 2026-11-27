@@ -286,12 +286,15 @@ unregister_codex_mcp() {
     [[ -f "$config_toml" ]] || return 0
     local name tmp_config
     for name in "${MCP_SELECTION[@]}"; do
-        local marker_begin="# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>"
-        local marker_end="# <<< ${name} <<<"
         tmp_config="$(mktemp)"
-        if ! awk -v begin="$marker_begin" -v end="$marker_end" '
-            $0 == begin { if (skip) { invalid = 1; exit 1 }; skip = 1; next }
-            $0 == end { if (!skip) { invalid = 1; exit 1 }; skip = 0; next }
+        if ! awk -v name="$name" '
+            BEGIN { name_lower = tolower(name) }
+            tolower($3) == name_lower && $0 == "# >>> " $3 " (managed by sdd-forge installer; do not edit by hand) >>>" {
+                if (skip) { invalid = 1; exit 1 }; skip = 1; next
+            }
+            tolower($3) == name_lower && $0 == "# <<< " $3 " <<<" {
+                if (!skip) { invalid = 1; exit 1 }; skip = 0; next
+            }
             skip { next }
             { print }
             END { if (skip || invalid) exit 1 }

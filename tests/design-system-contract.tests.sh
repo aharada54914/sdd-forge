@@ -10,6 +10,67 @@ FAIL=0
 pass() { PASS=$((PASS + 1)); printf 'PASS: %s\n' "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf 'FAIL: %s\n' "$1"; }
 
+# V-08: Detect v2 layout (sdd-core-spec + sdd-gate, no retired sdd-bootstrap-interviewer / sdd-lite)
+# and route to the current v2 design-system contract checks while retaining the legacy v1 branch below.
+if [ ! -f "$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md" ] \
+   && [ ! -f "$ROOT/plugins/sdd-lite/templates/design-lite.md" ]; then
+  v2_ds_001() {
+    grep -Fq 'https://sdd-forge.dev/contracts/design-system.contract.v1.schema.json' "$SCHEMA" \
+      && grep -Fq '"design-system-contract/v1"' "$SCHEMA" \
+      && grep -Fq '"schema": "design-system-contract/v1"' "$TOKENS" \
+      && grep -Eq '"version": "[0-9]+\.[0-9]+\.[0-9]+"' "$TOKENS" \
+      && grep -Eq '"generated_by": "(design-sync-loop|ui-ux-pro-max|manual|figma-dtcg-import)"' "$TOKENS" \
+      && grep -Fq '"profile": "custom"' "$TOKENS"
+  }
+  v2_ds_002() {
+    grep -Fq '"color"' "$TOKENS" \
+      && grep -Fq '"typography"' "$TOKENS" \
+      && grep -Fq '"spacing"' "$TOKENS" \
+      && grep -Fq '"$type"' "$TOKENS" \
+      && grep -Fq '"$value"' "$TOKENS" \
+      && node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" design-system >/dev/null
+  }
+  v2_ds_003() {
+    DS="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/templates/design-system.template.md"
+    UIP="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/templates/ui-patterns.template.md"
+    grep -Eq '^## Layer 1 — Tokens \(machine-extracted\)$' "$DS" \
+      && grep -Eq '^## Layer 2 — Do / Don'"'"'t \(component conventions\)$' "$DS" \
+      && grep -Eq '^## Layer 3 — Review checklist \(human-curated\)$' "$DS" \
+      && grep -Eq '^## Change Process$' "$DS" \
+      && grep -Eq 'WCAG 2\.2 AA' "$DS" \
+      && grep -Eq '^## Actions$' "$UIP" \
+      && grep -Eq '^## Dialogs$' "$UIP" \
+      && grep -Eq '^## Icons$' "$UIP" \
+      && grep -Eq '^## Flow$' "$UIP" \
+      && grep -Eq '^## States$' "$UIP" \
+      && grep -Eq '^## Cognitive Load$' "$UIP"
+  }
+  v2_ds_004() {
+    DSL="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
+    VVL="$ROOT/plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md"
+    GATE="$ROOT/plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md"
+    CORE="$ROOT/plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md"
+    grep -Fq 'design-tokens.json' "$DSL" \
+      && grep -Fq 'Figma DTCG JSON' "$DSL" \
+      && grep -Fq 'MASTER.md' "$DSL" \
+      && grep -Fq 'design-system/{design-tokens.json,ui-patterns.md}' "$VVL" \
+      && grep -Fq 'sdd-gate' "$VVL" \
+      && [ -f "$ROOT/plugins/sdd-quality-loop/scripts/check-design-system.sh" ] \
+      && [ -f "$ROOT/plugins/sdd-quality-loop/scripts/check-design-system.ps1" ] \
+      && grep -Fq '**G5**' "$GATE" \
+      && grep -Fq 'design-system/' "$GATE" \
+      && grep -Fq 'design-system/' "$CORE"
+  }
+
+  if v2_ds_001; then pass "V2-DS-001 token contract schema and template metadata"; else fail "V2-DS-001 token contract schema and template metadata"; fi
+  if v2_ds_002; then pass "V2-DS-002 DTCG token groups, types, and values"; else fail "V2-DS-002 DTCG token groups, types, and values"; fi
+  if v2_ds_003; then pass "V2-DS-003 design-system and ui-patterns templates"; else fail "V2-DS-003 design-system and ui-patterns templates"; fi
+  if v2_ds_004; then pass "V2-DS-004 visual verification and evaluator wiring"; else fail "V2-DS-004 visual verification and evaluator wiring"; fi
+  printf 'PASS: %d\nFAIL: %d\n' "$PASS" "$FAIL"
+  [ "$FAIL" -eq 0 ]
+  exit $?
+fi
+
 assert_contains() {
   file=$1
   pattern=$2
