@@ -24,7 +24,11 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | — | #977 | release v2.1.4 (+ #850 branch-protection docs) | merged (fa60bc5); tagged via publish-release.yml |
 | 9 | #978 | #804 (pre-publish domain-contract validator enforces the full v2 schema in .sh and .ps1) | merged (34f777f) after independent review |
 | 10 | #979 | follow-ups: gate EISDIR on a spec path that is a directory; publish-release green-run filter | merged (275f0f9) after independent review |
-| — | (this PR) | release v2.1.5 | tag via publish-release.yml after merge |
+| — | #980 | release v2.1.5 | merged (2db182a); tagged via publish-release.yml |
+| 11 | #981 | #812 workaround + reproduction test (full fix deferred: Draft T-001 on `codex/n14-package-spec`) | merged (dc009c7) |
+| 12 | #982, #983, #984 | adopt skill path; v1 Concept Test records retired (owner decision, Breaking); leftover v1 approval names the file | merged (bad6aff, 52c68f4, e0de8d6) after independent reviews |
+| 13 | #987 | follow-ups: MCP Done evidence scoped by feature; domain-contract duplicate keys and pwsh date strings; critical evidence signed fields | merged (196ab89) after 7 independent review rounds |
+| — | (next) | release after #981–#987 | waiting for the owner's version choice (v2.2.0 recommended: #983 is breaking) |
 
 ## Resolved
 
