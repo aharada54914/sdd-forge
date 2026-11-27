@@ -1067,6 +1067,22 @@ class SupplementalReviewTests(HelperCase):
                 self.failed_capture(fake, 'discovery-unavailable')
                 self.assertEqual(fake.list_calls(), 0)
 
+    def test_native_account_plan_type_is_not_execution_evidence(self):
+        # Q06: the plan only joins the in-memory, nonce-keyed account binding.
+        # It never reaches a recorded observation and never changes a verdict.
+        markers = ('plan-marker-alpha', 'plan-marker-beta')
+        recorded = []
+        for plan in markers:
+            with self.subTest(plan=plan):
+                account = {**ACCOUNT_CHATGPT, 'account': {**ACCOUNT_CHATGPT['account'], 'planType': plan}}
+                _, launch = self.capture(self.native([page([native_model('a')])], account=account), purpose='launch')
+                self.assertEqual(launch.observation['status'], 'complete')
+                self.assertIsNone(self.live(launch.observation, launch, purpose='launch'))
+                self.assertNoLeak(launch.observation, repr(launch), markers=markers)
+                recorded.append({key: value for key, value in launch.observation.items()
+                                 if key not in ('scope_id', 'observed_at', 'observation_sha256')})
+        self.assertEqual(recorded[0], recorded[1])
+
     def test_no_native_refresh_still_rejects_closed_or_exited_originating_client(self):
         for state in ('closed', 'exited'):
             with self.subTest(state=state):
