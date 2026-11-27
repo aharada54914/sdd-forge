@@ -37402,7 +37402,7 @@ function isExecutionCoverageComplete(parsed) {
   const sensors = checks.nonFunctionalSensors;
   return Array.isArray(commands) && commands.length > 0 && drift?.skipped !== true && sensors?.skipped !== true;
 }
-var FEATURE_LINE = /^[ \t*-]*(?:\*\*)?feature(?:\*\*)?[ \t]*:(?:\*\*)?[ \t]*(.*?)[ \t]*$/i;
+var FEATURE_LINE = /^[ \t*-]*(?:\*\*)?feature(?:\*\*)?[ \t]*:(?:\*\*)?(.*)$/i;
 var SPEC_SLUG = /^[a-z0-9][a-z0-9-]*$/;
 function declaredFeature(contents) {
   let activeFence = null;
@@ -37417,7 +37417,7 @@ function declaredFeature(contents) {
       continue;
     }
     const match = FEATURE_LINE.exec(line);
-    if (match) return (match[1] ?? "").replace(/^[`*]+|[`*]+$/g, "").trim();
+    if (match) return (match[1] ?? "").trim().replace(/^[`*]+|[`*]+$/g, "").trim();
   }
   return void 0;
 }

@@ -180,3 +180,9 @@ test("Done failure names the feature it looked for", () => {
     cleanup();
   }
 });
+
+test("a long run of spaces in a Feature line is read in linear time", () => {
+  const started = Date.now();
+  doneFails("long-line", { "reports/quality-gate/r.md": "Task ID: T-001\nFeature: other" + " ".repeat(200_000) + "x\nVERDICT: PASS\n" }, true);
+  assert.ok(Date.now() - started < 2000, `took ${Date.now() - started} ms`);
+});

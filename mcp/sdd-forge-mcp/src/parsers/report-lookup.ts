@@ -123,7 +123,7 @@ export function isExecutionCoverageComplete(parsed: Record<string, unknown>): bo
 
 // An identity line as the report templates write it: `Feature: x`,
 // `- **Feature**: x` (sdd-gate-report.md) or `**Feature:** x`.
-const FEATURE_LINE = /^[ \t*-]*(?:\*\*)?feature(?:\*\*)?[ \t]*:(?:\*\*)?[ \t]*(.*?)[ \t]*$/i;
+const FEATURE_LINE = /^[ \t*-]*(?:\*\*)?feature(?:\*\*)?[ \t]*:(?:\*\*)?(.*)$/i;
 const SPEC_SLUG = /^[a-z0-9][a-z0-9-]*$/;
 
 /** The first `Feature:` identity line outside block quotes and fenced code, if any. */
@@ -140,7 +140,7 @@ function declaredFeature(contents: string): string | undefined {
       continue;
     }
     const match = FEATURE_LINE.exec(line);
-    if (match) return (match[1] ?? "").replace(/^[`*]+|[`*]+$/g, "").trim();
+    if (match) return (match[1] ?? "").trim().replace(/^[`*]+|[`*]+$/g, "").trim();
   }
   return undefined;
 }
