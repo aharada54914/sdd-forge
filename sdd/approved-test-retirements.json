@@ -177,6 +177,94 @@
       "successors": "tests/verification-ci.tests.py (CurrentV2WorkflowTests)",
       "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
       "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/brownfield-web.json",
+      "git_blob_sha": "b9e08de96a0439c7abd2f9a8d247fc0da07b3730",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/ci-token-shortage.json",
+      "git_blob_sha": "3ca2d8d7afd58963254db867d34159c8359aade9",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/critical-cross-model-missing.json",
+      "git_blob_sha": "27876bcdefc8c0a725042d70421e31ead9eae921",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/greenfield-cli.json",
+      "git_blob_sha": "69557db60ec250429a28e94d928ad2486c7a7821",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/huge-actions-log.json",
+      "git_blob_sha": "b90f6d957c26fe1cf4d785130c5399afdad70a79",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/inbound-prompt-injection.json",
+      "git_blob_sha": "7dadfac3be38978e6dc95cfc3baae50dcd921797",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/lite-full-misclassification.json",
+      "git_blob_sha": "1f8481d09fdf4a3f32be981083c0d3d6edc3eb57",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/mcp-evidence-corruption.json",
+      "git_blob_sha": "cf16e62f9b37500472d1ae251100bd9d250202bf",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/refactor-baseline-missing.json",
+      "git_blob_sha": "5a67ed027799e500e4c31db5efc03ca4e7021db2",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/scenario-schema.json",
+      "git_blob_sha": "7b8821cb7fc2284c8bfc1046db62c2d2835004f7",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/workflow-scenarios/unreadable-contract-traceability.json",
+      "git_blob_sha": "12d64b6d7e7c6bac2b84dbfa2340083d22d393af",
+      "reason": "ADR-0051 決定2: workflow-scenarios.tests.sh 専用のシナリオ定義。スイートの退役に伴い利用者がなくなる",
+      "successors": "tests/v2-real-flows-e2e.test.mjs",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
+      "approved_at": "2026-11-28"
     }
   ]
 }
