@@ -778,10 +778,26 @@ resource "aws_iam_policy" "wide" {
       assert.doesNotMatch(view, /機械検証済み|機械確認済み|自動照合済み|確認済み/);
     }
 
-    // 3. PASS report (even with P2 Design N/A) -> C01 stays neutral (never claims design confirmed), while trace/drift/gate remain non-claiming.
+    // 3. Legacy PASS report (without Review-Inputs-SHA256) -> recorded as freshness unconfirmed, never claimed confirmed.
     fs.writeFileSync(
       specCheckPath,
       '# Spec Check Report: truthful-api\n\n- **Verdict**: PASS\n\n## Perspective Coverage (P1–P6)\n- P2 (Design & Alternatives Rejected): N/A (config-only)\n',
+      'utf8',
+    );
+    const legacyPassData = buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir });
+    assert.equal(legacyPassData.specCheckVerdict, 'Recorded PASS (freshness unconfirmed)');
+    assert.doesNotMatch(legacyPassData.reviewPerspectives.find((p) => p.id === 'C07').reason, /確認済み/);
+
+    // 4. Current PASS report with matching Review-Inputs-SHA256 -> PASS across matrix, Markdown, and HTML.
+    const reviewHash = execFileSync(
+      process.execPath,
+      [VIEW_CLI, '--feature', 'truthful-api', '--root', dir, '--format', 'review-hash'],
+      { encoding: 'utf8' },
+    ).trim();
+    assert.match(reviewHash, /^[0-9a-f]{64}$/);
+    fs.writeFileSync(
+      specCheckPath,
+      `# Spec Check Report: truthful-api\n\n- **Verdict**: PASS\n- **Review-Inputs-SHA256**: ${reviewHash}\n\n## Perspective Coverage (P1–P6)\n- P2 (Design & Alternatives Rejected): N/A (config-only)\n`,
       'utf8',
     );
     const passData = buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir });
@@ -797,6 +813,67 @@ resource "aws_iam_policy" "wide" {
       assert.match(view, /spec-check \(PASS\)/);
       assert.doesNotMatch(view, /機械検証済み|機械確認済み|自動照合済み/);
     }
+
+    // 5. Approval/Status transition alone keeps review hash identical -> still PASS.
+    const tasksFile = path.join(dir, 'specs', 'truthful-api', 'tasks.md');
+    const origTasks = fs.readFileSync(tasksFile, 'utf8');
+    fs.writeFileSync(tasksFile, origTasks.replace('Approval: Draft', 'Approval: Approved').replace('Status: Planned', 'Status: In Progress'), 'utf8');
+    assert.equal(buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir }).specCheckVerdict, 'PASS');
+
+    // 6. Editing spec contract invalidates review hash -> Stale (previous PASS).
+    fs.writeFileSync(
+      path.join(dir, 'specs', 'truthful-api', 'requirements.md'),
+      '# 要件: truthful-api\n- **REQ-001**: Health endpoint returns HTTP 200 with version.\n- **AC-001** (REQ-001): GET /health returns 200.\n',
+      'utf8',
+    );
+    const staleData = buildDecisionViewData({ feature: 'truthful-api', projectRoot: dir });
+    assert.equal(staleData.specCheckVerdict, 'Stale (previous PASS)');
+    assert.doesNotMatch(staleData.reviewPerspectives.find((p) => p.id === 'C07').reason, /確認済み/);
+  });
+
+  it('V-03: render-decision-view --require-traceability refuses invalid drafts without writing output', () => {
+    const dir = trackTempDir('sdd-decision-view-v03-');
+    const featDir = path.join(dir, 'specs', 'broken-draft');
+    fs.mkdirSync(featDir, { recursive: true });
+    fs.writeFileSync(path.join(featDir, 'requirements.md'), '# Requirements\n- AC-001-A: non-standard format\n', 'utf8');
+    fs.writeFileSync(path.join(featDir, 'design.md'), '# Design\n', 'utf8');
+    fs.writeFileSync(path.join(featDir, 'tasks.md'), '# Tasks\n## T-001: colon heading\n- Approval: Draft\n', 'utf8');
+
+    const outPath = path.join(dir, 'decision-view.md');
+    const failed = spawnSync(
+      process.execPath,
+      [VIEW_CLI, '--feature', 'broken-draft', '--root', dir, '--require-traceability', '--output', outPath],
+      { encoding: 'utf8' },
+    );
+    assert.equal(failed.status, 2);
+    assert.equal(fs.existsSync(outPath), false, 'must not generate output file when traceability fails');
+
+    // Without --require-traceability, diagnostic rendering remains available.
+    const diagnostic = spawnSync(
+      process.execPath,
+      [VIEW_CLI, '--feature', 'broken-draft', '--root', dir],
+      { encoding: 'utf8' },
+    );
+    assert.equal(diagnostic.status, 0);
+
+    // Fix draft to canonical format -> --require-traceability exits 0 and writes output.
+    fs.writeFileSync(
+      path.join(featDir, 'requirements.md'),
+      '# 要件: broken-draft\n- **REQ-001**: Count lines.\n- **AC-001** (REQ-001): Returns non-blank count.\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(featDir, 'tasks.md'),
+      '# タスク: broken-draft\n\n## T-001 Implement counter\nApproval: Draft\nStatus: Planned\nRisk: low\n\n### Scope\n- `src/count.mjs`\n\n### Done When\n- AC-001 passes\n\n### Blockers\n- None\n',
+      'utf8',
+    );
+    const passed = spawnSync(
+      process.execPath,
+      [VIEW_CLI, '--feature', 'broken-draft', '--root', dir, '--require-traceability', '--output', outPath],
+      { encoding: 'utf8' },
+    );
+    assert.equal(passed.status, 0, passed.stderr);
+    assert.equal(fs.existsSync(outPath), true);
   });
 });
 

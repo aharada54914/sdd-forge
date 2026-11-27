@@ -42,6 +42,13 @@ user-invocable: false
 
 ## Integration Rules
 
+- **レビュー対象の鮮度固定（`Review-Inputs-SHA256`）**:
+  - 独立レビューを起動する**前**と評価者の返答を受け取った**後**に、同じコマンドで仕様 3 文書の入力ハッシュを採取して一致を確認する:
+    ```bash
+    node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs" \
+      --feature "<feature>" --root "<repo-root>" --format review-hash
+    ```
+  - 前後でハッシュが一致した場合のみ、そのダイジェストをレポートヘッダーの `- **Review-Inputs-SHA256**: <digest>` に記録する（レビュー中に仕様が書き換わって不一致になった場合は再レビューする。旧レポートへ後からハッシュだけを書き足さない）。
 - Reviewer A / B のいずれかに 1 件でも Critical / Major（Blocker）があれば総合判定は `NEEDS_FIX`。
 - 重複指摘は統合し、見解が割れた論点は `Open Decisions for Human` に両論併記して人間判断へ委ねる。
 - **報告直前の実在確認**: 統合レポート（`reports/spec-check/<feature>.md`）の書き込み後、親はファイルの実在と非空を直接確認してから `bootstrap` へ完了を返す。
@@ -60,6 +67,7 @@ user-invocable: false
 # Spec Check Report: <feature>
 
 - **Verdict**: PASS | PASS_WITH_NOTES | NEEDS_FIX
+- **Review-Inputs-SHA256**: <64-hex-sha256>
 - **Review Mode**: single | dual-parallel
 - **Checked At**: <ISO-8601>
 - **Highest Risk Tier**: low | standard | high

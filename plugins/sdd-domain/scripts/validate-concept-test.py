@@ -12,7 +12,17 @@ import subprocess
 import tempfile
 
 sys.dont_write_bytecode = True
+SCRIPT_DIR = Path(__file__).resolve().parent
+PLUGIN_ROOT = SCRIPT_DIR.parent
+RUNTIME_ROOT = PLUGIN_ROOT / 'runtime'
 ROOT = Path(__file__).resolve().parents[3]
+
+
+def resolve_runtime_path(runtime_rel, repo_rel):
+    bundled = RUNTIME_ROOT / runtime_rel
+    if bundled.is_file():
+        return bundled
+    return ROOT / repo_rel
 
 
 def load_module(name, path):
@@ -22,8 +32,14 @@ def load_module(name, path):
     return module
 
 
-auth = load_module('concept_approval', ROOT / 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py')
-conditional = load_module('concept_inputs', ROOT / 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py')
+auth = load_module(
+    'concept_approval',
+    resolve_runtime_path('scripts/validate-approval-sidecar.py', 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py'),
+)
+conditional = load_module(
+    'concept_inputs',
+    resolve_runtime_path('scripts/review-conditional-inputs.py', 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py'),
+)
 
 
 def parse(raw):
@@ -34,7 +50,7 @@ DECISIONS = {'proceed': 'CONTINUE', 'defer-to-domain-update': 'DEFER', 'rejected
 
 
 def check_schema(filename, document):
-    schema = parse((ROOT / 'contracts' / filename).read_bytes())
+    schema = parse(resolve_runtime_path(f'contracts/{filename}', f'contracts/{filename}').read_bytes())
     if not isinstance(document, dict) or auth._schema_validate(schema, document):
         raise ValueError('invalid Concept Test document')
 
@@ -115,7 +131,7 @@ def collect(feature, read, *, allow_local, require_v2=False, preparing=False, re
     if not {'domain/domain-contract.json', 'specs/' + feature + '/concept-test-seed.md'} <= paths:
         raise ValueError('domain contract and feature seed must be pinned')
     domain = parse(read('domain/domain-contract.json'))
-    domain_schema = parse((ROOT / 'contracts/domain-contract.v2.schema.json').read_bytes())
+    domain_schema = parse(resolve_runtime_path('contracts/domain-contract.v2.schema.json', 'contracts/domain-contract.v2.schema.json').read_bytes())
     if auth._schema_validate(domain_schema, domain):
         raise ValueError('invalid v2 domain contract')
     if domain['meta']['status'] != 'Approved':

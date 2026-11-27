@@ -7,6 +7,8 @@ import type { Result } from '../src/envelope.js';
 import type { NextCommandData } from '../src/next-command.js';
 import { startStatusView } from '../src/status-view.js';
 import { sddFeatureState, sddProjectOverview } from '../src/tools/v2.js';
+import { createGuardedIo } from '../src/path-guard.js';
+import { computeSpecReviewInputsHash } from '../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs';
 import { DashboardReader } from '../src/dashboard/snapshot.js';
 import { makeTempSddRoot, writeFile } from './test-helpers.js';
 
@@ -148,9 +150,12 @@ test('pre-approval guidance follows the feature’s recorded review and skip pol
     await check('approval-gate');
     policy('auto');
     await check('spec-check', /--skip-check.*<source>/, bootstrap);
+    const currentHash = () => computeSpecReviewInputsHash(createGuardedIo(fixture.root), { feature: id });
     task('standard');
     for (const verdict of ['PASS', 'PASS_WITH_NOTES']) {
       report(`- **Verdict**: ${verdict}`);
+      await check('spec-check', /Review-Inputs-SHA256|鮮度/, bootstrap);
+      report(`- **Verdict**: ${verdict}\n- **Review-Inputs-SHA256**: ${currentHash()}`);
       await check('approval-gate');
     }
     report('- **Verdict**: NEEDS_FIX');
@@ -179,7 +184,7 @@ test('pre-approval guidance follows the feature’s recorded review and skip pol
       report(incomplete);
       await check('spec-check', /判定.*確認/);
     }
-    report('- **Verdict**: PASS\r\n');
+    report(`- **Verdict**: PASS\r\n- **Review-Inputs-SHA256**: ${currentHash()}\r\n`);
     await check('approval-gate');
   } finally {
     await new Promise<void>((resolve, reject) => server.close(e => e ? reject(e) : resolve()));

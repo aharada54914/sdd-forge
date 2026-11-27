@@ -8,6 +8,8 @@ disable-model-invocation: true
 
 承認済みタスクを「ベースライン固定 → 自律実装 → 統合 `sdd-gate` → `Done`」まで進めるエントリポイント。
 
+> **実行中エントリーポイントの扱い**: ホストがこのスキル本文を展開して渡した時点で、公開エントリーポイント `/sdd-ship:ship` はすでに実行中である。`Skill(sdd-ship:ship)` を自己呼び出しせず、下の `Flow` をそのまま進めること。呼び出してよいのは委譲先の内部スキル（`implement-task`、`implement-tasks`、`sdd-gate`、`visual-verify-loop`、`workflow-retrospective`）のみ。
+
 SessionStart フックが使えない場合も、現在のモデルを継承して作業を開始する。利用者がモデル一覧の確認や役割別の変更を希望した場合のみ、`/sdd-implementation:model-selection` を案内する。スキル一覧に表示されない場合は、ホストが示す同じ版の `sdd-implementation` のインストール先から `skills/model-selection/SKILL.md` を開く。
 
 ## Invocation
@@ -61,8 +63,9 @@ node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.
 - 実装中に仕様変更が必要になった場合は本文を無断修正せず、ユーザーと合意のうえ `## Spec Amendments` に理由を追記してから反映する（`--proto` 試作で前提不整合が判明した場合は Scrap & Build を提案）。
 
 ### Step 4 — 品質ゲート（`sdd-gate`）
-対象タスクが `Status: Implementation Complete` に到達したら（または上記の仕様変更で再検証する `Done` タスクについて）、各タスクに対して `/sdd-quality-loop:sdd-gate` を実行する（`run-sdd-gate.mjs` が Spec Drift・プレースホルダー・SQL/Cloud/Secret 非機能センサー・`Risk: high` 時の未確定 `OQ-NNN` を一括検証し、`.sdd/factory-metrics.jsonl` へ計測を記録する）:
-- `PASS`: `reports/quality-gate/<feature>-<task-id>.md` に `VERDICT: PASS` を記録し、`Status: Done` へ遷移。全タスク `Done` かつ確定 `OQ-NNN` / `Spec Amendments` / `Alternatives Rejected` がある場合は `sync-knowledge.mjs extract --feature <feature>` でナレッジ還流案を提示する。
+対象タスクが `Status: Implementation Complete` に到達したら（または上記の仕様変更で再検証する `Done` タスクについて）、各タスクに対して `/sdd-quality-loop:sdd-gate` を実行する（`run-sdd-gate.mjs` が Spec Drift・プレースホルダー・SQL/Cloud/Secret 非機能センサー・`Risk: high` 時の未確定 `OQ-NNN` を一括検証し、`.sdd/factory-metrics.jsonl` へ計測を記録する）。
+**独立評価の必須条件**: 実装セッションによる自己判定は不可。必ず実装と独立した読取専用コンテキスト（`sdd-evaluator` 等の独立評価者）に **G1〜G5 の全 5 観点** を検査させ、`reports/quality-gate/<feature>-<task-id>.md` に G1〜G5 すべての判定（`PASS`、または具体的な理由を添えた `N/A (<理由>)`。G1 は `PASS` 必須）と根拠を記録すること。5 観点が欠落・失敗・根拠のない `N/A`・記入例のままのレポートでは `Status: Done` へ進めない（MCP `sdd_gate_audit` も `readyForDone: false` を返す）:
+- `PASS`: 機械ゲート PASS かつ独立評価者の G1〜G5 判定がすべて揃った場合のみ、`reports/quality-gate/<feature>-<task-id>.md` に `VERDICT: PASS` を記録し、`Status: Done` へ遷移。全タスク `Done` かつ確定 `OQ-NNN` / `Spec Amendments` / `Alternatives Rejected` がある場合は `sync-knowledge.mjs extract --feature <feature>` でナレッジ還流案を提示する。
 - `FAIL`: 失敗理由と原因工程（`requirements` / `design` / `code` / `test` / `harness`）を報告して停止（`Status` は変えない。`Implementation Complete` はそのまま、再検証した `Done` タスクも `Done` のまま人間へ報告し、開き直すかは人間が決める）。原因工程の計測記録は子の `sdd-gate` が `--run-id` 付きで 1 回だけ行うため、ship 側では重ねて記録しない。
 
 ### Step 5 — 回顧（`--retro` 指定時のみ）

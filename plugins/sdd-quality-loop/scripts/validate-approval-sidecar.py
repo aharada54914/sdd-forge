@@ -634,8 +634,14 @@ def _find_duplicate_id(array):
 
 
 def _repo_root():
+    # When bundled inside a per-plugin runtime directory (<plugin>/runtime/scripts/),
+    # schemas live beside it under <plugin>/runtime/contracts/.
+    script_path = Path(__file__).resolve()
+    runtime_parent = script_path.parents[1]
+    if runtime_parent.name == "runtime" and (runtime_parent / "contracts").is_dir():
+        return runtime_parent
     # plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py -> repo root.
-    return Path(__file__).resolve().parents[3]
+    return script_path.parents[3]
 
 
 def _load_json_schema_file(path):

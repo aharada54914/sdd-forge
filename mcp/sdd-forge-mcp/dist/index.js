@@ -37367,6 +37367,104 @@ function parseReviewReportVerdict(contents) {
   if (verdict === void 0) return "UNKNOWN";
   return verdict === "PASS" ? "PASS" : "FAIL";
 }
+var PERSPECTIVE_IDS = ["G1", "G2", "G3", "G4", "G5"];
+var TEMPLATE_PLACEHOLDER_RE = /\bPASS\s*[|/]\s*FAIL\b|\bFAIL\s*[|/]\s*PASS\b|<\s*(?:理由|reason|根拠|evidence|status|判定|要記入)[^>]*>|\b(?:TBD|TODO)\b/i;
+var PERSPECTIVE_LINE_RE = /^[ \t]*(?:[-*+]|\d+\.|#{2,6})?[ \t]*(?:\*\*)?(G[1-5])(?:\*\*)?(?:[ \t]*[（(][^）)\r\n]*[）)])?[ \t]*(?:\*\*)?[ \t]*[:：—–-][ \t]*(.*)$/;
+var STATUS_TOKEN_RE = /^(?:\*\*)?(PASS|FAIL|NEEDS_WORK|BLOCKED|N\/A)(?:\*\*)?(?=$|[\s(（:：—–\-.,;]|$)/i;
+function hasSubstantiveNaReason(afterNa) {
+  const cleaned = afterNa.replace(/^[ \t()（）[\]:：—–\-|*_`]+|[ \t()（）[\]:：—–\-|*_`]+$/g, "").replace(/[()（）[\]:：—–\-|*_`]+/g, " ").trim();
+  if (!cleaned) return false;
+  if (/^(?:n\/?a|none|null|なし|無し|未記入|不明)$/i.test(cleaned)) return false;
+  const meaningful = cleaned.match(/[A-Za-z0-9\u3040-\u30FF\u3400-\u9FFF]/g);
+  return (meaningful?.length ?? 0) >= 2;
+}
+function classifyPerspectiveValue(id, rawValue) {
+  const value = rawValue.trim();
+  if (!value || TEMPLATE_PLACEHOLDER_RE.test(value)) return "INVALID";
+  const lead = STATUS_TOKEN_RE.exec(value);
+  if (!lead) return "INVALID";
+  const token = (lead[1] ?? "").toUpperCase();
+  const rest = value.slice(lead[0].length);
+  if (token === "FAIL" || token === "NEEDS_WORK" || token === "BLOCKED") return "FAIL";
+  if (token === "PASS") return "PASS";
+  if (token === "N/A") {
+    if (id === "G1") return "INVALID";
+    return hasSubstantiveNaReason(rest) ? "NA_WITH_REASON" : "NA_WITHOUT_REASON";
+  }
+  return "INVALID";
+}
+function parseTablePerspectiveRow(line) {
+  const trimmed = line.trim();
+  if (!trimmed.startsWith("|")) return null;
+  const cells = trimmed.replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+  if (cells.length < 2) return null;
+  if (cells.every((c) => /^:?-+:?$/.test(c))) return null;
+  const first = (cells[0] ?? "").replace(/[*_`]/g, "").trim();
+  const idMatch = /^(G[1-5])(?=$|[\s(（:：])/i.exec(first);
+  if (!idMatch) return null;
+  const id = idMatch[1].toUpperCase();
+  const restCells = cells.slice(1);
+  const statusIdx = restCells.findIndex((c) => STATUS_TOKEN_RE.test(c.replace(/^[`*_]+|[`*_]+$/g, "").trim()));
+  if (statusIdx === -1) {
+    return { id, value: restCells.join(" \u2014 ") };
+  }
+  const statusCell = restCells[statusIdx].replace(/^[`*_]+|[`*_]+$/g, "").trim();
+  const extraRationale = restCells.slice(statusIdx + 1).map((c) => c.trim()).filter(Boolean).join(" ");
+  const value = extraRationale ? `${statusCell} ${extraRationale}` : statusCell;
+  return { id, value };
+}
+function evaluateIndependentReviewPerspectives(contents) {
+  const found = /* @__PURE__ */ new Map();
+  for (const id of PERSPECTIVE_IDS) found.set(id, []);
+  let activeFence = null;
+  for (const line of contents.replace(/\r\n/g, "\n").split("\n")) {
+    const trimmed = line.trimStart();
+    const fence = /^(`{3,}|~{3,})/.exec(trimmed);
+    if (activeFence !== null) {
+      if (trimmed.startsWith(activeFence)) activeFence = null;
+      continue;
+    }
+    if (fence) {
+      activeFence = fence[1] ?? "```";
+      continue;
+    }
+    if (trimmed.startsWith(">")) continue;
+    const tableRow = parseTablePerspectiveRow(line);
+    if (tableRow) {
+      found.get(tableRow.id).push(classifyPerspectiveValue(tableRow.id, tableRow.value));
+      continue;
+    }
+    const lineMatch = PERSPECTIVE_LINE_RE.exec(line);
+    if (lineMatch) {
+      const id = lineMatch[1].toUpperCase();
+      found.get(id).push(classifyPerspectiveValue(id, lineMatch[2] ?? ""));
+    }
+  }
+  const perspectives = {};
+  let complete = true;
+  for (const id of PERSPECTIVE_IDS) {
+    const outcomes = found.get(id);
+    if (outcomes.length === 0) {
+      perspectives[id] = "MISSING";
+      complete = false;
+    } else if (outcomes.includes("FAIL")) {
+      perspectives[id] = "FAIL";
+      complete = false;
+    } else if (outcomes.includes("INVALID")) {
+      perspectives[id] = "INVALID";
+      complete = false;
+    } else if (outcomes.includes("NA_WITHOUT_REASON")) {
+      perspectives[id] = "NA_WITHOUT_REASON";
+      complete = false;
+    } else {
+      perspectives[id] = outcomes[outcomes.length - 1];
+    }
+  }
+  return { complete, perspectives };
+}
+function isIndependentReviewComplete(contents) {
+  return evaluateIndependentReviewPerspectives(contents).complete;
+}
 
 // src/parsers/report-lookup.ts
 function escapeRegExp(value) {
@@ -39471,6 +39569,94 @@ function buildReviewPerspectiveMatrix({
   }
   return matrix;
 }
+function computeSpecReviewInputsHash(io, { feature }) {
+  assertValidFeatureName(feature);
+  const featureDirRel = `specs/${feature}`;
+  const files = ["requirements.md", "design.md", "tasks.md"].map((name) => {
+    const raw = io.readText(`${featureDirRel}/${name}`);
+    if (raw === null) return { name, present: false, sha256: null };
+    let normalized = normalizeNewlines(raw);
+    if (name === "tasks.md") {
+      normalized = normalizeTaskFields(normalized, { approval: true });
+    }
+    return { name, present: true, sha256: sha256Text(normalized.trim()) };
+  });
+  return sha256Text(JSON.stringify({ schema: "sdd-spec-review-inputs/v1", feature, files }));
+}
+function evaluateSpecCheckReport(specCheckRaw, currentInputsHash) {
+  if (specCheckRaw === null || specCheckRaw === void 0) {
+    return {
+      rawVerdict: null,
+      recordedHash: null,
+      freshness: "not-run",
+      displayVerdict: "Not Run",
+      confirmed: false
+    };
+  }
+  const header = stripFencedCodeBlocks(String(specCheckRaw)).split(/^##[ \t]/m, 1)[0] ?? "";
+  const verdictMatches = [...header.matchAll(/^[ \t]*(?:-[ \t]+)?\*\*Verdict\*\*:[ \t]*([^\r\n]*)$/gm)];
+  const rawVerdict = verdictMatches.length === 1 ? verdictMatches[0][1].trim() : null;
+  const validVerdict = rawVerdict === "PASS" || rawVerdict === "PASS_WITH_NOTES" || rawVerdict === "NEEDS_FIX";
+  const hashMatches = [
+    ...header.matchAll(/^[ \t]*(?:-[ \t]+)?(?:\*\*)?Review-Inputs-SHA256(?:\*\*)?:[ \t]*([^\r\n]*)$/gm)
+  ];
+  let recordedHash = null;
+  let hashInvalid = false;
+  if (hashMatches.length === 1) {
+    const candidate = hashMatches[0][1].trim().replace(/^[`]+|[`]+$/g, "");
+    if (/^[0-9a-fA-F]{64}$/.test(candidate)) {
+      recordedHash = candidate.toLowerCase();
+    } else {
+      hashInvalid = true;
+    }
+  } else if (hashMatches.length > 1) {
+    hashInvalid = true;
+  }
+  if (!validVerdict || hashInvalid) {
+    return {
+      rawVerdict: validVerdict ? rawVerdict : null,
+      recordedHash,
+      freshness: "invalid",
+      displayVerdict: "Recorded",
+      confirmed: false
+    };
+  }
+  if (rawVerdict === "PASS" || rawVerdict === "PASS_WITH_NOTES") {
+    if (recordedHash === null) {
+      return {
+        rawVerdict,
+        recordedHash: null,
+        freshness: "unconfirmed",
+        displayVerdict: `Recorded ${rawVerdict} (freshness unconfirmed)`,
+        confirmed: false
+      };
+    }
+    if (recordedHash === currentInputsHash) {
+      return {
+        rawVerdict,
+        recordedHash,
+        freshness: "current",
+        displayVerdict: rawVerdict,
+        confirmed: true
+      };
+    }
+    return {
+      rawVerdict,
+      recordedHash,
+      freshness: "stale",
+      displayVerdict: `Stale (previous ${rawVerdict})`,
+      confirmed: false
+    };
+  }
+  const freshness = recordedHash === null ? "unconfirmed" : recordedHash === currentInputsHash ? "current" : "stale";
+  return {
+    rawVerdict,
+    recordedHash,
+    freshness,
+    displayVerdict: freshness === "stale" ? "Stale (previous NEEDS_FIX)" : "NEEDS_FIX",
+    confirmed: false
+  };
+}
 function buildDecisionViewDataCore(io, { feature, config: config2 = null }) {
   assertValidFeatureName(feature);
   const featureDirRel = `specs/${feature}`;
@@ -39522,11 +39708,10 @@ function buildDecisionViewDataCore(io, { feature, config: config2 = null }) {
 ${designText}
 ${tasksText}`);
   const specCheckRel = `reports/spec-check/${feature}.md`;
-  let specCheckVerdict = "Not Run";
+  const specReviewInputsHash = computeSpecReviewInputsHash(io, { feature });
   const specCheckRaw = io.readText(specCheckRel);
-  if (specCheckRaw !== null) {
-    specCheckVerdict = (specCheckRaw.match(/\*\*Verdict\*\*:\s*([A-Z_]+)/) || [])[1] || "Recorded";
-  }
+  const specCheckEvaluation = evaluateSpecCheckReport(specCheckRaw, specReviewInputsHash);
+  const specCheckVerdict = specCheckEvaluation.displayVerdict;
   const gateResults = [];
   for (const entry of io.listDir("reports/quality-gate")) {
     if (!entry.isFile || !entry.name.startsWith(`${feature}-`) || !entry.name.endsWith(".execution.json")) {
@@ -42053,11 +42238,28 @@ function beforeTaskApproval(root, feature, allLowRisk) {
     };
   }
   if (report.ok) {
-    const header = stripFencedCodeBlocks(report.data.contents).split(/^##[ \t]/m, 1)[0] ?? "";
-    const fields = [...header.matchAll(/^[ \t]*(?:-[ \t]+)?\*\*Verdict\*\*:[ \t]*([^\r\n]*)$/gm)];
-    const verdict = fields.length === 1 ? fields[0]?.[1]?.trim() : void 0;
-    if (verdict === "PASS" || verdict === "PASS_WITH_NOTES") return;
-    if (verdict === "NEEDS_FIX") {
+    const io = createGuardedIo(root);
+    const currentHash = computeSpecReviewInputsHash(io, { feature });
+    const evaluation = evaluateSpecCheckReport(report.data.contents, currentHash);
+    if (evaluation.rawVerdict === "PASS" || evaluation.rawVerdict === "PASS_WITH_NOTES") {
+      if (evaluation.freshness === "current") return;
+      if (skipReason(root, allLowRisk)) return;
+      if (evaluation.freshness === "stale") {
+        return {
+          phase: "spec-check",
+          command: rerun,
+          rationale: `${path3} \u306E\u5224\u5B9A\uFF08${evaluation.rawVerdict}\uFF09\u306F\u4ED5\u69D8\u5909\u66F4\u524D\u306E\u53E4\u3044\u7D50\u679C\uFF08Stale\uFF09\u3067\u3059\u3002\u73FE\u5728\u306E\u4ED5\u69D8\u306B\u5BFE\u3059\u308B\u7740\u5DE5\u524D\u30EC\u30D3\u30E5\u30FC\u3092 ${inputs}\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+        };
+      }
+      if (evaluation.freshness === "unconfirmed") {
+        return {
+          phase: "spec-check",
+          command: rerun,
+          rationale: `${path3} \u306E\u5224\u5B9A\uFF08${evaluation.rawVerdict}\uFF09\u306B\u306F Review-Inputs-SHA256 \u304C\u8A18\u9332\u3055\u308C\u3066\u304A\u3089\u305A\u73FE\u884C\u4ED5\u69D8\u3068\u306E\u9BAE\u5EA6\u304C\u672A\u78BA\u8A8D\u3067\u3059\u3002\u73FE\u5728\u306E\u4ED5\u69D8\u306B\u5BFE\u3059\u308B\u7740\u5DE5\u524D\u30EC\u30D3\u30E5\u30FC\u3092 ${inputs}\u518D\u5B9F\u884C\u3057\u3066\u304F\u3060\u3055\u3044\u3002`
+        };
+      }
+    }
+    if (evaluation.rawVerdict === "NEEDS_FIX") {
       const fix = `${path3} \u306E\u5224\u5B9A\u306F NEEDS_FIX \u3067\u3059\u3002Blockers \u306E\u6307\u6458\u306B\u6CBF\u3063\u3066\u4ED5\u69D8\u3092\u4FEE\u6B63\u3057\u3066\u304F\u3060\u3055\u3044\u3002`;
       const skipped = skipReason(root, allLowRisk);
       if (skipped) {
@@ -42500,11 +42702,13 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
         }
       }
       const reviewReport = { exists: false };
+      let reviewPerspectivesComplete = false;
       const mdRead = guardedRead(root, mdRel);
       if (mdRead.ok) {
         reviewReport.exists = true;
         reviewReport.path = mdRel;
         reviewReport.verdict = parseReviewReportVerdict(mdRead.data.contents);
+        reviewPerspectivesComplete = isIndependentReviewComplete(mdRead.data.contents);
       }
       const riskTier = toRiskTier(task.risk);
       const blockingProvisionalOqs = riskTier === "high" ? allOqs.filter(
@@ -42513,7 +42717,7 @@ function sddGateAudit(root, rawFeature, rawTaskId) {
       const validStatus = task.status === "Implementation Complete" || task.status === "Done";
       const validDrift = drift.status === "CLEAN" || drift.status === "AMENDED";
       const evidenceCurrent = executionArtifact.specInputsCurrent === true || executionArtifact.specInputsCurrent === void 0 && drift.status === "CLEAN";
-      const readyForDone = isApprovedValue(task.approval) && validStatus && executionArtifact.verdict === "PASS" && executionArtifact.coverageComplete === true && reviewReport.verdict === "PASS" && validDrift && evidenceCurrent && blockingProvisionalOqs.length === 0;
+      const readyForDone = isApprovedValue(task.approval) && validStatus && executionArtifact.verdict === "PASS" && executionArtifact.coverageComplete === true && reviewReport.verdict === "PASS" && reviewPerspectivesComplete && validDrift && evidenceCurrent && blockingProvisionalOqs.length === 0;
       return {
         taskId: task.id,
         risk: riskTier,

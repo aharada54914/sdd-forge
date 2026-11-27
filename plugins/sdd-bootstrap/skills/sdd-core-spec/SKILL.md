@@ -42,6 +42,29 @@ user-invocable: false
      コンテナ構成図が必要な場合は `templates/c4-container.template.md` を使用し、設計上のコンテナと確認済みコンテキスト・概念の対応根拠を記録する。
    - `templates/tasks.md` → `specs/<feature>/tasks.md`:
      各タスクに `Approval: Draft`、`Status: Planned`、`Risk: low|standard|high`、`### Scope`（実装ファイルおよび対応テストファイル）、`### Done When`（対応 `AC-NNN` 参照）、`### Blockers`、末尾に `## Spec Amendments` を記載する。
+   - **公式パーサー準拠の記法例（厳守）**:
+     `check-traceability.mjs` と `render-decision-view.mjs` が確実に抽出できるよう、以下の正規書式を使う（`## T-001:` のコロン付き見出しや `AC-001-A` のような枝番、箇条書き付きの `- Approval: Draft` は使わない）:
+     ```markdown
+     <!-- requirements.md -->
+     - **REQ-001**: <主体>として<目的>のために<機能>ができること
+     - **AC-001** (REQ-001): Given <前提>, When <操作>, Then <検証可能な結果>
+
+     <!-- tasks.md -->
+     ## T-001 <タスク名>
+     Approval: Draft
+     Status: Planned
+     Risk: standard
+
+     ### Scope
+     - `src/example.mjs`
+     - `tests/example.test.mjs`
+
+     ### Done When
+     - AC-001 が自動テストで合格する
+
+     ### Blockers
+     - None
+     ```
 
 ## Boundaries
 
@@ -51,4 +74,4 @@ user-invocable: false
 
 ## Handoff
 
-生成パス、各タスクの `Risk:`、未解決の `Open Questions` を `bootstrap` へ返す。
+生成パス、各タスクの `Risk:`、未解決の `Open Questions` を `bootstrap` へ返す。この内部スキルの完了時点で応答を終了せず、同一セッションのまま親工程（`bootstrap`）の残りステップ（`check-traceability.mjs --strict` → 必要に応じた `spec-check` → `render-decision-view.mjs --require-traceability` 提示）をそのまま続行する。

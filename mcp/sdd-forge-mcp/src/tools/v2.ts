@@ -19,7 +19,7 @@ import { err, ok, type Result } from "../envelope.js";
 import { beforeTaskApproval } from "../pre-approval-review.js";
 import { parseActiveSpecDirectories } from "../parsers/agents-md.js";
 import { isExecutionCoverageComplete } from "../parsers/report-lookup.js";
-import { parseReviewReportVerdict } from "../parsers/review-verdict.js";
+import { isIndependentReviewComplete, parseReviewReportVerdict } from "../parsers/review-verdict.js";
 import {
   createGuardedIo,
   guardedDirExists,
@@ -720,11 +720,13 @@ export function sddGateAudit(
       }
 
       const reviewReport: GateAuditTaskEntry["reviewReport"] = { exists: false };
+      let reviewPerspectivesComplete = false;
       const mdRead = guardedRead(root, mdRel);
       if (mdRead.ok) {
         reviewReport.exists = true;
         reviewReport.path = mdRel;
         reviewReport.verdict = parseReviewReportVerdict(mdRead.data.contents);
+        reviewPerspectivesComplete = isIndependentReviewComplete(mdRead.data.contents);
       }
 
       const riskTier = toRiskTier(task.risk);
@@ -751,6 +753,7 @@ export function sddGateAudit(
         executionArtifact.verdict === "PASS" &&
         executionArtifact.coverageComplete === true &&
         reviewReport.verdict === "PASS" &&
+        reviewPerspectivesComplete &&
         validDrift &&
         evidenceCurrent &&
         blockingProvisionalOqs.length === 0;
