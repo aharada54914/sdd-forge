@@ -18,16 +18,16 @@
 | `installers` | yes | 7 | 2 | 5 | 0 |
 | `interrupted-recovery` | no | 2 | 0 | 2 | 0 |
 | `loops-routing` | no | 18 | 0 | 18 | 0 |
-| `posix-regression` | no | 58 | 2 | 56 | 0 |
+| `posix-regression` | no | 56 | 2 | 54 | 0 |
 | `sql-contract` | no | 1 | 1 | 0 | 0 |
 | `sql-mysql` | no | 1 | 0 | 1 | 0 |
 | `sql-postgres` | no | 1 | 0 | 1 | 0 |
 | `sql-tsql` | no | 1 | 0 | 1 | 0 |
-| `test` | no | 43 | 3 | 40 | 0 |
-| `test-windows-heavy` | no | 17 | 0 | 17 | 0 |
+| `test` | no | 35 | 3 | 32 | 0 |
+| `test-windows-heavy` | no | 16 | 0 | 16 | 0 |
 | `v2-guardrails` | yes | 15 | 15 | 0 | 0 |
-| `version-gates` | no | 35 | 0 | 35 | 0 |
-| `version-gates-windows-bump` | no | 3 | 0 | 3 | 0 |
+| `version-gates` | no | 35 | 2 | 33 | 0 |
+| `version-gates-windows-bump` | no | 3 | 1 | 2 | 0 |
 | `windows-powershell` | no | 1 | 0 | 1 | 0 |
 
 ## `posix-regression` に登録されたスイート
@@ -60,7 +60,6 @@
 | `tests/design-sync-standing-consent.tests.sh` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/design-system-contract.tests.ps1` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/design-system-contract.tests.sh` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
-| `tests/deterministic-lane-selfcheck.tests.sh` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/fixed-review-inputs.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/codex-review-launcher.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/session-models.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
@@ -91,4 +90,3 @@
 | `tests/verification-ci.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/verification-impact.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/workflow-conditional-inputs.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
-| `tests/workflow-scenarios/workflow-scenarios.tests.sh` | CI 外（ファイルあり・現行ジョブは実行しない） | — |

@@ -17,7 +17,6 @@ README_SUITES = {
     'tests/design-system-contract.tests.sh',
     'tests/repository-release-validation.tests.sh',
     'tests/bump-version-gate.tests.sh',
-    'tests/spec-review-loop.tests.sh',
 }
 
 

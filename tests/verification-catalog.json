@@ -75,14 +75,6 @@
       "runtime": "python"
     },
     {
-      "path": "tests/risk-upgrade-context.tests.ps1",
-      "runtime": "powershell"
-    },
-    {
-      "path": "tests/risk-upgrade-context.tests.sh",
-      "runtime": "bash"
-    },
-    {
       "path": "tests/installed-review-precheck.tests.py",
       "runtime": "python"
     },
@@ -665,36 +657,6 @@
       ]
     },
     {
-      "path": "tests/cross-model-empty-phase.tests.ps1",
-      "runtime": "powershell",
-      "delegated_to": "tests/cross-model.tests.ps1"
-    },
-    {
-      "path": "tests/cross-model-encoding.tests.ps1",
-      "runtime": "powershell",
-      "delegated_to": "tests/cross-model.tests.ps1"
-    },
-    {
-      "path": "tests/cross-model-process-state.tests.py",
-      "runtime": "python",
-      "delegated_to": "tests/cross-model.tests.sh"
-    },
-    {
-      "path": "tests/cross-model.tests.ps1",
-      "runtime": "powershell",
-      "ci_jobs": [
-        "test",
-        "test-windows-heavy"
-      ]
-    },
-    {
-      "path": "tests/cross-model.tests.sh",
-      "runtime": "bash",
-      "ci_jobs": [
-        "test"
-      ]
-    },
-    {
       "path": "tests/cross-runtime-cli-contract.tests.sh",
       "runtime": "bash",
       "delegated_to": "tests/cross-runtime-handoff.tests.sh"
@@ -807,13 +769,6 @@
       "runtime": "bash"
     },
     {
-      "path": "tests/deterministic-lane-selfcheck.tests.sh",
-      "runtime": "bash",
-      "ci_jobs": [
-        "posix-regression"
-      ]
-    },
-    {
       "path": "tests/domain-review-finalize.tests.py",
       "runtime": "python",
       "ci_jobs": [
@@ -868,13 +823,6 @@
       "path": "tests/escalation-skip-activation.tests.sh",
       "runtime": "bash",
       "excluded": "Isolated clone mutation diagnostic; not registered by the previous runners."
-    },
-    {
-      "path": "tests/eval.tests.sh",
-      "runtime": "bash",
-      "ci_jobs": [
-        "test"
-      ]
     },
     {
       "path": "tests/evaluate-predicate.tests.ps1",
@@ -988,13 +936,6 @@
       "runtime": "python",
       "ci_jobs": [
         "posix-regression"
-      ]
-    },
-    {
-      "path": "tests/gates.tests.sh",
-      "runtime": "bash",
-      "ci_jobs": [
-        "test"
       ]
     },
     {
@@ -1558,13 +1499,6 @@
       "runtime": "bash"
     },
     {
-      "path": "tests/review-agent-isolation.tests.sh",
-      "runtime": "bash",
-      "ci_jobs": [
-        "test"
-      ]
-    },
-    {
       "path": "tests/review-conditional-inputs.tests.py",
       "runtime": "python",
       "ci_jobs": [
@@ -1620,13 +1554,12 @@
       "delegated_to": "tests/review-context-boundary.tests.sh"
     },
     {
-      "path": "tests/review-prompt-calibration.tests.sh",
-      "runtime": "bash"
-    },
-    {
       "path": "tests/review-scratch-history.tests.py",
       "runtime": "python",
-      "delegated_to": "tests/review-agent-isolation.tests.sh"
+      "args": [
+        "--repo",
+        "."
+      ]
     },
     {
       "path": "tests/rollback-1.5.0.tests.ps1",
@@ -1639,28 +1572,6 @@
     {
       "path": "tests/run-all-python.tests.ps1",
       "runtime": "powershell"
-    },
-    {
-      "path": "tests/run-panelist-effort.tests.ps1",
-      "runtime": "powershell"
-    },
-    {
-      "path": "tests/run-panelist-effort.tests.sh",
-      "runtime": "bash"
-    },
-    {
-      "path": "tests/scenario.tests.ps1",
-      "runtime": "powershell",
-      "ci_jobs": [
-        "test"
-      ]
-    },
-    {
-      "path": "tests/scenario.tests.sh",
-      "runtime": "bash",
-      "ci_jobs": [
-        "test"
-      ]
     },
     {
       "path": "tests/schema-engine-identity.tests.sh",
@@ -1790,13 +1701,6 @@
       "runtime": "bash",
       "ci_jobs": [
         "interrupted-recovery"
-      ]
-    },
-    {
-      "path": "tests/spec-review-loop.tests.sh",
-      "runtime": "bash",
-      "ci_jobs": [
-        "test"
       ]
     },
     {
@@ -2072,22 +1976,6 @@
       "runtime": "bash"
     },
     {
-      "path": "tests/wfi-058-outputs-anchor.tests.ps1",
-      "runtime": "powershell"
-    },
-    {
-      "path": "tests/wfi-058-outputs-anchor.tests.sh",
-      "runtime": "bash"
-    },
-    {
-      "path": "tests/wfi-059-evidence-path-base.tests.ps1",
-      "runtime": "powershell"
-    },
-    {
-      "path": "tests/wfi-059-evidence-path-base.tests.sh",
-      "runtime": "bash"
-    },
-    {
       "path": "tests/workflow-conditional-inputs.tests.py",
       "runtime": "python",
       "ci_jobs": [
@@ -2097,13 +1985,6 @@
     {
       "path": "tests/workflow-documentation.tests.sh",
       "runtime": "bash"
-    },
-    {
-      "path": "tests/workflow-scenarios/workflow-scenarios.tests.sh",
-      "runtime": "bash",
-      "ci_jobs": [
-        "posix-regression"
-      ]
     },
     {
       "path": "tests/workflow-state-ci-integration.tests.sh",
@@ -2174,7 +2055,6 @@
       "tests/dashboard-runtime.tests.py",
       "tests/workflow-state-installed-root.tests.py",
       "tests/codex-review-identity.tests.py",
-      "tests/risk-upgrade-context.tests.sh",
       "tests/installed-review-precheck.tests.py",
       "tests/cloud-orchestration-contracts.tests.py",
       "tests/cloud-orchestration-routing.tests.py",
@@ -2207,13 +2087,9 @@
       "tests/installer-idempotency.tests.sh",
       "tests/install-uninstall-matrix.tests.sh",
       "tests/uninstall.tests.sh",
-      "tests/gates.tests.sh",
       "tests/check-placeholders.tests.sh",
-      "tests/wfi-058-outputs-anchor.tests.sh",
-      "tests/wfi-059-evidence-path-base.tests.sh",
       "tests/review-contract-foundation.tests.sh",
       "tests/review-contract-foundation-parity.tests.sh",
-      "tests/spec-review-loop.tests.sh",
       "tests/downstream-review-precheck.tests.sh",
       "tests/impl-layer-review-inputs.tests.sh",
       "tests/task-layer-review-inputs.tests.sh",
@@ -2222,7 +2098,6 @@
       "tests/task-review-precheck.tests.sh",
       "tests/task-prior-pass-receipt.tests.sh",
       "tests/impl-review-adr-inputs.tests.sh",
-      "tests/review-agent-isolation.tests.sh",
       "tests/agent-model-routing.tests.sh",
       "tests/agent-capabilities-v2.tests.sh",
       "tests/render-agent-frontmatter.tests.sh",
@@ -2232,12 +2107,8 @@
       "tests/emit-run-record-feature-scope.tests.sh",
       "tests/rollback-1.5.0.tests.sh",
       "tests/release-config-lock.tests.sh",
-      "tests/cross-model.tests.sh",
-      "tests/eval.tests.sh",
       "tests/crlf-parity.tests.sh",
       "tests/constant-parity.tests.sh",
-      "tests/scenario.tests.sh",
-      "tests/workflow-scenarios/workflow-scenarios.tests.sh",
       "tests/apply-branch-protection.tests.sh",
       "tests/workflow-state-registry.tests.sh",
       "tests/workflow-state-registry-parity.tests.sh",
@@ -2249,7 +2120,6 @@
       "tests/quality-loop-calibration.tests.sh",
       "tests/self-improvement-guard.tests.sh",
       "tests/p0-hardening.tests.sh",
-      "tests/deterministic-lane-selfcheck.tests.sh",
       "tests/repository-release-validation.tests.sh",
       "tests/template-validator-parity.tests.sh",
       "tests/criterion-freeze.tests.sh",
@@ -2260,7 +2130,6 @@
       "tests/loop-inventory.tests.sh",
       "tests/loop-driver.tests.sh",
       "tests/loop-consistency.tests.sh",
-      "tests/review-prompt-calibration.tests.sh",
       "tests/review-context-boundary.tests.sh",
       "tests/boundary-reference-authorization-parity.tests.sh",
       "tests/design-system-contract.tests.sh",
@@ -2275,7 +2144,6 @@
       "tests/doc-diagrams.tests.sh",
       "tests/bump-version-gate.tests.sh",
       "tests/release-loop-gate.tests.sh",
-      "tests/run-panelist-effort.tests.sh",
       "tests/model-freshness-check.tests.sh",
       "tests/facet-manifest-schema.tests.sh",
       "tests/facet-manifest-semantics.tests.sh",
@@ -2362,10 +2230,10 @@
       "tests/model-policy-launch.tests.py",
       "tests/model-policy-installed.tests.py",
       "tests/verification-ci-plan.tests.py",
-      "tests/verification-ci.tests.py"
+      "tests/verification-ci.tests.py",
+      "tests/review-scratch-history.tests.py"
     ],
     "local-powershell": [
-      "tests/risk-upgrade-context.tests.ps1",
       "tests/cloud-orchestration-contracts.tests.py",
       "tests/cloud-orchestration-routing.tests.py",
       "tests/cloud-orchestration-execution.tests.py",
@@ -2391,8 +2259,6 @@
       "tests/validate-repository.ps1",
       "tests/sdd-domain.tests.ps1",
       "tests/scripts.tests.ps1",
-      "tests/wfi-058-outputs-anchor.tests.ps1",
-      "tests/wfi-059-evidence-path-base.tests.ps1",
       "tests/review-contract-foundation.tests.ps1",
       "tests/review-hash-normalization.tests.ps1",
       "tests/run-all-python.tests.ps1",
@@ -2402,8 +2268,6 @@
       "tests/task-prior-pass-receipt.tests.ps1",
       "tests/impl-layer-review-inputs.tests.ps1",
       "tests/task-layer-review-inputs.tests.ps1",
-      "tests/cross-model.tests.ps1",
-      "tests/scenario.tests.ps1",
       "tests/install.tests.ps1",
       "tests/installer-idempotency.tests.ps1",
       "tests/install-uninstall-matrix.tests.ps1",
@@ -2426,7 +2290,6 @@
       "tests/check-placeholders-brownfield.tests.ps1",
       "tests/bump-version-gate.tests.ps1",
       "tests/release-loop-gate.tests.ps1",
-      "tests/run-panelist-effort.tests.ps1",
       "tests/model-freshness-check.tests.ps1",
       "tests/facet-manifest-schema.tests.ps1",
       "tests/facet-manifest-semantics.tests.ps1",
@@ -2504,8 +2367,6 @@
       "tests/installer-idempotency.tests.sh",
       "tests/install-uninstall-matrix.tests.sh",
       "tests/check-placeholders.tests.sh",
-      "tests/wfi-058-outputs-anchor.tests.sh",
-      "tests/wfi-059-evidence-path-base.tests.sh",
       "tests/task-prior-pass-receipt.tests.sh",
       "tests/impl-review-adr-inputs.tests.sh",
       "tests/task-context-isolation.tests.sh",
@@ -2527,7 +2388,6 @@
       "tests/task-state-grammar-parity.tests.sh",
       "tests/task-plan-binding-durability.tests.sh",
       "tests/schema-engine-identity.tests.sh",
-      "tests/review-prompt-calibration.tests.sh",
       "tests/review-context-boundary.tests.sh",
       "tests/boundary-reference-authorization-parity.tests.sh",
       "tests/design-system-compliance.tests.sh",
