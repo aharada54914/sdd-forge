@@ -132,6 +132,9 @@ def resolve_evidence_key():
 SIGNER_ORDERS = {"code-point": None, "utf-16": lambda pair: pair.encode("utf-16-be", "surrogatepass")}
 
 
+SIGNED_STRING_FIELDS = ("task_id", "feature", "risk", "required_workflow", "spec_revision", "git_commit")
+
+
 def evidence_canonical(bundle, order="code-point"):
     def s(v):
         return str(v if v is not None else "").strip()
@@ -375,6 +378,12 @@ if effective_risk in {"high", "critical"}:
 
 # Critical-only signature verification (T-007a)
 if effective_risk == "critical":
+    # The signed canonical form renders these with str(); the .ps1 twin's
+    # [string] renders a number, array or object differently, so only a
+    # string (or an absent field) can be verified the same way by both.
+    for field in SIGNED_STRING_FIELDS:
+        if bundle.get(field) is not None and not isinstance(bundle.get(field), str):
+            fail(f"critical bundle field {field} must be a string")
     if git_generated_dirty is True:
         fail("critical bundle must not be generated with a dirty working tree (git_generated_dirty=true)")
     signature = bundle.get("signature")

@@ -400,6 +400,16 @@ if (@("high", "critical") -ccontains $effectiveRisk) {
 
 # Critical-only signature verification (T-007a)
 if ($effectiveRisk -ceq "critical") {
+    # The signed canonical form renders these with Python's str() in the .sh
+    # twin; [string] renders a number, array or object differently, so only a
+    # string (or an absent field) can be verified the same way by both.
+    foreach ($field in @("task_id", "feature", "risk", "required_workflow", "spec_revision", "git_commit")) {
+        # Exact-case name, as Python's dict lookup: the PSObject indexer ignores case.
+        $member = @($bundle.PSObject.Properties | Where-Object { $_.Name -ceq $field })
+        if ($member.Count -gt 0 -and $null -ne $member[0].Value -and $member[0].Value -isnot [string]) {
+            Add-Failure "critical bundle field $field must be a string"
+        }
+    }
     if ($gitGeneratedDirty) {
         Add-Failure "critical bundle must not be generated with a dirty working tree (git_generated_dirty=true)"
     }

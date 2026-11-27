@@ -231,6 +231,21 @@ class MisCasedInputTests(unittest.TestCase):
                     fx.bundle[field] = value
                 self.assert_rejected(mutate, "critical bundle field %s must be a string" % field)
 
+    def test_mis_cased_signed_field_name_is_not_type_checked(self):
+        with tempfile.TemporaryDirectory() as base:
+            fx = Fixture(base)
+            fx.contract["risk"] = "critical"
+            fx.bundle.update({
+                "risk": "critical", "spec_revision": "a" * 64, "build_env": {"os": "linux"},
+                "review_verdict": {"verdict": "PASS"}, "Required_Workflow": 5,
+                "signature": {"alg": "hmac-sha256", "value": "ab"},
+            })
+            bundle = fx.write()
+            for name, run in runners():
+                with self.subTest(runner=name):
+                    result = run(bundle, fx.root, fx.root)
+                    self.assertNotIn("must be a string", result.stdout + result.stderr)
+
     def test_upper_case_risk_is_not_a_provenance_tier(self):
         with tempfile.TemporaryDirectory() as base:
             fx = Fixture(base)
