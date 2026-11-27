@@ -1043,13 +1043,27 @@ class SupplementalReviewTests(HelperCase):
 
     def test_native_account_required_closed_enums_reject_unknown_values(self):
         variants = [
-            {**ACCOUNT_CHATGPT, 'account': {**ACCOUNT_CHATGPT['account'], 'planType': 'invented-plan'}},
             {**ACCOUNT_CHATGPT, 'workspaceRouting': {
                 **ACCOUNT_CHATGPT['workspaceRouting'], 'accountRoutingOverride': 'invented-region'}},
         ]
         for account in variants:
             with self.subTest(account=account):
                 fake = self.native([page([native_model('a')])], account=account)
+                self.failed_capture(fake, 'discovery-unavailable')
+                self.assertEqual(fake.list_calls(), 0)
+
+    def test_native_account_plan_type_is_any_non_empty_string(self):
+        # Q06: the pricing plan is an open, provider-defined label. An unknown
+        # non-empty string is accepted; a missing, blank or non-string value is not.
+        for plan in ('invented-plan', 'team'):
+            with self.subTest(plan=plan):
+                account = {**ACCOUNT_CHATGPT, 'account': {**ACCOUNT_CHATGPT['account'], 'planType': plan}}
+                fake = self.native([page([native_model('a')])], account=account)
+                self.capture(fake)
+        missing = {key: value for key, value in ACCOUNT_CHATGPT['account'].items() if key != 'planType'}
+        for broken in (missing, *({**ACCOUNT_CHATGPT['account'], 'planType': plan} for plan in ('', '   ', None, 7, ['team']))):
+            with self.subTest(account=broken):
+                fake = self.native([page([native_model('a')])], account={**ACCOUNT_CHATGPT, 'account': broken})
                 self.failed_capture(fake, 'discovery-unavailable')
                 self.assertEqual(fake.list_calls(), 0)
 
