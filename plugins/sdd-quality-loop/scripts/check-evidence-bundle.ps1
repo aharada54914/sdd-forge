@@ -110,13 +110,28 @@ function Get-Sha256 {
 # the PowerShell signer by UTF-16 code unit. A signature matching either is valid.
 $SignerOrders = @("code-point", "utf-16")
 
+function Get-ExactMember {
+    # Python's dict.get(): the exact-case name only. A PowerShell property read
+    # ($o.name) ignores case, which would sign a mis-cased key the .sh twin
+    # treats as absent.
+    param($Object, [string]$Name)
+    if ($null -eq $Object -or -not ($Object -is [PSCustomObject])) { return $null }
+    foreach ($property in $Object.PSObject.Properties) {
+        # The leading comma keeps an array value whole instead of unrolling it.
+        if ($property.Name -ceq $Name) { return ,$property.Value }
+    }
+    return $null
+}
+
 function Get-EvidenceCanonical {
     param([Parameter(Mandatory)]$Bundle, [Parameter(Mandatory)][string]$Order)
-    $artifacts = @($Bundle.artifacts)
+    # Not @(...): that would wrap the returned array in another one.
+    $artifacts = Get-ExactMember $Bundle "artifacts"
+    if ($null -eq $artifacts) { $artifacts = @() } elseif ($artifacts -isnot [System.Array]) { $artifacts = @($artifacts) }
     $pairs = @()
     foreach ($artifact in $artifacts) {
-        $path = ([string]$artifact.path).Trim()
-        $sha = ([string]$artifact.sha256).Trim().ToLowerInvariant()
+        $path = ([string](Get-ExactMember $artifact "path")).Trim()
+        $sha = ([string](Get-ExactMember $artifact "sha256")).Trim().ToLowerInvariant()
         $pairs += $path + [char]0 + $sha
     }
     # Ordinal sort to match Python's code-point sort (Sort-Object is culture-aware
@@ -136,18 +151,19 @@ function Get-EvidenceCanonical {
     $artifactsDigest = ($hasher.ComputeHash($pairsBytes) | ForEach-Object { "{0:x2}" -f $_ }) -join ""
 
     # Python: "true" only for a JSON true; a verdict only from an object.
-    $dirty = if ($Bundle.git_generated_dirty -is [bool] -and $Bundle.git_generated_dirty) { "true" } else { "false" }
-    $reviewVerdict = $Bundle.review_verdict
-    $verdict = if ($reviewVerdict -is [PSCustomObject]) { ([string]$reviewVerdict.verdict).Trim() } else { "" }
+    $dirtyValue = Get-ExactMember $Bundle "git_generated_dirty"
+    $dirty = if ($dirtyValue -is [bool] -and $dirtyValue) { "true" } else { "false" }
+    $reviewVerdict = Get-ExactMember $Bundle "review_verdict"
+    $verdict = if ($reviewVerdict -is [PSCustomObject]) { ([string](Get-ExactMember $reviewVerdict "verdict")).Trim() } else { "" }
 
     $lines = @(
         "sdd-evidence-v1",
-        ([string]$Bundle.task_id).Trim(),
-        ([string]$Bundle.feature).Trim(),
-        ([string]$Bundle.risk).Trim(),
-        ([string]$Bundle.required_workflow).Trim(),
-        ([string]$Bundle.spec_revision).Trim(),
-        ([string]$Bundle.git_commit).Trim(),
+        ([string](Get-ExactMember $Bundle "task_id")).Trim(),
+        ([string](Get-ExactMember $Bundle "feature")).Trim(),
+        ([string](Get-ExactMember $Bundle "risk")).Trim(),
+        ([string](Get-ExactMember $Bundle "required_workflow")).Trim(),
+        ([string](Get-ExactMember $Bundle "spec_revision")).Trim(),
+        ([string](Get-ExactMember $Bundle "git_commit")).Trim(),
         $dirty,
         $verdict,
         $artifactsDigest
@@ -404,9 +420,8 @@ if ($effectiveRisk -ceq "critical") {
     # twin; [string] renders a number, array or object differently, so only a
     # string (or an absent field) can be verified the same way by both.
     foreach ($field in @("task_id", "feature", "risk", "required_workflow", "spec_revision", "git_commit")) {
-        # Exact-case name, as Python's dict lookup: the PSObject indexer ignores case.
-        $member = @($bundle.PSObject.Properties | Where-Object { $_.Name -ceq $field })
-        if ($member.Count -gt 0 -and $null -ne $member[0].Value -and $member[0].Value -isnot [string]) {
+        $value = Get-ExactMember $bundle $field
+        if ($null -ne $value -and $value -isnot [string]) {
             Add-Failure "critical bundle field $field must be a string"
         }
     }
