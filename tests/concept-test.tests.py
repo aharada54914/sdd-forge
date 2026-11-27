@@ -984,6 +984,65 @@ class DomainContractSchemaAgreementTests(unittest.TestCase):
         self.assertEqual([], divergent)
 
 
+class DomainContractRawTextTests(unittest.TestCase):
+    """Inputs json.dumps cannot produce, so the agreement corpus never holds
+    them: a duplicated member name, which the Concept Test parser rejects, and
+    an ISO-date-like string, which pwsh 7.0-7.4 ConvertFrom-Json turns into a
+    DateTime."""
+
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.directory = Path(directory.name)
+        self.base = json.dumps(AGREEMENT_BASE)
+
+    def check(self, name, text, expected_exit):
+        path = self.directory / (name + '.json')
+        path.write_text(text, encoding='utf-8')
+        try:
+            concept.parse(path.read_bytes())
+            oracle_rejects = False
+        except ValueError:
+            oracle_rejects = True
+        self.assertEqual(expected_exit == 1, oracle_rejects, name)
+        commands = {'sh': ['bash', str(VALIDATOR.with_suffix('.sh'))]}
+        if PWSH:
+            commands['ps1'] = [PWSH, '-NoProfile', '-NonInteractive', '-File', str(VALIDATOR.with_suffix('.ps1'))]
+        results = {}
+        for twin, command in commands.items():
+            result = subprocess.run(command + [str(path)], capture_output=True, text=True, timeout=120)
+            self.assertEqual(expected_exit, result.returncode, '%s %s: %s' % (name, twin, result.stderr))
+            results[twin] = result.stderr
+        if 'ps1' in results:
+            self.assertEqual(results['sh'], results['ps1'], name)
+        return results['sh']
+
+    def test_duplicate_member_name_at_the_root_is_rejected(self):
+        text = self.base.replace('{"schema": "domain-contract/v2"',
+                                 '{"schema": "domain-contract/v2", "schema": "domain-contract/v2"', 1)
+        self.assertIn('V2-DUPLICATE-KEY: root: member "schema" appears more than once',
+                      self.check('root', text, 1))
+
+    def test_duplicate_member_name_in_a_nested_object_is_rejected(self):
+        text = self.base.replace('"status": "Approved"', '"status": "Approved", "status": "Draft"', 1)
+        self.assertIn('V2-DUPLICATE-KEY: meta: member "status" appears more than once',
+                      self.check('nested', text, 1))
+
+    def test_duplicate_member_name_inside_an_array_item_is_rejected(self):
+        text = self.base.replace('"name": "shelving"', '"name": "shelving", "name": "shelving"', 1)
+        self.assertIn('V2-DUPLICATE-KEY: contexts[1]: member "name" appears more than once',
+                      self.check('item', text, 1))
+
+    def test_same_member_name_in_sibling_objects_is_accepted(self):
+        self.check('siblings', self.base, 0)
+
+    def test_iso_date_like_strings_stay_strings(self):
+        document = copy.deepcopy(AGREEMENT_BASE)
+        document['contexts'][0]['description'] = '2026-11-27T00:00:00Z'
+        document['contexts'][1]['description'] = '2026-11-27'
+        self.check('date', json.dumps(document), 0)
+
+
 class InitialReviewIdentityTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
