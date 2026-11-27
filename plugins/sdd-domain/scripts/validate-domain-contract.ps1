@@ -975,14 +975,16 @@ function Test-StrictJsonText {
     $limit = $chars.Length
     $position = 0
 
-    # 123 marks an open object on the stack, 91 an open array. The parallel
-    # lists hold, per open container: the member name or item index it sits
-    # under in its parent (the path is built from these only when a duplicate
-    # is reported, so memory stays linear in the nesting depth), its member
-    # names so far and the names that repeated (objects, created on first
-    # use), and its next item index (arrays).
+    # 123 marks an open object on the stack, 91 an open array. $path holds
+    # the innermost open container's path (the .sh twin's member_path() and
+    # "%s[%d]"); the parallel lists hold, per open container: the length of
+    # its path, so closing it truncates $path back to its parent's (memory and
+    # work stay linear in the nesting depth), its member names so far and the
+    # names that repeated (objects, created on first use), and its next item
+    # index (arrays).
     $stack = New-Object 'System.Collections.Generic.List[int]'
-    $segments = New-Object 'System.Collections.Generic.List[object]'
+    $path = New-Object System.Text.StringBuilder
+    $pathLengths = New-Object 'System.Collections.Generic.List[int]'
     $names = New-Object 'System.Collections.Generic.List[object]'
     $repeated = New-Object 'System.Collections.Generic.List[object]'
     $counts = New-Object 'System.Collections.Generic.List[int]'
@@ -1001,24 +1003,15 @@ function Test-StrictJsonText {
     function Close-StrictJsonContainer {
         $top = $stack.Count - 1
         if ($null -ne $repeated[$top] -and $null -ne $Duplicates) {
-            # The .sh twin's member_path() and "%s[%d]", from the root down.
-            $where = ''
-            for ($level = 1; $level -le $top; $level++) {
-                if ($stack[$level - 1] -eq 91) {
-                    $where = $where + '[' + $segments[$level] + ']'
-                } elseif ($where.Length -eq 0) {
-                    $where = ConvertTo-SafeText $segments[$level]
-                } else {
-                    $where = $where + '.' + (ConvertTo-SafeText $segments[$level])
-                }
-            }
+            $where = $path.ToString()
             if ($where.Length -eq 0) { $where = 'root' }
             foreach ($name in $repeated[$top]) {
                 $Duplicates.Add($where + ': member "' + (ConvertTo-SafeText $name) + '" appears more than once')
             }
         }
         $stack.RemoveAt($top)
-        $segments.RemoveAt($top)
+        $pathLengths.RemoveAt($top)
+        if ($top -gt 0) { $path.Length = $pathLengths[$top - 1] } else { $path.Length = 0 }
         $names.RemoveAt($top)
         $repeated.RemoveAt($top)
         $counts.RemoveAt($top)
@@ -1094,14 +1087,23 @@ function Test-StrictJsonText {
 
         if ($position -ge $limit) { return $false }
         $code = [int]$chars[$position]
-        $segment = $memberName
+        $index = -1
         if ($stack.Count -gt 0 -and $stack[$stack.Count - 1] -eq 91) {
-            $segment = $counts[$stack.Count - 1]
+            $index = $counts[$stack.Count - 1]
             $counts[$stack.Count - 1] = $counts[$stack.Count - 1] + 1
         }
         if ($code -eq 123 -or $code -eq 91) {
             $stack.Add($code)
-            $segments.Add($segment)
+            if ($stack.Count -gt 1) {
+                if ($index -ge 0) {
+                    [void]$path.Append('[').Append($index).Append(']')
+                } elseif ($path.Length -eq 0) {
+                    [void]$path.Append((ConvertTo-SafeText $memberName))
+                } else {
+                    [void]$path.Append('.').Append((ConvertTo-SafeText $memberName))
+                }
+            }
+            $pathLengths.Add($path.Length)
             if ($code -eq 123) {
                 $names.Add((New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)))
             } else {
