@@ -731,96 +731,13 @@ else
 fi
 
 # -----------------------------------------------------------------------
-# TEST-019.8..9 (AC-019, AC-020, AC-027; activated after Epic A1):
-# F3-invalid/F4-invalid's own distinct PROJECT_CONTEXT_INVALID
-# skip-stop-message:stop event, and the assertion that this trace never
-# reaches the Context-absent compatibility-fallback path. The dedicated
-# fixture guard checks physical presence first and then runs A1's real
-# approval validator; a signed v1 positive control must pass, while both
-# signed v0 variants must return CONTENT_SCHEMA_VIOLATION (32).
+# TEST-019.8..9 retired (2026-11-28 owner decision, ADR-0051 decision 1):
+# they drove a signed v1 Project Context approval sidecar through
+# generate-/validate-approval-sidecar.sh, which v2 removed with signing and
+# sidecars. The GateLifecycle formal model and its trace replay
+# (specs/self-verification/formal, tests/v2-formal-gate.test.mjs) cover the
+# gate's stop and escalation states in v2.
 # -----------------------------------------------------------------------
-EVT_INVALID_GOLDEN="${REPO_ROOT}/tests/fixtures/compatibility-event-trace/f3-f4-project-context-invalid.json"
-EVT_GEN="${REPO_ROOT}/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh"
-EVT_VALIDATE="${REPO_ROOT}/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh"
-EVT_FIXTURE_KEY='t007-event-trace-fixture-only-key'
-
-prepare_context_sidecar() {
-  local root="$1" stage="$1/fixtures/approval-stage" basename='project-context'
-  mkdir -p "$root/fixtures"
-  printf '%s\n' 'schema: sdd-approver-registry/v1' 'approvers:' \
-    '  - id: fixture-approver' '    name: Fixture Approver' \
-    > "$root/fixtures/registry.yaml" || return 1
-  SDD_CONTEXT_KEY="$EVT_FIXTURE_KEY" "$EVT_GEN" \
-    --schema sdd-project-context-approval/v1 \
-    --content "$root/sdd/project-context.yaml" --approver fixture-approver \
-    --status Approved --live-sidecar "$root/fixtures/no-live" \
-    --stage-dir "$stage" >/dev/null 2>&1 || return 1
-  [[ -f "$stage/sdd/${basename}.approval.json" ]]
-}
-
-# Fixture-drive guard, not an executable interviewer caller. Physical presence
-# is checked before the real A1 REQ-005 validator, matching the C1/C2 contract.
-context_validation_guard() {
-  local root="$1" basename='project-context' rc
-  EVT_ROUTE=''
-  EVT_VALIDATION_RC=0
-  EVT_VALIDATION_OUTPUT=''
-  if [[ ! -f "$root/sdd/project-context.yaml" ]]; then
-    EVT_ROUTE='COMPATIBILITY_FALLBACK'
-    return 0
-  fi
-  EVT_VALIDATION_OUTPUT="$(SDD_CONTEXT_KEY="$EVT_FIXTURE_KEY" "$EVT_VALIDATE" \
-    --content "$root/sdd/project-context.yaml" \
-    --sidecar "$root/fixtures/approval-stage/sdd/${basename}.approval.json" \
-    --approver-registry "$root/fixtures/registry.yaml" 2>&1)" && rc=0 || rc=$?
-  EVT_VALIDATION_RC=$rc
-  if [[ "$rc" -ne 0 ]]; then
-    EVT_ROUTE='PROJECT_CONTEXT_INVALID'
-    _loop_trace_emit skip-stop-message skip-stop-message:stop '"PROJECT_CONTEXT_INVALID"'
-    return $?
-  fi
-  EVT_ROUTE='VALID_CONTEXT'
-}
-
-EVT_SAVED_TRACE="$_LOOP_EVENT_TRACE"
-EVT_VALID_ROOT="$(build_fixture present absent advisory valid --full)"
-CLEANUP_ROOTS+=("$EVT_VALID_ROOT")
-_LOOP_EVENT_TRACE='[]'
-if prepare_context_sidecar "$EVT_VALID_ROOT" && \
-   context_validation_guard "$EVT_VALID_ROOT" && \
-   [[ "$EVT_ROUTE" == 'VALID_CONTEXT' && "$EVT_VALIDATION_RC" -eq 0 &&
-      "$EVT_VALIDATION_OUTPUT" == 'VALID' && "$_LOOP_EVENT_TRACE" == '[]' ]]; then
-  ok 'TEST-019.8/9 control: signed v1 Context passes real A1 validation without a stop event'
-else
-  fail 'TEST-019.8/9 control: signed v1 Context must pass real A1 validation'
-fi
-
-EVT_ABSENT_ROOT="$(build_fixture absent absent disabled-legacy valid --full)"
-CLEANUP_ROOTS+=("$EVT_ABSENT_ROOT")
-_LOOP_EVENT_TRACE='[]'
-if context_validation_guard "$EVT_ABSENT_ROOT" && \
-   [[ "$EVT_ROUTE" == 'COMPATIBILITY_FALLBACK' && "$_LOOP_EVENT_TRACE" == '[]' ]]; then
-  ok 'TEST-019.8/9 control: physically absent Context alone takes the fallback route'
-else
-  fail 'TEST-019.8/9 control: physically absent Context did not take the fallback route'
-fi
-
-for EVT_CASE in 'F3 advisory' 'F4 required'; do
-  read -r EVT_NAME EVT_ENFORCEMENT <<<"$EVT_CASE"
-  EVT_INVALID_ROOT="$(build_fixture present absent "$EVT_ENFORCEMENT" PROJECT_CONTEXT_INVALID --full)"
-  CLEANUP_ROOTS+=("$EVT_INVALID_ROOT")
-  _LOOP_EVENT_TRACE='[]'
-  if prepare_context_sidecar "$EVT_INVALID_ROOT" && \
-     context_validation_guard "$EVT_INVALID_ROOT" && \
-     [[ "$EVT_VALIDATION_RC" -eq 32 && "$EVT_VALIDATION_OUTPUT" == *CONTENT_SCHEMA_VIOLATION* &&
-        "$EVT_ROUTE" == 'PROJECT_CONTEXT_INVALID' ]] && \
-     assert_event_trace "$EVT_INVALID_GOLDEN"; then
-    ok "TEST-019.8/9: $EVT_NAME invalid Context is validator-rejected, stop-only, and never falls back"
-  else
-    fail "TEST-019.8/9: $EVT_NAME invalid Context did not produce the distinct stop-only trace"
-  fi
-done
-_LOOP_EVENT_TRACE="$EVT_SAVED_TRACE"
 
 # =============================================================================
 # TEST-019.10 (T-008 / Issue #195 / epic-195-a7-compatibility AC-004,

@@ -611,94 +611,14 @@ mktemp repo-root.
         Test-Fail "TEST-019.7: observed event trace does NOT match the committed golden trace"
     }
 
-    # TEST-019.8..9: A1-activated fixture Context-validation guard.
-    # This is a test producer, not an executable interviewer caller.
-    $evtGoldenInvalid = Join-Path $repoRoot 'tests/fixtures/compatibility-event-trace/f3-f4-project-context-invalid.json'
-    $evtGenerator = Join-Path $repoRoot 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.ps1'
-    $evtValidator = Join-Path $repoRoot 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.ps1'
-    $evtSavedTrace = $script:_LOOP_EVENT_TRACE
-    $evtSavedKey = $env:SDD_CONTEXT_KEY
-    $env:SDD_CONTEXT_KEY = 't007-event-trace-fixture-only-key'
-
-    function New-EvtFixtureSidecar([string]$Root) {
-        $fixtureDir = Join-Path $Root 'fixtures'
-        New-Item -ItemType Directory -Path $fixtureDir -Force | Out-Null
-        $registry = Join-Path $fixtureDir 'registry.yaml'
-        $stage = Join-Path $fixtureDir 'approval-stage'
-        @('schema: sdd-approver-registry/v1', 'approvers:',
-          '  - id: fixture-approver', '    name: Fixture Approver') |
-            Set-Content -LiteralPath $registry -Encoding utf8
-        & pwsh -NoProfile -File $evtGenerator --schema sdd-project-context-approval/v1 `
-            --content (Join-Path $Root 'sdd/project-context.yaml') `
-            --approver fixture-approver --status Approved `
-            --live-sidecar (Join-Path $fixtureDir 'no-live') --stage-dir $stage *> $null
-        if ($LASTEXITCODE -ne 0) { return $false }
-        return (Test-Path -LiteralPath (Join-Path $stage ('sdd/' + 'project-context' + '.approval.json')) -PathType Leaf)
-    }
-
-    function Invoke-EvtContextGuard([string]$Root) {
-        $script:EvtRoute = ''
-        $script:EvtValidationRc = 0
-        $script:EvtValidationOutput = ''
-        $context = Join-Path $Root 'sdd/project-context.yaml'
-        if (-not (Test-Path -LiteralPath $context -PathType Leaf)) {
-            $script:EvtRoute = 'COMPATIBILITY_FALLBACK'
-            return $true
-        }
-        $sidecar = Join-Path $Root ('fixtures/approval-stage/sdd/' + 'project-context' + '.approval.json')
-        $registry = Join-Path $Root 'fixtures/registry.yaml'
-        $evtOutput = & pwsh -NoProfile -File $evtValidator --content $context --sidecar $sidecar `
-            --approver-registry $registry 2>&1
-        $script:EvtValidationRc = $LASTEXITCODE
-        $script:EvtValidationOutput = [string]::Join("`n", @($evtOutput))
-        if ($script:EvtValidationRc -ne 0) {
-            $script:EvtRoute = 'PROJECT_CONTEXT_INVALID'
-            return (Write-LoopTraceEvent -Kind skip-stop-message -Producer skip-stop-message:stop -ValueJson '"PROJECT_CONTEXT_INVALID"')
-        }
-        $script:EvtRoute = 'VALID_CONTEXT'
-        return $true
-    }
-
-    try {
-        $evtValidRoot = build_fixture present absent advisory valid --full
-        $cleanupRoots.Add($evtValidRoot)
-        $script:_LOOP_EVENT_TRACE = '[]'
-        if ((New-EvtFixtureSidecar $evtValidRoot) -and (Invoke-EvtContextGuard $evtValidRoot) -and
-            $script:EvtRoute -ceq 'VALID_CONTEXT' -and $script:EvtValidationRc -eq 0 -and
-            $script:EvtValidationOutput -ceq 'VALID' -and
-            $script:_LOOP_EVENT_TRACE -ceq '[]') {
-            Test-Ok 'TEST-019.8/9 control: signed v1 Context passes real A1 validation without a stop event'
-        } else {
-            Test-Fail 'TEST-019.8/9 control: signed v1 Context must pass real A1 validation'
-        }
-
-        $evtAbsentRoot = build_fixture absent absent disabled-legacy valid --full
-        $cleanupRoots.Add($evtAbsentRoot)
-        $script:_LOOP_EVENT_TRACE = '[]'
-        if ((Invoke-EvtContextGuard $evtAbsentRoot) -and $script:EvtRoute -ceq 'COMPATIBILITY_FALLBACK' -and
-            $script:_LOOP_EVENT_TRACE -ceq '[]') {
-            Test-Ok 'TEST-019.8/9 control: physically absent Context alone takes the fallback route'
-        } else {
-            Test-Fail 'TEST-019.8/9 control: physically absent Context did not take the fallback route'
-        }
-
-        foreach ($evtCase in @(@('F3', 'advisory'), @('F4', 'required'))) {
-            $evtInvalidRoot = build_fixture present absent $evtCase[1] PROJECT_CONTEXT_INVALID --full
-            $cleanupRoots.Add($evtInvalidRoot)
-            $script:_LOOP_EVENT_TRACE = '[]'
-            if ((New-EvtFixtureSidecar $evtInvalidRoot) -and (Invoke-EvtContextGuard $evtInvalidRoot) -and
-                $script:EvtValidationRc -eq 32 -and $script:EvtValidationOutput -clike '*CONTENT_SCHEMA_VIOLATION*' -and
-                $script:EvtRoute -ceq 'PROJECT_CONTEXT_INVALID' -and
-                (Test-EventTrace -GoldenTracePath $evtGoldenInvalid)) {
-                Test-Ok "TEST-019.8/9: $($evtCase[0]) invalid Context is validator-rejected, stop-only, and never falls back"
-            } else {
-                Test-Fail "TEST-019.8/9: $($evtCase[0]) invalid Context did not produce the distinct stop-only trace"
-            }
-        }
-    } finally {
-        $script:_LOOP_EVENT_TRACE = $evtSavedTrace
-        $env:SDD_CONTEXT_KEY = $evtSavedKey
-    }
+    # -----------------------------------------------------------------------
+    # TEST-019.8..9 retired (2026-11-28 owner decision, ADR-0051 decision 1):
+    # they drove a signed v1 Project Context approval sidecar through
+    # generate-/validate-approval-sidecar.sh, which v2 removed with signing and
+    # sidecars. The GateLifecycle formal model and its trace replay
+    # (specs/self-verification/formal, tests/v2-formal-gate.test.mjs) cover the
+    # gate's stop and escalation states in v2.
+    # -----------------------------------------------------------------------
 
     # -------------------------------------------------------------------
     # TEST-019.10 (T-008 / Issue #195 / epic-195-a7-compatibility AC-004,

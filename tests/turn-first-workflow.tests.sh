@@ -85,16 +85,19 @@ write_manifest() {
 [[ -x "$IMPLEMENTATION_REPORT_VALIDATOR" ]] ||
   fail "missing executable: $IMPLEMENTATION_REPORT_VALIDATOR"
 
+# 2026-11-28 owner decision (T-010, ADR-0051 decision 2): v2 rewrote
+# implement-tasks without the v1 per-task input-manifest handoff, so the
+# checks on that wording retired. The v2 batch rules below replace them: a
+# fresh worker per parallel task, one writer of shared task state, and an
+# existence check before any task is reported complete. The manifest
+# validator below still ships and keeps its executable tests.
 for needle in \
-  'launch exactly one fresh implementation agent' \
-  'persisted manifest and immutable snapshot are the only task handoff' \
-  'from any earlier batch task' \
-  'same-session-file-reload' \
-  'explicit host-capability fallback reason' \
-  'Chat history or compaction summaries alone are forbidden handoff input' \
-  'Reviewer and evaluator fallback is forbidden' \
-  'performed by checked-in scripts'; do
-  grep -Fq "$needle" "$IMPLEMENT_TASKS" || fail "implement-tasks omits policy text: $needle"
+  '各タスクに新鮮なワーカーを割り当てて並列実行する' \
+  '`Status:` 更新はオーケストレータが一元管理し、並列ワーカー間で同時書き込みを起こさない' \
+  '変更ファイルの実在とテスト実実行結果を確認する' \
+  '`### Scope` の変更ファイルが互いに重複しない最大集合を選ぶ' \
+  'サブエージェント未対応環境では、`implement-task` の手順で順次実行する'; do
+  grep -Fq "$needle" "$IMPLEMENT_TASKS" || fail "implement-tasks omits batch rule: $needle"
 done
 for needle in \
   'The sole exception is an implementation batch' \
