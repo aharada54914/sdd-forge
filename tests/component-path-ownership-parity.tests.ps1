@@ -195,17 +195,50 @@ exit 0
 
     $suiteMatches = Select-String -LiteralPath $Traceability -Pattern 'tests/[a-z0-9-]+\.tests' -AllMatches
     $suiteBases = @($suiteMatches.Matches.Value | ForEach-Object { $_.Substring(6, $_.Length - 12) } | Sort-Object -Unique)
-    if ($suiteBases.Count -gt 0 -and (Test-RegistrationAudit (Join-Path $Root 'tests/run-all.sh') (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow $suiteBases)) {
-        Pass 'TEST-047 all spec-declared suites are registered once in both runners and live CI'
+    # Q11 (owner decision 2026-11-28): see the bash twin. CI registration of the
+    # ten files is verified in the v1.26.0 workflow; the current tree registers
+    # all ten locally and runs ownership-digest (sh and ps1) in CI.
+    $historicalWorkflow = (& git -C $Root show 'b193c75be2:.github/workflows/test.yml' 2>$null) -join "`n"
+    $currentWorkflow = [System.IO.File]::ReadAllText($LiveWorkflow)
+    $localSh = @(& bash (Join-Path $Root 'tests/run-all.sh') --list)
+    $localPs = @(& (Join-Path $Root 'tests/run-all.ps1') -List)
+    function Test-LocalRegistered([string[]]$Suites) {
+        foreach ($suite in $Suites) {
+            if (@($localSh | Where-Object { $_ -ceq "tests/$suite.tests.sh" }).Count -ne 1) { return $false }
+            if (@($localPs | Where-Object { $_ -ceq "tests/$suite.tests.ps1" }).Count -ne 1) { return $false }
+        }
+        return $true
+    }
+    function Test-CiRegistered([string]$WorkflowText, [string[]]$Suites) {
+        if (-not $WorkflowText) { return $false }
+        foreach ($suite in $Suites) {
+            foreach ($token in @("tests/$suite.tests.sh", "tests/$suite.tests.ps1")) {
+                if (($WorkflowText.Split($token).Count - 1) -ne 1) { return $false }
+            }
+        }
+        return $true
+    }
+    if ($suiteBases.Count -eq 5 -and (Test-CiRegistered $historicalWorkflow $suiteBases)) {
+        Pass "TEST-047 (v1.26.0) all ten spec-declared suite files were registered once in that release's CI workflow"
     } else {
-        Fail 'TEST-047 all spec-declared suites are registered once in both runners and live CI'
+        Fail 'TEST-047 (v1.26.0) the historical workflow does not register the ten spec-declared files once (full git history required)'
+    }
+    if ($suiteBases.Count -eq 5 -and (Test-LocalRegistered $suiteBases)) {
+        Pass 'TEST-047 all ten spec-declared suite files are registered once in the current local runner inventories'
+    } else {
+        Fail 'TEST-047 a spec-declared suite file is missing or duplicated in the current local runner inventories'
+    }
+    if (Test-CiRegistered $currentWorkflow @('ownership-digest')) {
+        Pass 'TEST-047 the current CI workflow runs ownership-digest (sh and ps1) once each'
+    } else {
+        Fail 'TEST-047 the current CI workflow must run ownership-digest (sh and ps1) once each'
     }
 
     $paritySuite = [System.IO.Path]::GetFileName($PSCommandPath).Replace('.tests.ps1', '')
-    if (Test-RegistrationAudit (Join-Path $Root 'tests/run-all.sh') (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow @($paritySuite)) {
-        Pass 'TEST-051 parity harness self-registration'
+    if ((Test-LocalRegistered @($paritySuite)) -and (Test-CiRegistered $historicalWorkflow @($paritySuite))) {
+        Pass 'TEST-051 parity harness self-registration (local inventories now, CI in v1.26.0)'
     } else {
-        Fail 'TEST-051 parity harness self-registration'
+        Fail 'TEST-051 parity harness self-registration (local inventories now, CI in v1.26.0)'
     }
 
     Push-Location $HumanCopy
@@ -226,7 +259,10 @@ exit 0
     $inventory = @(& bash (Join-Path $Root 'tests/run-all.sh') --list)
     if ($LASTEXITCODE -ne 0) { throw 'Baseline inventory query failed' }
     [System.IO.File]::WriteAllLines($mutantInventory, [string[]]$inventory)
-    if (Test-RegistrationAudit $mutantRunSh (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow $suiteBases) {
+    # The full ten-file CI registration lives in the v1.26.0 workflow (Q11).
+    $historicalWorkflowFile = Join-Path $Tmp 'historical-test.yml'
+    [System.IO.File]::WriteAllText($historicalWorkflowFile, $historicalWorkflow)
+    if (Test-RegistrationAudit $mutantRunSh (Join-Path $Root 'tests/run-all.ps1') $historicalWorkflowFile $suiteBases) {
         Pass 'TEST-047 disposable registration baseline is accepted'
     } else {
         Fail 'TEST-047 disposable registration baseline is accepted'

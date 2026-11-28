@@ -252,18 +252,51 @@ while IFS= read -r suite; do
   suite_bases+=("$suite")
 done < <(grep -oE 'tests/[a-z0-9-]+\.tests' "$TRACEABILITY" \
   | sed 's#tests/##;s#\.tests##' | LC_ALL=C sort -u)
-if [[ "${#suite_bases[@]}" -gt 0 ]] \
-  && registration_audit "$ROOT/tests/run-all.sh" "$ROOT/tests/run-all.ps1" "$LIVE_WORKFLOW" "${suite_bases[@]}"; then
-  pass "TEST-047 all spec-declared suites are registered once in both runners and live CI"
+# Q11 (owner decision 2026-11-28): the ten suite files (five suites, sh and ps1)
+# were CI-registered in the v1.26.0 workflow, which is where that registration
+# is verified. The current tree registers all ten locally (both runner
+# inventories, once each) and runs ownership-digest (sh and ps1) in CI.
+HISTORICAL_REV="b193c75be2"
+historical_workflow="$(git -C "$ROOT" show "$HISTORICAL_REV:.github/workflows/test.yml" 2>/dev/null)"
+current_workflow="$(cat "$LIVE_WORKFLOW")"
+local_sh="$(bash "$ROOT/tests/run-all.sh" --list)"
+local_ps1="$(python3 "$ROOT/tests/verification.py" --profile local-powershell --list)"
+local_registered() {
+  local suite
+  for suite in "$@"; do
+    [[ "$(grep -Fxc -- "tests/$suite.tests.sh" <<< "$local_sh" || true)" == 1 ]] || return 1
+    [[ "$(grep -Fxc -- "tests/$suite.tests.ps1" <<< "$local_ps1" || true)" == 1 ]] || return 1
+  done
+}
+ci_registered() {
+  local workflow="$1" suite
+  shift
+  for suite in "$@"; do
+    [[ "$(grep -Fc -- "tests/$suite.tests.sh" <<< "$workflow" || true)" == 1 ]] || return 1
+    [[ "$(grep -Fc -- "tests/$suite.tests.ps1" <<< "$workflow" || true)" == 1 ]] || return 1
+  done
+}
+if [[ "${#suite_bases[@]}" -eq 5 && -n "$historical_workflow" ]] && ci_registered "$historical_workflow" "${suite_bases[@]}"; then
+  pass "TEST-047 (v1.26.0) all ten spec-declared suite files were registered once in that release's CI workflow"
 else
-  fail "TEST-047 all spec-declared suites are registered once in both runners and live CI"
+  fail "TEST-047 (v1.26.0) the historical workflow does not register the ten spec-declared files once (full git history required)"
+fi
+if [[ "${#suite_bases[@]}" -eq 5 ]] && local_registered "${suite_bases[@]}"; then
+  pass "TEST-047 all ten spec-declared suite files are registered once in the current local runner inventories"
+else
+  fail "TEST-047 a spec-declared suite file is missing or duplicated in the current local runner inventories"
+fi
+if ci_registered "$current_workflow" ownership-digest; then
+  pass "TEST-047 the current CI workflow runs ownership-digest (sh and ps1) once each"
+else
+  fail "TEST-047 the current CI workflow must run ownership-digest (sh and ps1) once each"
 fi
 
 parity_suite="$(basename "$0" .tests.sh)"
-if registration_audit "$ROOT/tests/run-all.sh" "$ROOT/tests/run-all.ps1" "$LIVE_WORKFLOW" "$parity_suite"; then
-  pass "TEST-051 parity harness self-registration"
+if local_registered "$parity_suite" && ci_registered "$historical_workflow" "$parity_suite"; then
+  pass "TEST-051 parity harness self-registration (local inventories now, CI in v1.26.0)"
 else
-  fail "TEST-051 parity harness self-registration"
+  fail "TEST-051 parity harness self-registration (local inventories now, CI in v1.26.0)"
 fi
 
 manifest_output="$(cd "$HUMAN_COPY" && shasum -a 256 -c MANIFEST.sha256 2>&1)"
