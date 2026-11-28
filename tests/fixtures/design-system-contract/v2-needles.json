@@ -1,0 +1,180 @@
+{
+  "schema": "design-system-contract-v2-needles/v1",
+  "note": "Shared by design-system-contract.tests.sh and .ps1 (T-010, 2026-11-28). The v2 design-sync-loop skill is Japanese; PowerShell 5.1 reads BOM-less sources as ANSI, so the twins read these needles from this UTF-8 file instead of embedding them.",
+  "loop_section": [
+    "^## 3\\. Mockup & Egress Consent Loop",
+    "^## "
+  ],
+  "boundaries_section": [
+    "^## Boundaries$",
+    "^## "
+  ],
+  "order": {
+    "id": "TEST-010",
+    "label": "TEST-010 step order: pull -> generate -> consent -> pre-upload scan -> iterate (AC-006, ordered structure)",
+    "steps": [
+      "^1\\. \\*\\*Pull",
+      "^2\\. \\*\\*Generate Mockups",
+      "^3\\. \\*\\*Resolve Egress Consent",
+      "次の送信前検査を行う",
+      "^4\\. \\*\\*Iterate & Finalize"
+    ]
+  },
+  "checks": [
+    {
+      "id": "DS-007",
+      "label": "DS-007 hardcoded colour, font and spacing inventory (v2 wording)",
+      "scope": "file:plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+      "contains": [
+        "ハードコード色・フォント・余白の `file:line` と件数"
+      ],
+      "absent": []
+    },
+    {
+      "id": "DS-017",
+      "label": "DS-017 workflow guide names the design-system integration",
+      "scope": "file:docs/workflow-guide.md",
+      "contains": [
+        "デザインシステム (`design-system/`)"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-004",
+      "label": "TEST-004 scope is one unit, this feature and this session, no disjunction (AC-002)",
+      "scope": "loop",
+      "contains": [
+        "当該 `(feature, session)` で未同意なら"
+      ],
+      "absent": [
+        "feature or session",
+        "feature/session",
+        "機能またはセッション"
+      ]
+    },
+    {
+      "id": "TEST-014",
+      "label": "TEST-014 regeneration rescans before upload and stays inside the consented scope (AC-009)",
+      "scope": "loop",
+      "contains": [
+        "モックアップの再生成後は毎回、次の送信前検査を行う",
+        "今後この範囲で再生成するモックアップの送信も含みます"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-015",
+      "label": "TEST-015 Design-Source record fields are enumerated by name, including the Q08 fields (AC-010)",
+      "scope": "dsl",
+      "contains": [
+        "| `Egress-Consent` |",
+        "| `Egress-Consent-Scope` |",
+        "| `Egress-Consent-Subject` |",
+        "| `Egress-Destination` |",
+        "| `Egress-Consent-Expiry` |",
+        "`Egress-Consent-Party`",
+        "`Egress-Consent-At`",
+        "`Ds-Upload-Consent-Setting"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-016",
+      "label": "TEST-016 (Q04) consent and scan records go to the Design-Source of specs/<feature>/design.md (AC-011)",
+      "scope": "dsl",
+      "contains": [
+        "成果物は `specs/<feature>/design.md` の `Design-Source` セクションへ記録する",
+        "`specs/<feature>/design.md` の `Design-Source` に判断・適用設定・送信先と"
+      ],
+      "absent": [
+        "specs/<feature>/ux-spec.md"
+      ]
+    },
+    {
+      "id": "TEST-018",
+      "label": "TEST-018 the consent is an operator representation the tool does not verify (AC-012)",
+      "scope": "loop",
+      "contains": [
+        "同意すると、この内容を外部へ送る権限がご自身にあると表明したことになります。このツールではその権限を検証しません。"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-023",
+      "label": "TEST-023 non-blocking: tool absence or authentication failure never stops specification work (AC-015)",
+      "scope": "boundaries",
+      "contains": [
+        "仕様生成をツール不在・認証失敗で停止させない"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-024",
+      "label": "TEST-024 the loop runs only for UI targets that use design-system/; otherwise nothing is asked (AC-016)",
+      "scope": "dsl",
+      "contains": [
+        "UI 対象かつ `design-system/` 運用時のみ呼び出される内部スキル"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-025",
+      "label": "TEST-025 pre-upload scan is named, follows consent, and covers only the files to send from mockups/ (AC-017)",
+      "scope": "loop",
+      "contains": [
+        "手順3の送信同意を先に確認し、送信予定の `specs/<feature>/mockups/` のファイルだけを",
+        "送信同意の記録はここには使わない"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-026",
+      "label": "TEST-026 no upload path in the Loop bypasses the pre-upload check point (AC-017, structural)",
+      "scope": "loop",
+      "contains": [
+        "再同意を求めず送信前検査に進む",
+        "`upload_directory` が指す検査済みコピーだけを",
+        "この `identity` の上書きを利用者が明示的に承認するまで送信しない"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-027",
+      "label": "TEST-027 the scan blocks by its own result, never by assuming a human answered (AC-018)",
+      "scope": "loop",
+      "contains": [
+        "沈黙・無回答・エージェント自身の判断を承認として扱わない",
+        "入力またはツールを復旧して再検査するまで送信しない"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-029",
+      "label": "TEST-029 consent already held for this scope proceeds without asking again (AC-019)",
+      "scope": "loop",
+      "contains": [
+        "前回の同意が有効なら、2回目以降のアップロードは再同意を求めず"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-032",
+      "label": "TEST-032 per-feature is the default ds_upload_consent setting (AC-020)",
+      "scope": "loop",
+      "contains": [
+        "`ds_upload_consent`（`per-feature` [既定] / `standing` / `off`）"
+      ],
+      "absent": []
+    },
+    {
+      "id": "TEST-049",
+      "label": "TEST-049 pull is resolved on its own and its grant is never reused for upload (AC-029)",
+      "scope": "dsl",
+      "contains": [
+        "読み込みは `operation: pull`、書き込みは `operation: upload`",
+        "`pull` の許可をアップロードに流用しない"
+      ],
+      "absent": []
+    }
+  ]
+}

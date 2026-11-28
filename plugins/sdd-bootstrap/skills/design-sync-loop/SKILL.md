@@ -48,11 +48,14 @@ UI アプリケーションの仕様段階デザイン反復ループ。Mermaid 
      実際の送信先が `claude.ai/design` の `claude-design` に限り、手順1で選んだプロジェクトの ID を `Egress-Destination` として `Design-Source` に残す。
      送信先を変えた場合、元のプロジェクトの同意は引き継がない。新しい送信先に有効な同意がなく、他の送信条件を満たす場合は、送信前に改めて同意を求める。
      利用者はセッション中でも同意を撤回できる。撤回を受けたら、同じ機能・セッション・送信先の判断を `withdrawn` として `Design-Source` に追記し、次の判定では `records` の末尾に渡す。撤回後、他の送信条件を満たす次の同一範囲のアップロードは `prompt` となり、改めて同意を求める。
-   判断結果に `audit` がある場合は、`specs/<feature>/design.md` の `Design-Source` に判断・適用設定・送信先・範囲と、返された `party`（`Egress-Consent-Party`）、記録時の ISO-8601 時刻（`Egress-Consent-At`）を残す。
+   判断結果に `audit` がある場合は、`specs/<feature>/design.md` の `Design-Source` に判断・適用設定・送信先と、同意の範囲（`Egress-Consent-Scope`）・対象（`Egress-Consent-Subject`）・有効期限（`Egress-Consent-Expiry`）、返された `party`（`Egress-Consent-Party`）、記録時の ISO-8601 時刻（`Egress-Consent-At`）を残す。
 
    | 送信同意の記録欄 | 値 |
    |---|---|
    | `Egress-Consent` | 送信同意の判断（`granted`、`not-permitted`、`withdrawn`） |
+   | `Egress-Consent-Scope` | 同意の範囲。この機能とこのセッションの組で、送信先は `Egress-Destination` に記録する |
+   | `Egress-Consent-Subject` | 同意の対象。利用者に示した送信内容をそのまま記録し、値の形式（ファイル一覧・ハッシュ・説明文）はここでは定めない |
+   | `Egress-Consent-Expiry` | 同意の有効期限。同意したセッションの終了時で、`none` にしない |
    | `Egress-Destination` | `claude-design` で実際に `claude.ai/design` を使う場合、手順1で選んだプロジェクトの ID |
 
    アップロード直前とモックアップの再生成後は毎回、次の送信前検査を行う。手順3の送信同意を先に確認し、送信予定の `specs/<feature>/mockups/` のファイルだけを、送信時と同じ相対パス・内容で1つのディレクトリに用意する。

@@ -70,27 +70,17 @@ assert_contains "$DSL" 'MASTER\.md' "DS-006 seed is input, artifacts authoritati
 # DS-007 investigate-codebase brownfield design inventory
 INV="$ROOT/plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md"
 assert_contains "$INV" 'Design Inventory' "DS-007 design inventory group"
-assert_contains "$INV" '#hex / rgb\(\) / hsl\(\)' "DS-007 hardcoded color patterns"
+# DS-007 v2 wording: tests/fixtures/design-system-contract/v2-needles.json
 
-# DS-008 design.template.md compliance section / DS-009 lite declaration
-DT="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md"
-assert_contains "$DT" '^## Design System Compliance$' "DS-008 compliance section"
-assert_contains "$DT" 'ds_profile: none' "DS-008 none profile N/A rule"
-assert_contains "$DT" 'design_system_version' "DS-008 version placeholder"
-DL="$ROOT/plugins/sdd-lite/templates/design-lite.md"
-assert_contains "$DL" 'design-system/' "DS-009 lite token declaration"
-
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): DS-008 and DS-009 read the retired interviewer
+# design template and the retired sdd-lite template.
 # DS-010 impl-reviewer-a design-system conformance check
-IRA="$ROOT/plugins/sdd-review-loop/agents/impl-reviewer-a.md"
-assert_contains "$IRA" '^## DESIGN-SYSTEM-CONFORMANCE \(Major, TYPE-D\)$' "DS-010 reviewer-a check defined"
-assert_contains "$IRA" 'ADR-PRESENT, DESIGN-SYSTEM-CONFORMANCE, DOMAIN-CONFORMANCE\.' "DS-010 ordered checks updated"
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): DS-010/DS-011 reviewer checks read the retired impl reviewers.
 PRC="$ROOT/plugins/sdd-review-loop/references/phase-review-checklist.md"
 assert_contains "$PRC" '^#### DESIGN-SYSTEM-CONFORMANCE$' "DS-010 checklist block"
 assert_contains "$PRC" 'impl-review-loop`: 22 checks' "DS-010 impl count updated"
 
 # DS-011 impl-reviewer-b unsanctioned UI library rule
-IRB="$ROOT/plugins/sdd-review-loop/agents/impl-reviewer-b.md"
-assert_contains "$IRB" 'component library or styling framework' "DS-011 reviewer-b UI library rule"
 assert_contains "$PRC" 'unsanctioned UI component library' "DS-011 checklist UI library rule"
 
 # DS-012 implementation policy UI rules and conditional required reading
@@ -105,7 +95,7 @@ assert_contains "$ITSK" 'design-system/design-system\.md' "DS-012 conditional re
 VVL="$ROOT/plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md"
 assert_contains "$VVL" 'design-system/\{design-tokens\.json,ui-patterns\.md\}' "DS-013 token conformance in loop"
 assert_contains "$VVL" 'design-system/\{design-tokens\.json,ui-patterns\.md\}' "DS-013 ui-patterns in loop"
-assert_contains "$VVL" 'check-design-system' "DS-013 deterministic gate ownership"
+assert_contains "$VVL" 'verdicts stay with sdd-gate' "DS-013 the loop leaves verdicts to sdd-gate (v2 gate ownership)"
 
 # DS-014 design-system checklist and evaluator wiring
 DSC="$ROOT/plugins/sdd-quality-loop/references/design-system-checklist.md"
@@ -113,8 +103,7 @@ assert_contains "$DSC" '^# Design System Review Checklist$' "DS-014 checklist ex
 assert_contains "$DSC" '^## UI Patterns \(ui-patterns\.md\)$' "DS-014 ui-patterns section"
 RUB="$ROOT/plugins/sdd-quality-loop/references/evaluation-rubric.md"
 assert_contains "$RUB" 'design-system non-conformance' "DS-014 rubric Major classification"
-QGS="$ROOT/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
-assert_contains "$QGS" 'design-system-checklist\.md' "DS-014 quality-gate conditional load"
+assert_contains "$ROOT/plugins/sdd-quality-loop/agents/evaluator.md" 'G5.*design-system/' "DS-014 the v2 evaluator checks design-system conformance (G5)"
 
 # DS-015 WCAG 2.2 AA update
 ACC="$ROOT/plugins/sdd-quality-loop/references/accessibility-checklist.md"
@@ -127,11 +116,13 @@ VCT="$ROOT/plugins/sdd-quality-loop/templates/verification-contract.template.jso
 assert_contains "$VCT" '"id": "design-system"' "DS-016 contract check id"
 RGM="$ROOT/plugins/sdd-quality-loop/references/risk-gate-matrix.md"
 assert_contains "$RGM" 'design-system conformance' "DS-016 matrix conditional row"
-assert_contains "$QGS" 'check-design-system' "DS-016 quality-gate runs the script"
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): the retired quality-gate skill ran check-design-system. The v2 gate does
+# not run it; like check-component-coverage (T-010 N2) it ships as a standalone check.
+assert_contains "$ROOT/docs/skill-reference.md" 'check-design-system' "DS-016 check-design-system stays documented as a standalone check"
 
 # DS-017 user-facing documentation
-assert_contains "$ROOT/README.md" 'design-system/' "DS-017 README feature bullet"
-assert_contains "$ROOT/docs/workflow-guide.md" 'design-sync-loop' "DS-017 workflow-guide integration"
+assert_contains "$ROOT/docs/skill-reference.md" '^\| design-sync-loop \| sdd-bootstrap \|' "DS-017 skill reference lists design-sync-loop"
+# DS-017 workflow guide: tests/fixtures/design-system-contract/v2-needles.json
 assert_contains "$ROOT/docs/skill-reference.md" 'check-design-system' "DS-017 skill-reference script entry"
 assert_contains "$ROOT/CHANGELOG.md" '統一デザインシステム統合' "DS-017 changelog entry"
 
@@ -157,14 +148,9 @@ assert_contains "$ROOT/CHANGELOG.md" '統一デザインシステム統合' "DS-
 # patch outside this feature's task plan.
 # ---------------------------------------------------------------------------
 
-BSI="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 WFG="$ROOT/docs/workflow-guide.md"
 CDW="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/references/claude-design-workflow.md"
 CHG="$ROOT/CHANGELOG.md"
-DSC_DRAFT="$ROOT/specs/design-sync-consent/verification/T-004/staged-lite-spec-candidate.draft.md"
-DSC_MANIFEST="$ROOT/specs/design-sync-consent/human-copy/MANIFEST.sha256"
-LITE_LIVE="$ROOT/plugins/sdd-lite/skills/lite-spec/SKILL.md"
-LITE_DEST_NAME="plugins/sdd-lite/skills/lite-spec/SKILL.md"
 # Captured 2026-08-05 at this task's authoring time, against the then-live
 # file. plugins/sdd-lite/skills/lite-spec/SKILL.md is never edited live by
 # any task in this decomposition (BL-004) -- T-004 stages a draft candidate
@@ -226,16 +212,13 @@ BANNED_PER_UPLOAD="$(printf '%s' 'per-up')$(printf '%s' 'load')"
 BANNED_EVERY_TIME="$(printf '%s' 'every')$(printf '%s' ' time')"
 BANNED_JA_PER_UPLOAD="$(printf '%s' '都度人間')$(printf '%s' '承認')"
 
-LOOP_SECTION=$(section_between "$DSL" '^## Loop$' '^## ')
+# v2 rewrote the loop as step 3 of the skill (Japanese).
+LOOP_SECTION=$(section_between "$DSL" '^## 3\. Mockup & Egress Consent Loop' '^## ')
 BOUNDARIES_SECTION=$(section_between "$DSL" '^## Boundaries$' '^## ')
-BSI_UI_BULLET=$(section_between "$BSI" '^- When the target is a UI application' '^- Otherwise ask whether the human has a local mockup')
-WFG_SECTION=$(section_between "$WFG" '^### 3\.1b ' '^### 3\.2 ')
 
 DSL_FLAT=$(flatten_file "$DSL")
 LOOP_FLAT=$(flatten_text "$LOOP_SECTION")
 BOUNDARIES_FLAT=$(flatten_text "$BOUNDARIES_SECTION")
-BSI_UI_BULLET_FLAT=$(flatten_text "$BSI_UI_BULLET")
-WFG_FLAT=$(flatten_text "$WFG_SECTION")
 CDW_FLAT=$(flatten_file "$CDW")
 
 # First line number (1-based, within $LOOP_SECTION) matching regex $1.
@@ -263,12 +246,7 @@ else
   fail "TEST-003 a different scope does not inherit the consent (AC-001 branch 3)"
 fi
 
-if printf '%s' "$DSL_FLAT" | grep -Eq 'this feature AND this session|this feature and this session' \
-   && ! printf '%s' "$DSL_FLAT" | grep -Eiq 'feature or session|feature/session|per-feature/session'; then
-  pass "TEST-004 scope names exactly one unit, no disjunction between units (AC-002)"
-else
-  fail "TEST-004 scope names exactly one unit, no disjunction between units (AC-002)"
-fi
+# TEST-004: tests/fixtures/design-system-contract/v2-needles.json
 
 check_consent_policy() {
   if python3 -B "$ROOT/tests/design-sync-policy.tests.py" "PolicyTests.$1"; then
@@ -284,84 +262,39 @@ check_consent_policy 'test_disclosure_repeated_uploads' 'TEST-008 disclosure sta
 check_consent_policy 'test_disclosure_regenerated_mockups' 'TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)'
 check_consent_policy 'test_disclosure_operator_authority' 'TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)'
 
-if printf '%s' "$LOOP_FLAT" | grep -Fq 'finalize_plan' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'not (fully )?(known|knowable|established)|opacity|limitation|not (fully )?enumerable'; then
-  pass "TEST-009 finalize_plan payload is cited or its opacity is stated as a limitation (AC-005)"
-else
-  fail "TEST-009 finalize_plan payload is cited or its opacity is stated as a limitation (AC-005)"
-fi
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): TEST-009 cited the v1 finalize_plan call, which v2 does not use.
 
 t010_gen=$(loop_line_of 'Generate mockups')
 t010_consent=$(loop_line_of 'Resolve egress consent|Consent Resolution')
 t010_push=$(loop_line_of '\bPush\b')
 t010_review=$(loop_line_of 'claude\.ai/design browser')
-if [ -n "$t010_gen" ] && [ -n "$t010_consent" ] && [ -n "$t010_push" ] && [ -n "$t010_review" ] \
-   && [ "$t010_gen" -lt "$t010_consent" ] && [ "$t010_consent" -lt "$t010_push" ] \
-   && [ "$t010_push" -lt "$t010_review" ]; then
-  pass "TEST-010 Loop order: generate -> consent -> push -> claude.ai review (AC-006, ordered structure)"
-else
-  fail "TEST-010 Loop order: generate -> consent -> push -> claude.ai review (AC-006, ordered structure)"
-fi
+# TEST-010: tests/fixtures/design-system-contract/v2-needles.json
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'Local review is OPTIONAL'; then
-  pass "TEST-011 local review carries an optionality marker (AC-007)"
-else
-  fail "TEST-011 local review carries an optionality marker (AC-007)"
-fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'no upload waits on it|not a precondition for push'; then
-  pass "TEST-012 local review is explicitly stated not to be a precondition for push (AC-007)"
-else
-  fail "TEST-012 local review is explicitly stated not to be a precondition for push (AC-007)"
-fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'reach claude\.ai without.{0,20}(any )?human|without any human having read it'; then
-  pass "TEST-013 the demotion's consequence is stated where the demotion is described (AC-008)"
-else
-  fail "TEST-013 the demotion's consequence is stated where the demotion is described (AC-008)"
-fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eq 'return to 2\b' \
-   && ! printf '%s' "$LOOP_FLAT" | grep -Eq 'return to 3\b'; then
-  pass "TEST-014 regeneration cycle returns to generation (2), not consent (3) (AC-009, ordered structure)"
-else
-  fail "TEST-014 regeneration cycle returns to generation (2), not consent (3) (AC-009, ordered structure)"
-fi
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): TEST-011..TEST-013 described the v1 optional local review step, which v2 removed.
+# TEST-014: tests/fixtures/design-system-contract/v2-needles.json
 
-if grep -Fq 'Egress-Consent-Scope' "$DSL" && grep -Fq 'Egress-Consent-Subject' "$DSL" \
-   && grep -Fq 'Egress-Destination' "$DSL" && grep -Fq 'Egress-Consent-Expiry' "$DSL" \
-   && grep -Fq 'Egress-Consent' "$DSL"; then
-  pass "TEST-015 Design-Source record fields are enumerated by name, not a heading check (AC-010)"
-else
-  fail "TEST-015 Design-Source record fields are enumerated by name, not a heading check (AC-010)"
-fi
+# TEST-015: tests/fixtures/design-system-contract/v2-needles.json
 
-if grep -Fq 'specs/<feature>/ux-spec.md' "$DSL"; then
-  pass "TEST-016 full-profile record destination is specs/<feature>/ux-spec.md (AC-011)"
-else
-  fail "TEST-016 full-profile record destination is specs/<feature>/ux-spec.md (AC-011)"
-fi
+# TEST-016: tests/fixtures/design-system-contract/v2-needles.json
 
 # TEST-017 targets the STAGED draft candidate (T-004), never the live,
 # protected plugins/sdd-lite/skills/lite-spec/SKILL.md -- red against the
 # live tree until T-004 lands (tasks.md T-001 Done-When, per-Test-ID
 # structural correctness bullet).
-if [ -f "$DSC_DRAFT" ] && grep -Fq 'specs/<feature>/design.md' "$DSC_DRAFT"; then
-  pass "TEST-017 lite-profile record destination is specs/<feature>/design.md, staged draft (AC-011)"
-else
-  fail "TEST-017 lite-profile record destination is specs/<feature>/design.md, staged draft (AC-011)"
-fi
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): TEST-017 read the staged sdd-lite candidate; sdd-lite retired.
 
 # TEST-018 -- load-bearing (security-spec.md:169). Structural: requires the
 # negation RELATIONSHIP (audit trace .. not .. authorization) within one
 # neighbourhood, not the independent presence of the two vocabulary words.
 # Demonstrated against a deliberately vacuous fixture in the implementation
 # report (tasks.md T-001 Done-When), not embedded in this suite.
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'audit trace[^.]{0,100}not[^.]{0,60}authorization'; then
-  pass "TEST-018 record is an audit trace, not an authorization anything enforces (AC-012, load-bearing)"
-else
-  fail "TEST-018 record is an audit trace, not an authorization anything enforces (AC-012, load-bearing)"
-fi
+# v2 feeds earlier records (e.g. withdrawn) back into the resolver, so the v1
+# statement that nothing reads the record retired; what remains is that the
+# tool never verifies the operator's authority to send.
+# TEST-018: tests/fixtures/design-system-contract/v2-needles.json
 
 if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" tool-unavailable; then
   pass "TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)"
@@ -388,72 +321,15 @@ else
   fail "TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)"
 fi
 
-if printf '%s' "$BOUNDARIES_FLAT" | grep -Eiq 'design tools.{0,20}never blocks|mockups or design tools'; then
-  pass "TEST-023 non-blocking condition 2: absence of design tools never blocks review (AC-015)"
-else
-  fail "TEST-023 non-blocking condition 2: absence of design tools never blocks review (AC-015)"
-fi
+# TEST-023: tests/fixtures/design-system-contract/v2-needles.json
 
-if grep -Fq 'no artifacts and no' "$BSI" && grep -Fq 'further design-system questions' "$BSI"; then
-  pass "TEST-024 ds_profile: none keeps no artifacts / no further questions; no consent leak (AC-016)"
-else
-  fail "TEST-024 ds_profile: none keeps no artifacts / no further questions; no consent leak (AC-016)"
-fi
+# TEST-024: tests/fixtures/design-system-contract/v2-needles.json
 
-t025_cp=$(loop_line_of 'Pre-upload check point')
-t025_consent=$(loop_line_of 'Resolve egress consent|Consent Resolution')
-if [ -n "$t025_cp" ] && [ -n "$t025_consent" ] && [ "$t025_cp" != "$t025_consent" ] \
-   && printf '%s' "$LOOP_FLAT" | grep -Fq 'specs/<feature>/mockups/'; then
-  pass "TEST-025 pre-upload check point named, distinct from consent, over mockups/ (AC-017)"
-else
-  fail "TEST-025 pre-upload check point named, distinct from consent, over mockups/ (AC-017)"
-fi
+# TEST-025: tests/fixtures/design-system-contract/v2-needles.json
 
-# TEST-026 -- structural, load-bearing (security-spec.md:169): the
-# consent-already-holds path routes to the named pre-upload point, and every
-# upload call follows that point. Deliberately scans only `write_files` (the call the
-# security-spec.md B1 boundary and the loop's own Push step name as the
-# actual sender), not `finalize_plan` too: `finalize_plan` is legitimately
-# *discussed*, never called, inside step 4's disclosure (the OQ-6 hedge
-# AC-005/TEST-009 requires), which sits before the check point by design --
-# scanning for it as an upload-call site would make this test fail against
-# a conforming file, the opposite of what a structural check should do.
-# Demonstrated against a deliberately vacuous fixture in the implementation
-# report (tasks.md T-001 Done-When), not embedded in this suite.
-test_026_no_bypass() {
-  cp_line=$(loop_line_of 'Pre-upload check point')
-  [ -n "$cp_line" ] || return 1
-  consent_holds_target=$(printf '%s\n' "$LOOP_SECTION" | awk '
-    /^[[:space:]]*- \*\*\(a\)/ { in_outcome_a = 1 }
-    in_outcome_a && /continue to [0-9]+ with no prompt/ {
-      match($0, /continue to [0-9]+/)
-      target = substr($0, RSTART, RLENGTH)
-      sub(/^continue to /, "", target)
-      print target
-      exit
-    }
-    in_outcome_a && /^[[:space:]]*- \*\*\(b\)/ { exit }
-  ')
-  [ "$consent_holds_target" = "5" ] || return 1
-  upload_lines=$(printf '%s\n' "$LOOP_SECTION" | grep -n -E 'write_files' | cut -d: -f1)
-  [ -n "$upload_lines" ] || return 1
-  for l in $upload_lines; do
-    [ "$l" -ge "$cp_line" ] || return 1
-  done
-  return 0
-}
-if test_026_no_bypass; then
-  pass "TEST-026 no upload path in the Loop bypasses the pre-upload check point (AC-017, structural)"
-else
-  fail "TEST-026 no upload path in the Loop bypasses the pre-upload check point (AC-017, structural)"
-fi
+# TEST-026: tests/fixtures/design-system-contract/v2-needles.json
 
-if printf '%s' "$LOOP_FLAT" | grep -Fq 'property of the check' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'does not presume.{0,10}an interactive human'; then
-  pass "TEST-027 check point's blocking behaviour carries no interactive-human precondition (AC-018)"
-else
-  fail "TEST-027 check point's blocking behaviour carries no interactive-human precondition (AC-018)"
-fi
+# TEST-027: tests/fixtures/design-system-contract/v2-needles.json
 
 if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" consent-prompt; then
   pass "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
@@ -461,11 +337,7 @@ else
   fail "TEST-028 consent-resolution outcome 1: must be requested (AC-019)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'consent already holds for this feature'; then
-  pass "TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)"
-else
-  fail "TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)"
-fi
+# TEST-029: tests/fixtures/design-system-contract/v2-needles.json
 
 if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" consent-off; then
   pass "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
@@ -473,50 +345,29 @@ else
   fail "TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)"
 fi
 
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'extensible' && printf '%s' "$DSL_FLAT" | grep -Eiq 'ignored|non-conforming'; then
-  pass "TEST-031 Design-Source shape is stated as additively extensible (AC-020)"
-else
-  fail "TEST-031 Design-Source shape is stated as additively extensible (AC-020)"
-fi
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): TEST-031 checked a v1 extensibility statement that v2 does not make.
 
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'per-feature.{0,80}(select|default)|(select|default).{0,80}per-feature'; then
-  pass "TEST-032 this feature's behaviour is the one a later per-feature setting selects (AC-020)"
-else
-  fail "TEST-032 this feature's behaviour is the one a later per-feature setting selects (AC-020)"
-fi
+# TEST-032: tests/fixtures/design-system-contract/v2-needles.json
 
 DSL_DESC_LINE=$(grep -m1 '^description:' "$DSL")
 if [ -n "$DSL_DESC_LINE" ] \
    && ! printf '%s' "$DSL_DESC_LINE" | grep -Fq "$BANNED_PER_UPLOAD" \
-   && printf '%s' "$DSL_DESC_LINE" | grep -Eiq 'per-feature|feature.{0,15}(and|AND).{0,15}session'; then
-  pass "TEST-033 site 1 (frontmatter description) states the per-feature model, not ${BANNED_PER_UPLOAD} (AC-021)"
+   && printf '%s' "$DSL_DESC_LINE" | grep -Fq 'explicit egress consent'; then
+  pass "TEST-033 site 1 (frontmatter description) states explicit consent, not ${BANNED_PER_UPLOAD} (AC-021)"
 else
-  fail "TEST-033 site 1 (frontmatter description) states the per-feature model, not ${BANNED_PER_UPLOAD} (AC-021)"
+  fail "TEST-033 site 1 (frontmatter description) states explicit consent, not ${BANNED_PER_UPLOAD} (AC-021)"
 fi
 
 if [ -n "$BOUNDARIES_SECTION" ] \
-   && ! printf '%s' "$BOUNDARIES_FLAT" | grep -Fq "$BANNED_EVERY_TIME" \
-   && printf '%s' "$BOUNDARIES_FLAT" | grep -Eiq 'per-feature|feature.{0,15}(and|AND).{0,15}session'; then
-  pass "TEST-034 site 2 (Boundaries) states the per-feature model, not ${BANNED_EVERY_TIME} (AC-021)"
+   && ! printf '%s' "$BOUNDARIES_FLAT" | grep -Fq "$BANNED_EVERY_TIME"; then
+  pass "TEST-034 site 2 (Boundaries) does not claim ${BANNED_EVERY_TIME} consent (AC-021)"
 else
-  fail "TEST-034 site 2 (Boundaries) states the per-feature model, not ${BANNED_EVERY_TIME} (AC-021)"
+  fail "TEST-034 site 2 (Boundaries) does not claim ${BANNED_EVERY_TIME} consent (AC-021)"
 fi
 
-if [ -n "$BSI_UI_BULLET" ] \
-   && ! printf '%s' "$BSI_UI_BULLET_FLAT" | grep -Fq "$BANNED_PER_UPLOAD" \
-   && printf '%s' "$BSI_UI_BULLET_FLAT" | grep -Eiq 'per-feature|feature.{0,15}(and|AND).{0,15}session'; then
-  pass "TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not ${BANNED_PER_UPLOAD} (AC-021)"
-else
-  fail "TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not ${BANNED_PER_UPLOAD} (AC-021)"
-fi
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): TEST-035 read the retired interviewer and TEST-036 a workflow-guide
+# section v2 removed; the per-feature model itself is TEST-032.
 
-if [ -n "$WFG_SECTION" ] \
-   && ! printf '%s' "$WFG_FLAT" | grep -Fq "$BANNED_JA_PER_UPLOAD" \
-   && printf '%s' "$WFG_FLAT" | grep -Fq 'セッション'; then
-  pass "TEST-036 site 4 (workflow-guide.md, Japanese) states the per-feature/session model (AC-021)"
-else
-  fail "TEST-036 site 4 (workflow-guide.md, Japanese) states the per-feature/session model (AC-021)"
-fi
 
 # TEST-037 -- regression (negative): the historical release note is
 # byte-identical to its pre-change content (BL-006, AC-022). Located by an
@@ -542,57 +393,10 @@ else
   fail "TEST-037 CHANGELOG.md historical release note is byte-identical to pre-change content (AC-022)"
 fi
 
-test_038_staged() {
-  [ -f "$DSC_DRAFT" ] || return 1
-  [ -f "$DSC_MANIFEST" ] || return 1
-  draft_hash=$(sha256_of "$DSC_DRAFT")
-  [ -n "$draft_hash" ] || return 1
-  grep -Eq "^${draft_hash}[[:space:]]+.*${LITE_DEST_NAME}\$" "$DSC_MANIFEST" || return 1
-  live_hash=$(sha256_of "$LITE_LIVE")
-  # Three designed epochs (see LITE_LIVE_SHA256_AT_T001's comment):
-  # pre-apply the live file is untouched; applied-verbatim it is the
-  # reviewed candidate; once other features' human-applied changes land on
-  # the same shared protected file, whole-file identity cannot hold and
-  # the check falls back to T-004's own payload block. The fallback fires
-  # only after both whole-file comparisons miss, and requires the anchor
-  # to be unique in each file, so ambiguity fails closed.
-  [ "$live_hash" = "$LITE_LIVE_SHA256_AT_T001" ] && return 0
-  [ "$live_hash" = "$draft_hash" ] && return 0
-  payload_anchor='design.md` に記録される'
-  [ "$(grep -cF -- "$payload_anchor" "$DSC_DRAFT")" = "1" ] || return 1
-  [ "$(grep -cF -- "$payload_anchor" "$LITE_LIVE")" = "1" ] || return 1
-  draft_block=$(grep -F -A2 -- "$payload_anchor" "$DSC_DRAFT")
-  [ -n "$draft_block" ] || return 1
-  live_block=$(grep -F -A2 -- "$payload_anchor" "$LITE_LIVE")
-  [ "$draft_block" = "$live_block" ]
-}
-if test_038_staged; then
-  pass "TEST-038 lite-spec change staged, live file unmodified or applied verbatim, manifest hash matches (AC-023)"
-else
-  fail "TEST-038 lite-spec change staged, live file unmodified or applied verbatim, manifest hash matches (AC-023)"
-fi
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): TEST-038 checked the staged sdd-lite candidate; sdd-lite retired.
 
-# TEST-039 -- CI-registration conformance. Traced from a CI entry point
-# (.github/workflows/*.yml) to this suite, in both runtimes. Expected RED
-# against the live tree until a human applies the separately staged
-# workflow patch (R-OQ-8 part 3) -- not this task's or T-005's to fix.
-test_039_ci_registered() {
-  ci_dir="$ROOT/.github/workflows"
-  [ -d "$ci_dir" ] || return 1
-  has_sh=0
-  has_ps1=0
-  for wf in "$ci_dir"/*.yml "$ci_dir"/*.yaml; do
-    [ -f "$wf" ] || continue
-    grep -q 'design-system-contract\.tests\.sh' "$wf" && has_sh=1
-    grep -q 'design-system-contract\.tests\.ps1' "$wf" && has_ps1=1
-  done
-  [ "$has_sh" -eq 1 ] && [ "$has_ps1" -eq 1 ]
-}
-if test_039_ci_registered; then
-  pass "TEST-039 this feature's assertions are reachable from a CI entry point (AC-024)"
-else
-  fail "TEST-039 this feature's assertions are reachable from a CI entry point (AC-024) -- DESIGNED RED: staged workflow patch not yet applied (R-OQ-8 part 3)"
-fi
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): TEST-039 waited for a staged v1 workflow patch. v2 registers suites in
+# tests/verification-catalog.json (verification-catalog-status reports CI reach).
 
 if grep -Eq '^## [0-9]+\. Ensure `design-system/`' "$DSL" && grep -Fq 'ui-ux-pro-max' "$DSL" \
    && grep -Fq 'design-system --persist' "$DSL" \
@@ -612,20 +416,54 @@ check_consent_policy 'test_destination_change_checks_its_own_grant' "TEST-045 a 
 check_consent_policy 'test_operator_can_withdraw_during_session' "TEST-046 a mid-session withdrawal path is stated (AC-028)"
 check_consent_policy 'test_withdrawn_consent_needs_fresh_grant' "TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)"
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'pull direction' && printf '%s' "$LOOP_FLAT" | grep -Eiq 'human-supplied project name'; then
-  pass "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"
-else
-  fail "TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)"
-fi
+# TEST-049: tests/fixtures/design-system-contract/v2-needles.json
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'not change consent state' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'reports the failure' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'no re-prompt|without a new consent prompt' \
-   && printf '%s' "$LOOP_FLAT" | grep -Eiq 'no standing forbiddance'; then
-  pass "TEST-051 push-failure rule, all four parts (AC-030)"
-else
-  fail "TEST-051 push-failure rule, all four parts (AC-030)"
-fi
+# Retired 2026-11-28 (T-010, ADR-0051 decision 2): TEST-051 checked the v1 push-failure rule; v2 states none (reported as an
+# open question in the T-010 implementation report).
+
+# v2 skill wording (Japanese), shared with the PowerShell twin through one
+# UTF-8 fixture so the two runtimes check identical needles (T-010).
+V2_NEEDLES="$ROOT/tests/fixtures/design-system-contract/v2-needles.json"
+v2_results=$(python3 - "$ROOT" "$V2_NEEDLES" <<'PY'
+import json, re, sys
+from pathlib import Path
+root, fixture = Path(sys.argv[1]), json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
+dsl_path = root / "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
+dsl_lines = dsl_path.read_text(encoding="utf-8").splitlines()
+def section(bounds):
+    start, end = (re.compile(b) for b in bounds)
+    out, inside = [], False
+    for line in dsl_lines:
+        if inside and end.search(line) and not start.search(line):
+            break
+        if start.search(line):
+            inside = True
+        if inside:
+            out.append(line)
+    return out
+flat = lambda lines: " ".join(" ".join(lines).split())
+loop = section(fixture["loop_section"])
+scopes = {"loop": flat(loop), "dsl": flat(dsl_lines), "boundaries": flat(section(fixture["boundaries_section"]))}
+for check in fixture["checks"]:
+    scope = check["scope"]
+    text = scopes[scope] if scope in scopes else flat((root / scope[5:]).read_text(encoding="utf-8").splitlines())
+    ok = all(" ".join(n.split()) in text for n in check["contains"]) and not any(n in text for n in check["absent"])
+    print(("PASS " if ok else "FAIL ") + check["label"])
+order = fixture["order"]
+positions = [next((i for i, line in enumerate(loop) if re.search(step, line)), -1) for step in order["steps"]]
+print(("PASS " if -1 not in positions and positions == sorted(positions) and len(set(positions)) == len(positions) else "FAIL ") + order["label"])
+PY
+)
+while IFS= read -r line; do
+  case "$line" in
+    PASS\ *) pass "${line#PASS }" ;;
+    FAIL\ *) fail "${line#FAIL }" ;;
+    *) fail "v2 needle runner: $line" ;;
+  esac
+done <<EOF_V2
+$v2_results
+EOF_V2
+[ -n "$v2_results" ] || fail "v2 needle runner produced no result"
 
 if node "$ROOT/tests/lib/bootstrap-core-contracts.mjs" design-system; then
   pass "Core design-system contract"
