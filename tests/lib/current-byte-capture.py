@@ -26,6 +26,12 @@ import tempfile
 # Exclude fixture symlinks on native Windows too.
 SOURCE_EXCLUDED = ('specs/', 'reports/', 'tests/fixtures/')
 GUARDRAILS_EXAMPLE = 'sdd/guardrails.example.yaml'
+GENERATOR = 'plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py'
+STATUS_RUNTIME = ('mcp/sdd-forge-mcp/dist/index.js', 'mcp/sdd-forge-mcp/package.json')
+CODEX_RECEIPT = '.sdd-codex-mcp-registration'
+# Generated files of the guard-invariants generator, retired with it (ADR-0051 decision 1).
+RETIRED_GENERATED = frozenset({'guard-invariants.generated.js', 'guard-invariants.generated.ps1',
+                               'guard-invariants.generated.sh', 'guard_invariants.py'})
 
 
 def sha(data):
@@ -73,8 +79,10 @@ def files_only_payload(source):
     """Independent expected bytes for the declared allowlist with SkipMcp.
 
     Read the public manifest from the preexecution source snapshot, never from
-    the installed tree or installer functions. MCP placement is disabled in
-    this capture; its enabled two-file layout has separate installer tests.
+    the installed tree or installer functions. SkipMcp registers no MCP server,
+    but v2 always places the sdd-forge-mcp runtime that `/sdd-ship:status` runs
+    (ADR-0052 C-4) and records a FilesOnly install as not registered in Codex.
+    The enabled multi-server layout has separate installer tests.
     """
     if 'install-payload.txt' not in source:
         raise ValueError('source is missing the public install-payload.txt contract')
@@ -93,10 +101,16 @@ def files_only_payload(source):
         raise ValueError('source is missing the declared sdd/guardrails.example.yaml')
     excluded = {'.git', 'node_modules', '__pycache__', '.pytest_cache', '.mypy_cache',
                 '.ruff_cache', '.cache', '.venv', '.private', '.learnings', '.DS_Store'}
-    return {name: data for name, data in source.items()
-            if not name.startswith('mcp/') and not excluded.intersection(name.split('/'))
-            and not name.endswith(('.pyc', '.pyo'))
-            and any(name.startswith(entry) if entry.endswith('/') else name == entry for entry in entries)}
+    payload = {name: data for name, data in source.items()
+               if not name.startswith('mcp/') and not excluded.intersection(name.split('/'))
+               and not name.endswith(('.pyc', '.pyo'))
+               and any(name.startswith(entry) if entry.endswith('/') else name == entry for entry in entries)}
+    for name in STATUS_RUNTIME:
+        if name not in source:
+            raise ValueError(f'source is missing the always-installed status runtime: {name}')
+        payload[name] = source[name]
+    payload[CODEX_RECEIPT] = b'legacy codex-mcp/v1\n'
+    return payload
 
 
 def powershell_for(runtime):
@@ -193,7 +207,10 @@ def capture(product, fixture, destination, canonical, runtime):
                                     env=env, capture_output=True)
             if staged.returncode:
                 raise ValueError('cannot index source fixture')
-            generated = run([sys.executable, str(fixture / 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py'), '--check'])
+            # The baseline recorded the shipped projection generator's --check:
+            # silent, exit 0. ADR-0051 retired generate-guard-invariants.py; the
+            # one projection generator still shipped is generate-gate-capabilities.py.
+            generated = run([sys.executable, str(fixture / GENERATOR), '--check'])
             raw = struct.pack('>Q', len(generated.stdout)) + generated.stdout + struct.pack('>Q', len(generated.stderr)) + generated.stderr
             write('deterministic-script-output', raw)
             write('stdout-stderr', raw)
@@ -228,7 +245,7 @@ def capture(product, fixture, destination, canonical, runtime):
             prefix = 'plugins/sdd-quality-loop/scripts/generated/'
             generated_names = {name[len(prefix):] for name in source if name.startswith(prefix)}
             historical_names = set((canonical / 'targets/generated-directory-listing.txt').read_text().splitlines())
-            if not historical_names.issubset(generated_names):
+            if not historical_names - RETIRED_GENERATED <= generated_names:
                 raise ValueError('current source omits a required historical generated artifact')
             expected_listing = ''.join(name + '\n' for name in sorted(generated_names, key=lambda name: tuple(name.split('/'))))
             write('generated-directory-listing', listing.encode(), expected_listing.encode())

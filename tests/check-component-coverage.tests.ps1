@@ -71,16 +71,20 @@ if ($obj.schema -ceq "resolve-component-paths-diagnose/v1") {
 } else {
     Fail "TEST-029.1: expected resolve-component-paths-diagnose/v1, got $($obj.schema)"
 }
-$skillPath = Join-Path $repoRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
-$skillExists = Test-Path -LiteralPath $skillPath -PathType Leaf
-$skillText = if ($skillExists) { Get-Content -Raw -LiteralPath $skillPath }
-if (-not $skillExists) {
-    Fail "TEST-029.2: missing $skillPath"
-} elseif ($skillText -notmatch "resolve-component-paths --diagnose|resolve-component-paths\.(sh|ps1) --?[Dd]iagnose") {
-    Ok "TEST-029.2: quality-gate/SKILL.md's ## Process never invokes -Diagnose"
-} else {
-    Fail "TEST-029.2: -Diagnose must never appear in quality-gate/SKILL.md's Process"
+# The v2 gate surfaces replace the retired quality-gate skill (ADR-0051
+# decision 2, 2026-11-28 owner decision).
+$diagnoseOk = $true
+foreach ($gateSurface in @('plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md', 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs')) {
+    $surfacePath = Join-Path $repoRoot $gateSurface
+    if (-not (Test-Path -LiteralPath $surfacePath -PathType Leaf)) {
+        Fail "TEST-029.2: missing $surfacePath"
+        $diagnoseOk = $false
+    } elseif ((Get-Content -Raw -LiteralPath $surfacePath) -cmatch 'resolve-component-paths(\.(sh|ps1|py))?["'' ]+-{0,2}[Dd]iagnose') {
+        Fail "TEST-029.2: -Diagnose must never be invoked from $gateSurface"
+        $diagnoseOk = $false
+    }
 }
+if ($diagnoseOk) { Ok "TEST-029.2: neither the sdd-gate skill nor run-sdd-gate.mjs invokes -Diagnose" }
 
 # ============================================================================
 # TEST-030: one fixture per Fail-1..6, identical advisory/required
@@ -307,7 +311,6 @@ if ($code059 -eq 2) {
 $drafts = Join-Path $repoRoot "reports/implementation/epic-191-a3-path-ownership/drafts"
 $liveContractPy = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/check-contract.py"
 $liveContractPs1 = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/check-contract.ps1"
-$hcManifest191 = Join-Path $repoRoot "specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256"
 
 function Invoke-LiveCheckContract {
     param([string]$ContractPath, [string]$Root)
@@ -345,11 +348,8 @@ if ($matrixBlock -match '(?m)^high\s+=.*check-component-coverage') {
 } else {
     Fail "TEST-036.1: expected check-component-coverage inside the machine-form 'high =' line"
 }
-if ($skillText -match "check-component-coverage") {
-    Ok "TEST-036.2: quality-gate/SKILL.md documents check-component-coverage (live, unprotected, direct edit)"
-} else {
-    Fail "TEST-036.2: expected check-component-coverage documented in quality-gate/SKILL.md"
-}
+# TEST-036.2 retired (2026-11-28 owner decision, ADR-0051 decision 2); see the
+# bash twin. Whether the v2 Core gate must run this check is open (T-010 N2).
 # TEST-036.3 (retargeted 2026-08-11): the pre-apply inversion ("does NOT yet
 # register") could never pass again once the human apply landed. Now: the
 # live check-contract.ps1 registers the check in high AND critical and
@@ -362,96 +362,8 @@ if ($liveContractPs1Text -match '"high"\s*=.*"check-component-coverage"' -and
 } else {
     Fail "TEST-036.3: expected the live check-contract.ps1 to carry the conditional check-component-coverage registration"
 }
-# TEST-036.4 (retargeted 2026-08-12): live guard-invariants.json must carry
-# the three entries in BOTH protected lists; T-004's own live workflow steps
-# must remain present; every shared-manifest candidate hash must verify; and
-# T-004-owned protected rows must still match live. The shared workflow row
-# may carry a later serialized task's pending staged registration. Explicit
-# HUMAN APPLY STEP paths are derived from that later task's text and remain
-# candidate-only only while the candidate's argument guard is absent live.
-$invariantsPath = Join-Path $repoRoot "plugins/sdd-quality-loop/references/guard-invariants.json"
-$liveGuardInvariants = if (Test-Path -LiteralPath $invariantsPath -PathType Leaf) {
-    Get-Content -Raw -LiteralPath $invariantsPath | ConvertFrom-Json
-}
-$newSuffixes = @(
-    "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
-    "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
-    "plugins/sdd-quality-loop/scripts/check-component-coverage.sh"
-)
-$liveAddOk = $null -ne $liveGuardInvariants
-if ($liveAddOk) {
-    foreach ($n in $newSuffixes) {
-        if (($liveGuardInvariants.protected_gate_suffixes -notcontains $n) -or ($liveGuardInvariants.phase2_human_copy_targets -notcontains $n)) { $liveAddOk = $false }
-    }
-}
-# Reuse the archived validator/renderer for precisely the six shared invariant
-# files; its self-test rejects removed protections, policy changes and stale output.
-$evolutionOut = & python3 (Join-Path $repoRoot 'tests/lib/guard-invariants-evolution.py') `
-    (Join-Path (Split-Path -Parent $hcManifest191) 'plugins/sdd-quality-loop') `
-    (Join-Path $repoRoot 'plugins/sdd-quality-loop') --self-test 2>&1
-$invariantEvolutionOk = $LASTEXITCODE -eq 0
-if (-not $invariantEvolutionOk) { Write-Output $evolutionOut }
-$evolvedPaths = @(
-    'plugins/sdd-quality-loop/references/guard-invariants.json',
-    'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
-    'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py',
-    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js',
-    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
-    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
-)
-$manifestOk = $invariantEvolutionOk
-$researchOut = & python3 (Join-Path $repoRoot 'tests/lib/research-consumer-publication.py') $repoRoot
-if ($LASTEXITCODE -ne 0) { throw 'Research candidate binding validation failed' }
-$researchPaths = @($researchOut | ConvertFrom-Json)
-$manifestChecked = 0
-$liveChecked = 0
-$tasksText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/tasks.md')
-$t006Text = ($tasksText -split '## T-006', 2)[1]
-$declaredHumanApply = @([regex]::Matches($t006Text, 'human-copy/(plugins/[^`\s]+)') | ForEach-Object { $_.Groups[1].Value })
-$liveWorkflowText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot '.github/workflows/test.yml')
-if (-not $liveWorkflowText.Contains('bash ./tests/check-component-coverage.tests.sh') -or
-    -not $liveWorkflowText.Contains('./tests/check-component-coverage.tests.ps1')) {
-    $manifestOk = $false
-}
-foreach ($line in (Get-Content -LiteralPath $hcManifest191)) {
-    if ($line.Trim() -ceq "" -or $line.TrimStart().StartsWith("#")) { continue }
-    $parts = $line -split '\s+', 2
-    if ($parts.Count -ne 2) { $manifestOk = $false; continue }
-    $relativePath = $parts[1].Trim()
-    $candidatePath = Join-Path (Split-Path -Parent $hcManifest191) $relativePath
-    if (-not (Test-Path -LiteralPath $candidatePath)) { $manifestOk = $false; continue }
-    $candidateHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $candidatePath).Hash.ToLowerInvariant()
-    if ($candidateHash -cne $parts[0].Trim()) { $manifestOk = $false }
-    # The repo-shared CI workflow was exempted here while this bundle
-    # snapshotted it; that entry was evicted 2026-08-14 and TEST-045.5's class
-    # lock forbids its return, so the exemption became unreachable and is
-    # removed. See the bash twin for the full rationale.
-    $livePath = Join-Path $repoRoot $relativePath
-    if (-not (Test-Path -LiteralPath $livePath)) { $manifestOk = $false; continue }
-    $liveText = [System.IO.File]::ReadAllText($livePath)
-    $guardApplied = $liveText.Contains('if ($args.Count -gt 0)', [System.StringComparison]::Ordinal) -and
-        $liveText.Contains('unrecognized arguments:', [System.StringComparison]::Ordinal)
-    $pendingHumanApply = $declaredHumanApply -ccontains $relativePath -and -not $guardApplied
-    $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
-    if (-not $pendingHumanApply) {
-        if ($liveHash -cne $parts[0].Trim() -and -not ($invariantEvolutionOk -and $evolvedPaths -ccontains $relativePath) -and $researchPaths -cnotcontains $relativePath) { $manifestOk = $false }
-        $liveChecked++
-    }
-    $manifestChecked++
-}
-if ($liveAddOk -and $manifestOk -and $manifestChecked -gt 0 -and $liveChecked -gt 0) {
-    Ok "TEST-036.4: T-004's registrations and $manifestChecked frozen candidates verify; $liveChecked live protected rows match their predecessor or an exactly bound current candidate"
-} else {
-    Fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed (addOk=$liveAddOk manifestOk=$manifestOk candidates=$manifestChecked live=$liveChecked)"
-}
-# TEST-036.5 (retargeted 2026-08-11): the generator inventory check runs
-# against the LIVE tree — the applied state is what must be consistent.
-$genCheck = & python3 (Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py") --check 2>&1
-if ($LASTEXITCODE -eq 0) {
-    Ok "TEST-036.5: the LIVE generate-guard-invariants.py --check exits 0 against the applied live tree (internal consistency proven, not asserted)"
-} else {
-    Fail "TEST-036.5: the LIVE generate-guard-invariants.py --check failed: $genCheck"
-}
+# TEST-036.4 and TEST-036.5 retired (2026-11-28 owner decision, ADR-0051
+# decision 1); see the bash twin.
 
 Write-Output "=== TEST-035: reachability registration (two-tier defense scope) ==="
 # TEST-035.1 (rebound 2026-08-11): behavioral against the APPLIED live

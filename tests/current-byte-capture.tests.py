@@ -14,7 +14,7 @@ SPEC = importlib.util.spec_from_file_location('current_capture', ROOT / 'tests/l
 CAPTURE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(CAPTURE)
 CANONICAL = ROOT / 'specs/epic-195-a7-compatibility/verification/golden-baseline/canonical'
-GENERATOR = 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py'
+GENERATOR = CAPTURE.GENERATOR
 RUNTIME = 'powershell' if os.name == 'nt' else 'bash'
 
 

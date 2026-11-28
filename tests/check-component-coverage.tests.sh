@@ -95,14 +95,20 @@ if [ "$schema" = "resolve-component-paths-diagnose/v1" ]; then
 else
   fail "TEST-029.1: expected resolve-component-paths-diagnose/v1 schema, got $schema"
 fi
-gate_skill="${REPO_ROOT}/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
-if grep -q "resolve-component-paths --diagnose\|resolve-component-paths.sh --diagnose" "$gate_skill"; then
-  fail "TEST-029.2: --diagnose must never appear in quality-gate/SKILL.md's Process"
-elif [[ $? -eq 1 ]]; then
-  ok "TEST-029.2: quality-gate/SKILL.md's ## Process never invokes --diagnose"
-else
-  fail "TEST-029.2: could not read $gate_skill"
-fi
+# The v2 gate surfaces (the sdd-gate skill and run-sdd-gate.mjs) replace the
+# retired quality-gate skill (ADR-0051 decision 2, 2026-11-28 owner decision).
+diagnose_hits=0
+for gate_surface in "${REPO_ROOT}/plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md" \
+  "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs"; do
+  if [[ ! -f "$gate_surface" ]]; then
+    fail "TEST-029.2: could not read $gate_surface"
+    diagnose_hits=-1
+  elif grep -Eq 'resolve-component-paths(\.(sh|ps1|py))?["'"'"' ]+-{0,2}[Dd]iagnose' "$gate_surface"; then
+    fail "TEST-029.2: --diagnose must never be invoked from $gate_surface"
+    diagnose_hits=-1
+  fi
+done
+[[ $diagnose_hits -eq 0 ]] && ok "TEST-029.2: neither the sdd-gate skill nor run-sdd-gate.mjs invokes --diagnose"
 
 # ============================================================================
 # TEST-030 (AC-030): one dedicated fixture per Fail-1..Fail-6, identical
@@ -367,7 +373,6 @@ fi
 # reads drafts/bundle-b any more — TEST-055.3 asserts its eviction.
 # ============================================================================
 DRAFTS="${REPO_ROOT}/reports/implementation/epic-191-a3-path-ownership/drafts"
-HC_MANIFEST_191="${REPO_ROOT}/specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256"
 
 echo "=== TEST-036: protected-suffix registration + generator inventory ==="
 matrix_block=$(sed -n '/^low      = /,/^critical = /p' "${REPO_ROOT}/plugins/sdd-quality-loop/references/risk-gate-matrix.md")
@@ -376,12 +381,9 @@ if printf '%s' "$matrix_block" | grep -Eq '^high[[:space:]]+=.*check-component-c
 else
   fail "TEST-036.1: expected check-component-coverage inside the machine-form 'high =' line"
 fi
-if process_block=$(sed -n '/^## Process/,/^## Done Decision/p' "$gate_skill") &&
-   [[ "$process_block" == *check-component-coverage* ]]; then
-  ok "TEST-036.2: quality-gate/SKILL.md's ## Process section itself (not just anywhere in the file) documents check-component-coverage"
-else
-  fail "TEST-036.2: expected check-component-coverage inside SKILL.md's ## Process section"
-fi
+# TEST-036.2 retired (2026-11-28 owner decision, ADR-0051 decision 2): it
+# required the retired quality-gate skill's Process section to run this check.
+# Whether the v2 Core gate must run it is an open owner question (T-010 N2).
 # TEST-036.3 (retargeted 2026-08-11): before the human apply this asserted
 # the live check-contract pair did NOT register the check (documenting the
 # gap); after 710d6746 that inversion could never pass again. It now asserts
@@ -403,96 +405,9 @@ if grep -Eq '"high":[[:space:]]*\{[^}]*"check-component-coverage"[^}]*\}' "$LIVE
 else
   fail "TEST-036.3: expected the live check-contract pair to carry the conditional check-component-coverage registration"
 fi
-# TEST-036.4 (retargeted 2026-08-11): the old live-vs-draft set comparison
-# asserted the three suffixes were NOT yet live; post-apply that inverted.
-# Now: the live guard-invariants.json must carry all three
-# check-component-coverage.* entries in BOTH protected_gate_suffixes and
-# phase2_human_copy_targets; T-004's two live workflow steps must remain
-# present; every candidate must match its manifest hash; and T-004-owned
-# protected rows must remain byte-identical live. The shared workflow row is
-# candidate-only because later serialized tasks reuse it for pending staged
-# registrations after T-004's own steps have been human-applied. A later
-# task's explicit HUMAN APPLY STEP may likewise add a not-yet-live protected
-# candidate; those paths are derived from that task's text and are exempt only
-# while the candidate's unknown-argument guard is absent from the live file.
-# The six shared invariant files may add protections only when the archived
-# validator/renderer and its negative mutation controls verify the complete set.
-if python3 -c "
-import hashlib
-import json
-import re
-import sys
-from pathlib import Path
-repo = Path(sys.argv[1])
-manifest = Path(sys.argv[2])
-import importlib.util
-sys.dont_write_bytecode = True
-spec = importlib.util.spec_from_file_location('guard_evolution', repo / 'tests/lib/guard-invariants-evolution.py')
-evolution = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(evolution)
-evolution.self_test(manifest.parent / 'plugins/sdd-quality-loop', repo / 'plugins/sdd-quality-loop')
-spec = importlib.util.spec_from_file_location('research_candidate', repo / 'tests/lib/research-consumer-publication.py')
-research = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(research)
-research_paths = set(research.checked_paths(repo))
-evolved_paths = {
-    'plugins/sdd-quality-loop/references/guard-invariants.json',
-    'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
-    *('plugins/sdd-quality-loop/scripts/generated/' + name for name in (
-        'guard_invariants.py', 'guard-invariants.generated.js',
-        'guard-invariants.generated.ps1', 'guard-invariants.generated.sh')),
-}
-tasks = (repo / 'specs/epic-191-a3-path-ownership/tasks.md').read_text()
-t006 = tasks.split('## T-006', 1)[1]
-declared_human_apply = set(re.findall(r'human-copy/(plugins/[^\x60\s]+)', t006))
-live = json.load(open(sys.argv[3]))
-new = ('plugins/sdd-quality-loop/scripts/check-component-coverage.py',
-       'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1',
-       'plugins/sdd-quality-loop/scripts/check-component-coverage.sh')
-for n in new:
-    if n not in live['protected_gate_suffixes']:
-        raise SystemExit(f'{n} missing from live protected_gate_suffixes')
-    if n not in live['phase2_human_copy_targets']:
-        raise SystemExit(f'{n} missing from live phase2_human_copy_targets')
-workflow = (repo / '.github/workflows/test.yml').read_text()
-for marker in ('bash ./tests/check-component-coverage.tests.sh',
-               './tests/check-component-coverage.tests.ps1'):
-    if marker not in workflow:
-        raise SystemExit(f'missing live T-004 workflow marker: {marker}')
-for line in manifest.read_text().splitlines():
-    if not line.strip() or line.lstrip().startswith('#'):
-        continue
-    expected, relative = line.split(None, 1)
-    candidate = manifest.parent / relative
-    if not candidate.is_file() or hashlib.sha256(candidate.read_bytes()).hexdigest() != expected:
-        raise SystemExit(f'candidate hash mismatch: {relative}')
-    # The repo-shared CI workflow was exempted here while this bundle
-    # snapshotted it (a snapshot of a shared file cannot be compared to live).
-    # That entry was evicted 2026-08-14 and TEST-045.5's class lock now forbids
-    # its return, so the exemption became unreachable and is removed.
-    applied = repo / relative
-    if not applied.is_file():
-        raise SystemExit(f'applied file missing: {relative}')
-    applied_bytes = applied.read_bytes()
-    guard_applied = b'if (\$args.Count -gt 0)' in applied_bytes and b'unrecognized arguments:' in applied_bytes
-    pending_human_apply = relative in declared_human_apply and not guard_applied
-    if not pending_human_apply and relative not in evolved_paths and relative not in research_paths and hashlib.sha256(applied_bytes).hexdigest() != expected:
-        raise SystemExit(f'applied hash mismatch: {relative}')
-raise SystemExit(0)
-" "${REPO_ROOT}" "${HC_MANIFEST_191}" "${REPO_ROOT}/plugins/sdd-quality-loop/references/guard-invariants.json"; then
-  ok "TEST-036.4: T-004's registrations and frozen candidates verify; live protected rows match their predecessor or an exactly bound current candidate"
-else
-  fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed against ${HC_MANIFEST_191}"
-fi
-# TEST-036.5 (retargeted 2026-08-11): the generator inventory check now runs
-# against the LIVE tree — the applied state is what must be internally
-# consistent; the drafts/bundle-a copy is a byte-identical historical
-# leftover and proving it no longer proves anything the live check does not.
-if python3 "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py" --check >/dev/null 2>&1; then
-  ok "TEST-036.5: the LIVE generate-guard-invariants.py --check exits 0 against the applied live tree (internal consistency proven, not asserted)"
-else
-  fail "TEST-036.5: the LIVE generate-guard-invariants.py --check failed against the applied tree"
-fi
+# TEST-036.4 and TEST-036.5 retired (2026-11-28 owner decision, ADR-0051
+# decision 1): they bound this checker to guard-invariants.json, its generator
+# and the epic-191 human-copy bundle, which v2 removed with the hard locks.
 
 echo "=== TEST-035: reachability registration (two-tier defense scope) ==="
 # TEST-035.1 (rebound 2026-08-11): the old assertion grepped the superseded
