@@ -587,6 +587,34 @@ plugins_git_history_available() {
   command -v git >/dev/null 2>&1 || return 1
   git -C "$SCRIPT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1
 }
+# Returns success when $evidence_file's introducing-commit pin is a
+# shallow-clone boundary. --diff-filter=A reports every path that predates
+# the graft as "added" in the boundary commit, so such a pin is
+# indeterminate rather than the moment the review ran. Callers still fail
+# closed; this only lets the diagnostic name the actionable cause (missing
+# history) instead of a stale hash. A shallow clone whose boundary is not
+# the pin, or whose pin reconciles anyway, never reaches this.
+plugins_pin_is_shallow_boundary() {
+  local evidence_file="$1" pin shallow_file
+  # A snapshot run never consults history (it is already marked ineligible).
+  [[ "${SDD_WORKFLOW_SNAPSHOT:-}" != 1 ]] || return 1
+  plugins_git_history_available || return 1
+  [[ "$(git -C "$SCRIPT_ROOT" rev-parse --is-shallow-repository 2>/dev/null)" == true ]] || return 1
+  pin="$(plugins_pin_commit "$evidence_file")" || return 1
+  shallow_file="$(cd "$SCRIPT_ROOT" && git rev-parse --git-path shallow 2>/dev/null)" || return 1
+  [[ "$shallow_file" == /* ]] || shallow_file="$SCRIPT_ROOT/$shallow_file"
+  [[ -f "$shallow_file" ]] && grep -qxF "$pin" "$shallow_file"
+}
+# The stale-hash diagnostic for a manifest input whose pinned-history
+# reconciliation failed, naming shallow history when that is the cause.
+stale_manifest_input_message() {
+  local stage="$1" evidence_file="$2"
+  if plugins_pin_is_shallow_boundary "$evidence_file"; then
+    printf '%s reviewer manifest input history is shallow; fetch full history (git fetch --unshallow)\n' "$stage"
+  else
+    printf '%s reviewer manifest input hash is stale\n' "$stage"
+  fi
+}
 # Returns success if $plugins_file's content matches $expected either right
 # now, or as of the commit that produced $evidence_file (the review contract
 # JSON whose recorded manifest hash is being validated). A release artifact
@@ -1545,7 +1573,8 @@ validate_passed_stage() {
       # all, so a missing declaration can't hide behind this tolerance).
       plugins/*)
         plugins_hash_matches "$manifest_file" "$manifest_hash" "$contract_identity" ||
-          diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale" ;;
+          diagnostic_or_tolerate "$feature" "$stage" stage-provenance \
+            "$(stale_manifest_input_message "$stage" "$contract_identity")" ;;
       # Tolerated STANDALONE (no --opening needed): the amendment
       # re-review lane's own oscillation, where a downstream stage's
       # recovery grows this file's `## Amendment Re-Review Context`
@@ -1560,7 +1589,8 @@ validate_passed_stage() {
           if investigation_amendment_reconciles "$manifest_file" "$manifest_hash" "$contract_identity"; then
             print_investigation_amendment_notice "$feature" "$stage" "$manifest_relative" "$manifest_hash" "$current_hash"
           else
-            diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale"
+            diagnostic_or_tolerate "$feature" "$stage" stage-provenance \
+              "$(stale_manifest_input_message "$stage" "$contract_identity")"
           fi
         fi ;;
       *)
