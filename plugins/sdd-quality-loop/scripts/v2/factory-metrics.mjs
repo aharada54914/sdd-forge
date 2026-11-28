@@ -116,9 +116,13 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
   const metrics = metricsData.records.filter(filterByFeature);
   const driftEvents = driftData.records.filter(filterByFeature);
 
-  const gateRuns = metrics.filter(
+  const recordedRuns = metrics.filter(
     (r) => r.kind !== 'attribution' && r.kind !== 'final-verdict' && typeof r.verdict === 'string',
   );
+  // A contender the task lock refused never ran the gate's checks, so it is
+  // neither a PASS/FAIL nor an attempt; it is counted on its own (T-010 N4).
+  const gateRuns = recordedRuns.filter((r) => r.lockDenied !== true);
+  const lockDeniedRuns = recordedRuns.length - gateRuns.length;
   const finalVerdicts = metrics.filter((r) => r.kind === 'final-verdict' && typeof r.finalVerdict === 'string');
   const finalPass = finalVerdicts.filter((r) => r.finalVerdict === 'PASS').length;
   const finalFail = finalVerdicts.filter((r) => r.finalVerdict === 'FAIL').length;
@@ -203,6 +207,7 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
       placeholderFindingsTotal,
       provisionalOqBlocks,
       retriedTasks: Object.values(attemptsByTask).filter((t) => t.attempts > 1).length,
+      lockDeniedRuns,
     },
     attemptsByTask,
     // Final independent (G1-G5) verdicts: the Done decision, unlike gateRuns.
@@ -238,6 +243,7 @@ export function formatFactoryMetricsMarkdown(summary) {
     `| Sensor Findings Total | ${summary.gateRuns.sensorFindingsTotal} |`,
     `| Placeholder Findings Total (all attempts) | ${summary.gateRuns.placeholderFindingsTotal} |`,
     `| Tasks Re-run After a Gate Attempt | ${summary.gateRuns.retriedTasks} |`,
+    `| Gate Runs Refused by the Task Lock (not counted above) | ${summary.gateRuns.lockDeniedRuns} |`,
     `| Provisional OQ Blocks | ${summary.gateRuns.provisionalOqBlocks} |`,
     `| Guard Events (deny / amended / warn) | ${summary.driftEvents.total} (${summary.driftEvents.deny} / ${summary.driftEvents.amendedAllow} / ${summary.driftEvents.warnAllow}) |`,
     `| Recorded Human Interventions (explicit attributions + spec-edit overrides) | ${summary.humanInterventions} |`,

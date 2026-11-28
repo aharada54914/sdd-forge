@@ -1336,3 +1336,47 @@ describe('batch-10 follow-up: tasks.md replaced by a directory stops with a clea
     );
   });
 });
+
+// T-010 N4: the gate records the right run when it fails, is run again, and
+// is refused by the task lock. Each run has its own runId; execution.json is
+// the latest published run; a lock-refused contender publishes nothing and is
+// recorded as lockDenied, never as a gate FAIL or an attempt.
+describe('T-010 N4: gate run records across failure, re-run and lock refusal', () => {
+  it('records each run once and keeps a refused contender out of PASS/FAIL', async (t) => {
+    const { summarizeFactoryMetrics } = await import('../plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs');
+    const { acquireLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-n4-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(root, 'specs/demo'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'specs/demo/tasks.md'),
+      '## T-001 Run records\nApproval: Approved\nStatus: Implementation Complete\nRisk: low\n');
+    const base = { projectRoot: root, feature: 'demo', taskId: 'T-001', changedFiles: [], skipDrift: true, skipSensors: true };
+    const exit = (code) => [{ label: 'test', command: `node -e "process.exit(${code})"` }];
+    const published = () => JSON.parse(fs.readFileSync(path.join(root, 'reports/quality-gate/demo-T-001.execution.json'), 'utf8'));
+    const records = () => fs.readFileSync(path.join(root, '.sdd/factory-metrics.jsonl'), 'utf8')
+      .trim().split('\n').map((line) => JSON.parse(line));
+
+    const failed = runSddGate({ ...base, commands: exit(1) }).result;
+    assert.equal(failed.verdict, 'FAIL');
+    assert.equal(published().runId, failed.runId);
+    const rerun = runSddGate({ ...base, commands: exit(0), lockOwner: 'w1' }).result;
+    assert.equal(rerun.verdict, 'PASS');
+    assert.notEqual(rerun.runId, failed.runId, 're-entry is a new run');
+    assert.equal(published().runId, rerun.runId, 'execution.json is the latest published run');
+
+    assert.equal(acquireLock({ feature: 'demo', taskId: 'T-001', owner: 'other', projectRoot: root }).acquired, true);
+    const refused = runSddGate({ ...base, commands: exit(0), lockOwner: 'w2' });
+    assert.equal(refused.outputPath, null, 'a refused contender publishes no execution.json');
+    assert.equal(refused.result.checks.lockCheck.passed, false);
+    assert.equal(refused.result.checks.commands.length, 0, 'a refused contender runs no check');
+    assert.equal(published().runId, rerun.runId, 'the published run is unchanged');
+
+    const history = records();
+    assert.deepEqual(history.map((r) => [r.runId, r.verdict, r.lockDenied === true]),
+      [[failed.runId, 'FAIL', false], [rerun.runId, 'PASS', false], [refused.result.runId, 'FAIL', true]]);
+    const summary = summarizeFactoryMetrics({ projectRoot: root, feature: 'demo' });
+    assert.deepEqual([summary.gateRuns.total, summary.gateRuns.pass, summary.gateRuns.fail, summary.gateRuns.lockDeniedRuns],
+      [2, 1, 1, 1]);
+    assert.deepEqual(summary.attemptsByTask['demo/T-001'].history.map((h) => h.verdict), ['FAIL', 'PASS']);
+  });
+});

@@ -921,7 +921,9 @@ function captureLock(projectRoot) {
   return steps;
 }
 
-function captureGate(projectRoot, tamper = false) {
+// failCommand (T-010 F2): a failing project command is the ordinary FAIL path,
+// with no tamper, clean drift and no provisional question.
+function captureGate(projectRoot, tamper = false, failCommand = false) {
   const feature = 'demo',
     taskId = 'T-001',
     spec = path.join(projectRoot, 'specs', feature);
@@ -968,9 +970,14 @@ function captureGate(projectRoot, tamper = false) {
     fs.appendFileSync(manifest, '\n');
     fs.writeFileSync(path.join(spec, 'requirements.md'), '# Requirements\n- REQ-001: Changed without amendment.\n');
   }
-  const { outputPath } = runSddGate({ ...args, enableAntiTamper: tamper, baseRef: tamper ? 'HEAD' : null });
+  const commands = failCommand ? [{ label: 'failing-test', command: 'node -e "process.exit(1)"' }] : [];
+  const { outputPath } = runSddGate({ ...args, commands, enableAntiTamper: tamper, baseRef: tamper ? 'HEAD' : null });
   const { verdict, checks } = JSON.parse(fs.readFileSync(outputPath));
-  assert.equal(verdict, tamper ? 'FAIL' : 'PASS', JSON.stringify(checks));
+  assert.equal(verdict, tamper || failCommand ? 'FAIL' : 'PASS', JSON.stringify(checks));
+  if (failCommand) {
+    assert.equal(checks.commands[0].passed, false, JSON.stringify(checks.commands));
+    assert.equal(checks.specDrift.status, 'CLEAN');
+  }
   let oq = false;
   if (tamper) {
     assert.equal(checks.antiTamper.status, 'TAMPER_DETECTED');
@@ -1031,6 +1038,7 @@ it(
       [path.join(formal, 'TaskLockMutation.tla'), 'OneWriter'],
       [path.join(formal, 'GateLifecycle.tla'), 'DoneRequiresGatePass', captureGate(projectRoot)],
       [path.join(formal, 'GateLifecycle.tla'), 'DoneRequiresGatePass', captureGate(sandbox(t), true)],
+      [path.join(formal, 'GateLifecycle.tla'), 'DoneRequiresGatePass', captureGate(sandbox(t), false, true)],
     ];
     for (const [model, invariant, events] of cases) {
       const tracePath = events ? path.join(projectRoot, path.basename(model) + '.ndjson') : null;
@@ -1093,3 +1101,120 @@ it(
     }
   },
 );
+
+// T-010 N1: the formal gate's evidence inputs (model, config, mapping, trace)
+// resolve against the project root, never the caller's working directory; a
+// file with the same relative path under the working directory is never read;
+// a missing trace is diagnosed by its resolved path, never passed; and failure
+// evidence is written under the project root.
+describe('T-010 N1: formal evidence paths resolve against the project root', () => {
+  const fixture = path.join(REPO_ROOT, 'tests/fixtures/project-skills/formal-review-reservation');
+  const rel = 'specs/demo/formal';
+  const line = (step, action, accepted, actor) =>
+    JSON.stringify({ step, action, ...(actor ? { actor } : {}), state: { accepted } });
+  const valid = [line(0, 'Init', []), line(1, 'Acquire', [], 1), line(2, 'Check', [], 1),
+    line(3, 'Publish', [1], 1), line(4, 'Release', [1], 1)].join('\n');
+  const violating = [line(0, 'Init', []), line(1, 'Publish', [1, 2], 1)].join('\n');
+
+  function project(t) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-n1-project-'));
+    const elsewhere = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-n1-cwd-'));
+    t.after(() => {
+      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(elsewhere, { recursive: true, force: true });
+    });
+    for (const dir of [root, elsewhere]) fs.mkdirSync(path.join(dir, rel), { recursive: true });
+    for (const name of ['Reservation.tla', 'Reservation.cfg', 'mapping.json']) {
+      fs.copyFileSync(path.join(fixture, name), path.join(root, rel, name));
+    }
+    const original = process.cwd();
+    process.chdir(elsewhere);
+    t.after(() => process.chdir(original));
+    const run = (trace) => runFormalGate({
+      projectRoot: root,
+      tlaPath: `${rel}/Reservation.tla`,
+      cfgPath: `${rel}/Reservation.cfg`,
+      mappingPath: `${rel}/mapping.json`,
+      tracePath: `${rel}/${trace}`,
+      adapter: 'none',
+      mode: 'strict',
+    });
+    return { root, elsewhere, run };
+  }
+
+  it('reads the project trace, not a same-named file under the working directory', (t) => {
+    const { root, elsewhere, run } = project(t);
+    fs.writeFileSync(path.join(root, rel, 'trace.ndjson'), valid);
+    fs.writeFileSync(path.join(elsewhere, rel, 'trace.ndjson'), violating);
+    const passed = run('trace.ndjson');
+    assert.equal(passed.trace.ok, true, JSON.stringify(passed.trace));
+    assert.equal(passed.exitCode, 0, JSON.stringify(passed));
+    // Swapping the two files proves the result follows the project copy.
+    fs.writeFileSync(path.join(root, rel, 'trace.ndjson'), violating);
+    fs.writeFileSync(path.join(elsewhere, rel, 'trace.ndjson'), valid);
+    const failed = run('trace.ndjson');
+    assert.equal(failed.status, 'FAIL');
+    assert.ok(failed.trace.violations.some((v) => /OneAccepted/.test(v)), JSON.stringify(failed.trace));
+    assert.ok(fs.existsSync(path.join(root, failed.evidence, 'trace.log')), 'failure evidence belongs to the project');
+    assert.equal(fs.existsSync(path.join(elsewhere, failed.evidence)), false, 'nothing is written under the cwd');
+  });
+
+  it('diagnoses a missing trace by its project path instead of passing', (t) => {
+    const { root, elsewhere, run } = project(t);
+    fs.writeFileSync(path.join(elsewhere, rel, 'missing.ndjson'), valid);
+    const missing = run('missing.ndjson');
+    assert.equal(missing.exitCode, 1, JSON.stringify(missing));
+    assert.ok(missing.trace.violations.includes(`Trace file not found: ${path.join(root, rel, 'missing.ndjson')}`),
+      JSON.stringify(missing.trace));
+  });
+});
+
+// T-010 F1: model and implementation agree on the task states and the gate's
+// enabling condition. Adding a status to either side without the other, or
+// letting the gate run from a state where the model has no gate action, fails.
+describe('T-010 F1: GateLifecycle states correspond to the gate precondition', () => {
+  const MODEL_TO_TASKS = {
+    Planned: 'Planned',
+    InProgress: 'In Progress',
+    ImplComplete: 'Implementation Complete',
+    Blocked: 'Blocked',
+    Done: 'Done',
+  };
+  const tla = fs.readFileSync(path.join(REPO_ROOT, 'specs/self-verification/formal/GateLifecycle.tla'), 'utf8');
+
+  it('every status the model assigns or tests has exactly one tasks.md value', () => {
+    const literals = new Set([...tla.matchAll(/status'? = "([A-Za-z]+)"/g)].map((m) => m[1]));
+    assert.deepEqual([...literals].sort(), Object.keys(MODEL_TO_TASKS).sort());
+    // The gate's own guards reference the same states: RunGatePass/RunGateFail are enabled only in ImplComplete.
+    for (const action of ['RunGatePass', 'RunGateFail']) {
+      const body = tla.split(`${action} ==`)[1].split(/\n[A-Z][A-Za-z]+ ==/)[0];
+      assert.match(body, /status = "ImplComplete"/, action);
+    }
+  });
+
+  it('the gate runs only from the model state with a gate action, plus re-verification of Done', (t) => {
+    const projectRoot = sandbox(t);
+    const spec = path.join(projectRoot, 'specs/demo');
+    fs.mkdirSync(spec, { recursive: true });
+    const precondition = (approval, status) => {
+      fs.writeFileSync(path.join(spec, 'tasks.md'), `## T-001 Correspondence\nApproval: ${approval}\nStatus: ${status}\nRisk: low\n`);
+      return runSddGate({ projectRoot, feature: 'demo', taskId: 'T-001', commands: [], changedFiles: [],
+        skipDrift: true, skipSensors: true }).result.checks.taskPrecondition;
+    };
+    for (const [state, status] of Object.entries(MODEL_TO_TASKS)) {
+      const pre = precondition('Approved', status);
+      assert.equal(pre.status, status, 'the shared parser reads the exact value');
+      // Done is the documented re-verification exclusion (#832): the gate re-checks a Done task
+      // without a model transition. Every other state must match the model's ImplComplete guard.
+      assert.equal(pre.passed, state === 'ImplComplete' || state === 'Done', `${status}: ${pre.errors}`);
+    }
+    // StartTask and DoneRequiresGatePass require approval: an unapproved task never runs the gate.
+    for (const approval of ['Draft', 'approved', 'Approved-ish', '']) {
+      assert.equal(precondition(approval, 'Implementation Complete').passed, false, `approval ${JSON.stringify(approval)}`);
+    }
+    // A status with no model state is refused, including case variants of real ones.
+    for (const status of ['Completed', 'implementation complete', 'done', 'InProgress']) {
+      assert.equal(precondition('Approved', status).passed, false, status);
+    }
+  });
+});

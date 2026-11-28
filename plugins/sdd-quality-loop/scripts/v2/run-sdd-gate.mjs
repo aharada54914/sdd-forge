@@ -1325,6 +1325,8 @@ export function runSddGate({
       commandsRun: commandResults.length,
       advisoryFindingCount: (nonFunctionalSensors.advisoryFindings || []).length,
       ...(rootCausePhase ? { rootCausePhase } : {}),
+      // A contender refused by the task lock ran no check; it is not a gate FAIL (T-010 N4).
+      ...(lockCheck.checked && !lockCheck.passed ? { lockDenied: true } : {}),
       commandDurationMs: commandResults.reduce((acc, c) => acc + c.durationMs, 0),
     });
 

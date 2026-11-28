@@ -21,6 +21,7 @@
 
 ### Changed
 
+- **タスクロックで実行を断られたゲート実行を FAIL に数えない**: 別の担当がロックを持っているため検査を1つも実行しなかった `run-sdd-gate` の実行は、`.sdd/factory-metrics.jsonl` に `lockDenied: true` 付きで記録する。`factory-metrics` はこれをゲートの PASS / FAIL・合格率・タスクごとの試行履歴に含めず、`lockDeniedRuns` として別に数える。これまでは検査していない実行が FAIL として集計されていた。
 - **退役したレビュー役のモデル表記の書き込みを拒否（Q15）**: `render-agent-frontmatter.{sh,ps1}` は、v2 で廃止した `impl-reviewer` と `task-reviewer` を対象に指定されると `RENDER_ERROR: role ... was retired in v2 and cannot be rendered` で停止する。これまでは正常終了し、補正後の内容を `specs/epic-159-pillar-c/human-copy/` に書き出していた。対象一覧のどこかに含まれていれば、ほかの対象も含めて何も書き込まない（`--check` と `--resolve-target` も同じ）。配布している6つの対象と管理経路（`--managed-target`）の挙動は変わらない。
 
 ### Added
