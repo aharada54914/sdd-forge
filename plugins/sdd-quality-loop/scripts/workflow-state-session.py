@@ -27,7 +27,10 @@ GATE = HERE / 'check-workflow-state.sh'
 # --allow-v1-history only adds an argument to the existing review-conditional-inputs.py
 # call, which stays behind snapshot_dependency conditional-validator: no new files, tools,
 # or external dependencies.
-AUDITED_GATE_SHA256 = 'd60cb1bbd4bbd78afac2f1cf544aa865aab46fe21521afc64afff09717688187'
+# The shallow-history diagnostic (plugins_pin_is_shallow_boundary) returns before any git
+# call under SDD_WORKFLOW_SNAPSHOT=1, so sealed runs reach only bash builtins: no new
+# files, tools, or external dependencies.
+AUDITED_GATE_SHA256 = 'a86389f5e80f6893f618530c8f37aa5b37a85dd3f25f1fc4d2156493b201c1e4'
 TOOLS = ('bash', 'jq', 'awk', 'find', 'iconv', 'sha256sum', 'cat', 'dirname', 'basename',
          'head', 'sed', 'grep', 'tr', 'sort', 'mktemp', 'rm', 'rmdir', 'cmp', 'cut', 'wc', 'tail', 'uniq')
 ENVIRONMENT = {'PATH': '/usr/bin', 'LC_ALL': 'C', 'LANG': 'C', 'TZ': 'UTC', 'HOME': '/nonexistent', 'TMPDIR': '/tmp'}
