@@ -1,6 +1,6 @@
 {
   "name": "sdd-review-loop",
-  "version": "2.1.5",
+  "version": "2.2.0",
   "description": "Risk-scaled single-pass pre-implementation specification review (spec-check) with strict P1-P6 perspective parity for Gemini CLI.",
   "contextFileName": "GEMINI.md"
 }
