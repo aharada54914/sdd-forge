@@ -1,0 +1,99 @@
+name: Model Registry Update
+
+# 週次モデル登録更新案 (ADR-0055)。Anthropic / OpenAI / Google の公式モデル
+# ページを取得し、登録済み系列の新しい版だけを contracts/ の登録・方針に
+# 追加して、生成表 (docs/agent-capability-matrix.md ほか) を作り直す。
+# 変更があれば検証を通したうえで更新案の PR を開く。マージは人が判断し、
+# 自動マージはしない。取得したページは信頼しない入力として扱い、ベンダー
+# ごとの固定パターンに合うモデル ID 以外は、契約・文書・PR 本文に入れない。
+#
+# model-freshness-check.yml (issue 起票のみ、pull-requests 権限なし、
+# TEST-005) は変更せず併存させる: あちらは乖離の検知、こちらは更新案の作成。
+#
+# CI について: 既定の GITHUB_TOKEN で作った PR では test.yml が起動しない
+# (GitHub の再帰防止)。self-improvement.yml と同じ fine-grained PAT
+# (SDD_SESSION_PR_TOKEN、contents:write + pull_requests:write) が登録されて
+# いればそれで PR を作り、CI を通常どおり走らせる。未登録なら既定トークンで
+# 作り、PR 本文で CI の手動起動を求める。
+on:
+  schedule:
+    - cron: "41 4 * * 1" # 毎週月曜 04:41 UTC (鮮度チェックの 03:00 の後)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: model-registry-update
+  cancel-in-progress: false
+
+jobs:
+  propose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # 未マージの更新案があれば新しく作らない (人の判断待ちを重ねない)。
+      - name: Skip while a proposal is open
+        id: open
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          count="$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 200 \
+            --json headRefName --jq '[.[] | select(.headRefName | startswith("automation/model-registry-update-"))] | length')"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          if [ "$count" != "0" ]; then
+            echo "未マージの更新案 PR があるため、今回は作成しません。" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Propose updates from the official model pages
+        id: plan
+        if: steps.open.outputs.count == '0'
+        shell: bash
+        run: |
+          python3 scripts/update-model-registry.py --fetch --write --report "$RUNNER_TEMP/body.md" > "$RUNNER_TEMP/summary.json"
+          cat "$RUNNER_TEMP/body.md" >> "$GITHUB_STEP_SUMMARY"
+          added="$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))["added"]))' "$RUNNER_TEMP/summary.json")"
+          echo "added=$added" >> "$GITHUB_OUTPUT"
+
+      - name: Validate the proposal
+        if: steps.plan.outputs.added != '' && steps.plan.outputs.added != '0'
+        shell: bash
+        run: |
+          cmp contracts/agent-model-capabilities.v2.json plugins/sdd-implementation/contracts/agent-model-capabilities.v2.json
+          python3 scripts/render-model-routing-docs.py --check
+          python3 tests/model-families.tests.py
+          python3 tests/model-registry-update.tests.py
+          python3 tests/model-policy.tests.py
+          bash tests/agent-model-routing.tests.sh
+
+      - name: Open the proposal pull request
+        if: steps.plan.outputs.added != '' && steps.plan.outputs.added != '0'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN || github.token }}
+          HAS_PAT: ${{ secrets.SDD_SESSION_PR_TOKEN != '' }}
+        run: |
+          branch="automation/model-registry-update-$(date -u +%Y%m%d)-${GITHUB_RUN_ID}"
+          git switch -c "$branch"
+          git add contracts plugins/sdd-implementation/contracts docs/agent-capability-matrix.md \
+            plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m "chore(models): propose registry update from official model pages"
+          git push origin "$branch"
+          {
+            cat "$RUNNER_TEMP/body.md"
+            echo
+            echo "週次ワークフロー model-registry-update.yml が作成しました (ADR-0055)。自動マージはしません。"
+            echo "採用 (adoption) の根拠を記録するまで、追加したモデルは自動選択されません。"
+            if [ "$HAS_PAT" != "true" ]; then
+              echo
+              echo "**CI 未起動**: 既定トークンで作成したため test.yml が起動していません。メンテナーがこのブランチに push するか、PR を閉じて開き直してから判断してください。"
+            fi
+          } > "$RUNNER_TEMP/pr.md"
+          gh pr create --repo "$GITHUB_REPOSITORY" --base "${{ github.event.repository.default_branch }}" \
+            --head "$branch" --title "chore(models): 公式ページに基づくモデル登録の更新案" --body-file "$RUNNER_TEMP/pr.md"

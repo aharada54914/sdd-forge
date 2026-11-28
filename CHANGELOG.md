@@ -19,6 +19,10 @@
 - **tasks.md の位置にフォルダーがある場合のゲート**: EISDIR で落ちず、パスを示して止まる。
 - **リリース前の CI 確認の案内**: 後続の push で CI が取り消されたコミットは、そのコミットで test.yml を手動実行するよう案内する。
 
+### Added
+
+- **モデル表の生成と週次の更新案（ADR-0055）**: ティアとモデルの対応表、役割ごとの下限、退役モデルの表を契約から生成し（`scripts/render-model-routing-docs.py`、`--check` で差分を検出）、モデル ID のティアを系列規則（`contracts/model-families.v1.json`、`model-tier.py`）で判定する。`model-registry-update.yml` は週次で Anthropic・OpenAI・Google の公式ページを取得し、登録済み系列の新しい版だけを `adoption: []`（自動では選ばれない）で追加した更新案 PR を開く。自動マージはしない。新しい系列・古い版・2世代以上の飛び越し・ページに見当たらない現行モデルは報告だけにとどめる。
+
 ## v2.1.5 (2026-11-25)
 
 ### Fixed

@@ -274,3 +274,4 @@ must never rely on a bare legacy number.
 | 0050 | [Session model preferences without weakening launch admission](0050-session-model-preferences.md) | Accepted |
 | 0051 | [Lightweight Guardrails and SDD Core Consolidation](0051-lightweight-guardrails-and-sdd-core.md) | Accepted |
 | 0053 | [DDDの概念判断を対話ターミナルで記録する](0053-keyless-concept-decisions.md) | Proposed |
+| 0055 | [モデル表を契約から生成し、公式ページに基づく更新案を週次で自動起票する](0055-model-registry-auto-proposal.md) | Accepted |
