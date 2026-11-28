@@ -202,6 +202,12 @@ jobs:
           bash tests/install.tests.sh
           bash tests/uninstall.tests.sh
 
+      - name: Run installer suite (PowerShell twin)
+        shell: bash
+        run: |
+          command -v pwsh  # preinstalled on GitHub ubuntu and macOS runners
+          pwsh -NoProfile -File tests/install.tests.ps1
+
   required-checks:
     name: required-checks
     runs-on: ubuntu-latest

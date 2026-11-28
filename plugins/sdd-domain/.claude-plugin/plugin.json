@@ -1,7 +1,7 @@
 {
   "name": "sdd-domain",
   "description": "Domain-Driven Design upstream lane producing a human-approved v2 domain model (domain story, event storming, concept model, ubiquitous language, context map, aggregates, message flow) ahead of sdd-bootstrap.",
-  "version": "2.1.5",
+  "version": "2.2.0",
   "author": {
     "name": "Harada"
   },

@@ -16,9 +16,9 @@
 | `cloud-and-ddd` | yes | 4 | 4 | 0 | 0 |
 | `cloud-native` | no | 6 | 4 | 2 | 0 |
 | `coding-standards` | no | 2 | 0 | 2 | 0 |
-| `installers` | yes | 7 | 2 | 5 | 0 |
+| `installers` | yes | 7 | 3 | 4 | 0 |
 | `interrupted-recovery` | no | 2 | 0 | 2 | 0 |
-| `loops-routing` | no | 23 | 0 | 23 | 0 |
+| `loops-routing` | no | 23 | 0 | 22 | 1 |
 | `posix-regression` | no | 62 | 1 | 57 | 4 |
 | `sql-contract` | no | 1 | 1 | 0 | 0 |
 | `sql-mysql` | no | 1 | 0 | 1 | 0 |
@@ -26,8 +26,8 @@
 | `sql-tsql` | no | 1 | 0 | 1 | 0 |
 | `test` | no | 51 | 3 | 41 | 7 |
 | `test-windows-heavy` | no | 20 | 0 | 17 | 3 |
-| `version-gates` | no | 78 | 0 | 39 | 39 |
-| `version-gates-windows-bump` | no | 3 | 0 | 3 | 0 |
+| `version-gates` | no | 78 | 0 | 37 | 41 |
+| `version-gates-windows-bump` | no | 3 | 0 | 1 | 2 |
 | `windows-powershell` | no | 2 | 0 | 1 | 1 |
 
 ## `posix-regression` に登録されたスイート
