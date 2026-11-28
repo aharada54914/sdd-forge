@@ -114,30 +114,55 @@ Assert-Literal $Matrix 'canonical tier does not change' `
 Assert-Literal $Matrix 'high effort is the default' `
     'strong Codex routing must prefer high before xhigh'
 
-Assert-Literal $Matrix '| lightweight | Anthropic | Haiku |' 'lightweight Anthropic mapping must be Haiku'
-Assert-Literal $Matrix '| standard | Anthropic | Sonnet |' 'standard Anthropic mapping must be Sonnet'
-Assert-Literal $Matrix '| strong | Anthropic | Opus |' 'strong Anthropic mapping must be Opus'
-Assert-Literal $Matrix '| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low |' `
-    'lightweight Codex mapping must name gpt-5.1-codex-mini'
-Assert-Literal $Matrix '| standard | OpenAI/Codex | `gpt-5.1-codex` | medium |' `
-    'standard Codex mapping must name gpt-5.1-codex'
-Assert-Literal $Matrix '| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies |' `
-    'strong Codex mapping must use the available registry and preserve the role floor'
+# 2026-11-28 owner decision: the tier mapping, role floors and historical-model
+# tables are generated from the registry and policy; a hand edit or a stale
+# block fails here instead of drifting (scripts/render-model-routing-docs.py).
+$RoutingPython = if (Get-Command python3 -ErrorAction SilentlyContinue) { 'python3' } else { 'python' }
+& $RoutingPython (Join-Path $root 'scripts/render-model-routing-docs.py') --root $root --check
+if ($LASTEXITCODE -ne 0) { Fail 'generated model routing tables are stale; run scripts/render-model-routing-docs.py' }
+Write-Output 'ok: generated model routing tables match the registry and policy'
+foreach ($block in @('model-tier-mapping', 'model-role-floors', 'model-historical')) {
+    Assert-Literal $Matrix "<!-- BEGIN GENERATED: $block -->" "matrix must carry the generated $block block"
+}
 
-Assert-Literal $Matrix '| sdd-investigator | lightweight | Anthropic Haiku | OpenAI/Codex `gpt-5.1-codex-mini`, effort low |' `
-    'investigator must be lightweight/Haiku with Codex low equivalent'
-Assert-Literal $Matrix '| spec-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' `
-    'spec reviewers must be at least standard/Sonnet'
-Assert-Literal $Matrix '| impl-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' `
-    'implementation reviewers must be at least standard/Sonnet'
-Assert-Literal $Matrix '| task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' `
-    'task reviewers must be at least standard/Sonnet'
-Assert-Literal $Matrix '| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |' `
-    'evaluator must use Claude Sonnet and retain Codex strong high/xhigh'
-
-Assert-Contains $Investigator '^model: haiku$' 'Claude investigator must be downgraded to Haiku'
+# Agents inherit the calling session's model on every host (v2, 2026-11-28).
+foreach ($decl in @($Investigator, $Evaluator,
+        (Join-Path $root 'plugins/sdd-review-loop/agents/spec-reviewer-a.md'),
+        (Join-Path $root 'plugins/sdd-review-loop/agents/spec-reviewer-b.md'))) {
+    $relative = $decl.Substring($root.Length).TrimStart('/', '\').Replace('\', '/')
+    Assert-Contains $decl '^model: inherit$' "$relative must inherit the calling session's model"
+}
+foreach ($toml in @((Join-Path $root '.codex/agents/sdd-investigator.toml'), (Join-Path $root '.codex/agents/sdd-evaluator.toml'))) {
+    if ((Get-Content -LiteralPath $toml) -cmatch '^model[ \t]*=') {
+        $relative = $toml.Substring($root.Length).TrimStart('/', '\').Replace('\', '/')
+        Fail "$relative must not pin a model (inherits the session configuration)"
+    }
+}
+Write-Output 'ok: Codex investigator and evaluator pin no model'
 Assert-Literal $CopilotInvestigator 'Model tier: lightweight' 'Copilot investigator must document lightweight tier'
-Assert-Contains $Evaluator '^model: sonnet$' 'Claude evaluator must use approved Sonnet'
+
+# RT-20260821-009: a reviewer floor that lived only in prose let a Haiku
+# downgrade ship green. With inherited definitions the floor is enforced from
+# the registry (2026-11-28): investigator lightweight/low, reviewers
+# standard/medium, and the Done evaluator strong/high on every host (no
+# Claude-only standard override).
+$roleDefaults = (Get-Content -LiteralPath $RegistryV2 -Raw -Encoding utf8 | ConvertFrom-Json).role_defaults
+$expectedFloors = [ordered]@{
+    'sdd-investigator' = @('lightweight', 'low'); 'spec-reviewer' = @('standard', 'medium')
+    'sdd-evaluator' = @('strong', 'high'); 'domain-reviewer' = @('standard', 'medium')
+    'workflow-auditor' = @('standard', 'medium')
+}
+foreach ($role in $expectedFloors.Keys) {
+    $profile = $roleDefaults.$role
+    if ($null -eq $profile -or $profile.minimum_tier -cne $expectedFloors[$role][0] -or
+            $profile.default_effort -cne $expectedFloors[$role][1]) {
+        Fail "registry role floors diverge from the 2026-11-28 decision: $role"
+    }
+}
+if ($roleDefaults.'sdd-evaluator'.PSObject.Properties.Name -ccontains 'claude_frontmatter') {
+    Fail 'registry role floors diverge from the 2026-11-28 decision: evaluator floor must not have a Claude-only override'
+}
+Write-Output 'ok: registry role floors match the 2026-11-28 decision'
 
 Assert-Literal $Adr 'Turn-first routing optimizes expected iteration count before token price.' `
     'ADR must record turn-first routing decision'
@@ -1154,26 +1179,9 @@ if ("$fbSelV2" -cne 'openai/gpt-5.2-codex strong') {
 
 }
 
-# RT-20260821-009 cycle-4 (seq 844): port the reviewer standard-minimum floor
-# to the ps1 twin. The sh suite pins all six reviewer declarations; the ps1
-# twin did not, so a Windows-only run could ship a Haiku-downgraded reviewer.
-foreach ($reviewerDecl in @(
-    'plugins/sdd-review-loop/agents/spec-reviewer-a.md',
-    'plugins/sdd-review-loop/agents/spec-reviewer-b.md',
-    'plugins/sdd-review-loop/agents/impl-reviewer-a.md',
-    'plugins/sdd-review-loop/agents/impl-reviewer-b.md',
-    'plugins/sdd-review-loop/agents/task-reviewer-a.md',
-    'plugins/sdd-review-loop/agents/task-reviewer-b.md')) {
-
-    $declPath = Join-Path $root $reviewerDecl
-
-    if (-not (Select-String -LiteralPath $declPath -Pattern '^model: (sonnet|opus)$' -CaseSensitive -Quiet)) {
-
-        Fail "reviewer declaration below the standard floor (model must be sonnet or opus): $reviewerDecl"
-
-    }
-
-}
+# RT-20260821-009 cycle-4 (seq 844): the reviewer floor is now enforced from the
+# registry role_defaults above (2026-11-28), as in the bash twin; the retired
+# impl/task reviewer declarations no longer ship.
 
 # T-006 policy entrypoint integration: positive selection and separate case hazards.
 $t006PriorBackend = $env:SDD_TEST_POLICY_BACKEND
