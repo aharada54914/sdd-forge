@@ -58,6 +58,36 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+# v2 removed the transactional publisher from the plugin payload. Its approved
+# bytes remain tracked (and owned) in the A1 human-copy bundle, listed in that
+# bundle's MANIFEST.sha256 under their original plugin path.
+HUMAN_COPY = SOURCE / 'specs/epic-189-a1-project-context/human-copy'
+
+
+def stage_publisher(runtime, directory, bundle=None):
+    """Copy the A1 publisher into `directory` after checking it against the bundle manifest.
+
+    The copy, not the tracked file, is what runs, so the bytes checked are the
+    bytes executed. The publisher is self-contained (it sources no siblings).
+    """
+    bundle = HUMAN_COPY if bundle is None else bundle
+    name = 'apply-human-copy.ps1' if runtime == 'ps1' else 'apply-human-copy.sh'
+    listed = 'plugins/sdd-quality-loop/scripts/' + name
+    expected = []
+    for line in (bundle / 'MANIFEST.sha256').read_text(encoding='utf-8').splitlines():
+        match = re.fullmatch(r'([0-9a-f]{64})  (.+)', line)
+        if match and match[2] == listed:
+            expected.append(match[1])
+    require(len(expected) == 1, 'the A1 human-copy manifest must list the publisher exactly once')
+    source = bundle / listed
+    require(source.is_file() and not source.is_symlink(), 'the A1 publisher is missing or not a regular file')
+    data = source.read_bytes()
+    require(digest(data) == expected[0], 'the A1 publisher differs from its approved human-copy manifest')
+    target = Path(directory) / name
+    target.write_bytes(data)
+    return target
+
+
 class Check:
     def __init__(self, root):
         self.root = Path(root).resolve()
@@ -258,14 +288,13 @@ def run_at_root(args, check):
         return {'schema': 'a9-rollback-validation/v1', 'result': 'ADMISSIBLE', 'branch': branch,
                 'authorization_checked': True, 'applied': False,
                 'current_registry_sha256': record['bindings']['current_registry']['sha256']}
-    # v2 removed the transactional publisher from the plugin payload. Its approved
-    # bytes remain tracked (and owned) in the A1 human-copy bundle; run them there.
-    publisher = SOURCE / 'specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts' / ('apply-human-copy.ps1' if args.publisher_runtime == 'ps1' else 'apply-human-copy.sh')
     # Publish a private byte-for-byte snapshot of the authenticated inputs. The
     # original staged manifest cannot be replaced after admission to expand the
     # publisher's targets. Its existing hash checks and transaction recovery stay
     # responsible for the actual copy; this is not an OS boundary against the owner.
-    with tempfile.TemporaryDirectory(prefix='a9-authorized-') as directory:
+    with tempfile.TemporaryDirectory(prefix='a9-authorized-') as directory, \
+            tempfile.TemporaryDirectory(prefix='a9-publisher-') as tool:
+        publisher = stage_publisher(args.publisher_runtime, tool)
         staged = Path(directory)
         for name, target in zip(('candidate_context', 'candidate_approval', 'candidate_snapshot'), TARGETS):
             destination = staged / target

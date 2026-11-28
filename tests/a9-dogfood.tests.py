@@ -242,6 +242,10 @@ class CandidatePackTests(unittest.TestCase):
                for name in ("build.py", "go.mod", "go.sum", "main.go", "zsh-loops.patch", "zsh_loops.go.in")},
             "sdd/approved-test-retirements.json": [],
             "sdd/guardrails.example.yaml": ["installer", "sdd-quality-loop"],
+            # ADR-0055 model routing tools: they write contracts/, docs/ and the
+            # sdd-implementation copies, so no single component owns them.
+            "scripts/render-model-routing-docs.py": [],
+            "scripts/update-model-registry.py": [],
         }
         reconstructed = copy.deepcopy(hub)
         reconstructed["components"] = [row for row in hub["components"] if row["id"] != "sdd-lite"]

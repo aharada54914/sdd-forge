@@ -264,6 +264,16 @@ class PromotionTests(unittest.TestCase):
         current = CORE.PREFLIGHT.read_document(self.f.root / CORE.TARGETS[0])
         self.assertEqual(len(current['components']), 11)
         self.assertEqual(CORE.PREFLIGHT.validate(current, tracked)[0], [])
+    def test_publisher_that_differs_from_the_a1_manifest_never_runs(self):
+        bundle = Path(tempfile.mkdtemp(prefix='a1-bundle-'))
+        self.addCleanup(shutil.rmtree, bundle, True)
+        shutil.copytree(CORE.ROLLBACK.HUMAN_COPY / 'plugins', bundle / 'plugins')
+        shutil.copyfile(CORE.ROLLBACK.HUMAN_COPY / 'MANIFEST.sha256', bundle / 'MANIFEST.sha256')
+        with (bundle / 'plugins/sdd-quality-loop/scripts/apply-human-copy.sh').open('ab') as handle:
+            handle.write(b'\necho tampered\n')
+        with patch.object(CORE.ROLLBACK, 'HUMAN_COPY', bundle):
+            self.rejected('--apply')
+
     def test_actual_existing_publisher_applies_only_three_bound_files(self):
         result = CORE.run(self.f.args('--apply'))
         self.assertEqual(result['result'], 'APPLIED')

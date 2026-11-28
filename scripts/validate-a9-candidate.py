@@ -39,6 +39,9 @@ CORE_SHARED_RULES = {
        for name in CORE_PARSER_SOURCES},
     "sdd/approved-test-retirements.json": {"classification": "cross-cutting"},
     "sdd/guardrails.example.yaml": {"components": ["installer", "sdd-quality-loop"]},
+    # ADR-0055 model routing tools write contracts/, docs/ and plugin copies.
+    "scripts/render-model-routing-docs.py": {"classification": "cross-cutting"},
+    "scripts/update-model-registry.py": {"classification": "cross-cutting"},
 }
 
 

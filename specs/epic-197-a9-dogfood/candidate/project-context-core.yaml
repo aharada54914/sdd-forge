@@ -317,3 +317,7 @@ shared_paths:
     components:
       - "installer"
       - "sdd-quality-loop"
+  - pattern: "scripts/render-model-routing-docs.py"
+    classification: "cross-cutting"
+  - pattern: "scripts/update-model-registry.py"
+    classification: "cross-cutting"

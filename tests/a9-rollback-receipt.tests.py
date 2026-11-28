@@ -396,6 +396,33 @@ class RollbackTests(unittest.TestCase):
         for name, target in zip(('candidate_context', 'candidate_approval', 'candidate_snapshot'), CORE.TARGETS):
             self.assertEqual(self.fixture.record['bindings'][name]['sha256'], CORE.digest((self.fixture.root / target).read_bytes()))
 
+    def test_publisher_runs_only_as_a_private_copy_of_the_manifest_bytes(self):
+        bundle = Path(tempfile.mkdtemp(prefix='a1-bundle-'))
+        self.addCleanup(shutil.rmtree, bundle, True)
+        scripts = bundle / 'plugins/sdd-quality-loop/scripts'
+        scripts.mkdir(parents=True)
+        approved = (CORE.HUMAN_COPY / 'plugins/sdd-quality-loop/scripts/apply-human-copy.sh').read_bytes()
+        listed = CORE.digest(approved) + '  plugins/sdd-quality-loop/scripts/apply-human-copy.sh\n'
+        (scripts / 'apply-human-copy.sh').write_bytes(approved)
+        (bundle / 'MANIFEST.sha256').write_text(listed)
+        with tempfile.TemporaryDirectory() as tool:
+            copy_path = CORE.stage_publisher('sh', tool, bundle)
+            self.assertEqual(Path(tool), copy_path.parent)
+            self.assertEqual(approved, copy_path.read_bytes())
+        (bundle / 'MANIFEST.sha256').write_text(listed * 2)
+        with tempfile.TemporaryDirectory() as tool, self.assertRaisesRegex(CORE.Refusal, 'exactly once'):
+            CORE.stage_publisher('sh', tool, bundle)
+        (bundle / 'MANIFEST.sha256').write_text(listed)
+        (scripts / 'apply-human-copy.sh').write_bytes(approved + b'\necho tampered\n')
+        with tempfile.TemporaryDirectory() as tool, self.assertRaisesRegex(CORE.Refusal, 'differs from its approved'):
+            CORE.stage_publisher('sh', tool, bundle)
+        # On --apply, a publisher that differs from the manifest never runs.
+        with patch.object(CORE, 'HUMAN_COPY', bundle), \
+                patch.object(CORE.subprocess, 'run', wraps=subprocess.run) as calls:
+            with self.assertRaisesRegex(CORE.Refusal, 'differs from its approved'):
+                CORE.run(self.fixture.args('--apply'))
+        self.assertFalse(any('apply-human-copy' in str(c.args) for c in calls.call_args_list))
+
     def test_signed_post_application_receipt_cannot_lie_about_result(self):
         result = CORE.run(self.fixture.args('--apply'))
         result['publisher']['targets'] = [CORE.TARGETS[0]]

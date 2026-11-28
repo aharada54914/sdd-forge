@@ -309,7 +309,9 @@ def run(args):
             return {'schema': 'a9-promotion-validation/v1', 'result': 'ADMISSIBLE', 'applied': False,
                     'authorization_checked': True, 'head_sha': decision['head_sha'], 'criteria': CRITERIA}
         bindings = decision['bindings']
-        with tempfile.TemporaryDirectory(prefix='a9-promotion-') as directory:
+        with tempfile.TemporaryDirectory(prefix='a9-promotion-') as directory, \
+                tempfile.TemporaryDirectory(prefix='a9-publisher-') as tool:
+            publisher = ROLLBACK.stage_publisher(args.publisher_runtime, tool)
             staged = Path(directory)
             for name, target in zip(CANDIDATE, TARGETS):
                 destination = staged / target
@@ -320,9 +322,6 @@ def run(args):
             # Revalidate current trust, clock, live anchor and all nested evidence before publication.
             admit(args, ROLLBACK.Check(root))
             check.unchanged()
-            # v2 removed the transactional publisher from the plugin payload. Its approved
-            # bytes remain tracked (and owned) in the A1 human-copy bundle; run them there.
-            publisher = SOURCE / 'specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts' / ('apply-human-copy.ps1' if args.publisher_runtime == 'ps1' else 'apply-human-copy.sh')
             command = (['pwsh', '-NoProfile', '-File', str(publisher), '-StagingDir', str(staged), '-Manifest', str(manifest)]
                        if args.publisher_runtime == 'ps1' else ['bash', str(publisher), '--staging-dir', str(staged), '--manifest', str(manifest)])
             completed = subprocess.run(command, cwd=root, text=True, capture_output=True, encoding="utf-8")
