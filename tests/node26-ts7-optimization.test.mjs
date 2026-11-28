@@ -62,13 +62,9 @@ describe('ADR-0055: Node.js 26.13+, TypeScript 7.0 & MCP SDK v2 unified optimiza
     const testYml = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/test.yml'), 'utf8');
     assert.match(testYml, /tsc --noEmit -p tsconfig\.json/);
 
-    const tscBin = path.join(
-      REPO_ROOT,
-      'mcp/sdd-forge-mcp/node_modules/.bin',
-      process.platform === 'win32' ? 'tsc.cmd' : 'tsc',
-    );
-    if (fs.existsSync(tscBin)) {
-      const res = spawnSync(tscBin, ['--noEmit', '-p', path.join(REPO_ROOT, 'tsconfig.json')], {
+    const tscJs = path.join(REPO_ROOT, 'mcp/sdd-forge-mcp/node_modules/typescript/bin/tsc');
+    if (fs.existsSync(tscJs)) {
+      const res = spawnSync(process.execPath, [tscJs, '--noEmit', '-p', path.join(REPO_ROOT, 'tsconfig.json')], {
         cwd: REPO_ROOT,
         encoding: 'utf8',
       });

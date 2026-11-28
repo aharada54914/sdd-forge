@@ -1488,8 +1488,9 @@ try {
     }
 
     # Stage 2 Hybrid Portable Compile Cache warmup inside staging before atomic swap (ADR-0055).
+    # Skip on FilesOnly installs so pure file-placement trees remain byte-identical across runs (T-003).
     $compileCacheScript = Join-Path $stagingRoot "plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs"
-    if ($env:SDD_SKIP_COMPILE_CACHE -ne "1" -and (Get-Command "node" -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath $compileCacheScript -PathType Leaf)) {
+    if ($Target -ne 'FilesOnly' -and $env:SDD_SKIP_COMPILE_CACHE -ne "1" -and (Get-Command "node" -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath $compileCacheScript -PathType Leaf)) {
         try {
             $prevPortable = $env:NODE_COMPILE_CACHE_PORTABLE
             $env:NODE_COMPILE_CACHE_PORTABLE = "1"

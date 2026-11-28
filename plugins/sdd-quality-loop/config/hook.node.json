@@ -6,8 +6,7 @@
       "*"
     ],
     "allow-fs-write": [
-      ".sdd/*",
-      "/tmp/*"
+      ".sdd/*"
     ],
     "disable-proto": "throw"
   }

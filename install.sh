@@ -1619,7 +1619,8 @@ for plugin in sdd-azure-cloud sdd-aws-cloud; do
 done
 
 # Stage 2 Hybrid Portable Compile Cache warmup inside staging before atomic swap (ADR-0055).
-if [[ "${SDD_SKIP_COMPILE_CACHE:-0}" != "1" ]] && command -v node >/dev/null 2>&1 \
+# Skip on FilesOnly installs so pure file-placement trees remain byte-identical across runs (T-003).
+if [[ "$TARGET" != "FilesOnly" && "${SDD_SKIP_COMPILE_CACHE:-0}" != "1" ]] && command -v node >/dev/null 2>&1 \
     && [[ -f "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs" ]]; then
     NODE_COMPILE_CACHE_PORTABLE=1 node "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs" \
         --warmup --root "$STAGING_ROOT" --cache-dir "$STAGING_ROOT/.sdd-compile-cache" >/dev/null 2>&1 \
