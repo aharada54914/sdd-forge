@@ -263,6 +263,30 @@ test("after a migration the recorded v1 stop asks for re-validation and a gate r
   assert.match(removed?.rationale ?? "", /reports\/quality-gate\/orders-T-001\.execution\.json/);
 });
 
+const LEFTOVER_STOP = "concept-test: BLOCK: leftover specs/orders/concept-test.approval.json from a retired v1 record: "
+  + "delete it, then validate again";
+const LEFTOVER_INDEXED_STOP = LEFTOVER_STOP + ". The Git index still holds it; stage its removal too.";
+
+test("a leftover v1 approval without its record is deleted, then the gate re-run", t => {
+  // Seen before any gate run: the gate blocks on it, so advise deleting it first.
+  const f = fixture(t);
+  f.write(".approval.json", "{}");
+  const early = f.advise()?.action;
+  assert.equal(early?.command, "human: delete the leftover specs/orders/concept-test.approval.json");
+  // After the gate stopped on it, while it remains and once it is gone.
+  f.recordGate("BLOCK", LEFTOVER_STOP);
+  assert.equal(f.afterGate()?.command, "human: delete the leftover specs/orders/concept-test.approval.json");
+  rmSync(join(f.dir, "specs/orders/concept-test.approval.json"));
+  assert.equal(f.afterGate()?.command, "human: re-run the quality gate for orders");
+  // Only the gate sees a copy left in the Git index.
+  const g = fixture(t);
+  g.recordGate("BLOCK", LEFTOVER_INDEXED_STOP);
+  const indexed = g.afterGate();
+  assert.equal(indexed?.command, "human: delete the leftover specs/orders/concept-test.approval.json");
+  assert.match(indexed?.rationale ?? "", /インデックス/);
+  assert.doesNotMatch(indexed?.rationale ?? "", /CONTINUE を確認/);
+});
+
 test("a Markdown-only v2 proposal needs its companion JSON", t => {
   const f = fixture(t);
   f.write(".md", '```json\n{"schema":"concept-test/v2"}\n```\n');
