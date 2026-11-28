@@ -16,7 +16,7 @@
 | `cloud-and-ddd` | yes | 4 | 4 | 0 | 0 |
 | `cloud-native` | no | 6 | 4 | 2 | 0 |
 | `coding-standards` | no | 2 | 0 | 2 | 0 |
-| `installers` | yes | 7 | 2 | 5 | 0 |
+| `installers` | yes | 7 | 3 | 4 | 0 |
 | `interrupted-recovery` | no | 2 | 0 | 2 | 0 |
 | `loops-routing` | no | 23 | 0 | 22 | 1 |
 | `posix-regression` | no | 62 | 1 | 57 | 4 |
