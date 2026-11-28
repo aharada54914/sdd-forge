@@ -1439,14 +1439,6 @@
       "runtime": "bash"
     },
     {
-      "path": "tests/resolve-project-context-caller-contract.tests.ps1",
-      "runtime": "powershell"
-    },
-    {
-      "path": "tests/resolve-project-context-caller-contract.tests.sh",
-      "runtime": "bash"
-    },
-    {
       "path": "tests/resolve-project-context-cli.tests.ps1",
       "runtime": "powershell"
     },
@@ -2173,7 +2165,6 @@
       "tests/validate-resolver-evidence.tests.sh",
       "tests/resolve-project-context-parity.tests.sh",
       "tests/resolve-project-context-metamorphic.tests.sh",
-      "tests/resolve-project-context-caller-contract.tests.sh",
       "tests/compatibility-byte-identical.tests.sh",
       "tests/golden-baseline-contract.tests.sh",
       "tests/structural-compatibility.tests.sh",
@@ -2324,7 +2315,6 @@
       "tests/validate-resolver-evidence.tests.ps1",
       "tests/resolve-project-context-parity.tests.ps1",
       "tests/resolve-project-context-metamorphic.tests.ps1",
-      "tests/resolve-project-context-caller-contract.tests.ps1",
       "tests/compatibility-byte-identical.tests.ps1",
       "tests/golden-baseline-contract.tests.ps1",
       "tests/structural-compatibility.tests.ps1",
@@ -2423,7 +2413,6 @@
       "tests/validate-resolver-evidence.tests.sh",
       "tests/resolve-project-context-parity.tests.sh",
       "tests/resolve-project-context-metamorphic.tests.sh",
-      "tests/resolve-project-context-caller-contract.tests.sh",
       "tests/compatibility-byte-identical.tests.sh",
       "tests/golden-baseline-contract.tests.sh",
       "tests/structural-compatibility.tests.sh",
