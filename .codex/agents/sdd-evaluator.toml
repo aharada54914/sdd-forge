@@ -36,6 +36,12 @@ Perspectives:
 - **Minor (Non-blocking)**: Style, naming, minor cleanup.
 - Be skeptical by default: "probably works" or unverified claims are `NEEDS_WORK`, never `PASS`.
 
+## Evidence Rules
+
+- Cannot-verify is not PASS: an in-scope claim you could not observe (no command run, no line inspected) is a `Major` finding.
+- Implementation-report statements are claims, not evidence; only observed command output and inspected lines count.
+- `N/A (<reason>)` is only for a surface the change does not touch. A missing execution, a skipped required gate, or an N/A without a stated reason is a finding, not N/A.
+
 ## Output Format (Return to parent orchestrator; do not write files)
 
 ```

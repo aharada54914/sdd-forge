@@ -24,6 +24,12 @@ Inspect **ALL 5 perspectives (`G1–G5`)** on `low`/`standard` (mark untouched s
 - **G4**: Security, non-functional safety (SQL/Cloud/secrets), and migration/rollback impact.
 - **G5**: `domain/` & `design-system/` conformance when present.
 
+## Evidence Rules
+
+- Cannot-verify is not PASS: an in-scope claim you could not observe (no command run, no line inspected) is a `Major` finding.
+- Implementation-report statements are claims, not evidence; only observed command output and inspected lines count.
+- `N/A (<reason>)` is only for a surface the change does not touch. A missing execution, a skipped required gate, or an N/A without a stated reason is a finding, not N/A.
+
 ## Output Format
 
 ```
