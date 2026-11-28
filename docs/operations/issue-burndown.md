@@ -29,7 +29,8 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 | 12 | #982, #983, #984 | adopt skill path; v1 Concept Test records retired (owner decision, Breaking); leftover v1 approval names the file | merged (bad6aff, 52c68f4, e0de8d6) after independent reviews |
 | 13 | #987 | follow-ups: MCP Done evidence scoped by feature; domain-contract duplicate keys and pwsh date strings; critical evidence signed fields | merged (196ab89) after 7 independent review rounds |
 | 14 | #989 | follow-up: a leftover v1 approval without its record blocks the gate; MCP advice says to delete it | merged (2442839) after 2 independent reviews |
-| — | (next) | release after #981–#989 | waiting for the owner's version choice (v2.2.0 recommended: #983 is breaking) |
+| 15 | #993 | owner decisions: v1 release suites removed; PowerShell installer suite realigned and in CI; approval-after-baseline stays a warning | merged (fe41bac) after independent review |
+| — | (this PR) | release v2.2.0 (owner decision 2026-11-28; #983 is breaking) | tag via publish-release.yml after merge |
 
 ## Resolved
 

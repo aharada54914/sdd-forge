@@ -1,6 +1,6 @@
 {
   "name": "sdd-aws-cloud",
-  "version": "2.1.5",
+  "version": "2.2.0",
   "description": "Explicit opt-in AWS orchestration: local planning and validation, protected CI execution, and read-only verification.",
   "author": {
     "name": "Harada"

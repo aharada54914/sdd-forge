@@ -1,6 +1,6 @@
 # SDD Forge
 
-v2.1.5 — 開発者体験（DX）・AI エージェントの自律性と仕様ガバナンスを両立する **軽量ガードレール（Lightweight Guardrails）＋ SDD Core ＋ Software Factory** プラグインスイートです。Claude Code、Codex CLI、GitHub Copilot CLI、Antigravity CLI（`agy`）、旧 Gemini CLI に対応します。
+v2.2.0 — 開発者体験（DX）・AI エージェントの自律性と仕様ガバナンスを両立する **軽量ガードレール（Lightweight Guardrails）＋ SDD Core ＋ Software Factory** プラグインスイートです。Claude Code、Codex CLI、GitHub Copilot CLI、Antigravity CLI（`agy`）、旧 Gemini CLI に対応します。
 
 ## クイックスタート（2 コマンド）
 
@@ -16,6 +16,7 @@ v2.1.5 — 開発者体験（DX）・AI エージェントの自律性と仕様�
 > **v2.x での主な刷新（[ADR-0051](docs/adr/0051-lightweight-guardrails-and-sdd-core.md) / [ADR-0052](docs/adr/0052-mcp-architecture-and-v2-consolidation.md)）**:
 > - 重厚な **SDD Full**（3 連レビューループ・7 層仕様・外部鍵署名・224 ファイル物理ロック・7,247 行の 4 言語フック・カナリア儀式・ADR-0023 `ERROR_STOP`）と、軽すぎる **SDD Lite**（事前レビューゼロ）を廃止し、**単一トラック `SDD Core` ＋ リスクレベル伸縮（`low` / `standard` / `high`）** へ統合しました。
 > - **「Local Soft, Boundary Firm」** 設計により、ローカルでは AI の自律的な探索・テスト・実装を妨げず、承認済み仕様ファイルの意図しない改変（ゴールポスト移動）だけをソフトガード＋Spec Drift 検知＋PR/CI で抑止します（Spec Drift の比較対象はベースライン記録済みの機能。未記録の承認済み機能は CI が警告で列挙します）。
+> - **v2.2.0**（破壊的変更）: 旧形式（v1）の Concept Test 記録を廃止し、検証器・品質ゲート・作業ツリーを読むレビューの起動が移行方法を示して停止する（#983）。残った v1 承認ファイルも停止の対象。完了判定は別 feature の品質報告を数えない。ドメイン契約の重複キーを拒否、PowerShell 版の導入試験を CI で実行。詳細は [CHANGELOG](CHANGELOG.md)。
 > - **v2.1.5**: ドメイン契約の発行前検査が v2 スキーマ全体を `.sh` / `.ps1` の両方で検査する（#804）。仕様ファイルの位置にディレクトリやループしたリンクがあってもゲートが停止せず `FAIL` を返す。リリース前の CI 確認は `release.yml` と同じ条件で数える。詳細は [CHANGELOG](CHANGELOG.md)。
 > - **v2.1.4**: MCP 試験 95 件と監査指摘の統合（#974）。証跡バンドル検査の `.ps1` 版を `.sh` 版と同じ判定にし（大文字小文字・dirty 判定・相対 root）、旧 v1 署名はどちらの発行器の並び順でも検証できる。寄稿者向け証跡収集は `--prepare` のみ、ドメイン適合指摘の `N/A`（未実行）と `0` を区別、ドメインモデル承認の案内に契約の発行を追加。ブランチ保護の定義と文書を実設定に合わせ、Spec Drift チェックを必須に（#850）。詳細は [CHANGELOG](CHANGELOG.md)。
 > - **v2.1.3**: 監査是正の仕上げ（11 件）。CLI ロックの所有者保持と期限延長（リース方式）、Scope の重複判定（実パス比較・注記・`{a,b}`）、段階承認を差分にしない、承認欄の解釈の統一、読取上限超の仕様を `UNVERIFIABLE` として扱う、ゲート証跡を検証した仕様入力に結び付けて古い合格を完了扱いにしない。詳細は [CHANGELOG](CHANGELOG.md)。
