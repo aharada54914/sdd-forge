@@ -77,7 +77,7 @@
 ## 新規テスト（v2 の保証で、テストがないもの）
 
 - **N1:** run-sdd-gate の証拠パス解決。起点をリポジトリにすること、別ファイルの誤読を防ぐこと、欠落を診断すること（契約調査 #6）。
-- **N2:** component coverage。Core ゲートが必須時に呼び出し、N/A と失敗を区別すること（#34）。
+- **N2:** component coverage。~~Core ゲートが必須時に呼び出し、N/A と失敗を区別すること（#34）。~~ **2026-11-28 所有者判断で置き換え**: 現行ゲート（`run-sdd-gate.mjs` と sdd-gate）はこの検査を呼ばない。適用可否を決める `workflow.capability_enforcement`（ADR-0016）は ADR-0051 で廃止され、v2 のプロジェクトでは常に `disabled-legacy` の N/A になる。そこで単独の v1 互換ツールと位置づけ、ゲートには組み込まない。N2 は `check-component-coverage.tests.{sh,ps1}` の TEST-029.3 として、現行ゲートが呼ばないことと、`risk-gate-matrix.md` と `docs/skill-reference.md` が「v2 の必須チェック」と書いていないことを検査する。v2 で網羅性検査を使う場合は、`guardrails.yaml` の設定を含む別フィーチャーとして扱う。
 - **N3:** 現行レビュー役（spec-check A/B と sdd-gate の評価者）が、引用の確認と台帳の無許可読取り禁止を明示していること（#19）。
 - **N4:** Core ゲートが失敗・中断・再入のそれぞれで正しい run を記録すること（#3）。
 - **N5:** 形式モデルと実装の対応。下記の F1 を参照。

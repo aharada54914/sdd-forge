@@ -1,5 +1,12 @@
 # Risk → Gate Matrix
 
+> **Scope (v2, 2026-11-28 owner decision):** this matrix is the contract of the
+> v1-compatible `check-contract` script only. The v2 quality gate (`sdd-gate` and
+> `run-sdd-gate.mjs`) does not read it and does not use the `critical` tier.
+> The v2 gate does not run `check-component-coverage`: that checker ships as a
+> standalone tool, and on a v2 project (no `sdd/project-context.yaml`) it records
+> `disabled-legacy` N/A.
+
 This is the **canonical** mapping from a task's `risk` tier to the set of checks
 that `check-contract.(sh|ps1)` requires to be `passes:true` with evidence. The
 gate enforces that a contract's `required:true` set is a **superset** of its
@@ -92,28 +99,12 @@ critical = high                                         # + signature, two-perso
 ```
 
 - `check-component-coverage` (epic-191-a3-path-ownership T-004, REQ-004):
-  the Reverse Coverage Gate. Added to the `high`/`critical` machine-form
-  required-check-set above for reachability (INV-017) — this line is LIVE.
-  **`check-contract`'s own protected, hardcoded tier-minimum set is NOT yet
-  live** — `check-contract.*` is already R-10 protected, so the matching
-  edit is staged as a candidate under
-  `reports/implementation/epic-191-a3-path-ownership/drafts/bundle-b/`
-  (`check-contract.{py,ps1}`, with its own machine-readable `MANIFEST.sha256`)
-  pending human `cp` + SHA-256 verification into the real, protected paths.
-  Until that human-apply step happens, `check-contract` does NOT enforce
-  `check-component-coverage` for any `high`/`critical` contract —
-  `tests/gates.tests.sh` T-003.7 is positive proof of this: a `high`-risk
-  contract that omits `check-component-coverage` still passes today. Once
-  applied, the staged candidate is kept textually equal to this line per
-  `tests/gates.tests.sh` T-003's existing invariant, and additionally gains
-  a producer-digest verification pass (AC-055) that independently
-  recomputes `check-component-coverage.py`'s live sha256 and rejects a
-  `passes:true` evidence entry whose recorded `producer.sha256` does not
-  match. This registration exists so that suffix-protecting
-  `check-component-coverage.*`'s
-  own content does not, by itself, stop an agent from deleting or renaming
-  the unprotected `quality-gate/SKILL.md` invocation line — the
-  required-check-set closes that reachability gap independently.
+  the Reverse Coverage Gate. `check-contract.{py,ps1}` require it in the `high`
+  and `critical` tier minimums above, only while `sdd/project-context.yaml`
+  declares `workflow.capability_enforcement` (ADR-0016, superseded by ADR-0051).
+  It was invoked by the v1 `quality-gate` skill, which v2 retired; the v2
+  `sdd-gate` never invokes it (`tests/check-component-coverage.tests.sh`
+  TEST-029.3). Run it directly when a v1-compatible project needs the check.
 
 Notes:
 - `low` deliberately omits `unit-tests` from the required set (test-after); it is

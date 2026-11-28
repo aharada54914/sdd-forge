@@ -334,7 +334,7 @@ v2.0.0 で `SDD_SUDO` による sudo モード（このガードの一時無効�
 
 | スクリプト名 | 提供ランタイム | 目的 |
 |---|---|---|
-| `check-component-coverage` | sh / ps1 / py | Reverse Coverage Gate。コンポーネントのパス所有関係から網羅性を判定し、`check-component-coverage-verdict/v1` 証跡レコードを常に発行する。**v1.15.0 の新ゲートで、`high`/`critical` の必須チェックセットに登録済み** |
+| `check-component-coverage` | sh / ps1 / py | Reverse Coverage Gate。コンポーネントのパス所有関係から網羅性を判定し、`check-component-coverage-verdict/v1` 証跡レコードを常に発行する。**単独で実行する v1 互換ツール。v2 の `sdd-gate` からは呼ばれない** |
 | `check-contract` | sh / ps1 / py | Default-FAIL 検証契約 (JSON) の検証（[詳細](#check-contract)） |
 | `check-cross-model` | sh / ps1 | クロスモデル合意検証。パネリスト verdict と主評価者 verdict の突き合わせ |
 | `check-design-system` | sh / ps1 | デザインシステム準拠の warn フェーズゲート（[詳細](#check-design-system)） |
@@ -756,7 +756,7 @@ plugins/sdd-quality-loop/scripts/check-design-system.ps1 -ProjectRoot <path> [-D
 
 **目的**
 
-Reverse Coverage Gate。v1.15.0 で追加された新ゲートで、`risk-gate-matrix.md` の `high` / `critical` 必須チェックセットに登録済みです（`high = medium ∪ { requirement-traceability, check-component-coverage }`）。分類ロジックとgit-diff 収集は再実装せず、同ディレクトリの `resolve-component-paths.py` の公開関数を直接 import します。標準ライブラリ以外に依存しません。
+Reverse Coverage Gate。v1.15.0 で追加されたゲートで、v1 互換の `check-contract` は `risk-gate-matrix.md` の `high` / `critical` 必須チェックセットとしてこれを要求します（`high = medium ∪ { requirement-traceability, check-component-coverage }`）。**v2 の品質ゲート（`sdd-gate` / `run-sdd-gate.mjs`）はこのチェックを呼びません**（2026-11-28 所有者判断）。必要な場合は下記の使用法で直接実行してください。v2 のプロジェクト（`sdd/project-context.yaml` なし）では `disabled-legacy` の N/A 証跡になります。分類ロジックとgit-diff 収集は再実装せず、同ディレクトリの `resolve-component-paths.py` の公開関数を直接 import します。標準ライブラリ以外に依存しません。
 
 **適用状態（3状態）**
 

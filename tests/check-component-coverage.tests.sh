@@ -109,6 +109,25 @@ for gate_surface in "${REPO_ROOT}/plugins/sdd-quality-loop/skills/sdd-gate/SKILL
   fi
 done
 [[ $diagnose_hits -eq 0 ]] && ok "TEST-029.2: neither the sdd-gate skill nor run-sdd-gate.mjs invokes --diagnose"
+# TEST-029.3 (T-010 N2, 2026-11-28 owner decision): the checker is a standalone
+# v1-compatible tool. The v2 gate never runs it, and the shipped documents say
+# so instead of claiming it is a required v2 gate check.
+n2_ok=1
+for gate_surface in "${REPO_ROOT}/plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md" \
+  "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs"; do
+  if grep -Fq 'check-component-coverage' "$gate_surface"; then
+    fail "TEST-029.3: $gate_surface now runs check-component-coverage; update the standalone-tool documents and this test together"
+    n2_ok=0
+  fi
+done
+if ! grep -Fq 'does not run `check-component-coverage`' "${REPO_ROOT}/plugins/sdd-quality-loop/references/risk-gate-matrix.md"; then
+  fail "TEST-029.3: risk-gate-matrix.md no longer states that the v2 gate does not run the checker"; n2_ok=0
+fi
+if ! grep -Fq 'v2 の `sdd-gate` からは呼ばれない' "${REPO_ROOT}/docs/skill-reference.md" ||
+   grep -Fq '必須チェックセットに登録済み**' "${REPO_ROOT}/docs/skill-reference.md"; then
+  fail "TEST-029.3: docs/skill-reference.md must describe the checker as standalone, not as a registered required v2 check"; n2_ok=0
+fi
+[[ $n2_ok -eq 1 ]] && ok "TEST-029.3: the v2 gate never runs check-component-coverage, and the documents say it is standalone"
 
 # ============================================================================
 # TEST-030 (AC-030): one dedicated fixture per Fail-1..Fail-6, identical

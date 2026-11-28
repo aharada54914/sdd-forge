@@ -85,6 +85,22 @@ foreach ($gateSurface in @('plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md', 
     }
 }
 if ($diagnoseOk) { Ok "TEST-029.2: neither the sdd-gate skill nor run-sdd-gate.mjs invokes -Diagnose" }
+# TEST-029.3 (T-010 N2, 2026-11-28 owner decision): see the bash twin.
+$n2Ok = $true
+foreach ($gateSurface in @('plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md', 'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs')) {
+    if ((Get-Content -Raw -LiteralPath (Join-Path $repoRoot $gateSurface)).Contains('check-component-coverage')) {
+        Fail "TEST-029.3: $gateSurface now runs check-component-coverage; update the standalone-tool documents and this test together"
+        $n2Ok = $false
+    }
+}
+if (-not (Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'plugins/sdd-quality-loop/references/risk-gate-matrix.md')).Contains('does not run `check-component-coverage`')) {
+    Fail 'TEST-029.3: risk-gate-matrix.md no longer states that the v2 gate does not run the checker'; $n2Ok = $false
+}
+$skillReference = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'docs/skill-reference.md')
+if (-not $skillReference.Contains('v2 の `sdd-gate` からは呼ばれない') -or $skillReference.Contains('必須チェックセットに登録済み**')) {
+    Fail 'TEST-029.3: docs/skill-reference.md must describe the checker as standalone, not as a registered required v2 check'; $n2Ok = $false
+}
+if ($n2Ok) { Ok 'TEST-029.3: the v2 gate never runs check-component-coverage, and the documents say it is standalone' }
 
 # ============================================================================
 # TEST-030: one fixture per Fail-1..6, identical advisory/required
