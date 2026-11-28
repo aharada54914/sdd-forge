@@ -41,6 +41,23 @@ def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
+# v2 (220f60af) removed the planner and A9 advisory jobs from the live workflow. The
+# protocol tests below keep exercising those exact last-shipped job bodies, frozen from
+# e2110862:.github/workflows/test.yml, instead of silently passing on an absent job.
+V1_WORKFLOW_JOBS = ROOT / 'tests/fixtures/verification-ci/v1-workflow-jobs.json'
+V1_WORKFLOW_JOBS_SHA256 = '92b107b7301402118914d0f2e07625d8b14816864348b0a4d3391b6f21e80999'
+RETIRED_V1_JOBS = ('ci-plan', 'a9-advisory-inputs', 'a9-advisory')
+
+
+def v1_workflow_jobs():
+    if sha(V1_WORKFLOW_JOBS.read_bytes()) != V1_WORKFLOW_JOBS_SHA256:
+        raise AssertionError('frozen v1 workflow job fixture changed')
+    workflow = W.load_workflow(V1_WORKFLOW_JOBS)
+    if set(workflow['jobs']) != set(RETIRED_V1_JOBS):
+        raise AssertionError('frozen v1 workflow fixture must hold exactly the retired jobs')
+    return workflow
+
+
 def job_key(job, matrix):
     name = job + (' (' + ', '.join(str(v) for v in matrix.values()) + ')' if matrix else '')
     return sha(P.canonical({'name': name}))
@@ -348,77 +365,29 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(observations['properties']['api_version']['const'], self.ci.API_VERSION)
 
 
-    def test_live_receipt_uploads_bind_current_job_names_and_actual_output_paths(self):
+    def test_live_v2_workflow_has_no_catalog_planned_receipt_callers(self):
+        # The v2 workflow runs its suites directly; no job plans, uploads or aggregates
+        # verification receipts, so no catalog row is CI-verified by receipt (#862).
         workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        self.assertEqual(set(RETIRED_V1_JOBS) & set(workflow['jobs']), set())
+        for job_id, job in workflow['jobs'].items():
+            for step in job.get('steps', []):
+                with self.subTest(job=job_id, step=step.get('name')):
+                    self.assertNotIn('tests/verification.py', step.get('run', ''))
+                    self.assertNotIn('tests/verification-ci.py', step.get('run', ''))
+                    self.assertFalse(step.get('with', {}).get('name', '').startswith('verification-receipts-'))
+        # The v1 obligation planner must refuse the v2 aggregate rather than report zero obligations.
         catalog = R.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
-        identities = self.ci.expanded_jobs(workflow)
-        obligations = [row for row in W.plan_obligations(workflow, catalog) if row['receipt_required']]
-        import fnmatch
-        import shlex
-        for obligation in obligations:
-            job = workflow['jobs'][obligation['job']]
-            binding = [step for step in job['steps'] if step.get('id') == 'receipt-artifact']
-            self.assertEqual(len(binding), 1)
-            name = W.expand_matrix(binding[0]['env']['RECEIPT_JOB_NAME'], obligation['matrix'])
-            self.assertEqual(identities[name]['job'], obligation['job'])
-            self.assertEqual(identities[name]['matrix'], obligation['matrix'])
-            uploads = [step for step in job['steps'] if step.get('with', {}).get('name', '').startswith('verification-receipts-')]
-            self.assertEqual(len(uploads), 1)
-            upload = uploads[0]
-            self.assertEqual(upload['uses'], 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9')
-            self.assertEqual(upload['with']['name'], 'verification-receipts-${{ github.run_id }}-${{ github.run_attempt }}-${{ steps.receipt-artifact.outputs.job_key }}')
-            self.assertEqual(upload['with']['if-no-files-found'], 'error')
-            self.assertTrue(upload['if'].startswith('always()'))
-            consumers = [step for step in job['steps'] if W.expand_matrix(step.get('name', ''), obligation['matrix']) == obligation['step']]
-            self.assertEqual(len(consumers), 1)
-            tokens = shlex.split(W.expand_matrix(consumers[0]['run'], obligation['matrix']))
-            self.assertIn('--receipt', tokens)
-            receipt = tokens[tokens.index('--receipt') + 1].rsplit('/', 1)[-1]
-            patterns = [line.rsplit('/', 1)[-1] for line in upload['with']['path'].splitlines()]
-            self.assertTrue(any(fnmatch.fnmatchcase(receipt, pattern) for pattern in patterns), receipt)
+        with self.assertRaisesRegex(ValueError, 'unexpected verifier step identity or condition'):
+            W.plan_obligations(workflow, catalog)
 
-    def test_current_workflow_all_receipt_callers_match_existing_profiles(self):
-        workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
-        catalog = R.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
-        weights = R.load_weights(ROOT / 'tests/verification-timings.json')
-        obligations = [o for o in W.plan_obligations(workflow, catalog, weights) if o['receipt_required']]
-        expected = {
-            'Test shared review launch and conditional input contracts': 'ci-shared-python',
-            'Run POSIX inventory shard': 'ci-posix-fallback',
-            '[deterministic] Test cloud suites, installed packages and current multitarget boundaries': 'ci-cloud',
-            '[deterministic] Test portable review-loop prechecks (pwsh)': 'ci-portable-prechecks',
-            '[deterministic] Test portable review-loop prechecks': 'ci-portable-prechecks',
-            '[deterministic] Test Epic A7 compatibility suites (pwsh)': 'ci-a7-native',
-            'Test bump-version loop-gate prerequisite': None,
-            'Test POSIX kill-switch permission failures': None,
-            'Run native controls and complete tracked-source audit': 'coding-standards',
-            'Run native Windows compatibility contracts': '${{ matrix.profile }}',
-            'Test SQL contracts and FilesOnly distribution': None,
-            'Test isolated postgres migration and recovery': None,
-            'Test isolated mysql migration and recovery': None,
-            'Test isolated tsql migration and recovery': None,
-        }
-        self.assertEqual(len(obligations), 22)
-        sql_suites = {
-            'sql-contract': 'tests/sql-development-contract.tests.py',
-            'sql-postgres': 'tests/sql-development-postgres.tests.py',
-            'sql-mysql': 'tests/sql-development-mysql.tests.py',
-            'sql-tsql': 'tests/sql-development-tsql.tests.py',
-        }
-        self.assertCountEqual(
-            [(o['job'], o['suites'], o['matrix']) for o in obligations if o['job'] in sql_suites],
-            [(job, [suite], {}) for job, suite in sql_suites.items()],
-        )
-        for obligation in obligations:
-            with self.subTest(job=obligation['job'], matrix=obligation['matrix'], step=obligation['step']):
-                self.assertIn(obligation['step'], expected)
-                try:
-                    profile = self.ci.receipt_profile(workflow, obligation)
-                except ValueError as error:
-                    self.fail('existing receipt caller rejected: ' + str(error))
-                self.assertEqual(profile, W.expand_matrix(expected[obligation['step']], obligation['matrix'])
-                                 if expected[obligation['step']] is not None else None)
-
+    def test_frozen_v1_jobs_are_absent_from_live_workflow(self):
+        frozen = v1_workflow_jobs()
+        live = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        # If a planner or A9 job returns, bind these protocol tests to the live job again.
+        for job in RETIRED_V1_JOBS:
+            self.assertIn(job, frozen['jobs'])
+            self.assertNotIn(job, live['jobs'])
     def test_corrupt_deflate_is_typed_error_without_partial_files(self):
         raw = io.BytesIO()
         with zipfile.ZipFile(raw, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
@@ -919,7 +888,7 @@ class A9AggregateTests(AggregateFixture):
     def setUp(self):
         super().setUp()
         self.ci = module(SCRIPT, 'a9_ci_test')
-        live = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        live = v1_workflow_jobs()
         self.workflow['env'] = live.get('env', {})
         for job in ('a9-advisory-inputs', 'a9-advisory'):
             self.workflow['jobs'][job] = copy.deepcopy(live['jobs'][job])
@@ -1543,9 +1512,9 @@ PlanFixture = module(ROOT / 'tests/verification-ci-plan.tests.py', 't003_plan_fi
 
 
 class WorkflowPlanIntegrationTests(PlanFixture):  # type: ignore[misc, valid-type]  # Runtime-loaded filename contains hyphens.
-    """Run the live planner dispatcher against isolated histories; no hosted proof."""
+    """Run the last shipped (frozen v1) planner dispatcher against isolated histories; no hosted proof."""
     def actual_body(self):
-        workflow = W.load_workflow(ROOT / '.github/workflows/test.yml')
+        workflow = v1_workflow_jobs()
         self.assertTrue('ci-plan' in workflow['jobs'], 'workflow does not invoke the planner')
         steps = [s for s in workflow['jobs']['ci-plan']['steps'] if s.get('id') == 'plan']
         self.assertEqual(len(steps), 1)

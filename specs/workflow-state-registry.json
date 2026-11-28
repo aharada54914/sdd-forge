@@ -453,6 +453,14 @@
     {
       "feature": "visual-spec-decisions",
       "profile": "full"
+    },
+    {
+      "feature": "v2-lightweight-guardrails",
+      "profile": "lite"
+    },
+    {
+      "feature": "downstream-precheck-parity",
+      "profile": "lite"
     }
   ]
 }

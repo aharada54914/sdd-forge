@@ -189,25 +189,24 @@ fi
 # Self-registration (design.md Test Strategy item 5, mirroring
 # tests/second-approval-mask.tests.sh:285-289's established pattern)
 # ============================================================================
-echo "=== Self-registration: run-all.sh / run-all.ps1 / test.yml ==="
+echo "=== Self-registration: run-all.sh / run-all.ps1 ==="
 
 RUN_ALL_SH="${REPO_ROOT}/tests/run-all.sh"
 RUN_ALL_PS1="${REPO_ROOT}/tests/run-all.ps1"
-TEST_YML="${REPO_ROOT}/.github/workflows/test.yml"
+# v2 (220f60af): .github/workflows/test.yml no longer runs catalog suites; the
+# verification catalog's local profiles are the registration surface (#862).
 
 if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
-   grep -Fx 'tests/check-placeholders-brownfield.tests.sh' <<< "$registered_suites" >/dev/null \
-   && grep -q 'check-placeholders-brownfield\.tests\.sh' "$TEST_YML" 2>/dev/null; then
-    ok "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh and test.yml"
+   grep -Fx 'tests/check-placeholders-brownfield.tests.sh' <<< "$registered_suites" >/dev/null; then
+    ok "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh"
 else
-    fail "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is NOT registered in run-all.sh and/or test.yml"
+    fail "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is NOT registered in run-all.sh"
 fi
 
-if { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -q 'tests/check-placeholders-brownfield\.tests\.ps1' <<< "$registered_ps1"; } \
-   && grep -q 'check-placeholders-brownfield\.tests\.ps1' "$TEST_YML" 2>/dev/null; then
-    ok "REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is registered in run-all.ps1 and test.yml"
+if { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -q 'tests/check-placeholders-brownfield\.tests\.ps1' <<< "$registered_ps1"; }; then
+    ok "REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is registered in run-all.ps1"
 else
-    fail "REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is NOT registered in run-all.ps1 and/or test.yml"
+    fail "REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is NOT registered in run-all.ps1"
 fi
 
 # ============================================================================

@@ -291,24 +291,24 @@ Write-Output "=== TEST-006: self-registration + runtime budget (LOOP_SUITE_BUDGE
 
 $runAllSh = Join-Path $repoRoot "tests/run-all.sh"
 $runAllPs1 = Join-Path $repoRoot "tests/run-all.ps1"
-$testYml = Join-Path $repoRoot ".github/workflows/test.yml"
+# v2 (220f60af): .github/workflows/test.yml no longer runs catalog suites; the
+# verification catalog's local profiles are the registration surface (#862).
 
 # run-all.sh loads its inventory externally; query the executable list.
 $posixEntries = @(& bash $runAllSh --list)
 $posixListExit = $LASTEXITCODE
 $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) } else { "" }
-$testYmlContent = if (Test-Path -LiteralPath $testYml) { Get-Content -LiteralPath $testYml -Raw } else { "" }
 
-if ($posixListExit -eq 0 -and $posixEntries -ccontains 'tests/hitl-wfi-terminal.tests.sh' -and $testYmlContent.Contains("hitl-wfi-terminal.tests.sh")) {
-    Ok "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is registered in run-all.sh and test.yml"
+if ($posixListExit -eq 0 -and $posixEntries -ccontains 'tests/hitl-wfi-terminal.tests.sh') {
+    Ok "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is registered in run-all.sh"
 } else {
-    Fail "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is NOT registered in run-all.sh and/or test.yml"
+    Fail "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is NOT registered in run-all.sh"
 }
 
-if ($runAllPs1Content.Contains("tests/hitl-wfi-terminal.tests.ps1") -and $testYmlContent.Contains("hitl-wfi-terminal.tests.ps1")) {
-    Ok "TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is registered in run-all.ps1 and test.yml"
+if ($runAllPs1Content.Contains("tests/hitl-wfi-terminal.tests.ps1")) {
+    Ok "TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is registered in run-all.ps1"
 } else {
-    Fail "TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is NOT registered in run-all.ps1 and/or test.yml"
+    Fail "TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is NOT registered in run-all.ps1"
 }
 
 $syntheticPastEpoch = $startEpoch - 1

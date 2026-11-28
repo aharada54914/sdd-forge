@@ -49,7 +49,8 @@ INVENTORY_PATH="${LOOP_INVENTORY_PATH:-${REPO_ROOT}/tests/loops/loop-inventory.j
 VALIDATOR="${REPO_ROOT}/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
 RUN_ALL_SH="${REPO_ROOT}/tests/run-all.sh"
 RUN_ALL_PS1="${REPO_ROOT}/tests/run-all.ps1"
-TEST_YML="${REPO_ROOT}/.github/workflows/test.yml"
+# v2 (220f60af): .github/workflows/test.yml no longer runs catalog suites; the
+# verification catalog's local profiles are the registration surface (#862).
 LOOP_DRIVER="${REPO_ROOT}/tests/lib/loop-driver.sh"
 
 PASS=0
@@ -340,9 +341,9 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# TEST-004 (AC-004): self-registration forcing across run-all.sh / run-all.ps1 / test.yml
+# TEST-004 (AC-004): self-registration forcing across run-all.sh / run-all.ps1
 # ---------------------------------------------------------------------------
-echo "=== TEST-004: registration forcing (run-all.sh / run-all.ps1 / test.yml) ==="
+echo "=== TEST-004: registration forcing (run-all.sh / run-all.ps1) ==="
 
 CANONICAL_BASENAMES=(loop-inventory.tests loop-driver.tests loop-consistency.tests loop-escalation.tests)
 
@@ -351,24 +352,20 @@ assert_registered_sh() {
   local registered_suites
   # The runner reads its inventory dynamically; source text is not membership.
   registered_suites="$(bash "$RUN_ALL_SH" --list)" || return 1
-  grep -Fx -- "tests/${basename}.sh" <<< "$registered_suites" >/dev/null && \
-    grep -q "${basename}\.sh" "$TEST_YML" 2>/dev/null
+  grep -Fx -- "tests/${basename}.sh" <<< "$registered_suites" >/dev/null
 }
 assert_registered_ps1() {
   local basename="$1"
-  { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -q "tests/${basename}\.ps1" <<< "$registered_ps1"; } && \
-    grep -q "${basename}\.ps1" "$TEST_YML" 2>/dev/null
+  { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -q "tests/${basename}\.ps1" <<< "$registered_ps1"; }
 }
 
 check_registration_controls() {
   local RUN_ALL_SH="${WORK}/registration-runner.sh"
-  local TEST_YML="${WORK}/registration-workflow.yml"
   local REGISTRATION_LIST REGISTRATION_EXIT=0
   export REGISTRATION_LIST REGISTRATION_EXIT
   # A dynamic listing must work without a static suite name in the runner.
   printf '%s\n' '[[ "$1" == "--list" ]] || exit 9' \
     'printf "%s\n" "$REGISTRATION_LIST"' 'exit "$REGISTRATION_EXIT"' > "$RUN_ALL_SH"
-  printf '%s\n' 'run: bash tests/loop-inventory.tests.sh' > "$TEST_YML"
   REGISTRATION_LIST='tests/loop-inventory.tests.sh'
   if assert_registered_sh loop-inventory.tests; then
     ok "TEST-004.3: dynamic exact registration is accepted"
@@ -376,14 +373,13 @@ check_registration_controls() {
     fail "TEST-004.3: dynamic exact registration is rejected"
   fi
   local control
-  for control in missing near-match failed-list missing-ci; do
+  for control in missing near-match failed-list; do
     REGISTRATION_LIST='tests/loop-inventory.tests.sh'
     REGISTRATION_EXIT=0
     case "$control" in
       missing) REGISTRATION_LIST='' ;;
       near-match) REGISTRATION_LIST='tests/loop-inventory.tests.sh.bak' ;;
       failed-list) REGISTRATION_EXIT=7 ;;
-      missing-ci) printf '%s\n' 'run: echo no suite' > "$TEST_YML" ;;
     esac
     if assert_registered_sh loop-inventory.tests; then
       fail "TEST-004.4: ${control} registration was accepted"
@@ -400,9 +396,9 @@ for basename in "${CANONICAL_BASENAMES[@]}"; do
 
   if [[ "$basename" == "loop-inventory.tests" || -f "$sh_path" ]]; then
     if assert_registered_sh "$basename"; then
-      ok "TEST-004.1: ${basename}.sh is registered in run-all.sh and test.yml"
+      ok "TEST-004.1: ${basename}.sh is registered in run-all.sh"
     else
-      fail "TEST-004.1: ${basename}.sh exists but is NOT registered in run-all.sh and/or test.yml"
+      fail "TEST-004.1: ${basename}.sh exists but is NOT registered in run-all.sh"
     fi
   else
     echo "SKIP: TEST-004.1 ${basename}.sh not yet on disk (later Pillar-A task)"
@@ -410,9 +406,9 @@ for basename in "${CANONICAL_BASENAMES[@]}"; do
 
   if [[ "$basename" == "loop-inventory.tests" || -f "$ps1_path" ]]; then
     if assert_registered_ps1 "$basename"; then
-      ok "TEST-004.2: ${basename}.ps1 is registered in run-all.ps1 and test.yml"
+      ok "TEST-004.2: ${basename}.ps1 is registered in run-all.ps1"
     else
-      fail "TEST-004.2: ${basename}.ps1 exists but is NOT registered in run-all.ps1 and/or test.yml"
+      fail "TEST-004.2: ${basename}.ps1 exists but is NOT registered in run-all.ps1"
     fi
   else
     echo "SKIP: TEST-004.2 ${basename}.ps1 not yet on disk (later Pillar-A task)"

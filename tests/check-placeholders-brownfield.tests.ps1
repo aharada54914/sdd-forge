@@ -172,28 +172,28 @@ try {
     # -------------------------------------------------------------------
     # Self-registration (design.md Test Strategy item 5)
     # -------------------------------------------------------------------
-    Write-Output "=== Self-registration: run-all.sh / run-all.ps1 / test.yml ==="
+    Write-Output "=== Self-registration: run-all.sh / run-all.ps1 ==="
 
     $runAllSh = Join-Path $repoRoot "tests/run-all.sh"
     $runAllPs1 = Join-Path $repoRoot "tests/run-all.ps1"
-    $testYml = Join-Path $repoRoot ".github/workflows/test.yml"
+    # v2 (220f60af): .github/workflows/test.yml no longer runs catalog suites; the
+    # verification catalog's local profiles are the registration surface (#862).
 
     # run-all.sh loads its inventory externally; query the executable list.
     $posixEntries = @(& bash $runAllSh --list)
     $posixListExit = $LASTEXITCODE
     $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) } else { "" }
-    $testYmlContent = if (Test-Path -LiteralPath $testYml) { Get-Content -LiteralPath $testYml -Raw } else { "" }
 
-    if ($posixListExit -eq 0 -and $posixEntries -ccontains 'tests/check-placeholders-brownfield.tests.sh' -and $testYmlContent.Contains("check-placeholders-brownfield.tests.sh")) {
-        Ok "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh and test.yml"
+    if ($posixListExit -eq 0 -and $posixEntries -ccontains 'tests/check-placeholders-brownfield.tests.sh') {
+        Ok "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh"
     } else {
-        Fail "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is NOT registered in run-all.sh and/or test.yml"
+        Fail "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is NOT registered in run-all.sh"
     }
 
-    if ($runAllPs1Content.Contains("tests/check-placeholders-brownfield.tests.ps1") -and $testYmlContent.Contains("check-placeholders-brownfield.tests.ps1")) {
-        Ok "REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is registered in run-all.ps1 and test.yml"
+    if ($runAllPs1Content.Contains("tests/check-placeholders-brownfield.tests.ps1")) {
+        Ok "REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is registered in run-all.ps1"
     } else {
-        Fail "REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is NOT registered in run-all.ps1 and/or test.yml"
+        Fail "REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is NOT registered in run-all.ps1"
     }
 
     # -------------------------------------------------------------------

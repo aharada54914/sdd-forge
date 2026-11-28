@@ -357,21 +357,20 @@ echo "=== TEST-006: self-registration + runtime budget (LOOP_SUITE_BUDGET_SECOND
 
 RUN_ALL_SH="${REPO_ROOT}/tests/run-all.sh"
 RUN_ALL_PS1="${REPO_ROOT}/tests/run-all.ps1"
-TEST_YML="${REPO_ROOT}/.github/workflows/test.yml"
+# v2 (220f60af): .github/workflows/test.yml no longer runs catalog suites; the
+# verification catalog's local profiles are the registration surface (#862).
 
 if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
-   grep -Fx 'tests/hitl-wfi-terminal.tests.sh' <<< "$registered_suites" >/dev/null \
-   && grep -q 'hitl-wfi-terminal\.tests\.sh' "$TEST_YML" 2>/dev/null; then
-  ok "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is registered in run-all.sh and test.yml"
+   grep -Fx 'tests/hitl-wfi-terminal.tests.sh' <<< "$registered_suites" >/dev/null; then
+  ok "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is registered in run-all.sh"
 else
-  fail "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is NOT registered in run-all.sh and/or test.yml"
+  fail "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is NOT registered in run-all.sh"
 fi
 
-if { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -q 'tests/hitl-wfi-terminal\.tests\.ps1' <<< "$registered_ps1"; } \
-   && grep -q 'hitl-wfi-terminal\.tests\.ps1' "$TEST_YML" 2>/dev/null; then
-  ok "TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is registered in run-all.ps1 and test.yml"
+if { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -q 'tests/hitl-wfi-terminal\.tests\.ps1' <<< "$registered_ps1"; }; then
+  ok "TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is registered in run-all.ps1"
 else
-  fail "TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is NOT registered in run-all.ps1 and/or test.yml"
+  fail "TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is NOT registered in run-all.ps1"
 fi
 
 SYNTHETIC_PAST_EPOCH=$(( START_EPOCH - 1 ))
