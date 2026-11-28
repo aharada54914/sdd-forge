@@ -70,13 +70,13 @@ resolve_contract_track() {
 }
 
 compare_cli_cell() {
-  local cell=$1 flag marker fixture first second expected oracle=STANDARD_BY_RISK
-  IFS='|' read -r flag marker <<<"$cell"
-  if [[ "$marker" == present ]]; then
-    fixture="$(build_fixture absent present disabled-legacy valid "$flag")"
-  else
-    fixture="$(build_fixture absent absent disabled-legacy valid "$flag")"
-  fi
+  local cell=$1 flag marker context fixture first second expected oracle=STANDARD_BY_RISK
+  IFS='|' read -r flag marker context <<<"$cell"
+  case "$context" in
+    absent) fixture="$(build_fixture absent "$marker" disabled-legacy valid "$flag")" ;;
+    valid) fixture="$(build_fixture present "$marker" advisory valid "$flag")" ;;
+    invalid) fixture="$(build_fixture present "$marker" advisory PROJECT_CONTEXT_INVALID "$flag")" ;;
+  esac
   FIXTURES+=("$fixture")
   if first="$(resolve_contract_track "$PRODUCT_ROOT/plugins/sdd-ship/skills/ship/SKILL.md" "$fixture" "$flag")" &&
      second="$(resolve_contract_track "$PRODUCT_ROOT/plugins/sdd-ship/skills/ship/SKILL.md" "$fixture" "$flag")" &&
@@ -154,11 +154,15 @@ for row in F1 F2; do
   fi
 done
 
-for cell in \
-  'none|present' 'none|absent' \
-  '--full|present' '--full|absent' \
-  '--lite|present' '--lite|absent'; do
-  compare_cli_cell "$cell"
+# Each of the six flag x marker cells is checked with no Project Context, a
+# valid one and an invalid one; the v2 flow never depends on it (Q09).
+for context in absent valid invalid; do
+  for cell in \
+    'none|present' 'none|absent' \
+    '--full|present' '--full|absent' \
+    '--lite|present' '--lite|absent'; do
+    compare_cli_cell "$cell|$context"
+  done
 done
 
 negative_self_check "$CANONICAL/targets/deterministic-script-output.bin"

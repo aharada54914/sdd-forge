@@ -96,13 +96,17 @@ try {
         }
     }
 
-    foreach ($cell in @(
-        'none|present', 'none|absent',
-        '--full|present', '--full|absent',
-        '--lite|present', '--lite|absent'
-    )) {
-        $flag, $marker = $cell.Split('|')
-        $fixture = if ($marker -ceq 'present') { build_fixture absent present disabled-legacy valid $flag } else { build_fixture absent absent disabled-legacy valid $flag }
+    # Each flag x marker cell with no, a valid and an invalid Project Context (Q09).
+    $cells = foreach ($context in @('absent', 'valid', 'invalid')) {
+        foreach ($base in @('none|present', 'none|absent', '--full|present', '--full|absent', '--lite|present', '--lite|absent')) { "$base|$context" }
+    }
+    foreach ($cell in $cells) {
+        $flag, $marker, $context = $cell.Split('|')
+        $fixture = switch -CaseSensitive ($context) {
+            'absent' { build_fixture absent $marker disabled-legacy valid $flag }
+            'valid' { build_fixture present $marker advisory valid $flag }
+            'invalid' { build_fixture present $marker advisory PROJECT_CONTEXT_INVALID $flag }
+        }
         $Fixtures.Add($fixture)
         try {
             $first = Resolve-ContractTrack (Join-Path $ProductRoot 'plugins/sdd-ship/skills/ship/SKILL.md') $fixture $flag

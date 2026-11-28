@@ -51,6 +51,12 @@ def behaviour(*names):
 
 
 AUDIT = "`Egress-Consent-Scope`）・対象（`Egress-Consent-Subject`）・有効期限（`Egress-Consent-Expiry`）"
+# The three Q08 fields are written by the agent from the record table; the
+# resolver itself emits feature/session/destination, decision, setting, party.
+STANDING_EXPIRY = "`standing` は設定が `standing` 以外に変わるか撤回されるまで"
+OFF_EXPIRY = "`off` の禁止は設定が変わるまで"
+PER_FEATURE_EXPIRY = "`per-feature` は同意したセッションの終了時"
+UNPROMPTED_SUBJECT = "確認を示さない `standing` と `off` は、記録時に送信予定だったファイルの相対パス一覧を記録する"
 CHECKS = [
     ("TEST-007 the three regimes mean the same with or without the design tool (AC-006, executable)", [],
      ["test_off_routes_without_upload", "test_off_and_setting_changes_override_previous_grants"]),
@@ -74,14 +80,14 @@ CHECKS = [
      [("step3", "返された `party`（`Egress-Consent-Party`）")], ["test_standing_audits_once_per_feature_and_destination"]),
     ("TEST-039 off's party names the setting, never a fabricated per-occurrence identity (AC-019)",
      [("step3", "返された `party`（`Egress-Consent-Party`）")], ["test_off_audit_names_the_setting"]),
-    ("TEST-040 a standing grant records scope, subject and expiry (Q08, AC-029)",
-     [("step3", AUDIT)], ["test_standing_first_audit_is_granted"]),
-    ("TEST-041 an ordinary per-feature grant records scope, subject and expiry (Q08, AC-029)",
-     [("step3", AUDIT)], ["test_subsequent_uploads_reuse_current_grant"]),
-    ("TEST-042 a mid-session withdrawal is recorded with scope, subject and expiry (Q08, AC-029)",
+    ("TEST-040 a standing grant's record instruction names scope, subject and expiry valid across sessions (Q08, AC-029)",
+     [("step3", AUDIT), ("dsl", STANDING_EXPIRY), ("dsl", UNPROMPTED_SUBJECT)], ["test_standing_first_audit_is_granted"]),
+    ("TEST-041 a per-feature grant's record instruction names scope, subject and session expiry (Q08, AC-029)",
+     [("step3", AUDIT), ("dsl", PER_FEATURE_EXPIRY)], ["test_subsequent_uploads_reuse_current_grant"]),
+    ("TEST-042 a mid-session withdrawal's record instruction names scope, subject and expiry (Q08, AC-029)",
      [("step3", AUDIT), ("step3", "`withdrawn` として `Design-Source` に追記")], ["test_withdrawn_consent_needs_fresh_grant"]),
-    ("TEST-043 an off-driven not-permitted outcome records scope, subject and expiry (Q08, AC-029)",
-     [("step3", AUDIT), ("step3", "`Egress-Consent: not-permitted`")], ["test_off_records_the_outcome"]),
+    ("TEST-043 an off-driven not-permitted record instruction names scope, subject and persistent expiry (Q08, AC-029)",
+     [("step3", AUDIT), ("step3", "`Egress-Consent: not-permitted`"), ("dsl", OFF_EXPIRY), ("dsl", UNPROMPTED_SUBJECT)], ["test_off_records_the_outcome"]),
     ("TEST-044 the setting is re-read at every resolution, never cached (AC-020, executable oracle)",
      [("dsl", "毎回、現在の設定、機能・セッション・送信先、既存の判断記録を使う"),
       ("step3", "毎回 `AGENTS.md` の `ds_upload_consent`")], ["test_off_and_setting_changes_override_previous_grants"]),

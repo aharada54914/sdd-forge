@@ -18,9 +18,16 @@
 - **v2 へ移行した後に残った旧承認ファイル**: `concept-test.approval.json` が残っていると、v2 の実行が `incompatible Concept Test decision records` という分かりにくい理由で止まっていた。残ったファイルの場所と、削除すればよいことを示して止まるようにした。
 - **tasks.md の位置にフォルダーがある場合のゲート**: EISDIR で落ちず、パスを示して止まる。
 - **リリース前の CI 確認の案内**: 後続の push で CI が取り消されたコミットは、そのコミットで test.yml を手動実行するよう案内する。
+- **ソフトガードが表記を変えた自己承認を通していた件（RT-20261128-001）**: ソフトガードは行頭の `Approval: Approved` だけを承認として数えていたが、ゲートのタスクパーサーはリスト・太字・バッククォート・小文字の項目名の表記も承認と読む。ソフトガードも同じ項目文法（`taskField` と `isApprovedValue`）で数えるので、これらの表記で Draft を Approved に書き換える自己承認を拒否する。同じ判定を使う `isFeatureApproved` も、これらの表記の承認済みタスクがある機能を承認済みとして扱い、仕様の保護が有効になる。
+- **Copilot の評価者定義の境界**: Claude・Codex と同じく、入力を信頼しない規則とレビュー票（`docs/review-tickets/*.yml`）の読み込みを追加した。
 
 ### Changed
 
+- **モデル登録と方針（2026-11-28 所有者判断）**: `anthropic/opus-5-5` の既定 effort を high から medium に、`anthropic/sonnet-5-5` の effort を low〜max（既定 high）にした。評価者（`sdd-evaluator`）の下限は全ホストで `strong` とし、Claude 専用の上書きを外したため、Claude で管理実行する評価者の下限も standard から strong に上がる。`anthropic/fable` は current から candidate に移し、ホスト上の ID を `fable` にした。investigator の選好は軽量ティアを先にする。新しい現役モデル（haiku-5-5・fable-5-2・gpt-6 系・gemini-4 系など）は `adoption: []` で登録し、採用の根拠を記録するまで自動では選ばれない。
+- **評価者のモデル記録と根拠の規則**: `sdd-gate` は評価者が実際に使ったモデル ID を報告の `Evaluator Model` に記録し、`model-tier.py check --role sdd-evaluator` で下限を確認する（下限未満・未分類・不正な ID は記録したうえでレビューを続け、判定値は変えない）。`model-tier.py` は登録済みの正規名、`[1m]` などの文脈長の接尾辞、Bedrock・Vertex AI 形式の ID も系列で判定する。3ホストの評価者に共通の根拠規則（検証できない主張は Major、実装報告は主張であって証拠ではない、理由のない N/A は所見）を加えた。
+- **設計同期の送信同意の記録（Q08）**: `Design-Source` に同意の範囲・対象・有効期限を旧フィールド名 `Egress-Consent-Scope` / `-Subject` / `-Expiry` で記録する。意味は設定ごとに異なり、`standing` はセッションをまたいで有効、`off` の禁止は設定が変わるまで続く。
+- **ship の公開契約（Q09）**: `PLUGIN-CONTRACTS.md` の ship の節を v2 に合わせた。各タスクの `Risk:` に従う単一の標準フローで、`--full` / `--lite` は停止しない互換エイリアス、`sdd/project-context.yaml` と `spec_profile: lite` はフローを変えない。
+- **check-component-coverage の位置づけ（N2）**: v2 の `sdd-gate` はこの検査を呼ばない。単独で実行する v1 互換ツールとして文書を直した。
 - **タスクロックで実行を断られたゲート実行を FAIL に数えない**: 別の担当がロックを持っているため検査を1つも実行しなかった `run-sdd-gate` の実行は、`.sdd/factory-metrics.jsonl` に `lockDenied: true` 付きで記録する。`factory-metrics` はこれをゲートの PASS / FAIL・合格率・タスクごとの試行履歴に含めず、`lockDeniedRuns` として別に数える。これまでは検査していない実行が FAIL として集計されていた。
 - **退役したレビュー役のモデル表記の書き込みを拒否（Q15）**: `render-agent-frontmatter.{sh,ps1}` は、v2 で廃止した `impl-reviewer` と `task-reviewer` を対象に指定されると `RENDER_ERROR: role ... was retired in v2 and cannot be rendered` で停止する。これまでは正常終了し、補正後の内容を `specs/epic-159-pillar-c/human-copy/` に書き出していた。対象一覧のどこかに含まれていれば、ほかの対象も含めて何も書き込まない（`--check` と `--resolve-target` も同じ）。配布している6つの対象と管理経路（`--managed-target`）の挙動は変わらない。
 

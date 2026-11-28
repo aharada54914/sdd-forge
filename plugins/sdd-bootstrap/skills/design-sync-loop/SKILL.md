@@ -53,9 +53,9 @@ UI アプリケーションの仕様段階デザイン反復ループ。Mermaid 
    | 送信同意の記録欄 | 値 |
    |---|---|
    | `Egress-Consent` | 送信同意の判断（`granted`、`not-permitted`、`withdrawn`） |
-   | `Egress-Consent-Scope` | 同意の範囲。この機能とこのセッションの組で、送信先は `Egress-Destination` に記録する |
-   | `Egress-Consent-Subject` | 同意の対象。利用者に示した送信内容をそのまま記録し、値の形式（ファイル一覧・ハッシュ・説明文）はここでは定めない |
-   | `Egress-Consent-Expiry` | 同意の有効期限。同意したセッションの終了時で、`none` にしない |
+   | `Egress-Consent-Scope` | 同意の範囲。`per-feature` はこの機能とこのセッションの組、`standing` はこの機能と送信先の組（セッションをまたいで有効）、`off` はこの機能・セッション・送信先の組。送信先は `Egress-Destination` に記録する |
+   | `Egress-Consent-Subject` | 同意の対象。`per-feature` は利用者に示した送信内容をそのまま記録する。確認を示さない `standing` と `off` は、記録時に送信予定だったファイルの相対パス一覧を記録する。値の形式はここでは定めない |
+   | `Egress-Consent-Expiry` | 同意の有効期限。`per-feature` は同意したセッションの終了時、`standing` は設定が `standing` 以外に変わるか撤回されるまで、`off` の禁止は設定が変わるまで。`none` にしない |
    | `Egress-Destination` | `claude-design` で実際に `claude.ai/design` を使う場合、手順1で選んだプロジェクトの ID |
 
    アップロード直前とモックアップの再生成後は毎回、次の送信前検査を行う。手順3の送信同意を先に確認し、送信予定の `specs/<feature>/mockups/` のファイルだけを、送信時と同じ相対パス・内容で1つのディレクトリに用意する。

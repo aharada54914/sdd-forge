@@ -17,6 +17,9 @@ if not document.is_file():
 text = document.read_text(encoding="utf-8")
 agents = fixture / "AGENTS.md"
 marker = "present" if agents.is_file() and "spec_profile: lite" in agents.read_text(encoding="utf-8").splitlines() else "absent"
+# v2 never reads sdd/project-context.yaml for the flow; the fixture may carry a
+# valid or an invalid one, and the resolution must not depend on it.
+context = fixture / "sdd" / "project-context.yaml"
 if document.name == "PLUGIN-CONTRACTS.md":
     block = re.search(r"<!-- sdd:track-selection-contract v2 -->(.*?)<!-- /sdd:track-selection-contract -->", text, re.S)
     if block is None:
@@ -26,11 +29,14 @@ if document.name == "PLUGIN-CONTRACTS.md":
         cells[(row.group(1).strip("`"), row.group(2))] = row.group(3)
     if len(cells) != 6:
         raise SystemExit(f"v2 track-selection contract must list exactly six cells: {document}")
+    rule = "neither `sdd/project-context.yaml` nor a `spec_profile: lite` marker in `AGENTS.md` changes the flow"
+    if rule not in " ".join(text.split()):
+        raise SystemExit(f"contract no longer states that the Project Context never changes the flow: {document}")
     print(cells[(flag, marker)])
 else:
     alias = "- `--lite` / `--full` *(互換エイリアス)*: 停止せず単一の標準フロー（各タスクの `Risk:` に従う）で実行する。"
     if alias not in text.splitlines():
         raise SystemExit(f"ship skill no longer states the alias rule: {document}")
-    if re.search(r"spec_profile|(?<![A-Za-z])(FULL|LITE)(?![A-Za-z])", text):
+    if re.search(r"spec_profile|project-context\.yaml|(?<![A-Za-z])(FULL|LITE)(?![A-Za-z])", text):
         raise SystemExit(f"ship skill still resolves a track from a flag or marker: {document}")
     print("STANDARD_BY_RISK")
