@@ -19,6 +19,7 @@
 - **Non-Functional Sensors (SQL / Cloud / Secrets)**: PASS | FAIL | SKIPPED
 - **Open Questions Gate (`Risk: high`)**: PASS | BLOCKED (Provisional OQ)
 - **Project Commands**: <コマンドごとの PASS / FAIL 要約>
+- **Evaluator Model**: <ホストが実際に使ったモデル ID> — floor `strong`: MEETS | BELOW (<tier>) | UNCLASSIFIED
 
 ## Acceptance Criteria Verification
 

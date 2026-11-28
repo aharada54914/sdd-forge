@@ -1,0 +1,28 @@
+{
+  "schema": "model-families/v1",
+  "source_date": "2026-11-28T00:00:00Z",
+  "sources": [
+    "https://docs.anthropic.com/en/docs/about-claude/models",
+    "https://learn.chatgpt.com/docs/models",
+    "https://aistudio.google.com/docs/models"
+  ],
+  "note": "Tier rules by vendor family name. A new version of a known family is classified without a registry edit; an unknown family is unclassified and must be reviewed. Patterns match host-native model IDs in full.",
+  "families": [
+    {"vendor": "anthropic", "family": "haiku", "pattern": "^(claude-)?haiku(-[0-9][0-9.-]*)?$", "tier": "lightweight"},
+    {"vendor": "anthropic", "family": "sonnet", "pattern": "^(claude-)?sonnet(-[0-9][0-9.-]*)?$", "tier": "standard"},
+    {"vendor": "anthropic", "family": "opus", "pattern": "^(claude-)?opus(-[0-9][0-9.-]*)?$", "tier": "strong"},
+    {"vendor": "anthropic", "family": "fable", "pattern": "^(claude-)?fable(-[0-9][0-9.-]*)?$", "tier": "strong"},
+    {"vendor": "anthropic", "family": "mythos", "pattern": "^(claude-)?mythos(-[0-9][0-9.-]*)?$", "tier": "strong"},
+    {"vendor": "openai", "family": "luna", "pattern": "^gpt-[0-9]+(\\.[0-9]+)?-luna$", "tier": "lightweight"},
+    {"vendor": "openai", "family": "terra", "pattern": "^gpt-[0-9]+(\\.[0-9]+)?-terra$", "tier": "lightweight"},
+    {"vendor": "openai", "family": "sol", "pattern": "^gpt-[0-9]+(\\.[0-9]+)?-sol$", "tier": "standard"},
+    {"vendor": "openai", "family": "astra", "pattern": "^gpt-[0-9]+(\\.[0-9]+)?-astra$", "tier": "strong"},
+    {"vendor": "google", "family": "flash-lite", "pattern": "^gemini-[0-9]+(\\.[0-9]+)?-flash-lite$", "tier": "lightweight"},
+    {"vendor": "google", "family": "flash", "pattern": "^gemini-[0-9]+(\\.[0-9]+)?-flash$", "tier": "standard"},
+    {"vendor": "google", "family": "hydrogen", "pattern": "^gemini-[0-9]+(\\.[0-9]+)?-hydrogen$", "tier": "standard"},
+    {"vendor": "google", "family": "argon", "pattern": "^gemini-[0-9]+(\\.[0-9]+)?-argon$", "tier": "standard"},
+    {"vendor": "google", "family": "pro", "pattern": "^gemini-[0-9]+(\\.[0-9]+)?-pro$", "tier": "strong"},
+    {"vendor": "google", "family": "neon", "pattern": "^gemini-[0-9]+(\\.[0-9]+)?-neon$", "tier": "strong"},
+    {"vendor": "google", "family": "carbon", "pattern": "^gemini-[0-9]+(\\.[0-9]+)?-carbon$", "tier": "strong"}
+  ]
+}

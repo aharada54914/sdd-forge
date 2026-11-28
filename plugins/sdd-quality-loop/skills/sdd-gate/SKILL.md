@@ -46,6 +46,11 @@ user-invocable: false
 
    v2 実装レポートの `- Model:` / `- Effort:` に実行時のモデルと推論レベルが記録されていることを確認する。形式は実装プラグインの `scripts/validate-implementation-report.sh` に対象レポートを渡して検証する。
 
+   評価者（`sdd-evaluator`）は呼び出し元のモデルを継承する。評価者を起動したホストが実際に使ったモデル ID をレポートの `Evaluator Model` に記録し、役の下限（`strong`）を次のコマンドで確認する。終了 3（下限未満または未分類）のときは `BELOW (<tier>)` / `UNCLASSIFIED` を記録し、レビューは継続したうえで、下限を満たすモデルでの再評価を人間に勧める（判定値は変えない）:
+   ```bash
+   python3 "<installed-root>/plugins/sdd-implementation/scripts/model-tier.py" check --role sdd-evaluator --model <native-model-id>
+   ```
+
    | ID | 観点 | 検査基準（全リスク階層共通） | `low` / `standard`（1 体） | `high`（2 体並列） |
    |---|---|---|---|---|
    | **G1** | **AC / Done When 実証 & 偽装完了検知** | 全対象 `AC-NNN` / `### Done When` が実コマンド・実テストで証明され、ハードコード・スキップ・空実装がないか（`Risk: high` は TDD Red→Green 証跡も確認） | Evaluator | Evaluator A |

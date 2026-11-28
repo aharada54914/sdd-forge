@@ -1259,6 +1259,10 @@
       ]
     },
     {
+      "path": "tests/model-families.tests.py",
+      "runtime": "python"
+    },
+    {
       "path": "tests/model-freshness-check.tests.sh",
       "runtime": "bash",
       "ci_jobs": [
@@ -2231,7 +2235,8 @@
       "tests/model-policy-installed.tests.py",
       "tests/verification-ci-plan.tests.py",
       "tests/verification-ci.tests.py",
-      "tests/review-scratch-history.tests.py"
+      "tests/review-scratch-history.tests.py",
+      "tests/model-families.tests.py"
     ],
     "local-powershell": [
       "tests/cloud-orchestration-contracts.tests.py",
