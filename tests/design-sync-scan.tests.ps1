@@ -1029,7 +1029,8 @@ function Get-T003SectionBetween([string]$Path, [string]$Start, [string]$End) {
 
 $DslFlat = Get-T003FlattenedFile $Dsl
 $DslConsentStep = Get-T003SectionBetween $Dsl '^3[.] [*][*]Resolve Egress Consent' '^[0-9]+[.] '
-$DslLoopSection = Get-T003SectionBetween $Dsl '^## Loop$' '^## '
+# v2 rewrote the loop as step 3 of the skill (Japanese); T-010 Q07.
+$DslLoopSection = Get-T003SectionBetween $Dsl '^## 3[.] Mockup & Egress Consent Loop' '^## '
 $DslLoopFlat = (($DslLoopSection -replace '\r?\n', ' ') -replace '\s+', ' ')
 
 # First line number (1-based, within $DslLoopSection) matching regex $Pattern.
@@ -1042,25 +1043,23 @@ function Get-T003LoopLineOf([string]$Pattern) {
 }
 
 Write-Host ""
-Write-Host "=== TEST-031 (AC-016): step 5 names the script, the target dir, and states exit-1 presents findings before any push ==="
-if ($DslFlat -match 'design-sync-scan\.sh' `
-        -and $DslFlat.Contains("specs/<feature>/mockups/") `
-        -and $DslFlat.Contains("present the findings report to the human before any push is attempted") `
-        -and $DslFlat.Contains("no push occurs without that presentation")) {
-    Ok "TEST-031: step 5 names design-sync-scan.ps1 and specs/<feature>/mockups/, and states exit-1 presents findings before any push"
+Write-Host "=== TEST-031 (AC-016, Q07): the pre-upload scan names its script and target, and presents findings before any send ==="
+if ($DslConsentStep.Contains('`python3 <sdd-bootstrap>/scripts/design-sync-override.py sh <送信予定ディレクトリ>` を実行する。') `
+        -and $DslConsentStep.Contains('内部で同梱の `design-sync-scan.sh` または `design-sync-scan.ps1` が送信用コピーを検査する。') `
+        -and $DslConsentStep.Contains('送信予定の `specs/<feature>/mockups/` のファイルだけを') `
+        -and $DslConsentStep.Contains('終了1の `review` なら、`findings` を利用者に示して回答を待つ。')) {
+    Ok "TEST-031: the scan names design-sync-override.py/design-sync-scan.ps1 and the mockups to send, and exit 1 presents findings before any send"
 } else {
-    Fail "TEST-031: step 5 must name the script, the target dir, and state exit-1 presents findings before push"
+    Fail "TEST-031: the scan step must name its script and target and present exit-1 findings before sending"
 }
 
 Write-Host ""
-Write-Host "=== TEST-032 (AC-017): the exit-0 branch states direct continuation to 6, no additional prompt, no delay beyond scan run time ==="
-if ($DslFlat.Contains("continue directly to 6") `
-        -and $DslFlat.Contains("No additional prompt") `
-        -and $DslFlat.Contains("no delay beyond the scan") `
-        -and $DslFlat.Contains("own run time")) {
-    Ok "TEST-032: exit 0 states direct continuation to step 6, no additional prompt, no delay beyond the scan's own run time"
+Write-Host "=== TEST-032 (AC-017, Q07): a clean scan sends the scanned copy directly, with no further confirmation ==="
+$t032Waits = ([regex]::Matches($DslConsentStep, [regex]::Escape('回答を待つ'))).Count
+if ($DslConsentStep.Contains('終了0の `clean` と `reuse` は、`upload_directory` が指す検査済みコピーだけを、その相対パス・内容のまま当該送信先へ送り') -and $t032Waits -eq 1) {
+    Ok "TEST-032: exit 0 sends the scanned copy directly; the only wait for an answer is the exit-1 review"
 } else {
-    Fail "TEST-032: exit-0 branch must state direct continuation, no prompt, no delay beyond the scan's own run time"
+    Fail "TEST-032: a clean scan must send directly, and only exit-1 review may wait for an answer"
 }
 
 Write-Host ""
@@ -1073,23 +1072,18 @@ if ($DslConsentStep.Contains('この検査の対象は送信する HTML 内の�
 }
 
 Write-Host ""
-Write-Host "=== TEST-035 (AC-019, structural): the Loop's step order is unchanged -- generate -> consent -> check point -> push -> review, cycle to 2 ==="
-$t035S1 = Get-T003LoopLineOf '^1\. \*\*Select project'
-$t035S2 = Get-T003LoopLineOf '^2\. \*\*Generate mockups'
-$t035S3 = Get-T003LoopLineOf '^3\. \*\*Resolve egress consent'
-$t035S4 = Get-T003LoopLineOf '^4\. \*\*Obtain informed consent'
-$t035S5 = Get-T003LoopLineOf '^5\. \*\*Pre-upload check point'
-$t035S6 = Get-T003LoopLineOf '^6\. \*\*Push'
-$t035S7 = Get-T003LoopLineOf '^7\. \*\*Review in the claude\.ai'
-if ($null -ne $t035S1 -and $null -ne $t035S2 -and $null -ne $t035S3 -and $null -ne $t035S4 `
-        -and $null -ne $t035S5 -and $null -ne $t035S6 -and $null -ne $t035S7 `
-        -and $t035S1 -lt $t035S2 -and $t035S2 -lt $t035S3 -and $t035S3 -lt $t035S4 `
-        -and $t035S4 -lt $t035S5 -and $t035S5 -lt $t035S6 -and $t035S6 -lt $t035S7 `
-        -and $DslLoopFlat -match 'return to 2\b' `
-        -and $DslLoopFlat -notmatch 'return to 3\b') {
-    Ok "TEST-035: the Loop's seven numbered steps retain their relative order, and the cycle at 7 returns to 2, not 3"
+Write-Host "=== TEST-035 (AC-019, structural, Q07): step order pull -> generate -> consent -> scan -> iterate, and regeneration rescans ==="
+$t035S1 = Get-T003LoopLineOf '^1\. \*\*Pull'
+$t035S2 = Get-T003LoopLineOf '^2\. \*\*Generate Mockups'
+$t035S3 = Get-T003LoopLineOf '^3\. \*\*Resolve Egress Consent'
+$t035S4 = Get-T003LoopLineOf '次の送信前検査を行う'
+$t035S5 = Get-T003LoopLineOf '^4\. \*\*Iterate & Finalize'
+if ($null -ne $t035S1 -and $null -ne $t035S2 -and $null -ne $t035S3 -and $null -ne $t035S4 -and $null -ne $t035S5 `
+        -and $t035S1 -lt $t035S2 -and $t035S2 -lt $t035S3 -and $t035S3 -lt $t035S4 -and $t035S4 -lt $t035S5 `
+        -and $DslLoopFlat.Contains('アップロード直前とモックアップの再生成後は毎回、次の送信前検査を行う')) {
+    Ok "TEST-035: the loop keeps pull, generate, consent, scan and iterate in order, and every regeneration is rescanned"
 } else {
-    Fail "TEST-035: step order or the regeneration cycle target changed. lines: 1=$t035S1 2=$t035S2 3=$t035S3 4=$t035S4 5=$t035S5 6=$t035S6 7=$t035S7"
+    Fail "TEST-035: step order or the regeneration rescan changed. lines: 1=$t035S1 2=$t035S2 3=$t035S3 scan=$t035S4 4=$t035S5"
 }
 
 Write-Host ""
@@ -1182,68 +1176,44 @@ if ($DslConsentStep.Contains('上書きを辞退したら送信を止め') `
 }
 
 Write-Host ""
-Write-Host "=== TEST-044 (AC-026): step 5 remains the single named point -- not duplicated, not relocated relative to steps 4 and 6 ==="
-$t044Lines = Get-Content -LiteralPath $Dsl
-$t044Count = @($t044Lines | Where-Object { $_ -match '^5\. \*\*Pre-upload check point' }).Count
-$t044S4 = Get-T003LoopLineOf '^4\. \*\*Obtain informed consent'
-$t044S5 = Get-T003LoopLineOf '^5\. \*\*Pre-upload check point'
-$t044S6 = Get-T003LoopLineOf '^6\. \*\*Push'
-if ($t044Count -eq 1 -and $null -ne $t044S4 -and $null -ne $t044S5 -and $null -ne $t044S6 `
-        -and $t044S4 -lt $t044S5 -and $t044S5 -lt $t044S6) {
-    Ok "TEST-044: step 5 appears exactly once, still positioned between steps 4 and 6"
+Write-Host "=== TEST-044 (AC-026, Q07): the pre-upload scan is defined once, inside step 3 after consent and before iteration ==="
+$t044Count = ([regex]::Matches([System.IO.File]::ReadAllText($Dsl, [System.Text.Encoding]::UTF8), [regex]::Escape('design-sync-override.py sh <送信予定ディレクトリ>'))).Count
+$t044Consent = Get-T003LoopLineOf '^3\. \*\*Resolve Egress Consent'
+$t044Scan = Get-T003LoopLineOf 'design-sync-override\.py sh'
+$t044Iter = Get-T003LoopLineOf '^4\. \*\*Iterate & Finalize'
+if ($t044Count -eq 1 -and $null -ne $t044Consent -and $null -ne $t044Scan -and $null -ne $t044Iter `
+        -and $t044Consent -lt $t044Scan -and $t044Scan -lt $t044Iter) {
+    Ok "TEST-044: the scan command appears exactly once, between the consent step and iteration"
 } else {
-    Fail "TEST-044: step 5 must appear exactly once and stay positioned between steps 4 and 6. count=$t044Count s4=$t044S4 s5=$t044S5 s6=$t044S6"
+    Fail "TEST-044: the scan must be defined exactly once between consent and iteration. count=$t044Count consent=$t044Consent scan=$t044Scan iterate=$t044Iter"
 }
 
 Write-Host ""
-Write-Host "=== TEST-045 (AC-027, positional): no route from generation to push (write_files) in the Loop's text reaches push without passing step 5's position first ==="
-function Test-045NoBypass {
-    $cpLine = Get-T003LoopLineOf '^5\. \*\*Pre-upload check point'
-    if ($null -eq $cpLine) { return $false }
-    $loopLines = $DslLoopSection -split "`n"
-    $uploadIdxs = New-Object System.Collections.Generic.List[int]
-    for ($i = 0; $i -lt $loopLines.Count; $i++) {
-        if ($loopLines[$i] -match 'write_files') { $uploadIdxs.Add($i + 1) | Out-Null }
-    }
-    if ($uploadIdxs.Count -eq 0) { return $false }
-    foreach ($idx in $uploadIdxs) {
-        if ($idx -lt $cpLine) { return $false }
-    }
-    return $true
-}
-if (Test-045NoBypass) {
-    Ok "TEST-045: every write_files mention in the Loop's text sits at or after step 5's position -- no described route bypasses it"
+Write-Host "=== TEST-045 (AC-027, Q07): no route sends without the scan -- held consent goes to the scan, only the scanned copy is sent ==="
+if ($DslLoopFlat.Contains('再同意を求めず送信前検査に進む') -and $DslLoopFlat.Contains('`upload_directory` が指す検査済みコピーだけを') `
+        -and $DslLoopFlat.Contains('入力またはツールを復旧して再検査するまで送信しない') -and -not ($DslLoopFlat -cmatch 'write_files|finalize_plan')) {
+    Ok "TEST-045: held consent continues to the scan, only the scanned copy is sent, a failed scan stops the send, and no direct v1 send call is described"
 } else {
-    Fail "TEST-045: a write_files mention sits before step 5's position -- the text describes a bypass"
+    Fail "TEST-045: the text describes a send that can bypass the pre-upload scan"
 }
 
 Write-Host ""
-Write-Host "=== TEST-046 (AC-028, baseline-relative regression): tests/design-system-contract.tests.ps1 introduces zero new failures vs its documented baseline ==="
+Write-Host "=== TEST-046 (AC-028): tests/design-system-contract.tests.ps1 passes, with TEST-010/015/018/026/040 present ==="
+# The documented baseline log listed v1 row labels; T-010 retired or relabelled
+# rows whose inputs v2 removed, so the suite is now required to pass outright.
 $DscPs1 = Join-Path $RepoRoot "tests/design-system-contract.tests.ps1"
-$DscBaselinePs1 = Join-Path $RepoRoot "specs/design-sync-scan/verification/T-003/dsc-baseline.ps1.log"
-function Test-046NoGreenToRedFlip([string]$BaselineLog, [string[]]$CurrentOutput) {
-    if (-not (Test-Path -LiteralPath $BaselineLog -PathType Leaf)) { return $false }
-    $baselineLines = Get-Content -LiteralPath $BaselineLog
-    $currentSet = New-Object System.Collections.Generic.HashSet[string]
-    foreach ($l in $CurrentOutput) { [void]$currentSet.Add($l) }
-    foreach ($line in $baselineLines) {
-        if ($line -like "PASS: DS-*" -or $line -like "PASS: TEST-*") {
-            if (-not $currentSet.Contains($line)) { return $false }
-        }
-    }
-    return $true
-}
 $dscCurrentPs1Raw = @() | & pwsh -NoProfile -ExecutionPolicy Bypass -File $DscPs1 2>&1
+$dscRc = $LASTEXITCODE
 $dscCurrentPs1 = @($dscCurrentPs1Raw | ForEach-Object { "$_" })
-if ((Test-046NoGreenToRedFlip $DscBaselinePs1 $dscCurrentPs1) `
+if ($dscRc -eq 0 -and ($dscCurrentPs1 -ccontains 'FAIL: 0') `
         -and ($dscCurrentPs1 -match '^PASS: TEST-010 ').Count -gt 0 `
         -and ($dscCurrentPs1 -match '^PASS: TEST-015 ').Count -gt 0 `
         -and ($dscCurrentPs1 -match '^PASS: TEST-018 ').Count -gt 0 `
         -and ($dscCurrentPs1 -match '^PASS: TEST-026 ').Count -gt 0 `
         -and ($dscCurrentPs1 -match '^PASS: TEST-040 ').Count -gt 0) {
-    Ok "TEST-046: tests/design-system-contract.tests.ps1 has zero new failures against its documented baseline (TEST-010/015/018/026/040 re-verified passing; TEST-039 remains its pre-existing designed red)"
+    Ok "TEST-046: tests/design-system-contract.tests.ps1 passes with TEST-010/015/018/026/040 passing"
 } else {
-    Fail "TEST-046: tests/design-system-contract.tests.ps1 regressed -- a baseline-green row is no longer green, or one of TEST-010/015/018/026/040 is no longer passing"
+    Fail "TEST-046: tests/design-system-contract.tests.ps1 failed, or one of TEST-010/015/018/026/040 is not passing"
 }
 
 Write-Host ""

@@ -848,7 +848,8 @@ t003_section_between() {
 
 DSL_FLAT="$(t003_flatten_file "$DSL")"
 DSL_CONSENT_STEP="$(t003_section_between "$DSL" '^3[.] [*][*]Resolve Egress Consent' '^[0-9]+[.] ')"
-DSL_LOOP_SECTION="$(t003_section_between "$DSL" '^## Loop$' '^## ')"
+# v2 rewrote the loop as step 3 of the skill (Japanese); T-010 Q07.
+DSL_LOOP_SECTION="$(t003_section_between "$DSL" '^## 3[.] Mockup & Egress Consent Loop' '^## ')"
 DSL_LOOP_FLAT="$(printf '%s\n' "$DSL_LOOP_SECTION" | tr '\n' ' ' | tr -s '[:space:]' ' ')"
 
 # First line number (1-based, within $DSL_LOOP_SECTION) matching regex $1.
@@ -857,25 +858,23 @@ t003_loop_line_of() {
 }
 
 echo ""
-echo "=== TEST-031 (AC-016): step 5 names the script, the target dir, and states exit-1 presents findings before any push ==="
-if printf '%s' "$DSL_FLAT" | grep -Eq 'design-sync-scan\.sh' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'specs/<feature>/mockups/' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'present the findings report to the human before any push is attempted' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'no push occurs without that presentation'; then
-    ok "TEST-031: step 5 names design-sync-scan.sh and specs/<feature>/mockups/, and states exit-1 presents findings before any push"
+echo "=== TEST-031 (AC-016, Q07): the pre-upload scan names its script and target, and presents findings before any send ==="
+if grep -Fq '`python3 <sdd-bootstrap>/scripts/design-sync-override.py sh <送信予定ディレクトリ>` を実行する。' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq '内部で同梱の `design-sync-scan.sh` または `design-sync-scan.ps1` が送信用コピーを検査する。' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq '送信予定の `specs/<feature>/mockups/` のファイルだけを' <<< "$DSL_CONSENT_STEP" \
+    && grep -Fq '終了1の `review` なら、`findings` を利用者に示して回答を待つ。' <<< "$DSL_CONSENT_STEP"; then
+    ok "TEST-031: the scan names design-sync-override.py/design-sync-scan.sh and the mockups to send, and exit 1 presents findings before any send"
 else
-    fail "TEST-031: step 5 must name the script, the target dir, and state exit-1 presents findings before push"
+    fail "TEST-031: the scan step must name its script and target and present exit-1 findings before sending"
 fi
 
 echo ""
-echo "=== TEST-032 (AC-017): the exit-0 branch states direct continuation to 6, no additional prompt, no delay beyond scan run time ==="
-if printf '%s' "$DSL_FLAT" | grep -Fq 'continue directly to 6' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'No additional prompt' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq 'no delay beyond the scan' \
-    && printf '%s' "$DSL_FLAT" | grep -Fq "own run time"; then
-    ok "TEST-032: exit 0 states direct continuation to step 6, no additional prompt, no delay beyond the scan's own run time"
+echo "=== TEST-032 (AC-017, Q07): a clean scan sends the scanned copy directly, with no further confirmation ==="
+if grep -Fq '終了0の `clean` と `reuse` は、`upload_directory` が指す検査済みコピーだけを、その相対パス・内容のまま当該送信先へ送り' <<< "$DSL_CONSENT_STEP" \
+    && [ "$(grep -o '回答を待つ' <<< "$DSL_CONSENT_STEP" | wc -l | tr -d ' ')" -eq 1 ]; then
+    ok "TEST-032: exit 0 sends the scanned copy directly; the only wait for an answer is the exit-1 review"
 else
-    fail "TEST-032: exit-0 branch must state direct continuation, no prompt, no delay beyond the scan's own run time"
+    fail "TEST-032: a clean scan must send directly, and only exit-1 review may wait for an answer"
 fi
 
 echo ""
@@ -888,23 +887,19 @@ else
 fi
 
 echo ""
-echo "=== TEST-035 (AC-019, structural): the Loop's step order is unchanged -- generate -> consent -> check point -> push -> review, cycle to 2 ==="
-t035_s1=$(t003_loop_line_of '^1\. \*\*Select project')
-t035_s2=$(t003_loop_line_of '^2\. \*\*Generate mockups')
-t035_s3=$(t003_loop_line_of '^3\. \*\*Resolve egress consent')
-t035_s4=$(t003_loop_line_of '^4\. \*\*Obtain informed consent')
-t035_s5=$(t003_loop_line_of '^5\. \*\*Pre-upload check point')
-t035_s6=$(t003_loop_line_of '^6\. \*\*Push')
-t035_s7=$(t003_loop_line_of '^7\. \*\*Review in the claude\.ai')
-if [ -n "$t035_s1" ] && [ -n "$t035_s2" ] && [ -n "$t035_s3" ] && [ -n "$t035_s4" ] \
-    && [ -n "$t035_s5" ] && [ -n "$t035_s6" ] && [ -n "$t035_s7" ] \
+echo "=== TEST-035 (AC-019, structural, Q07): step order pull -> generate -> consent -> scan -> iterate, and regeneration rescans ==="
+t035_s1=$(t003_loop_line_of '^1\. \*\*Pull')
+t035_s2=$(t003_loop_line_of '^2\. \*\*Generate Mockups')
+t035_s3=$(t003_loop_line_of '^3\. \*\*Resolve Egress Consent')
+t035_s4=$(t003_loop_line_of '次の送信前検査を行う')
+t035_s5=$(t003_loop_line_of '^4\. \*\*Iterate & Finalize')
+if [ -n "$t035_s1" ] && [ -n "$t035_s2" ] && [ -n "$t035_s3" ] && [ -n "$t035_s4" ] && [ -n "$t035_s5" ] \
     && [ "$t035_s1" -lt "$t035_s2" ] && [ "$t035_s2" -lt "$t035_s3" ] && [ "$t035_s3" -lt "$t035_s4" ] \
-    && [ "$t035_s4" -lt "$t035_s5" ] && [ "$t035_s5" -lt "$t035_s6" ] && [ "$t035_s6" -lt "$t035_s7" ] \
-    && printf '%s' "$DSL_LOOP_FLAT" | grep -Eq 'return to 2\b' \
-    && ! printf '%s' "$DSL_LOOP_FLAT" | grep -Eq 'return to 3\b'; then
-    ok "TEST-035: the Loop's seven numbered steps retain their relative order, and the cycle at 7 returns to 2, not 3"
+    && [ "$t035_s4" -lt "$t035_s5" ] \
+    && printf '%s' "$DSL_LOOP_FLAT" | grep -Fq 'アップロード直前とモックアップの再生成後は毎回、次の送信前検査を行う'; then
+    ok "TEST-035: the loop keeps pull, generate, consent, scan and iterate in order, and every regeneration is rescanned"
 else
-    fail "TEST-035: step order or the regeneration cycle target changed. lines: 1=${t035_s1} 2=${t035_s2} 3=${t035_s3} 4=${t035_s4} 5=${t035_s5} 6=${t035_s6} 7=${t035_s7}"
+    fail "TEST-035: step order or the regeneration rescan changed. lines: 1=${t035_s1} 2=${t035_s2} 3=${t035_s3} scan=${t035_s4} 4=${t035_s5}"
 fi
 
 echo ""
@@ -993,63 +988,44 @@ else
 fi
 
 echo ""
-echo "=== TEST-044 (AC-026): step 5 remains the single named point -- not duplicated, not relocated relative to steps 4 and 6 ==="
-t044_count=$(grep -cE '^5\. \*\*Pre-upload check point' "$DSL" || [ "$?" -eq 1 ])
-t044_s4=$(t003_loop_line_of '^4\. \*\*Obtain informed consent')
-t044_s5=$(t003_loop_line_of '^5\. \*\*Pre-upload check point')
-t044_s6=$(t003_loop_line_of '^6\. \*\*Push')
-if [ "$t044_count" -eq 1 ] && [ -n "$t044_s4" ] && [ -n "$t044_s5" ] && [ -n "$t044_s6" ] \
-    && [ "$t044_s4" -lt "$t044_s5" ] && [ "$t044_s5" -lt "$t044_s6" ]; then
-    ok "TEST-044: step 5 appears exactly once, still positioned between steps 4 and 6"
+echo "=== TEST-044 (AC-026, Q07): the pre-upload scan is defined once, inside step 3 after consent and before iteration ==="
+t044_count=$(grep -cF 'design-sync-override.py sh <送信予定ディレクトリ>' "$DSL" || [ "$?" -eq 1 ])
+t044_consent=$(t003_loop_line_of '^3\. \*\*Resolve Egress Consent')
+t044_scan=$(t003_loop_line_of 'design-sync-override\.py sh')
+t044_iter=$(t003_loop_line_of '^4\. \*\*Iterate & Finalize')
+if [ "$t044_count" -eq 1 ] && [ -n "$t044_consent" ] && [ -n "$t044_scan" ] && [ -n "$t044_iter" ] \
+    && [ "$t044_consent" -lt "$t044_scan" ] && [ "$t044_scan" -lt "$t044_iter" ]; then
+    ok "TEST-044: the scan command appears exactly once, between the consent step and iteration"
 else
-    fail "TEST-044: step 5 must appear exactly once and stay positioned between steps 4 and 6. count=${t044_count} s4=${t044_s4} s5=${t044_s5} s6=${t044_s6}"
+    fail "TEST-044: the scan must be defined exactly once between consent and iteration. count=${t044_count} consent=${t044_consent} scan=${t044_scan} iterate=${t044_iter}"
 fi
 
 echo ""
-echo "=== TEST-045 (AC-027, positional): no route from generation to push (write_files) in the Loop's text reaches push without passing step 5's position first ==="
-test_045_no_bypass() {
-    cp_line=$(t003_loop_line_of '^5\. \*\*Pre-upload check point')
-    [ -n "$cp_line" ] || return 1
-    upload_lines=$(printf '%s\n' "$DSL_LOOP_SECTION" | grep -n -E 'write_files' | cut -d: -f1)
-    [ -n "$upload_lines" ] || return 1
-    for l in $upload_lines; do
-        [ "$l" -ge "$cp_line" ] || return 1
-    done
-    return 0
-}
-if test_045_no_bypass; then
-    ok "TEST-045: every write_files mention in the Loop's text sits at or after step 5's position -- no described route bypasses it"
+echo "=== TEST-045 (AC-027, Q07): no route sends without the scan -- held consent goes to the scan, only the scanned copy is sent ==="
+if printf '%s' "$DSL_LOOP_FLAT" | grep -Fq '再同意を求めず送信前検査に進む' \
+    && printf '%s' "$DSL_LOOP_FLAT" | grep -Fq '`upload_directory` が指す検査済みコピーだけを' \
+    && printf '%s' "$DSL_LOOP_FLAT" | grep -Fq '入力またはツールを復旧して再検査するまで送信しない' \
+    && ! printf '%s' "$DSL_LOOP_FLAT" | grep -Eq 'write_files|finalize_plan'; then
+    ok "TEST-045: held consent continues to the scan, only the scanned copy is sent, a failed scan stops the send, and no direct v1 send call is described"
 else
-    fail "TEST-045: a write_files mention sits before step 5's position -- the text describes a bypass"
+    fail "TEST-045: the text describes a send that can bypass the pre-upload scan"
 fi
 
 echo ""
-echo "=== TEST-046 (AC-028, baseline-relative regression): tests/design-system-contract.tests.sh introduces zero new failures vs its documented baseline ==="
+echo "=== TEST-046 (AC-028): tests/design-system-contract.tests.sh passes, with TEST-010/015/018/026/040 present ==="
+# The documented baseline log listed v1 row labels; T-010 retired or relabelled
+# rows whose inputs v2 removed, so the suite is now required to pass outright.
 DSC_SH="${REPO_ROOT}/tests/design-system-contract.tests.sh"
-DSC_BASELINE_SH="${REPO_ROOT}/specs/design-sync-scan/verification/T-003/dsc-baseline.sh.log"
-t046_no_green_to_red_flip() {
-    local baseline_log="$1" current_output="$2"
-    [ -f "$baseline_log" ] || return 1
-    local flipped=0 line
-    while IFS= read -r line; do
-        case "$line" in
-        "PASS: DS-"* | "PASS: TEST-"*)
-            grep -Fxq -- "$line" <<< "$current_output" || flipped=1
-            ;;
-        esac
-    done < "$baseline_log"
-    [ "$flipped" -eq 0 ]
-}
-DSC_CURRENT_SH="$(bash "$DSC_SH" 2>&1)" || true
-if t046_no_green_to_red_flip "$DSC_BASELINE_SH" "$DSC_CURRENT_SH" \
+DSC_CURRENT_SH="$(bash "$DSC_SH" 2>&1)"; dsc_rc=$?
+if [ "$dsc_rc" -eq 0 ] && grep -Fxq 'FAIL: 0' <<< "$DSC_CURRENT_SH" \
     && grep -Eq '^PASS: TEST-010 ' <<< "$DSC_CURRENT_SH" \
     && grep -Eq '^PASS: TEST-015 ' <<< "$DSC_CURRENT_SH" \
     && grep -Eq '^PASS: TEST-018 ' <<< "$DSC_CURRENT_SH" \
     && grep -Eq '^PASS: TEST-026 ' <<< "$DSC_CURRENT_SH" \
     && grep -Eq '^PASS: TEST-040 ' <<< "$DSC_CURRENT_SH"; then
-    ok "TEST-046: tests/design-system-contract.tests.sh has zero new failures against its documented baseline (TEST-010/015/018/026/040 re-verified passing; TEST-039 remains its pre-existing designed red)"
+    ok "TEST-046: tests/design-system-contract.tests.sh passes with TEST-010/015/018/026/040 passing"
 else
-    fail "TEST-046: tests/design-system-contract.tests.sh regressed -- a baseline-green row is no longer green, or one of TEST-010/015/018/026/040 is no longer passing"
+    fail "TEST-046: tests/design-system-contract.tests.sh failed, or one of TEST-010/015/018/026/040 is not passing"
 fi
 
 echo ""
