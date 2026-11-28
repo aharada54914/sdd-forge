@@ -627,6 +627,11 @@ function v1Retired(feature) {
     + `${prefix}.md, ${prefix}.json and ${prefix}.approval.json instead`;
 }
 
+// Same text as the leftover-approval error in validate-concept-test.py.
+function leftoverApproval(feature) {
+  return `leftover specs/${feature}/concept-test.approval.json from a retired v1 record: delete it, then validate again`;
+}
+
 function isV1Record(contents, filename) {
   let raw = contents;
   if (filename.endsWith('.md')) {
@@ -643,11 +648,17 @@ function isV1Record(contents, filename) {
 
 /** Where the feature's Concept Test record is: NONE, PRESENT (working tree or index),
  * V1 (a retired v1 record in the working tree), INDEXED_V1 (only the index holds it,
- * as a v1 record), or GIT_UNAVAILABLE. */
+ * as a v1 record), APPROVAL_ONLY / INDEXED_APPROVAL_ONLY (only a retired v1
+ * approval is left), or GIT_UNAVAILABLE. */
 function conceptRecord(root, feature) {
   const prefix = `specs/${feature}/concept-test`;
   const paths = [prefix + '.decision.json', prefix + '.json', prefix + '.md'];
+  const approval = prefix + '.approval.json';
   const stats = paths.map(rel => fs.lstatSync(path.join(root, rel), { throwIfNoEntry: false }));
+  if (!stats.some(Boolean) && fs.lstatSync(path.join(root, approval), { throwIfNoEntry: false })) {
+    // Only v1 wrote an approval file; v2 records its decision elsewhere.
+    return 'APPROVAL_ONLY';
+  }
   if (stats.some(Boolean)) {
     // Classify v1 as the validator does (the JSON, or a Markdown-only record) so the
     // retirement is named even where the validator cannot run (#812).
@@ -673,14 +684,15 @@ function conceptRecord(root, feature) {
   });
   let index;
   try {
-    index = git('ls-files', '--stage', '-z', '--', ...paths);
+    index = git('ls-files', '--stage', '-z', '--', ...paths, approval);
   } catch (err) {
     // Git is optional for SDD Core. Records in the working tree were checked above.
     if (err.code === 'ENOENT') return 'GIT_UNAVAILABLE';
     throw err;
   }
-  const entries = index.split('\0').filter(Boolean);
-  if (entries.length === 0) return 'NONE';
+  const all = index.split('\0').filter(Boolean);
+  const entries = all.filter(entry => entry.split('\t')[1] !== approval);
+  if (entries.length === 0) return all.length > 0 ? 'INDEXED_APPROVAL_ONLY' : 'NONE';
   // The validator reads only the working tree, so name a retired v1 record here.
   const indexedV1 = entries.some(entry => {
     const [meta, filename] = entry.split('\t');
@@ -696,6 +708,14 @@ function checkConceptTest(root, feature) {
     if (record === 'GIT_UNAVAILABLE') return { passed: true, status: 'NOT_APPLICABLE', history: 'GIT_UNAVAILABLE' };
     if (record === 'NONE') return { passed: true, status: 'NOT_APPLICABLE' };
     if (record === 'V1') return { passed: false, status: 'BLOCK', error: `concept-test: BLOCK: ${v1Retired(feature)}` };
+    if (record === 'APPROVAL_ONLY') return { passed: false, status: 'BLOCK', error: `concept-test: BLOCK: ${leftoverApproval(feature)}` };
+    if (record === 'INDEXED_APPROVAL_ONLY') {
+      return {
+        passed: false,
+        status: 'BLOCK',
+        error: `concept-test: BLOCK: ${leftoverApproval(feature)}. The Git index still holds it; stage its removal too.`,
+      };
+    }
     if (record === 'INDEXED_V1') {
       return {
         passed: false,

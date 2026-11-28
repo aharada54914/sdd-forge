@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
-import { conceptStopAction, recordedConceptStop, retiredV1Action } from "./concept-gate-advice.js";
+import { conceptStopAction, leftoverApprovalAction, recordedConceptStop, retiredV1Action } from "./concept-gate-advice.js";
 import { isJsonObject, type JsonObject } from "./parsers/json-object.js";
 import { guardedRead, resolveGuarded } from "./path-guard.js";
 import type { SddRoot } from "./root.js";
@@ -82,6 +82,10 @@ export function conceptProposalAdvice(root: SddRoot, feature: string, inBootstra
     }
     // No record is left (a project without domain/ deleted its v1 files). Only the gate
     // can see a v1 record still held by the Git index, so keep its own advice then.
+    const approval = resolveGuarded(root, `${prefix}.approval.json`);
+    if (approval.ok || approval.error.details?.rule !== "exists") {
+      return { action: leftoverApprovalAction(feature, `${prefix}.approval.json が記録なしで残っています。`) };
+    }
     if (stopped?.retiredV1 === "working-tree") {
       return blocked(
         `human: re-run the quality gate for ${feature}`,
