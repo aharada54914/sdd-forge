@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Plan and execute registered suites without interpreting workflow source text."""
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 import hashlib
 import importlib.util
 import json
@@ -13,11 +13,11 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIMES = {'bash', 'powershell', 'python'}
+LOCK_NAME = re.compile(r'[a-z0-9]+(-[a-z0-9]+)*')
 
 
 def unique_object(pairs):
@@ -49,7 +49,24 @@ def load_catalog(path, root):
                 raise ValueError('invalid suite arguments')
         if any(runtime not in RUNTIMES for runtime in row.get('requires', [])):
             raise ValueError('unknown runtime prerequisite')
+        if 'exclusive' in row and row['exclusive'] is not True:
+            raise ValueError('exclusive must be true when present: ' + name)
+        locks = row.get('locks', [])
+        if 'locks' in row and (not isinstance(locks, list) or not locks or len(locks) != len(set(locks))
+                               or any(not isinstance(lock, str) or not LOCK_NAME.fullmatch(lock) for lock in locks)):
+            raise ValueError('invalid suite locks: ' + name)
         suites[name] = row
+    lock_groups = data.get('lock_groups', {})
+    if (not isinstance(lock_groups, dict)
+            or any(not LOCK_NAME.fullmatch(key) or not isinstance(reason, str) or not reason.strip()
+                   for key, reason in lock_groups.items())):
+        raise ValueError('invalid lock groups')
+    used = {lock for row in suites.values() for lock in row.get('locks', [])}
+    # A misspelled lock silently grants no mutual exclusion, so every name must be declared.
+    if used - lock_groups.keys():
+        raise ValueError('undeclared suite lock: ' + ', '.join(sorted(used - lock_groups.keys())))
+    if lock_groups.keys() - used:
+        raise ValueError('unused lock group: ' + ', '.join(sorted(lock_groups.keys() - used)))
     assigned = set()
     for profile, paths in data['profiles'].items():
         if not isinstance(paths, list) or not re.fullmatch(r'[a-z0-9-]+', profile) or len(paths) != len(set(paths)):
@@ -79,6 +96,11 @@ def load_catalog(path, root):
             current = current_row.get('delegated_to')
             if current is None:
                 raise ValueError('suite has no execution profile or explicit exclusion: ' + name)
+            # A delegated suite runs inside its parent's process; the parent must hold its locks.
+            parent = suites.get(current, {})
+            if not parent.get('exclusive') and (
+                    current_row.get('exclusive') or set(current_row.get('locks', [])) - set(parent.get('locks', []))):
+                raise ValueError('delegated suite lock not held by parent: ' + current_row['path'])
     candidates = {p.relative_to(root).as_posix() for p in (root / 'tests').rglob('*')
                   if p.is_file() and re.search(r'\.tests\.(sh|ps1|py)$', p.name, re.I)}
     if candidates - suites.keys():
@@ -178,6 +200,9 @@ def execute(catalog, selected, root, profile=None, powershell=None, measurement=
     if jobs < 1:
         raise ValueError('jobs must be positive')
     revision, clean_before = repository_state(root)
+    if clean_before is False:
+        print('verification: warning: working tree has changes before the run; '
+              'suites that restore tracked files may restore them to this state', file=sys.stderr, flush=True)
     receipt = {'schema': 'verification-receipt/v1', 'profile': profile,
                'revision': revision, 'clean_before': clean_before, 'reusable': False,
                'catalog_sha256': catalog['_sha256'], 'selected': selected, 'results': []}
@@ -211,17 +236,38 @@ def execute(catalog, selected, root, profile=None, powershell=None, measurement=
         # Longest-first scheduling minimizes tail latency on multi-core runners.
         order = sorted(selected, key=lambda p: (-weight_map.get(p, 1), p))
         results_by_name = {}
-        print_lock = threading.Lock()
+        suites = catalog['_suites']
+        pending = list(order)
+        running = {}
+        held = set()
+
+        def admissible(name):
+            # Suites that rewrite shared tracked state never overlap a suite holding the same lock;
+            # an exclusive suite overlaps nothing.
+            row = suites[name]
+            if any(suites[other].get('exclusive') for other in running.values()):
+                return False
+            if row.get('exclusive'):
+                return not running
+            return held.isdisjoint(row.get('locks', []))
+
         with ThreadPoolExecutor(max_workers=min(jobs, len(order))) as pool:
-            futures = {
-                pool.submit(_run_one_suite, catalog, name, root, profile, powershell, True): name
-                for name in order
-            }
-            for fut in as_completed(futures):
-                name = futures[fut]
-                result, output = fut.result()
-                results_by_name[name] = result
-                with print_lock:
+            while pending or running:
+                for name in list(pending):
+                    if len(running) >= jobs:
+                        break
+                    if admissible(name):
+                        pending.remove(name)
+                        held.update(suites[name].get('locks', []))
+                        running[pool.submit(_run_one_suite, catalog, name, root, profile, powershell, True)] = name
+                if not running:
+                    raise RuntimeError('verification scheduler cannot admit a pending suite')
+                done, _ = wait(running, return_when=FIRST_COMPLETED)
+                for fut in sorted(done, key=lambda f: running[f]):
+                    name = running.pop(fut)
+                    held.difference_update(suites[name].get('locks', []))
+                    result, output = fut.result()
+                    results_by_name[name] = result
                     print('==> ' + name, flush=True)
                     if output:
                         sys.stdout.write(output)
@@ -234,6 +280,9 @@ def execute(catalog, selected, root, profile=None, powershell=None, measurement=
             receipt['results'].append(res)
             failed |= res['status'] == 'failed'
     receipt['revision_after'], receipt['clean_after'] = repository_state(root)
+    if clean_before is True and receipt['clean_after'] is False:
+        print('verification: warning: the run left the working tree changed; '
+              'a suite rewrote tracked or untracked files without restoring them', file=sys.stderr, flush=True)
     return receipt, int(failed)
 
 

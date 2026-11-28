@@ -312,5 +312,182 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(bad.returncode, 2)
 
 
+# Fixture suite: a writer temporarily rewrites a shared file and restores it (the
+# registry backup/append/restore pattern); a reader fails if it ever observes the
+# rewritten state; a rendezvous pair passes only when both run at the same time.
+SHARED_STATE_FIXTURE = '''import json, pathlib, sys, time
+log, role = pathlib.Path(sys.argv[1]), sys.argv[2]
+started = time.time()
+def finish(code):
+    log.write_text(json.dumps({'start': started, 'end': time.time()}))
+    sys.exit(code)
+if role == 'writer':
+    shared = pathlib.Path(sys.argv[3])
+    original = shared.read_text()
+    shared.write_text(original + 'fixture-entry\\n')
+    time.sleep(1.0)
+    shared.write_text(original)
+    finish(0)
+if role == 'reader':
+    shared = pathlib.Path(sys.argv[3])
+    deadline = time.monotonic() + 1.0
+    while time.monotonic() < deadline:
+        if 'fixture-entry' in shared.read_text():
+            finish(1)
+        time.sleep(0.01)
+    finish(0)
+meeting, me, other = pathlib.Path(sys.argv[3]), sys.argv[4], sys.argv[5]
+(meeting / me).touch()
+deadline = time.monotonic() + 10
+while time.monotonic() < deadline:
+    if (meeting / other).exists():
+        finish(0)
+    time.sleep(0.01)
+finish(1)
+'''
+
+
+class SuiteLockTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        (self.root / 'tests').mkdir()
+        (self.root / 'logs').mkdir()
+        (self.root / 'meeting').mkdir()
+        self.shared = self.root / 'shared-registry.json'
+        self.shared.write_text('{"entries": []}\n')
+        self.rows = {}
+        self.add('writer', ['writer', str(self.shared)])
+        self.add('reader', ['reader', str(self.shared)])
+        self.add('left', ['meet', str(self.root / 'meeting'), 'left', 'right'])
+        self.add('right', ['meet', str(self.root / 'meeting'), 'right', 'left'])
+        self.lock_groups = {'shared-state': 'fixture registry backup/append/restore'}
+
+    def add(self, name, args):
+        path = f'tests/{name}.tests.py'
+        (self.root / path).write_text(SHARED_STATE_FIXTURE)
+        self.rows[name] = {'path': path, 'runtime': 'python', 'args': [str(self.root / 'logs' / name)] + args}
+
+    def run_catalog(self, names, jobs=4, weights=None):
+        catalog = {'schema': 'verification-catalog/v1', 'suites': list(self.rows.values()),
+                   'profiles': {'test': [row['path'] for row in self.rows.values()]}}
+        if self.lock_groups:
+            catalog['lock_groups'] = self.lock_groups
+        path = self.root / 'tests/catalog.json'
+        path.write_text(json.dumps(catalog))
+        selected = [self.rows[name]['path'] for name in names]
+        # By default the writer is scheduled first so an unlocked reader starts during its rewrite.
+        weights = {self.rows[name]['path']: weight for name, weight in (weights or {'writer': 100}).items()}
+        receipt, code = V.execute(V.load_catalog(path, self.root), selected, self.root, 'test', jobs=jobs, weights=weights)
+        self.assertEqual([row['suite'] for row in receipt['results']], selected)
+        return {name: row['status'] for name, row in zip(names, receipt['results'])}, code
+
+    def interval(self, name):
+        return json.loads((self.root / 'logs' / name).read_text())
+
+    def overlaps(self, a, b):
+        first, second = self.interval(a), self.interval(b)
+        return first['start'] < second['end'] and second['start'] < first['end']
+
+    def test_shared_lock_serializes_writer_and_reader_while_unlocked_pair_runs_in_parallel(self):
+        self.rows['writer']['locks'] = ['shared-state']
+        self.rows['reader']['locks'] = ['shared-state']
+        statuses, code = self.run_catalog(['writer', 'reader', 'left', 'right'])
+        self.assertEqual(statuses, dict.fromkeys(statuses, 'passed'))
+        self.assertEqual(code, 0)
+        self.assertFalse(self.overlaps('writer', 'reader'))
+        self.assertTrue(self.overlaps('left', 'right'))
+        self.assertEqual(self.shared.read_text(), '{"entries": []}\n')
+
+    def test_without_the_lock_the_writer_corrupts_the_concurrent_reader(self):
+        # Sensitivity check: the fixture must detect overlap, or the locked test proves nothing.
+        self.lock_groups = {}
+        statuses, code = self.run_catalog(['writer', 'reader', 'left', 'right'])
+        self.assertEqual(statuses['reader'], 'failed')
+        self.assertEqual(code, 1)
+        self.assertTrue(self.overlaps('writer', 'reader'))
+
+    def test_exclusive_suite_overlaps_no_other_suite(self):
+        self.lock_groups = {}
+        self.rows['writer']['exclusive'] = True
+        # First: the exclusive suite is admitted first and holds others back.
+        # Second: it is queued behind running suites and must wait for them to drain.
+        for weights in ({'writer': 100}, {'reader': 100, 'left': 100, 'right': 100}):
+            with self.subTest(weights=weights):
+                for marker in (self.root / 'meeting').iterdir():
+                    marker.unlink()
+                statuses, code = self.run_catalog(['writer', 'reader', 'left', 'right'], weights=weights)
+                self.assertEqual(statuses, dict.fromkeys(statuses, 'passed'))
+                self.assertEqual(code, 0)
+                for other in ('reader', 'left', 'right'):
+                    self.assertFalse(self.overlaps('writer', other), other)
+                self.assertTrue(self.overlaps('left', 'right'))
+
+    def test_locks_do_not_change_serial_execution(self):
+        self.rows['writer']['locks'] = ['shared-state']
+        self.rows['reader']['locks'] = ['shared-state']
+        statuses, code = self.run_catalog(['writer', 'reader'], jobs=1)
+        self.assertEqual((statuses, code), ({'writer': 'passed', 'reader': 'passed'}, 0))
+
+    def test_lock_markers_are_validated(self):
+        def load(mutate):
+            catalog = {'schema': 'verification-catalog/v1', 'lock_groups': {'shared-state': 'fixture'},
+                       'suites': [dict(row) for row in self.rows.values()],
+                       'profiles': {'test': [row['path'] for row in self.rows.values()]}}
+            catalog['suites'][0]['locks'] = ['shared-state']
+            mutate(catalog)
+            path = self.root / 'tests/catalog.json'
+            path.write_text(json.dumps(catalog))
+            return V.load_catalog(path, self.root)
+
+        load(lambda c: None)
+        cases = {
+            'undeclared': lambda c: c['suites'][1].update(locks=['shared-stat']),
+            'unused group': lambda c: c['lock_groups'].update(other='never used'),
+            'empty reason': lambda c: c['lock_groups'].update({'shared-state': ' '}),
+            'bad group name': lambda c: c.update(lock_groups={'Shared': 'x'}),
+            'groups not object': lambda c: c.update(lock_groups=['shared-state']),
+            'empty locks': lambda c: c['suites'][1].update(locks=[]),
+            'string locks': lambda c: c['suites'][1].update(locks='shared-state'),
+            'duplicate lock': lambda c: c['suites'][1].update(locks=['shared-state', 'shared-state']),
+            'non-string lock': lambda c: c['suites'][1].update(locks=[1]),
+            'exclusive false': lambda c: c['suites'][1].update(exclusive=False),
+            'exclusive string': lambda c: c['suites'][1].update(exclusive='true'),
+        }
+        for label, mutate in cases.items():
+            with self.subTest(label), self.assertRaises(ValueError):
+                load(mutate)
+
+        def delegate(lock=None, exclusive=None, parent_exclusive=False):
+            def mutate(c):
+                child = c['suites'][1]
+                c['profiles']['test'].remove(child['path'])
+                child['delegated_to'] = c['suites'][0]['path']
+                child.update({k: v for k, v in (('locks', lock), ('exclusive', exclusive)) if v is not None})
+                if parent_exclusive:
+                    c['suites'][0]['exclusive'] = True
+            return mutate
+
+        load(delegate(lock=['shared-state']))
+        load(delegate(exclusive=True, parent_exclusive=True))
+        c_lock_groups = {'shared-state': 'fixture', 'other': 'fixture'}
+        for label, mutate in {
+            'child lock not held': lambda c: (c.update(lock_groups=c_lock_groups), delegate(lock=['other'])(c)),
+            'child exclusive, parent not': delegate(exclusive=True),
+        }.items():
+            with self.subTest(label), self.assertRaisesRegex(ValueError, 'delegated suite lock'):
+                load(mutate)
+
+    def test_real_catalog_lock_groups_are_declared_and_used(self):
+        catalog = V.load_catalog(ROOT / 'tests/verification-catalog.json', ROOT)
+        self.assertIn('workflow-state-registry', catalog['lock_groups'])
+        # Suites that back up, append to and restore the live registry (observed on PR #976).
+        for writer in ('tests/downstream-review-precheck-parity.tests.sh', 'tests/downstream-review-precheck.tests.sh',
+                       'tests/downstream-review-precheck.tests.ps1', 'tests/impl-layer-review-inputs.tests.sh',
+                       'tests/task-review-precheck.tests.sh', 'tests/spec-review-loop.tests.sh'):
+            self.assertIn('workflow-state-registry', catalog['_suites'][writer].get('locks', []), writer)
+
+
 if __name__ == '__main__':
     unittest.main()
