@@ -11,6 +11,10 @@
 
   移行方法: まず残った `specs/<feature>/concept-test.approval.json` を削除し（残っている間は v2 の実行が `leftover ... concept-test.approval.json from a retired v1 record` で停止する）、その後 Concept Test をもう一度実行して `concept-test/v2` として作り直す。`domain/` のないプロジェクト（Concept Test を実行しない）では、v1 の記録ファイルを削除する。MCP の `get_next_sdd_command` も同じ移行方法を案内し、移行後は再検証と品質ゲートの再実行を案内する。これまで品質ゲートは v1 だけの記録を「対象外」として通していたため、検証器との判定が食い違っていた。次の読み取りは履歴として v1 を読み続ける（ADR-0053 の改訂）: 合格済みレビューの入力の照合（`check-workflow-state` の stage-provenance）、固定リビジョンを指定したレビュー、decision packet の署名検証。合格済みレビューが有効なのは、固定した v1 の入力が変わらない間だけである。作業途中の feature を v2 に移行すると入力のハッシュが変わるため、仕様・実装方針・タスク分解の各レビューをやり直す必要がある。完了済みの feature は、記録を変更しなければ対応不要。
 
+### Removed
+
+- **v1 時代のリリース試験**: `tests/bump-version-gate.tests.sh`・`.ps1` と `tests/release-config-lock.tests.sh` を削除した（所有者の判断、2026-11-28）。v1 の前提のまま main でも失敗しており、どの実行器や CI からも呼ばれていなかった。
+
 ### Fixed
 
 - **v1 の承認ファイルだけが残ると品質ゲートが「対象外」として通していた件**: Concept Test の記録を消して `specs/<feature>/concept-test.approval.json` だけが残った場合、品質ゲートは記録なしと見なして `NOT_APPLICABLE` で通していた。承認ファイルは v1 だけが作るため、検証器と同じ `leftover ... from a retired v1 record: delete it, then validate again` で停止する。Git インデックスだけに残っている場合は、削除もステージするよう案内する。MCP の `get_next_sdd_command` も、この状態では承認ファイルの削除と品質ゲートの再実行を案内する（これまでは実現できない「CONTINUE を確認」を案内していた）。

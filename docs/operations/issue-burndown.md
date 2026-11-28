@@ -101,7 +101,7 @@ settings, permissions, product judgement) are listed as **Deferred** and skipped
 - `docs/contributor/coding-standards/audit/*.json` still name the pre-rename `hooks/hooks.json` (historical audit records, nothing executes them).
 
 - Batch-4 review minors: a hand-edited baseline without the per-file `amendmentCount` treats every amendment as new; an amendment inserted above older ones in the same file shifts which entries count as new. Ranges like `T-002..T-005` in Blockers are not expanded (prose, ignored as before).
-- Release-suite drift: `tests/bump-version-gate.tests.sh` and `tests/release-config-lock.tests.sh` fail on main too (v1-era expectations, not in CI). Retire or port them.
+- Release-suite drift, resolved 2026-11-28 (owner decision: delete): `tests/bump-version-gate.tests.sh`/`.ps1` and `tests/release-config-lock.tests.sh` were removed. They failed on main with v1-era expectations and no runner or CI job invoked them; the v2 release path is covered by `scripts/bump-version.sh` and `publish-release.yml`.
 
 - Batch-5 review (accepted trade-off): a task approved after the baseline is surfaced (drift Markdown, gate `APPROVED_AFTER_BASELINE`), not blocked; a shell self-approval is caught only by the independent review and CODEOWNERS. A signed approval record would make it deterministic.
 - Batch-5 review minors: a prose Scope directory without extension or trailing slash (`- src/lib を更新`) yields no path, so the gate labels every file in scope for that task.
