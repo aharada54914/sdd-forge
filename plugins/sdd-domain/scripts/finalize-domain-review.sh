@@ -1,9 +1,5 @@
 #!/bin/sh
-# Thin POSIX dispatcher for finalize-domain-review (REQ-004). Exactly
-# ONE behavioral implementation exists (the Python master beside this
-# file); this wrapper never reimplements generation natively.
-# Dispatch logic (python3 -> python -> fail-closed exit 3) lives in
-# lib/py-dispatch.sh, shared by every python-master wrapper.
+# Self-contained POSIX dispatcher for finalize-domain-review (ADR-0055: py-dispatch.sh retired).
 set -u
 
 case "$0" in
@@ -12,16 +8,19 @@ case "$0" in
   *) dir_raw="." ;;
 esac
 dir="$(CDPATH= cd -- "$dir_raw" && pwd)"
+master="$dir/finalize-domain-review.py"
 
-# Probe before sourcing: POSIX shells (dash among them) treat a failed `.`
-# special builtin as fatal, so an if-guard around the dot itself can never
-# run its else branch -- the readability test is what keeps the documented
-# exit 3 reachable on a partial or damaged installation.
-if [ ! -r "$dir/../../sdd-quality-loop/scripts/lib/py-dispatch.sh" ]; then
-  echo 'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: lib/py-dispatch.sh unavailable beside this script' >&2
-  echo 'finalize-domain-review: operation=finalize-domain-review cause=missing-dispatch-helper (../../sdd-quality-loop/scripts/lib/py-dispatch.sh unavailable)' >&2
+if [ ! -r "$master" ]; then
+  echo 'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: finalize-domain-review.py unavailable beside this script' >&2
+  echo 'finalize-domain-review: operation=finalize-domain-review cause=missing-python-master' >&2
   exit 3
 fi
-. "$dir/../../sdd-quality-loop/scripts/lib/py-dispatch.sh"
 
-sdd_py_dispatch "$dir/finalize-domain-review.py" 'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE' --runtime bash "$@"
+if command -v python3 >/dev/null 2>&1; then
+  exec python3 "$master" --runtime bash "$@"
+fi
+if command -v python >/dev/null 2>&1; then
+  exec python "$master" --runtime bash "$@"
+fi
+echo 'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: no python3 or python interpreter found on PATH' >&2
+exit 3

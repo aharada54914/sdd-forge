@@ -253,11 +253,11 @@ if quality_text is not None:
         fail("quality_report feature mismatch: bundle and contract omit feature")
 
 if contract_abs is not None:
-    check_script = pathlib.Path(script_dir) / "check-contract.sh"
+    check_script = pathlib.Path(script_dir) / "check-contract.ts"
     if not check_script.exists():
         fail(f"check-contract script not found: {check_script}")
     else:
-        result = subprocess.run(["sh", str(check_script), contract_norm, root], cwd=root)
+        result = subprocess.run(["node", str(check_script), contract_norm, os.path.abspath(root)], cwd=root)
         if result.returncode != 0:
             fail(f"verification_contract failed check-contract validation: {verification_contract}")
 

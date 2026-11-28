@@ -51,7 +51,19 @@ export function normalizeNewlines(text) {
 }
 
 export function sha256Text(text) {
-  return crypto.createHash('sha256').update(normalizeNewlines(text), 'utf8').digest('hex');
+  const normalized = normalizeNewlines(text);
+  if (typeof crypto.hash === 'function') {
+    return crypto.hash('sha256', normalized, 'hex');
+  }
+  return crypto.createHash('sha256').update(normalized, 'utf8').digest('hex');
+}
+
+export function escapeRegExp(text) {
+  const str = String(text ?? '');
+  if (typeof RegExp.escape === 'function') {
+    return RegExp.escape(str);
+  }
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export function toPosixPath(filePath) {

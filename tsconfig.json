@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "lib": ["ESNext"],
+    "strict": true,
+    "noEmit": true,
+    "erasableSyntaxOnly": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "types": ["node"],
+    "typeRoots": ["./mcp/sdd-forge-mcp/node_modules/@types"]
+  },
+  "include": [
+    ".github/scripts/*.ts",
+    "scripts/*.ts",
+    "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.ts",
+    "plugins/sdd-quality-loop/scripts/validate-path.ts",
+    "plugins/sdd-quality-loop/scripts/check-contract.ts",
+    "plugins/sdd-domain/scripts/validate-concept-test.ts",
+    "mcp/shared/diagnostics-core.ts"
+  ]
+}

@@ -25,6 +25,37 @@ import { assertValidFeatureName, resolveExplicitOrAutoRoot, isMainModule } from 
 
 const DEFAULT_TTL_SECONDS = 1800;
 
+/**
+ * Temporal-first time helpers (ADR-0055): uses standard `Temporal.Now.instant()`
+ * and `Temporal.Instant.from()` when available (Node.js 26+), with deterministic
+ * `Date` fallback on Node 24/25.
+ */
+export function nowEpochMs() {
+  if (globalThis.Temporal?.Now?.instant) {
+    return globalThis.Temporal.Now.instant().epochMilliseconds;
+  }
+  return Date.now();
+}
+
+export function epochMsToIso(ms) {
+  if (globalThis.Temporal?.Instant?.fromEpochMilliseconds) {
+    return globalThis.Temporal.Instant.fromEpochMilliseconds(Math.trunc(ms)).toString();
+  }
+  return new Date(ms).toISOString();
+}
+
+export function parseIsoEpochMs(iso) {
+  if (!iso || typeof iso !== 'string') return Number.NaN;
+  if (globalThis.Temporal?.Instant?.from) {
+    try {
+      return globalThis.Temporal.Instant.from(iso).epochMilliseconds;
+    } catch {
+      // fall back to Date.parse for non-strict ISO variants
+    }
+  }
+  return Date.parse(iso);
+}
+
 function lockFileName(feature, taskId) {
   assertValidFeatureName(feature);
   if (taskId) {
@@ -79,11 +110,11 @@ function removeQuietly(p) {
   }
 }
 
-function evaluateStale(record, nowMs = Date.now()) {
+function evaluateStale(record, nowMs = nowEpochMs()) {
   if (!record || typeof record !== 'object') {
     return { stale: true, reason: 'corrupt-lock-file' };
   }
-  const expiresMs = Date.parse(record.expiresAt || '');
+  const expiresMs = parseIsoEpochMs(record.expiresAt || '');
   if (Number.isFinite(expiresMs) && nowMs > expiresMs) {
     return { stale: true, reason: 'ttl-expired' };
   }
@@ -120,7 +151,7 @@ export function acquireLock({
   const lockPath = path.join(locksDir, name);
 
   const ttl = Number.isFinite(ttlSeconds) && ttlSeconds > 0 ? Math.min(ttlSeconds, 86400) : DEFAULT_TTL_SECONDS;
-  const now = new Date();
+  const nowMs = nowEpochMs();
   const record = {
     schema: 'sdd-task-lock/v1',
     feature,
@@ -128,8 +159,8 @@ export function acquireLock({
     owner: owner || `${os.hostname()}:${process.pid}`,
     pid: owner ? null : process.pid,
     hostname: os.hostname(),
-    acquiredAt: now.toISOString(),
-    expiresAt: new Date(now.getTime() + ttl * 1000).toISOString(),
+    acquiredAt: epochMsToIso(nowMs),
+    expiresAt: epochMsToIso(nowMs + ttl * 1000),
   };
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -282,6 +313,35 @@ export function releaseLock({ feature, taskId = null, projectRoot = null, owner 
   fs.unlinkSync(lockPath);
   removeQuietly(leasePath(lockPath));
   return { released: true, existed: true, lockPath };
+}
+
+/**
+ * Disposable lock handle for TC39 Explicit Resource Management (`using` / `await using`, ADR-0055).
+ * Automatically releases the acquired lock when leaving scope.
+ */
+export function acquireTaskLockHandle(options) {
+  const res = acquireLock(options);
+  let disposed = false;
+  const release = () => {
+    if (disposed || !res.acquired) return { released: false, alreadyDisposed: disposed };
+    disposed = true;
+    return releaseLock({
+      feature: options.feature,
+      taskId: options.taskId ?? null,
+      projectRoot: options.projectRoot ?? null,
+      owner: res.record?.owner ?? options.owner ?? null,
+    });
+  };
+  return {
+    ...res,
+    release,
+    [Symbol.dispose]() {
+      release();
+    },
+    async [Symbol.asyncDispose]() {
+      release();
+    },
+  };
 }
 
 function parseArgs(argv) {

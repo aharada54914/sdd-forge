@@ -71,13 +71,13 @@ test("path segments cannot change the host even when they look like a host or co
 });
 
 test("no other HTTP method literal (POST/PUT/PATCH/DELETE) appears in github-client.ts source", () => {
-  // Compiled location: dist-test/tests/error-paths/. tsconfig.test.json
-  // compiles with rootDir "." so dist-test mirrors the whole package layout
-  // (dist-test/src/*.js, dist-test/tests/*.js) — walk up 3 levels
-  // (error-paths -> tests -> dist-test) to the ci-mcp package root, then into
-  // the REAL (uncompiled) src/github-client.ts.
+  // Compiled location: dist-test/ci-mcp/tests/error-paths/. tsconfig.test.json
+  // compiles with rootDir ".." (to include ../shared/diagnostics-core.ts) so
+  // walk up 4 levels (error-paths -> tests -> ci-mcp -> dist-test) to the
+  // ci-mcp package root, then into the REAL (uncompiled) src/github-client.ts.
   const SRC_PATH = join(
     dirname(fileURLToPath(import.meta.url)),
+    "..",
     "..",
     "..",
     "..",

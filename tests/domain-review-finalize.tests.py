@@ -612,13 +612,13 @@ class DomainFinalizerTests(unittest.TestCase):
         cases = []
         sh_bin = shutil.which('sh')
         if os.name != 'nt' and sh_bin:
-            cases.append(('bash', '.sh', [sh_bin], 'lib/py-dispatch.sh'))
+            cases.append(('bash', '.sh', [sh_bin]))
         pwsh = shutil.which('pwsh')
         if pwsh:
-            cases.append(('powershell', '.ps1', [pwsh, '-NoProfile', '-File'], 'lib/py-dispatch.ps1'))
-        for runtime, suffix, runner, helper_label in cases:
+            cases.append(('powershell', '.ps1', [pwsh, '-NoProfile', '-File']))
+        for runtime, suffix, runner in cases:
             with self.subTest(runtime=runtime):
-                with tempfile.TemporaryDirectory(prefix='domain-finalizer-missing-helper-') as td:
+                with tempfile.TemporaryDirectory(prefix='domain-finalizer-missing-master-') as td:
                     scripts_dir = Path(td) / 'plugins/sdd-domain/scripts'
                     scripts_dir.mkdir(parents=True)
                     wrapper = scripts_dir / ('finalize-domain-review' + suffix)
@@ -629,33 +629,31 @@ class DomainFinalizerTests(unittest.TestCase):
                     lines = result.stderr.splitlines()
                     self.assertEqual(
                         lines[0],
-                        f'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: {helper_label} unavailable beside this script',
+                        'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: finalize-domain-review.py unavailable beside this script',
                     )
-                    self.assertIn('cause=missing-dispatch-helper', lines[1])
+                    self.assertIn('cause=missing-python-master', lines[1])
 
     def test_wrapper_missing_python_names_its_own_operation(self):
         cases = []
         sh_bin = shutil.which('sh')
         if os.name != 'nt' and sh_bin:
-            cases.append(('bash', '.sh', [sh_bin], 'py-dispatch.sh'))
+            cases.append(('bash', '.sh', [sh_bin]))
         pwsh = shutil.which('pwsh')
         if pwsh:
             pwsh_dir = Path(pwsh).resolve().parent
             has_colocated_python = any((pwsh_dir / name).exists() for name in ('python3', 'python', 'python3.exe', 'python.exe'))
             if not has_colocated_python:
-                cases.append(('powershell', '.ps1', [pwsh, '-NoProfile', '-File'], 'py-dispatch.ps1'))
-        for runtime, suffix, runner, helper_name in cases:
+                cases.append(('powershell', '.ps1', [pwsh, '-NoProfile', '-File']))
+        for runtime, suffix, runner in cases:
             with self.subTest(runtime=runtime):
                 with tempfile.TemporaryDirectory(prefix='domain-finalizer-missing-py-') as td:
                     scripts_dir = Path(td) / 'plugins/sdd-domain/scripts'
-                    lib_dir = Path(td) / 'plugins/sdd-quality-loop/scripts/lib'
                     empty_bin = Path(td) / 'empty-bin'
                     scripts_dir.mkdir(parents=True)
-                    lib_dir.mkdir(parents=True)
                     empty_bin.mkdir(parents=True)
                     wrapper = scripts_dir / ('finalize-domain-review' + suffix)
                     shutil.copy2(SCRIPT.with_suffix(suffix), wrapper)
-                    shutil.copy2(ROOT / 'plugins/sdd-quality-loop/scripts/lib' / helper_name, lib_dir / helper_name)
+                    shutil.copy2(SCRIPT, scripts_dir / 'finalize-domain-review.py')
                     env = dict(os.environ, PATH=str(empty_bin))
                     result = subprocess.run(runner + [str(wrapper)], cwd=td, env=env, capture_output=True, text=True, timeout=30)
                     self.assertEqual(result.returncode, 3, result.stdout + result.stderr)

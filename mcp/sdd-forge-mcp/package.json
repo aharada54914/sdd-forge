@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Read-only SDD Forge MCP v2 server (4 coarse-grained tools backed by v2 ESM engine, ADR-0052).",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=26.13.0"
   },
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js",
@@ -15,11 +15,12 @@
     "golden:record": "tsc -p tsconfig.test.json && node dist-test/mcp/sdd-forge-mcp/scripts/record-golden-fixtures.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@modelcontextprotocol/server": "^2.4.0",
     "js-yaml": "^5.5.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "^2.4.0",
     "@modelcontextprotocol/inspector": "2.14.0",
     "@types/node": "^26.6.6",
     "ajv": "^8.20.0",

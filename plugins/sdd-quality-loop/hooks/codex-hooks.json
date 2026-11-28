@@ -1,5 +1,5 @@
 {
-  "description": "SDD Forge v2 Lightweight Soft Guardrails for Codex CLI (ADR-0051). Single cross-platform Node.js ESM soft guard across POSIX and Windows.",
+  "description": "SDD Forge v2 Lightweight Soft Guardrails for Codex CLI (ADR-0051 / ADR-0055). Single cross-platform Node.js ESM soft guard across POSIX and Windows with read-only portable Compile Cache and role-scoped --config-file permission profile.",
   "hooks": {
     "PreToolUse": [
       {
@@ -7,8 +7,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/v2/sdd-soft-guard.mjs\" --emit exit",
-            "command_windows": "node -e \"const p=require('path'),cp=require('child_process');const r=process.env.CODEX_PLUGIN_ROOT||process.env.CLAUDE_PLUGIN_ROOT||'';const res=cp.spawnSync(process.execPath,[p.join(r,'scripts','v2','sdd-soft-guard.mjs'),'--emit','exit'],{stdio:'inherit'});process.exit(res.status??1);\""
+            "command": "root=\"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}\"; NODE_COMPILE_CACHE=\"$root/../../.sdd-compile-cache\" NODE_COMPILE_CACHE_PORTABLE=1 NODE_COMPILE_CACHE_READONLY=1 node --config-file=\"$root/config/hook.node.json\" --disallow-code-generation-from-strings --env-file-if-exists=.sdd/env \"$root/scripts/v2/sdd-soft-guard.mjs\" --emit exit",
+            "command_windows": "node -e \"const p=require('path'),cp=require('child_process');const r=process.env.CODEX_PLUGIN_ROOT||process.env.CLAUDE_PLUGIN_ROOT||'';const env={...process.env,NODE_COMPILE_CACHE:p.join(r,'..','..','.sdd-compile-cache'),NODE_COMPILE_CACHE_PORTABLE:'1',NODE_COMPILE_CACHE_READONLY:'1'};const res=cp.spawnSync(process.execPath,['--config-file='+p.join(r,'config','hook.node.json'),'--disallow-code-generation-from-strings','--env-file-if-exists=.sdd/env',p.join(r,'scripts','v2','sdd-soft-guard.mjs'),'--emit','exit'],{stdio:'inherit',env});process.exit(res.status??1);\""
           }
         ]
       }

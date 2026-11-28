@@ -10,10 +10,11 @@ import importlib.util
 import json
 import os
 import stat
+import subprocess
 from pathlib import Path
 import sys
 import tempfile
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 from typing import Any
 
 sys.dont_write_bytecode = True
@@ -31,7 +32,104 @@ def load(name: str, filename: str) -> ModuleType:
     return module
 
 
-legacy = load('selected_plan_legacy', 'check-contract.py')
+def _build_legacy_bridge() -> SimpleNamespace:
+    baseline_ids = {'lint', 'typecheck', 'unit-tests', 'build', 'placeholder-scan', 'task-state-check'}
+    risk_tiers = {
+        'low': {'lint', 'typecheck', 'build', 'placeholder-scan', 'task-state-check'},
+        'medium': {'lint', 'typecheck', 'build', 'placeholder-scan', 'task-state-check', 'unit-tests', 'acceptance-tests', 'regression'},
+        'high': {'lint', 'typecheck', 'build', 'placeholder-scan', 'task-state-check', 'unit-tests', 'acceptance-tests', 'regression', 'requirement-traceability', 'check-component-coverage'},
+        'critical': {'lint', 'typecheck', 'build', 'placeholder-scan', 'task-state-check', 'unit-tests', 'acceptance-tests', 'regression', 'requirement-traceability', 'check-component-coverage'},
+    }
+
+    def _str_field(check: dict[str, Any], key: str) -> str:
+        val = check.get(key)
+        return val.strip() if isinstance(val, str) else ''
+
+    def _capability_enforcement_declared(root: str) -> bool:
+        return os.path.isfile(os.path.join(root, 'sdd', 'project-context.yaml'))
+
+    def _discover_project_root(contract_path: str, fallback_root: str) -> str:
+        try:
+            contract_abs = os.path.abspath(contract_path)
+        except Exception:
+            return fallback_root
+        current = os.path.dirname(contract_abs)
+        while True:
+            try:
+                rel = os.path.relpath(contract_abs, current)
+            except ValueError:
+                return fallback_root
+            segments = rel.split(os.sep)
+            if len(segments) > 1 and segments[0] == 'specs':
+                return current
+            parent = os.path.dirname(current)
+            if parent == current:
+                return fallback_root
+            current = parent
+
+    def validate_evidence_path(label: str, raw_path: Any, root: str, failures: list[str]) -> bool:
+        before = len(failures)
+        if raw_path is not None and not isinstance(raw_path, str):
+            failures.append(f'{label} must be a string')
+            return False
+        trimmed = raw_path.strip() if isinstance(raw_path, str) else ''
+        if not trimmed:
+            failures.append(f'{label} is missing or empty')
+            return False
+        if trimmed.startswith('/') or (len(trimmed) >= 2 and trimmed[1] == ':') or trimmed.startswith('\\\\'):
+            failures.append(f'{label} is an absolute path: {raw_path}')
+            return False
+        try:
+            abs_root = os.path.realpath(os.path.abspath(root))
+            resolved = os.path.realpath(os.path.join(abs_root, trimmed))
+        except Exception:
+            failures.append(f'{label} path could not be resolved: {raw_path}')
+            return False
+        if not resolved.startswith(abs_root + os.sep) and resolved != abs_root:
+            failures.append(f'{label} path escapes repo root: {raw_path}')
+            return False
+        if not os.path.exists(resolved):
+            failures.append(f'{label} file missing: {raw_path}')
+        elif not os.path.isfile(resolved):
+            failures.append(f'{label} is not a regular file: {raw_path}')
+        elif os.path.getsize(resolved) == 0:
+            failures.append(f'{label} file is empty: {raw_path}')
+        return len(failures) == before
+
+    def run_contract(contract_path: str, root: str) -> tuple[str, list[str]]:
+        task_id = '?'
+        try:
+            doc = json.loads(Path(contract_path).read_text(encoding='utf-8'))
+            if isinstance(doc, dict) and isinstance(doc.get('task_id'), str):
+                task_id = doc['task_id']
+        except Exception:
+            pass
+        proc = subprocess.run(
+            ['node', str(SCRIPTS / 'check-contract.ts'), str(contract_path), str(root)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if proc.returncode == 0:
+            return task_id, []
+        lines = [ln.strip().removeprefix('- ').strip() for ln in (proc.stdout + '\n' + proc.stderr).splitlines() if ln.strip().startswith('- ')]
+        return task_id, lines or [(proc.stdout + proc.stderr).strip() or 'check-contract failed']
+
+    return SimpleNamespace(
+        BASELINE_IDS=baseline_ids,
+        RISK_TIERS=risk_tiers,
+        COMPILE_CHECKS={'lint', 'typecheck', 'build'},
+        NONCODE_STACKS={'shell', 'docs', 'spec'},
+        CAPABILITY_STATE_GATED_IDS={'check-component-coverage'},
+        _capability_enforcement_declared=_capability_enforcement_declared,
+        _discover_project_root=_discover_project_root,
+        _str_field=_str_field,
+        validate_evidence_path=validate_evidence_path,
+        run=run_contract,
+    )
+
+
+legacy = _build_legacy_bridge()
 facets = load('selected_plan_facets', 'validate-facet-manifest.py')
 resolver_evidence = load('selected_plan_resolver_evidence', 'validate-resolver-evidence.py')
 registry_checks = load('selected_plan_registry', 'validate-capability-registry.py')

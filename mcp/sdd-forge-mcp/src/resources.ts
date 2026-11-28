@@ -6,7 +6,7 @@
  * - `sdd://feature/{feature}` <-> `sdd_feature_state({ feature, includeDecisionViewMarkdown: true })`
  */
 
-import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/server";
 import type { Result } from "./envelope.js";
 import type { SddRoot } from "./root.js";
 import { sddFeatureState, sddProjectOverview } from "./tools/v2.js";

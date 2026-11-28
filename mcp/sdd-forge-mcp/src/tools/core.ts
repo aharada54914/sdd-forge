@@ -15,7 +15,7 @@
  * supplied by the caller (`server.ts`), never client input.
  */
 
-import { isApprovedValue } from "../../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
+import { isApprovedValue } from "../../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.ts";
 import { err, ok, type Result } from "../envelope.js";
 import { parseActiveSpecDirectories } from "../parsers/agents-md.js";
 import { listQualityReports, type QualityReportEntry } from "../parsers/quality-report.js";

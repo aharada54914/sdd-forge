@@ -30,7 +30,7 @@ import { __clearProbeCache } from "../../src/probe-engine.js";
 
 const CONTRACT_PATH = join(
   dirname(fileURLToPath(import.meta.url)),
-  "..", "..", "..", "..", "..",
+  "..", "..", "..", "..", "..", "..",
   "contracts",
   "local-env-mcp-tools.v1.schema.json",
 );

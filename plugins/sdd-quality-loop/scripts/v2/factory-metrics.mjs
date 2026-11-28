@@ -22,8 +22,116 @@
  * record-final-verdict and summarized separately as `finalReviews` (#837).
  */
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { assertValidFeatureName, normalizeNewlines, resolveExplicitOrAutoRoot, isMainModule } from './guardrails-lib.mjs';
+
+const require = createRequire(import.meta.url);
+let DatabaseSyncCtor = null;
+try {
+  DatabaseSyncCtor = require('node:sqlite')?.DatabaseSync ?? null;
+} catch {
+  DatabaseSyncCtor = null;
+}
+
+function nowIso() {
+  if (globalThis.Temporal?.Now?.instant) {
+    return globalThis.Temporal.Now.instant().toString();
+  }
+  return new Date().toISOString();
+}
+
+/**
+ * High-speed SQL aggregation over gate-run metric records using built-in
+ * `node:sqlite` (`DatabaseSync(':memory:')`, ADR-0055), preserving exact
+ * JSONL compatibility and parity with the JS summary.
+ */
+export function summarizeMetricsWithSqlite(gateRuns) {
+  const rows = Array.isArray(gateRuns) ? gateRuns : [];
+  if (!DatabaseSyncCtor || rows.length === 0) {
+    const durations = rows
+      .map((r) => Number(r.commandDurationMs || 0))
+      .filter((n) => Number.isFinite(n) && n >= 0)
+      .sort((a, b) => a - b);
+    const total = rows.length;
+    const pass = rows.filter((r) => r.verdict === 'PASS').length;
+    const fail = rows.filter((r) => r.verdict === 'FAIL').length;
+    return {
+      engine: DatabaseSyncCtor ? 'sqlite' : 'js-fallback',
+      total,
+      pass,
+      fail,
+      avgDurationMs: durations.length > 0 ? Math.round(durations.reduce((s, n) => s + n, 0) / durations.length) : 0,
+      p95DurationMs:
+        durations.length > 0 ? durations[Math.min(durations.length - 1, Math.floor(durations.length * 0.95))] : 0,
+      sensorFindingsTotal: rows.reduce((acc, r) => acc + Number(r.sensorFindingCount || 0), 0),
+      placeholderFindingsTotal: rows.reduce((acc, r) => acc + Number(r.placeholderFindingCount || 0), 0),
+    };
+  }
+
+  const db = new DatabaseSyncCtor(':memory:');
+  try {
+    db.exec(`
+      CREATE TABLE gate_runs (
+        verdict TEXT,
+        duration_ms REAL,
+        sensor_findings INTEGER,
+        placeholder_findings INTEGER
+      );
+    `);
+    const insert = db.prepare(
+      'INSERT INTO gate_runs (verdict, duration_ms, sensor_findings, placeholder_findings) VALUES (?, ?, ?, ?)',
+    );
+    db.exec('BEGIN');
+    for (const r of rows) {
+      const dur = Number(r.commandDurationMs || 0);
+      insert.run(
+        String(r.verdict || ''),
+        Number.isFinite(dur) && dur >= 0 ? dur : -1,
+        Number(r.sensorFindingCount || 0) || 0,
+        Number(r.placeholderFindingCount || 0) || 0,
+      );
+    }
+    db.exec('COMMIT');
+
+    const agg = db
+      .prepare(`
+        SELECT
+          COUNT(*) AS total,
+          SUM(CASE WHEN verdict = 'PASS' THEN 1 ELSE 0 END) AS pass_count,
+          SUM(CASE WHEN verdict = 'FAIL' THEN 1 ELSE 0 END) AS fail_count,
+          SUM(CASE WHEN duration_ms >= 0 THEN 1 ELSE 0 END) AS dur_count,
+          ROUND(AVG(CASE WHEN duration_ms >= 0 THEN duration_ms END)) AS avg_dur,
+          SUM(sensor_findings) AS sensor_total,
+          SUM(placeholder_findings) AS placeholder_total
+        FROM gate_runs
+      `)
+      .get();
+
+    const durCount = Number(agg?.dur_count || 0);
+    let p95DurationMs = 0;
+    if (durCount > 0) {
+      const offset = Math.min(durCount - 1, Math.floor(durCount * 0.95));
+      const p95Row = db
+        .prepare('SELECT duration_ms FROM gate_runs WHERE duration_ms >= 0 ORDER BY duration_ms ASC LIMIT 1 OFFSET ?')
+        .get(offset);
+      p95DurationMs = Number(p95Row?.duration_ms || 0);
+    }
+
+    return {
+      engine: 'sqlite',
+      total: Number(agg?.total || 0),
+      pass: Number(agg?.pass_count || 0),
+      fail: Number(agg?.fail_count || 0),
+      avgDurationMs: Number(agg?.avg_dur || 0),
+      p95DurationMs,
+      sensorFindingsTotal: Number(agg?.sensor_total || 0),
+      placeholderFindingsTotal: Number(agg?.placeholder_total || 0),
+    };
+  } finally {
+    db.close();
+  }
+}
 
 export const VALID_ROOT_CAUSES = Object.freeze(['requirements', 'design', 'code', 'test', 'harness', 'unknown']);
 
@@ -70,7 +178,7 @@ export function recordRootCauseAttribution({
   const record = {
     schema: 'sdd-factory-attribution/v1',
     kind: 'attribution',
-    timestamp: new Date().toISOString(),
+    timestamp: nowIso(),
     feature,
     taskId: taskId.toUpperCase(),
     rootCausePhase: normalizedCause,
@@ -98,7 +206,7 @@ export function recordFinalVerdict({ projectRoot = null, feature, taskId, verdic
   const record = {
     schema: 'sdd-factory-final-verdict/v1',
     kind: 'final-verdict',
-    timestamp: new Date().toISOString(),
+    timestamp: nowIso(),
     feature,
     taskId: taskId.toUpperCase(),
     finalVerdict: normalized,
@@ -124,16 +232,11 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
   const finalFail = finalVerdicts.filter((r) => r.finalVerdict === 'FAIL').length;
   const attributions = metrics.filter((r) => r.kind === 'attribution' || typeof r.rootCausePhase === 'string');
 
-  const passCount = gateRuns.filter((r) => r.verdict === 'PASS').length;
-  const failCount = gateRuns.filter((r) => r.verdict === 'FAIL').length;
-  const durations = gateRuns
-    .map((r) => Number(r.commandDurationMs || 0))
-    .filter((n) => Number.isFinite(n) && n >= 0)
-    .sort((a, b) => a - b);
-  const avgDurationMs =
-    durations.length > 0 ? Math.round(durations.reduce((s, n) => s + n, 0) / durations.length) : 0;
-  const p95DurationMs =
-    durations.length > 0 ? durations[Math.min(durations.length - 1, Math.floor(durations.length * 0.95))] : 0;
+  const sqliteAgg = summarizeMetricsWithSqlite(gateRuns);
+  const passCount = sqliteAgg.pass;
+  const failCount = sqliteAgg.fail;
+  const avgDurationMs = sqliteAgg.avgDurationMs;
+  const p95DurationMs = sqliteAgg.p95DurationMs;
 
   // One failed attempt yields one attribution: records sharing a runId (the
   // gate's --root-cause and a later record-attribution --run-id) collapse to
@@ -190,7 +293,7 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
 
   return {
     schema: 'sdd-factory-metrics-summary/v1',
-    generatedAt: new Date().toISOString(),
+    generatedAt: nowIso(),
     feature: feature || null,
     gateRuns: {
       total: gateRuns.length,

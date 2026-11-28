@@ -234,8 +234,7 @@ class ConceptTests(unittest.TestCase):
         self.assertFalse(path.exists())
         self.local_proposal()
         self.local_confirmation('defer-to-domain-update')
-        for wrapper in ([sys.executable, str(SCRIPT)], ['sh', str(SCRIPT.with_suffix('.sh'))],
-                        ['pwsh', '-NoProfile', '-File', str(SCRIPT.with_suffix('.ps1'))]):
+        for wrapper in ([sys.executable, str(SCRIPT)], ['node', str(SCRIPT.with_suffix('.ts'))]):
             if not shutil.which(wrapper[0]):
                 continue
             self.assertEqual('DEFER\n', self.gate(2, wrapper=wrapper + ['--require-v2']).stdout)
@@ -459,8 +458,8 @@ class ConceptTests(unittest.TestCase):
         # without domain/ never stops on a feature name ship accepts.
         shutil.rmtree(self.root / 'domain')
         wrappers = [[sys.executable, str(SCRIPT)]]
-        if os.name != 'nt' and shutil.which('sh'):
-            wrappers.append(['sh', str(SCRIPT.with_suffix('.sh'))])
+        if shutil.which('node'):
+            wrappers.append(['node', str(SCRIPT.with_suffix('.ts'))])
         for wrapper in wrappers:
             for feature in ('order_sync', 'order-sync', 'Order.v2'):
                 result = subprocess.run(wrapper + ['--root', str(self.root), '--feature', feature],
@@ -491,11 +490,8 @@ class ConceptTests(unittest.TestCase):
     def test_fits_and_dispatchers(self):
         self.local_proposal('FITS_EXISTING_CONCEPTS')
         self.assertEqual('CONTINUE\n', self.gate().stdout)
-        if os.name != 'nt' and shutil.which('sh'):
-            self.gate(wrapper=['sh', str(SCRIPT.with_suffix('.sh'))])
-        pwsh = shutil.which('pwsh')
-        if pwsh:
-            self.gate(wrapper=[pwsh, '-NoProfile', '-File', str(SCRIPT.with_suffix('.ps1'))])
+        if shutil.which('node'):
+            self.gate(wrapper=['node', str(SCRIPT.with_suffix('.ts'))])
 
     def test_v1_records_are_no_longer_accepted_by_the_validator(self):
         # Owner decision 2026-11-26: v1 records are retired; even a correctly signed one stops with a migration hint.
@@ -526,10 +522,8 @@ class ConceptTests(unittest.TestCase):
         self.save()
         (self.feature / 'concept-test.json').unlink()
         wrappers = [[sys.executable, str(SCRIPT)]]
-        if os.name != 'nt' and shutil.which('sh'):
-            wrappers.append(['sh', str(SCRIPT.with_suffix('.sh'))])
-        if shutil.which('pwsh'):
-            wrappers.append(['pwsh', '-NoProfile', '-File', str(SCRIPT.with_suffix('.ps1'))])
+        if shutil.which('node'):
+            wrappers.append(['node', str(SCRIPT.with_suffix('.ts'))])
         for wrapper in wrappers:
             for extra in ([], ['--require-v2']):
                 with self.subTest(wrapper=wrapper[0], args=extra):

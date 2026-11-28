@@ -1,42 +1,26 @@
-"""Standalone MCP copies must match their canonical mechanism; stale checks never write."""
-import importlib.util
+"""MCP packages must import mcp/shared/diagnostics-core.ts directly with zero copies or Python sync scripts (ADR-0055)."""
 from pathlib import Path
-import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-SPEC = importlib.util.spec_from_file_location('sync_mcp_diagnostics', ROOT / 'mcp/shared/sync-diagnostics.py')
-assert SPEC is not None and SPEC.loader is not None
-sync = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(sync)
+PACKAGES = ('local-env-mcp', 'ci-mcp')
 
 
 class DiagnosticsSharingTests(unittest.TestCase):
-    def test_current_copies_are_fresh(self):
-        self.assertEqual(sync.synchronize(ROOT, check=True), [])
+    def test_python_sync_script_and_copied_cores_are_removed(self):
+        self.assertFalse((ROOT / 'mcp/shared/sync-diagnostics.py').exists())
+        self.assertTrue((ROOT / 'mcp/shared/diagnostics-core.ts').is_file())
+        for package in PACKAGES:
+            self.assertFalse(
+                (ROOT / f'mcp/{package}/src/diagnostics-core.ts').exists(),
+                f'duplicated diagnostics-core.ts must be removed from mcp/{package}',
+            )
 
-    def test_stale_missing_and_update_do_not_touch_policy(self):
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            source = root / 'mcp/shared/diagnostics-core.ts'
-            source.parent.mkdir(parents=True)
-            source.write_bytes('// UTF-8 日本語\n'.encode('utf-8'))
-            for package in sync.PACKAGES:
-                directory = root / f'mcp/{package}/src'
-                directory.mkdir(parents=True)
-                (directory / 'diagnostics.ts').write_bytes(b'provider policy\n')
-            target = root / 'mcp/ci-mcp/src/diagnostics-core.ts'
-            target.write_bytes(b'stale\n')
-            self.assertEqual(len(sync.synchronize(root, check=True)), 2)
-            self.assertEqual(target.read_bytes(), b'stale\n')
-            self.assertFalse((root / 'mcp/local-env-mcp/src/diagnostics-core.ts').exists())
-            self.assertEqual(len(sync.synchronize(root, check=False)), 2)
-            self.assertEqual(sync.synchronize(root, check=True), [])
-            for package in sync.PACKAGES:
-                directory = root / f'mcp/{package}/src'
-                self.assertEqual((directory / 'diagnostics.ts').read_bytes(), b'provider policy\n')
-                self.assertEqual((directory / 'diagnostics-core.ts').read_bytes(),
-                                 sync.HEADER.encode('utf-8') + source.read_bytes())
+    def test_mcp_packages_import_shared_diagnostics_core_directly(self):
+        for package in PACKAGES:
+            diag = (ROOT / f'mcp/{package}/src/diagnostics.ts').read_text(encoding='utf-8')
+            self.assertIn('../../shared/diagnostics-core.js', diag)
+            self.assertNotIn('./diagnostics-core.js', diag)
 
 
 if __name__ == '__main__':

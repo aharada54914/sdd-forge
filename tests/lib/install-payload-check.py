@@ -164,6 +164,10 @@ def installed_files(root):
     """posix path -> sha256, or 'SYMLINK'. Directories are not listed."""
     found = {}
     for dirpath, dirnames, filenames in os.walk(root):
+        # Stage 2 compile-cache warmup creates `.sdd-compile-cache/` in staging
+        # using the local Node binary (ADR-0055); exclude generated cache bytes
+        # from exact source-tree byte comparison.
+        dirnames[:] = [d for d in dirnames if not (Path(dirpath) == Path(root) and d == ".sdd-compile-cache")]
         for name in dirnames + filenames:
             full = os.path.join(dirpath, name)
             rel = Path(full).relative_to(root).as_posix()

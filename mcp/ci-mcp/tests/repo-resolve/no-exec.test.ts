@@ -13,13 +13,13 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Compiled location: dist-test/tests/repo-resolve/. tsconfig.test.json
-// compiles with rootDir "." so dist-test mirrors the whole package layout
-// (dist-test/src/*.js, dist-test/tests/*.js) — walk up 3 levels
-// (repo-resolve -> tests -> dist-test) to the ci-mcp package root, then into
-// the REAL (uncompiled) src/repo-resolve.ts.
+// Compiled location: dist-test/ci-mcp/tests/repo-resolve/. tsconfig.test.json
+// compiles with rootDir ".." (to include ../shared/diagnostics-core.ts) so
+// walk up 4 levels (repo-resolve -> tests -> ci-mcp -> dist-test) to the
+// ci-mcp package root, then into the REAL (uncompiled) src/repo-resolve.ts.
 const SOURCE_PATH = join(
   dirname(fileURLToPath(import.meta.url)),
+  "..",
   "..",
   "..",
   "..",

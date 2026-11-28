@@ -1,0 +1,10 @@
+{
+  "$schema": "https://nodejs.org/dist/v26.13.0/docs/node-config-schema.json",
+  "nodeOptions": {
+    "permission": true,
+    "allow-fs-read": [
+      "*"
+    ],
+    "disable-proto": "throw"
+  }
+}

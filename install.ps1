@@ -1487,6 +1487,19 @@ try {
         }
     }
 
+    # Stage 2 Hybrid Portable Compile Cache warmup inside staging before atomic swap (ADR-0055).
+    $compileCacheScript = Join-Path $stagingRoot "plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs"
+    if ($env:SDD_SKIP_COMPILE_CACHE -ne "1" -and (Get-Command "node" -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath $compileCacheScript -PathType Leaf)) {
+        try {
+            $prevPortable = $env:NODE_COMPILE_CACHE_PORTABLE
+            $env:NODE_COMPILE_CACHE_PORTABLE = "1"
+            & node $compileCacheScript --warmup --root $stagingRoot --cache-dir (Join-Path $stagingRoot ".sdd-compile-cache") 2>$null | Out-Null
+            if ($null -eq $prevPortable) { Remove-Item Env:NODE_COMPILE_CACHE_PORTABLE -ErrorAction SilentlyContinue } else { $env:NODE_COMPILE_CACHE_PORTABLE = $prevPortable }
+        } catch {
+            Write-Warning "compile-cache warmup in staging did not complete; continuing install."
+        }
+    }
+
     if (Test-Path -LiteralPath $InstallRoot) {
         $backupRoot = Join-Path $installParent ("sdd-plugins-backup-" + [guid]::NewGuid())
         Move-Item -LiteralPath $InstallRoot -Destination $backupRoot

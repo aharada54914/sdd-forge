@@ -4,8 +4,8 @@
     "preToolUse": [
       {
         "type": "command",
-        "bash": "root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-$COPILOT_PLUGIN_ROOT}}\"; if [ -z \"$root\" ] || [ ! -f \"$root/scripts/v2/sdd-soft-guard.mjs\" ]; then printf '%s' '{\"permissionDecision\":\"allow\"}'; exit 0; fi; node \"$root/scripts/v2/sdd-soft-guard.mjs\" --emit copilot",
-        "powershell": "$root = $env:CLAUDE_PLUGIN_ROOT; if (-not $root) { $root = $env:PLUGIN_ROOT }; if (-not $root) { $root = $env:COPILOT_PLUGIN_ROOT }; $guard = if ($root) { Join-Path $root 'scripts/v2/sdd-soft-guard.mjs' } else { $null }; if (-not $guard -or -not (Test-Path -LiteralPath $guard)) { [Console]::Out.Write('{\"permissionDecision\":\"allow\"}'); exit 0 }; & node $guard --emit copilot",
+        "bash": "root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-$COPILOT_PLUGIN_ROOT}}\"; if [ -z \"$root\" ] || [ ! -f \"$root/scripts/v2/sdd-soft-guard.mjs\" ]; then printf '%s' '{\"permissionDecision\":\"allow\"}'; exit 0; fi; NODE_COMPILE_CACHE=\"$root/../../.sdd-compile-cache\" NODE_COMPILE_CACHE_PORTABLE=1 NODE_COMPILE_CACHE_READONLY=1 node --config-file=\"$root/config/hook.node.json\" --disallow-code-generation-from-strings --env-file-if-exists=.sdd/env \"$root/scripts/v2/sdd-soft-guard.mjs\" --emit copilot",
+        "powershell": "$root = $env:CLAUDE_PLUGIN_ROOT; if (-not $root) { $root = $env:PLUGIN_ROOT }; if (-not $root) { $root = $env:COPILOT_PLUGIN_ROOT }; $guard = if ($root) { Join-Path $root 'scripts/v2/sdd-soft-guard.mjs' } else { $null }; if (-not $guard -or -not (Test-Path -LiteralPath $guard)) { [Console]::Out.Write('{\"permissionDecision\":\"allow\"}'); exit 0 }; $env:NODE_COMPILE_CACHE = Join-Path $root '../../.sdd-compile-cache'; $env:NODE_COMPILE_CACHE_PORTABLE = '1'; $env:NODE_COMPILE_CACHE_READONLY = '1'; & node \"--config-file=$(Join-Path $root 'config/hook.node.json')\" --disallow-code-generation-from-strings --env-file-if-exists=.sdd/env $guard --emit copilot",
         "timeoutSec": 15
       }
     ]

@@ -184,11 +184,10 @@ test("contract checker enforces component coverage when Context is activated", (
   const scripts = join(fixture.path, "plugins/sdd-quality-loop/scripts");
   const contract = "specs/bootstrap-interviewer-enhancement/verification/T-004.contract.json";
   const checkContract = () => {
-    const windows = process.platform === "win32";
-    const args = windows
-      ? ["-NoProfile", "-File", join(scripts, "check-contract.ps1"), contract, fixture.path]
-      : [join(scripts, "check-contract.sh"), contract, fixture.path];
-    const result = spawnSync(windows ? "powershell.exe" : "sh", args, { cwd: fixture.path, encoding: "utf8" });
+    const result = spawnSync(process.execPath, [join(scripts, "check-contract.ts"), contract, fixture.path], {
+      cwd: fixture.path,
+      encoding: "utf8",
+    });
     if (result.error) throw result.error;
     return { status: result.status, output: result.stdout + result.stderr };
   };

@@ -1618,6 +1618,14 @@ for plugin in sdd-azure-cloud sdd-aws-cloud; do
     done
 done
 
+# Stage 2 Hybrid Portable Compile Cache warmup inside staging before atomic swap (ADR-0055).
+if [[ "${SDD_SKIP_COMPILE_CACHE:-0}" != "1" ]] && command -v node >/dev/null 2>&1 \
+    && [[ -f "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs" ]]; then
+    NODE_COMPILE_CACHE_PORTABLE=1 node "$STAGING_ROOT/plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs" \
+        --warmup --root "$STAGING_ROOT" --cache-dir "$STAGING_ROOT/.sdd-compile-cache" >/dev/null 2>&1 \
+        || echo "Warning: compile-cache warmup in staging did not complete; continuing install." >&2
+fi
+
 # Backup existing install — generate a unique path without pre-creating it
 # so that `mv` renames the directory rather than moving it inside.
 if [[ -d "$INSTALL_ROOT" ]]; then

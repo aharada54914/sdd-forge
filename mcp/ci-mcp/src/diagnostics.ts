@@ -38,8 +38,8 @@
  * the scrubber is defense-in-depth for the single free-form field.
  */
 
-import { defaultSink, scrubKnownSecrets, type StartupInfo, type WriteSink } from "./diagnostics-core.js";
-export type { StartupInfo, WriteSink } from "./diagnostics-core.js";
+import { defaultSink, scrubKnownSecrets, type StartupInfo, type WriteSink } from "../../shared/diagnostics-core.js";
+export type { StartupInfo, WriteSink } from "../../shared/diagnostics-core.js";
 
 /** Provider policy also scrubs Bearer credentials rotated out of the environment. */
 export function scrubMessage(message: string): string {

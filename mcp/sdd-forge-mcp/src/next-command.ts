@@ -1,4 +1,4 @@
-import { isApprovedValue } from "../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
+import { isApprovedValue } from "../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.ts";
 import type { ReportLookup } from './parsers/report-lookup.js';
 /**
  * `get_next_sdd_command`'s deterministic state -> next-command mapping

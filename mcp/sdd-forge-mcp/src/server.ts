@@ -10,7 +10,7 @@
  * once at server startup.
  */
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { DashboardReader } from "./dashboard/snapshot.js";
 import { ok, type Result } from "./envelope.js";
@@ -44,10 +44,20 @@ function toCallToolResult<T>(result: Result<T>): { content: Array<{ type: "text"
 
 /** Builds the SDD Forge MCP v2 server against a fixed, already-resolved root. */
 export function buildServer(root: SddRoot): McpServer {
-  const server = new McpServer({
-    name: "sdd-forge-mcp",
-    version: "2.2.0",
-  });
+  const server = new McpServer(
+    {
+      name: "sdd-forge-mcp",
+      version: "2.2.0",
+    },
+    {
+      cacheHints: {
+        "tools/list": { ttlMs: 300_000, cacheScope: "private" },
+        "resources/list": { ttlMs: 300_000, cacheScope: "private" },
+        "resources/templates/list": { ttlMs: 300_000, cacheScope: "private" },
+        "resources/read": { ttlMs: 5_000, cacheScope: "private" },
+      },
+    },
+  );
 
   server.registerTool(
     "sdd_project_overview",

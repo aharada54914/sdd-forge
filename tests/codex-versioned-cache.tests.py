@@ -55,8 +55,8 @@ class CodexVersionedCacheTests(concept_tests.ConceptTests):
         self.installed = build_versioned_cache(self.cache.name)
 
     def wrapper(self, plugin_root):
-        script = plugin_root / 'scripts/validate-concept-test.sh'
-        return subprocess.run(['sh', str(script), '--root', str(self.root), '--feature', 'example', '--require-v2'],
+        script = plugin_root / 'scripts/validate-concept-test.ts'
+        return subprocess.run(['node', str(script), '--root', str(self.root), '--feature', 'example', '--require-v2'],
                               env=self.env, capture_output=True, text=True, timeout=60)
 
     def gate(self, quality_root):
@@ -102,8 +102,8 @@ class CodexVersionedCacheTests(concept_tests.ConceptTests):
                 self.assertNotIn('#812', check['error'])
                 self.assertNotIn('Git index', check['error'])
 
-    @unittest.expectedFailure  # #812: the wrapper reaches ../../sdd-quality-loop and repo-level contracts/.
     def test_versioned_cache_wrapper_continues(self):
+        # ADR-0055: validate-concept-test.ts is zero-dependency and self-contained, so it runs directly inside Codex's versioned cache!
         result = self.wrapper(self.installed['sdd-domain'])
         self.assertEqual((0, 'CONTINUE'), (result.returncode, result.stdout.strip()), result.stderr)
 
