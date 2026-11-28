@@ -284,7 +284,7 @@ test("a leftover v1 approval without its record is deleted, then the gate re-run
   const indexed = g.afterGate();
   assert.equal(indexed?.command, "human: delete the leftover specs/orders/concept-test.approval.json");
   assert.match(indexed?.rationale ?? "", /インデックス/);
-  assert.doesNotMatch(indexed?.rationale ?? "", /CONTINUE を確認/);
+  assert.match(indexed?.rationale ?? "", /記録がない場合は、削除後にそのまま品質ゲートを再実行/);
 });
 
 test("a Markdown-only v2 proposal needs its companion JSON", t => {
