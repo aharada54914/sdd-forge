@@ -84,6 +84,18 @@ DEFAULT_TARGETS = [
     {"role": "spec-reviewer", "kind": "claude", "path": "plugins/sdd-review-loop/agents/spec-reviewer-b.md", "protected": False},
 ]
 
+# Roles whose agent definitions v2 removed (ADR-0051 decision 2; owner
+# decision 2026-11-28). Their role_defaults stay in the registry for
+# historical fixtures, but an explicit target for one is an input error:
+# nothing is rendered, staged or written.
+RETIRED_ROLES = ("impl-reviewer", "task-reviewer")
+
+
+def reject_retired(role):
+    if role in RETIRED_ROLES:
+        die(f"role {role!r} was retired in v2 and cannot be rendered")
+
+
 MODEL_LINE_RE = re.compile(r'^model:\s*(\S+)\s*$')
 EFFORT_COMMENT_RE = re.compile(r'^<!-- x-sdd-effort: (\S+) -->$')
 CODEX_MODEL_RE = re.compile(r'^# x-sdd-model: \S+$')
@@ -399,9 +411,13 @@ def main():
                 require_string(target[field], field)
             if target["kind"] not in ("claude", "codex") or not isinstance(target["protected"], bool):
                 die("invalid target kind or protected boolean")
+        # Validate every target before any render, so one retired role stops the whole run.
+        for target in targets:
+            reject_retired(target["role"])
 
     if resolve_args is not None:
         role, kind, relpath = resolve_args
+        reject_retired(role)
         print(resolve_write_target(root, targets, role, kind, relpath))
         return 0
 

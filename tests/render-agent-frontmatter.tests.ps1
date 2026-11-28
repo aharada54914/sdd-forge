@@ -10,14 +10,15 @@ $renderPs1 = Join-Path $root 'render-agent-frontmatter.ps1'
 $runAllSh = Join-Path $root 'tests/run-all.sh'
 $runAllPs1 = Join-Path $root 'tests/run-all.ps1'
 $realRegistry = Join-Path $root 'contracts/agent-model-capabilities.v2.json'
-$humanCopyDir = Join-Path $root 'specs/epic-159-pillar-c/human-copy'
-$manifestPath = Join-Path $humanCopyDir 'MANIFEST.sha256'
 
-$protectedRelPaths = @(
-    'plugins/sdd-review-loop/agents/impl-reviewer-a.md',
-    'plugins/sdd-review-loop/agents/impl-reviewer-b.md',
-    'plugins/sdd-review-loop/agents/task-reviewer-a.md',
-    'plugins/sdd-review-loop/agents/task-reviewer-b.md'
+# Q15 (owner decision 2026-11-28): the four v1 reviewer definitions retired in
+# v2 (ADR-0051 decision 2); an explicit render of one is an input error. The
+# protected-target staging checks that used them retired with human-copy.
+$retiredTargets = @(
+    @('impl-reviewer', 'plugins/sdd-review-loop/agents/impl-reviewer-a.md'),
+    @('impl-reviewer', 'plugins/sdd-review-loop/agents/impl-reviewer-b.md'),
+    @('task-reviewer', 'plugins/sdd-review-loop/agents/task-reviewer-a.md'),
+    @('task-reviewer', 'plugins/sdd-review-loop/agents/task-reviewer-b.md')
 )
 $unprotectedClaudeRelPaths = @(
     'plugins/sdd-quality-loop/agents/evaluator.md',
@@ -70,14 +71,8 @@ New-Item -ItemType Directory -Path $tmp -Force | Out-Null
 $tmp = (Resolve-Path $tmp).Path
 
 try {
-    # --- Suite-wide safety proof: never touches the LIVE protected files --
-    $liveProtectedShaBefore = @{}
-    foreach ($rel in $protectedRelPaths) {
-        $liveProtectedShaBefore[$rel] = Get-Sha256OfFile (Join-Path $root $rel)
-    }
-
     # --- Build a scratch mirror of the real production targets -----------
-    foreach ($rel in ($unprotectedClaudeRelPaths + $protectedRelPaths + $codexRelPaths)) {
+    foreach ($rel in ($unprotectedClaudeRelPaths + $codexRelPaths)) {
         $dst = Join-Path $tmp $rel
         $dstDir = Split-Path -Parent $dst
         if (-not (Test-Path $dstDir)) { New-Item -ItemType Directory -Path $dstDir -Force | Out-Null }
@@ -93,7 +88,7 @@ try {
     # have, by design -- AC-017's zero-diff proof requires it). This keeps
     # the suite deterministic and independently re-runnable in CI.
     $effortCommentPattern = '^<!-- x-sdd-effort: \S+ -->$'
-    foreach ($rel in ($unprotectedClaudeRelPaths + $protectedRelPaths)) {
+    foreach ($rel in $unprotectedClaudeRelPaths) {
         $p = Join-Path $tmp $rel
         $lines = Get-Content -Encoding utf8 $p
         $stripped = $lines | Where-Object { $_ -cnotmatch $effortCommentPattern }
@@ -112,7 +107,7 @@ try {
     $modelBefore = @{}
     $shaBefore = @{}
     $lineCountBefore = @{}
-    foreach ($rel in ($unprotectedClaudeRelPaths + $protectedRelPaths)) {
+    foreach ($rel in $unprotectedClaudeRelPaths) {
         $p = Join-Path $tmp $rel
         $line = (Get-Content -Encoding utf8 $p | Where-Object { $_ -cmatch '^model:' } | Select-Object -First 1)
         $modelBefore[$rel] = ($line -replace '^model:\s*', '')
@@ -128,31 +123,26 @@ try {
     # drift, exits non-zero -- run BEFORE any render.
     # =======================================================================
     $checkResult = Invoke-Render -RenderArgs @('-Check', '-RepoRoot', $tmp, '-Registry', $registryDst)
-    if ($checkResult.ExitCode -ne 0) {
-        Test-Ok 'TEST-016: --check exits non-zero on Claude target drift'
+    # v2 ships every default target as `model: inherit`, which the renderer
+    # excludes (TEST-018); drift detection is proven by the TEST-020 pair below.
+    if ($checkResult.ExitCode -eq 0) {
+        Test-Ok "TEST-016: --check exits 0 on the shipped default targets (all inherit the caller's model)"
     } else {
-        Test-Bad 'TEST-016: --check exited 0 despite injected/pre-existing drift'
+        Test-Bad "TEST-016: --check reported drift on the shipped default targets -- $($checkResult.Combined)"
     }
-
-    $driftAllPresent = $true
-    foreach ($rel in ($unprotectedClaudeRelPaths + $protectedRelPaths)) {
-        if ($checkResult.Combined -cnotmatch [regex]::Escape("DRIFT: $rel")) {
-            $driftAllPresent = $false
-        }
+    $defaultOk = $true
+    foreach ($rel in ($unprotectedClaudeRelPaths + $codexRelPaths)) {
+        if ($checkResult.Combined -cnotmatch ('(?m)^' + [regex]::Escape("OK: $rel") + '\r?$')) { $defaultOk = $false }
+        if ($rel -clike '*.md' -and -not ((Get-Content -Encoding utf8 (Join-Path $tmp $rel)) -ccontains 'model: inherit')) { $defaultOk = $false }
     }
-    foreach ($rel in $codexRelPaths) {
-        if ($checkResult.Combined -cnotmatch [regex]::Escape("OK: $rel")) {
-            $driftAllPresent = $false
-        }
-    }
-    if ($driftAllPresent) {
-        Test-Ok 'TEST-016: --check accepts shipped Codex roles and reports un-rendered Claude targets'
+    if ($defaultOk) {
+        Test-Ok "TEST-016: --check reports OK for every default target, and each Claude target inherits the caller's model"
     } else {
-        Test-Bad "TEST-016: --check unexpected default target status -- $($checkResult.Combined)"
+        Test-Bad "TEST-016: unexpected default target status -- $($checkResult.Combined)"
     }
 
     $noWriteDuringCheck = $true
-    foreach ($rel in ($unprotectedClaudeRelPaths + $codexRelPaths + $protectedRelPaths)) {
+    foreach ($rel in ($unprotectedClaudeRelPaths + $codexRelPaths)) {
         if ((Get-Sha256OfFile (Join-Path $tmp $rel)) -cne $shaBefore[$rel]) { $noWriteDuringCheck = $false }
     }
     if ($noWriteDuringCheck -and -not (Test-Path (Join-Path $tmp 'specs'))) {
@@ -162,35 +152,41 @@ try {
     }
 
     # --- TEST-020 mutation-based negative self-check (RED/GREEN pair) ----
+    # A protected-position, explicit-model copy of a current role: synced -> OK,
+    # its x-sdd-effort value mutated -> DRIFT.
+    $mutRel = 'plugins/sdd-review-loop/agents/spec-reviewer-a.md'
     $mutRoot = Join-Path $tmp 'ac020-mutation'
     New-Item -ItemType Directory -Path (Join-Path $mutRoot 'plugins/sdd-review-loop/agents') -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $mutRoot 'contracts') -Force | Out-Null
-    Copy-Item -Path (Join-Path $tmp 'plugins/sdd-review-loop/agents/impl-reviewer-a.md') `
-        -Destination (Join-Path $mutRoot 'plugins/sdd-review-loop/agents/impl-reviewer-a.md') -Force
+    $mutFile = Join-Path $mutRoot $mutRel
+    $explicit = [System.IO.File]::ReadAllText((Join-Path $tmp $mutRel)) -creplace '(?m)^model: inherit$', 'model: fixture-explicit'
+    [System.IO.File]::WriteAllText($mutFile, $explicit, (New-Object System.Text.UTF8Encoding($false)))
+    if (-not ((Get-Content -Encoding utf8 $mutFile) -ccontains 'model: fixture-explicit')) { Test-Bad 'TEST-020: mutation fixture did not get an explicit model line' }
     Copy-Item -Path $registryDst -Destination (Join-Path $mutRoot 'contracts/agent-model-capabilities.v2.json') -Force
     $mutTargetsPath = Join-Path $mutRoot 'targets.json'
-    '[{"role": "impl-reviewer", "kind": "claude", "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md", "protected": true}]' |
+    "[{""role"": ""spec-reviewer"", ""kind"": ""claude"", ""path"": ""$mutRel"", ""protected"": true}]" |
         Out-File -FilePath $mutTargetsPath -Encoding utf8 -NoNewline
 
     $mutRegistry = Join-Path $mutRoot 'contracts/agent-model-capabilities.v2.json'
     Invoke-Render -RenderArgs @('-RepoRoot', $mutRoot, '-TargetsFile', $mutTargetsPath, '-Registry', $mutRegistry) | Out-Null
-    $stagedMut = Join-Path $mutRoot 'specs/epic-159-pillar-c/human-copy/plugins/sdd-review-loop/agents/impl-reviewer-a.md'
-    Copy-Item -Path $stagedMut -Destination (Join-Path $mutRoot 'plugins/sdd-review-loop/agents/impl-reviewer-a.md') -Force
+    Copy-Item -Path (Join-Path $mutRoot (Join-Path 'specs/epic-159-pillar-c/human-copy' $mutRel)) -Destination $mutFile -Force
 
     $green020 = Invoke-Render -RenderArgs @('-Check', '-RepoRoot', $mutRoot, '-TargetsFile', $mutTargetsPath, '-Registry', $mutRegistry)
-    if ($green020.ExitCode -eq 0 -and $green020.Combined -cmatch [regex]::Escape('OK: plugins/sdd-review-loop/agents/impl-reviewer-a.md')) {
+    if ($green020.ExitCode -eq 0 -and $green020.Combined -cmatch [regex]::Escape("OK: $mutRel")) {
         Test-Ok 'TEST-020 GREEN: --check reports OK (no drift) against a correctly-synced protected-position target'
     } else {
         Test-Bad "TEST-020 GREEN: --check did not report OK against a correctly-synced target -- $($green020.Combined)"
     }
 
-    $mutFile = Join-Path $mutRoot 'plugins/sdd-review-loop/agents/impl-reviewer-a.md'
     $mutContent = [System.IO.File]::ReadAllText($mutFile)
-    $mutContent = $mutContent.Replace('<!-- x-sdd-effort: medium -->', '<!-- x-sdd-effort: high -->')
+    $effortMatch = [regex]::Match($mutContent, '<!-- x-sdd-effort: (\S+) -->')
+    if (-not $effortMatch.Success) { Test-Bad 'TEST-020: the synced target carries no x-sdd-effort comment to mutate' }
+    $newEffort = if ($effortMatch.Groups[1].Value -ceq 'low') { 'high' } else { 'low' }
+    $mutContent = $mutContent.Replace($effortMatch.Value, "<!-- x-sdd-effort: $newEffort -->")
     [System.IO.File]::WriteAllText($mutFile, $mutContent, (New-Object System.Text.UTF8Encoding($false)))
 
     $red020 = Invoke-Render -RenderArgs @('-Check', '-RepoRoot', $mutRoot, '-TargetsFile', $mutTargetsPath, '-Registry', $mutRegistry)
-    if ($red020.ExitCode -ne 0 -and $red020.Combined -cmatch [regex]::Escape('DRIFT: plugins/sdd-review-loop/agents/impl-reviewer-a.md')) {
+    if ($red020.ExitCode -ne 0 -and $red020.Combined -cmatch [regex]::Escape("DRIFT: $mutRel")) {
         Test-Ok 'TEST-020 RED (negative self-check): mutating a synced protected-position target x-sdd-effort value turns --check red again'
     } else {
         Test-Bad "TEST-020 RED (negative self-check): mutated target did NOT turn --check red -- $($red020.Combined)"
@@ -199,76 +195,47 @@ try {
     # =======================================================================
     # TEST-019 (AC-019): write-target resolution FUNCTION self-check.
     # =======================================================================
-    $roleForRelpath = @{
-        'plugins/sdd-review-loop/agents/impl-reviewer-a.md' = 'impl-reviewer'
-        'plugins/sdd-review-loop/agents/impl-reviewer-b.md' = 'impl-reviewer'
-        'plugins/sdd-review-loop/agents/task-reviewer-a.md' = 'task-reviewer'
-        'plugins/sdd-review-loop/agents/task-reviewer-b.md' = 'task-reviewer'
-    }
-
     $green019 = $true
-    foreach ($rel in $protectedRelPaths) {
+    $red019 = $true
+    foreach ($rel in $unprotectedClaudeRelPaths) {
         $resolved = (Invoke-Render -RenderArgs @('-ResolveTargetRawPath', $rel, '-ResolveTargetRawProtected', '1')).StdOut.Trim()
-        $expected = (Join-Path $root (Join-Path 'specs/epic-159-pillar-c/human-copy' $rel))
-        if ($resolved -cne $expected) { $green019 = $false }
+        if ($resolved -cne (Join-Path $root (Join-Path 'specs/epic-159-pillar-c/human-copy' $rel))) { $green019 = $false }
+        $resolved = (Invoke-Render -RenderArgs @('-ResolveTargetRawPath', $rel, '-ResolveTargetRawProtected', '0')).StdOut.Trim()
+        if ($resolved -cne (Join-Path $root $rel)) { $red019 = $false }
     }
     if ($green019) {
-        Test-Ok 'TEST-019 GREEN: -ResolveTargetRaw(Protected=1) resolves all four protected basenames under specs/epic-159-pillar-c/human-copy/, never the real path'
+        Test-Ok 'TEST-019 GREEN: -ResolveTargetRaw(Protected=1) resolves under specs/epic-159-pillar-c/human-copy/, never the real path'
     } else {
-        Test-Bad 'TEST-019 GREEN: -ResolveTargetRaw(Protected=1) resolved at least one protected basename OUTSIDE human-copy/'
-    }
-
-    $green019Table = $true
-    foreach ($rel in $protectedRelPaths) {
-        $role = $roleForRelpath[$rel]
-        $resolved = (Invoke-Render -RenderArgs @('-ResolveTargetRole', $role, '-ResolveTargetKind', 'claude', '-ResolveTargetRelPath', $rel)).StdOut.Trim()
-        $expected = (Join-Path $root (Join-Path 'specs/epic-159-pillar-c/human-copy' $rel))
-        if ($resolved -cne $expected) { $green019Table = $false }
-    }
-    if ($green019Table) {
-        Test-Ok 'TEST-019 GREEN (default table): the shipped TARGETS table resolves all four protected basenames to human-copy/'
-    } else {
-        Test-Bad 'TEST-019 GREEN (default table): the shipped TARGETS table failed to classify a protected basename correctly'
-    }
-
-    $red019 = $true
-    foreach ($rel in $protectedRelPaths) {
-        $resolved = (Invoke-Render -RenderArgs @('-ResolveTargetRawPath', $rel, '-ResolveTargetRawProtected', '0')).StdOut.Trim()
-        $expected = (Join-Path $root $rel)
-        if ($resolved -cne $expected) { $red019 = $false }
+        Test-Bad 'TEST-019 GREEN: -ResolveTargetRaw(Protected=1) resolved a target OUTSIDE human-copy/'
     }
     if ($red019) {
-        Test-Ok 'TEST-019 RED (widened/mis-scoped map): forcing Protected=0 on a protected basename resolves to the REAL path -- proves the resolution function is live'
+        Test-Ok 'TEST-019 RED: forcing Protected=0 resolves to the REAL path -- the resolution function is live'
     } else {
-        Test-Bad 'TEST-019 RED (widened/mis-scoped map): forcing Protected=0 did NOT resolve to the real path'
+        Test-Bad 'TEST-019 RED: forcing Protected=0 did NOT resolve to the real path'
     }
+    $q15Resolve = $true
+    foreach ($entry in $retiredTargets) {
+        $r = Invoke-Render -RenderArgs @('-ResolveTargetRole', $entry[0], '-ResolveTargetKind', 'claude', '-ResolveTargetRelPath', $entry[1])
+        if ($r.ExitCode -eq 0 -or -not $r.Combined.Contains("role '$($entry[0])' was retired in v2 and cannot be rendered")) { $q15Resolve = $false }
+    }
+    if ($q15Resolve) { Test-Ok 'Q15: -ResolveTargetRole refuses all four retired reviewer targets' }
+    else { Test-Bad 'Q15: -ResolveTargetRole resolved a retired reviewer target' }
 
     # =======================================================================
     # TEST-014/015/017: real render against the scratch mirror.
     # =======================================================================
     Invoke-Render -RenderArgs @('-RepoRoot', $tmp, '-Registry', $registryDst) | Out-Null
 
-    $expectedEffort = @{
-        'plugins/sdd-quality-loop/agents/evaluator.md'          = 'medium'
-        'plugins/sdd-bootstrap/agents/investigator.md'          = 'low'
-        'plugins/sdd-review-loop/agents/spec-reviewer-a.md'     = 'medium'
-        'plugins/sdd-review-loop/agents/spec-reviewer-b.md'     = 'medium'
-    }
+    # Every shipped Claude target inherits the caller's model, so a render
+    # leaves it byte-identical (AC-018 exclusion).
     $test014Ok = $true
     foreach ($rel in $unprotectedClaudeRelPaths) {
-        $p = Join-Path $tmp $rel
-        $line = (Get-Content -Encoding utf8 $p | Where-Object { $_ -cmatch '^model:' } | Select-Object -First 1)
-        $modelAfter = ($line -replace '^model:\s*', '')
-        if ($modelAfter -cne $modelBefore[$rel]) { $test014Ok = $false }
-        $content = [System.IO.File]::ReadAllText($p)
-        if ($content -cnotmatch [regex]::Escape("<!-- x-sdd-effort: $($expectedEffort[$rel]) -->")) { $test014Ok = $false }
-        $afterCount = (Get-Content -Encoding utf8 $p).Count
-        if (($afterCount - $lineCountBefore[$rel]) -ne 1) { $test014Ok = $false }
+        if ((Get-Sha256OfFile (Join-Path $tmp $rel)) -cne $shaBefore[$rel]) { $test014Ok = $false }
     }
     if ($test014Ok) {
-        Test-Ok 'TEST-014: unprotected Claude .md targets keep model: unchanged and gain exactly one x-sdd-effort comment line'
+        Test-Ok 'TEST-014: a render leaves every shipped (inherit) Claude target byte-identical'
     } else {
-        Test-Bad 'TEST-014: unprotected Claude .md render produced an unexpected diff'
+        Test-Bad "TEST-014: a render changed a shipped Claude target that inherits the caller's model"
     }
 
     $expectedCodexModel = @{
@@ -307,31 +274,10 @@ try {
         Test-Bad 'TEST-017: render against real production content changed a model: value unexpectedly'
     }
 
-    $test019WriteOk = $true
-    foreach ($rel in $protectedRelPaths) {
-        if ((Get-Sha256OfFile (Join-Path $tmp $rel)) -cne $shaBefore[$rel]) { $test019WriteOk = $false }
-    }
-    if ($test019WriteOk) {
-        Test-Ok 'TEST-019: a full render pass left all four protected-position targets byte-unchanged at their real path'
+    if (-not (Test-Path (Join-Path $tmp 'specs'))) {
+        Test-Ok 'TEST-019: a full default render staged nothing under specs/ (no protected default target)'
     } else {
-        Test-Bad 'TEST-019: a full render pass modified a protected-position target real path'
-    }
-
-    $test019StagedOk = $true
-    foreach ($rel in $protectedRelPaths) {
-        $staged = Join-Path $tmp (Join-Path 'specs/epic-159-pillar-c/human-copy' $rel)
-        if (-not (Test-Path $staged)) { $test019StagedOk = $false; continue }
-        $content = [System.IO.File]::ReadAllText($staged)
-        if ($content -cnotmatch [regex]::Escape('<!-- x-sdd-effort: medium -->')) { $test019StagedOk = $false }
-        $stagedSha = Get-Sha256OfFile $staged
-        $manifestScratch = Join-Path $tmp 'specs/epic-159-pillar-c/human-copy/MANIFEST.sha256'
-        $manifestText = [System.IO.File]::ReadAllText($manifestScratch)
-        if ($manifestText -cnotmatch [regex]::Escape("$stagedSha  $rel")) { $test019StagedOk = $false }
-    }
-    if ($test019StagedOk) {
-        Test-Ok 'TEST-019: corrected content for all four protected targets staged under human-copy/ with a matching MANIFEST.sha256 entry'
-    } else {
-        Test-Bad 'TEST-019: staged protected-target content or its MANIFEST.sha256 entry is missing/incorrect'
+        Test-Bad 'TEST-019: a full default render created a staging directory'
     }
 
     # =======================================================================
@@ -376,12 +322,7 @@ Body text unaffected.
         Test-Bad 'TEST-016: tests/validate-repository.ps1 does not invoke render-agent-frontmatter --check'
     }
 
-    $stagedTestYml = Join-Path $humanCopyDir '.github/workflows/test.yml'
-    if ((Test-Path $stagedTestYml) -and (Select-String -Path $stagedTestYml -Pattern 'render-agent-frontmatter' -Quiet)) {
-        Test-Ok 'TEST-016: the staged .github/workflows/test.yml candidate registers this suite CI step(s)'
-    } else {
-        Test-Bad 'TEST-016: the staged .github/workflows/test.yml candidate does not reference render-agent-frontmatter'
-    }
+    # The staged test.yml candidate check retired with the human-copy procedure.
 
     # =======================================================================
     # Mis-cased registry fixtures.
@@ -433,6 +374,14 @@ Body text unaffected.
     }
 
     # =======================================================================
+    # The shipped evaluator inherits the caller's model; the override checks
+    # render an explicit-model copy of it.
+    $explicitEvaluator = Join-Path $tmp 'explicit-evaluator.md'
+    $explicitText = [System.IO.File]::ReadAllText((Join-Path $tmp 'plugins/sdd-quality-loop/agents/evaluator.md')) -creplace '(?m)^model: inherit$', 'model: fixture-explicit'
+    [System.IO.File]::WriteAllText($explicitEvaluator, $explicitText, (New-Object System.Text.UTF8Encoding($false)))
+    $overrideTargets = Join-Path $tmp 'override-targets.json'
+    '[{"role": "sdd-evaluator", "kind": "claude", "path": "explicit-evaluator.md", "protected": false}]' |
+        Out-File -FilePath $overrideTargets -Encoding utf8 -NoNewline
     $overrideCases = [ordered]@{
         absent = $null
         null = $null
@@ -451,9 +400,9 @@ Body text unaffected.
         }
         $casePath = Join-Path $tmp "override-$caseName.json"
         $registry | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $casePath -Encoding utf8
-        $result = Invoke-Render -RenderArgs @('-RepoRoot', $tmp, '-TargetsFile', $miscasedTargets, '-Registry', $casePath)
+        $result = Invoke-Render -RenderArgs @('-RepoRoot', $tmp, '-TargetsFile', $overrideTargets, '-Registry', $casePath)
         if ($caseName -ceq 'absent') {
-            $content = Get-Content -LiteralPath (Join-Path $tmp 'plugins/sdd-quality-loop/agents/evaluator.md') -Raw
+            $content = Get-Content -LiteralPath $explicitEvaluator -Raw
             if ($result.ExitCode -eq 0 -and $content -cmatch '(?m)^model: opus\r?$' -and
                 $content -cmatch '(?m)^<!-- x-sdd-effort: high -->\r?$') {
                 Test-Ok 'Claude override absent preserves base role defaults'
@@ -494,22 +443,55 @@ Body text unaffected.
     }
 
     # =======================================================================
-    # Human-copy staging: five protected real targets.
+    # Q15 (owner decision 2026-11-28): see the bash twin. Every retired
+    # reviewer render/check is refused, protected or not, alone or mixed with
+    # a valid target; mis-cased roles are unknown roles. Nothing is written
+    # and nothing is staged.
     # =======================================================================
-    $stagedAllRelPaths = $protectedRelPaths + @('.github/workflows/test.yml')
-    $humanCopyOk = $true
-    foreach ($rel in $stagedAllRelPaths) {
-        $staged = Join-Path $humanCopyDir $rel
-        if (-not (Test-Path $staged)) { $humanCopyOk = $false; continue }
-        $stagedSha = Get-Sha256OfFile $staged
-        $manifestText = [System.IO.File]::ReadAllText($manifestPath)
-        if ($manifestText -cnotmatch [regex]::Escape("$stagedSha  $rel")) { $humanCopyOk = $false }
+    $q15Root = Join-Path $tmp 'q15-retired'
+    New-Item -ItemType Directory -Path (Join-Path $q15Root 'plugins/sdd-review-loop/agents') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $q15Root 'plugins/sdd-quality-loop/agents') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $q15Root 'contracts') -Force | Out-Null
+    Copy-Item -Path $realRegistry -Destination (Join-Path $q15Root 'contracts/agent-model-capabilities.v2.json') -Force
+    Copy-Item -Path (Join-Path $tmp 'plugins/sdd-quality-loop/agents/evaluator.md') -Destination (Join-Path $q15Root 'plugins/sdd-quality-loop/agents/evaluator.md') -Force
+    $q15Registry = Join-Path $q15Root 'contracts/agent-model-capabilities.v2.json'
+    $q15Table = Join-Path $q15Root 'targets.json'
+    function Get-Q15State {
+        $items = Get-ChildItem -LiteralPath $q15Root -Recurse -File | Where-Object { $_.Name -cne 'targets.json' } | Sort-Object FullName
+        return (($items | ForEach-Object { $_.FullName + '=' + (Get-Sha256OfFile $_.FullName) }) -join "`n")
     }
-    if ($humanCopyOk) {
-        Test-Ok 'human-copy: all five staged candidates (four reviewer .md + test.yml) exist with a correct MANIFEST.sha256 entry'
-    } else {
-        Test-Bad 'human-copy: at least one staged candidate or its MANIFEST.sha256 entry is missing/incorrect'
+    $q15Ok = $true
+    $q15Cases = 0
+    foreach ($entry in $retiredTargets) {
+        $role = $entry[0]; $rel = $entry[1]
+        $name = [System.IO.Path]::GetFileNameWithoutExtension($rel)
+        [System.IO.File]::WriteAllText((Join-Path $q15Root $rel), "---`nname: $name`nmodel: opus`n---`nRetired v1 reviewer fixture.`n", (New-Object System.Text.UTF8Encoding($false)))
+        $misCased = $role.Substring(0, 1).ToUpperInvariant() + $role.Substring(1)
+        $tables = [ordered]@{
+            protected = "[{""role"": ""$role"", ""kind"": ""claude"", ""path"": ""$rel"", ""protected"": true}]"
+            unprotected = "[{""role"": ""$role"", ""kind"": ""claude"", ""path"": ""$rel"", ""protected"": false}]"
+            mixed = "[{""role"": ""sdd-evaluator"", ""kind"": ""claude"", ""path"": ""plugins/sdd-quality-loop/agents/evaluator.md"", ""protected"": false}, {""role"": ""$role"", ""kind"": ""claude"", ""path"": ""$rel"", ""protected"": false}]"
+            'mis-cased' = "[{""role"": ""$misCased"", ""kind"": ""claude"", ""path"": ""$rel"", ""protected"": false}]"
+        }
+        foreach ($variant in $tables.Keys) {
+            [System.IO.File]::WriteAllText($q15Table, $tables[$variant])
+            $expected = if ($variant -ceq 'mis-cased') { 'role_defaults missing or incomplete' } else { 'was retired in v2 and cannot be rendered' }
+            foreach ($mode in @('render', 'check')) {
+                $before = Get-Q15State
+                $renderArgs = @('-RepoRoot', $q15Root, '-TargetsFile', $q15Table, '-Registry', $q15Registry)
+                if ($mode -ceq 'check') { $renderArgs = @('-Check') + $renderArgs }
+                $r = Invoke-Render -RenderArgs $renderArgs
+                $q15Cases++
+                if ($r.ExitCode -eq 0 -or -not $r.Combined.Contains('RENDER_ERROR') -or -not $r.Combined.Contains($expected) -or
+                    (Get-Q15State) -cne $before -or (Test-Path (Join-Path $q15Root 'specs'))) {
+                    $q15Ok = $false
+                    Write-Host "Q15 case failed: $rel $variant $mode exit=$($r.ExitCode) $($r.Combined)"
+                }
+            }
+        }
     }
+    if ($q15Ok -and $q15Cases -eq 32) { Test-Ok 'Q15: all 32 retired-reviewer render/check cases are refused with nothing written or staged' }
+    else { Test-Bad "Q15: a retired-reviewer render was accepted or wrote something ($q15Cases cases)" }
 
     # Actual parser controls: PowerShell must not coerce arrays or key casing.
     foreach ($variant in @('schema-array','schema-case','root-array','models-object','role-array','effort-array','name-array','effort-newline','effort-unknown','tier-array','model-newline','model-control')) {
@@ -560,15 +542,6 @@ Body text unaffected.
     if ($r.ExitCode -eq 0 -and $r.Combined -match '0 targets, 0 drift') { Test-Ok 'literal bracket paths for repo, registry and targets' }
     else { Test-Bad "literal bracket paths (exit $($r.ExitCode)): $($r.Combined)" }
 
-    $liveProtectedUnchanged = $true
-    foreach ($rel in $protectedRelPaths) {
-        if ((Get-Sha256OfFile (Join-Path $root $rel)) -cne $liveProtectedShaBefore[$rel]) { $liveProtectedUnchanged = $false }
-    }
-    if ($liveProtectedUnchanged) {
-        Test-Ok 'AC-019/AC-027-style: the four live protected reviewer .md files are byte-unchanged before/after this suite own run'
-    } else {
-        Test-Bad 'AC-019/AC-027-style: a live protected reviewer .md file CHANGED during this suite own run'
-    }
 } finally {
     Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue
 }

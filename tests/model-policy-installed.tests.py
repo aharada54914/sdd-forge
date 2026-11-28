@@ -92,6 +92,38 @@ def tree(root):
             for p in root.rglob('*') if p.is_file() and not p.is_symlink()}
 
 
+# 2026-11-28 owner decision (T-010, ADR-0051 decision 2): 25 tests retired here.
+# Each drove a v1 managed-model caller fence that v2 removed: the retired
+# sdd-bootstrap-interviewer, spec-review-loop and quality-gate skills, ship
+# lite, and the v1 pre-work dispatchers in diagnose, implement-tasks and
+# wfi-audit-cycle (rewritten without them in v2). Helper classes stay because
+# the remaining tests compose their fixtures. Retired:
+#   InstalledClaudeBatchTests.test_definition_reuses_original_selection_errors_and_rejects_missing_forwarding
+#   InstalledClaudeBatchTests.test_installed_definition_forwards_bound_full_native_controls_without_per_call_aliases
+#   InstalledClaudeBatchTests.test_maintained_unknown_startup_fence_is_typed_and_cannot_enter_fallback_or_work
+#   InstalledClaudeDelegationTests.test_implementation_delegation_executes_selected_readonly_investigation
+#   InstalledClaudeDiagnosisTests.test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure
+#   InstalledClaudeImplementerTests.test_ship_lite_dispatches_one_selected_single_task_implementation
+#   InstalledClaudeInvestigatorTests.test_caller_adoption_cannot_promote_production_candidates_into_installed_work
+#   InstalledClaudeInvestigatorTests.test_domain_reverse_router_preserves_single_delegation_and_seed_failure_boundary
+#   InstalledClaudeInvestigatorTests.test_indirect_investigator_callers_execute_one_managed_work_handoff
+#   InstalledClaudeInvestigatorTests.test_investigator_entry_blocks_invalid_bound_inputs_before_work
+#   InstalledClaudeInvestigatorTests.test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity
+#   InstalledClaudeInvestigatorTests.test_maintained_investigator_entry_selects_before_one_fresh_work_allocation
+#   InstalledClaudeWfiTests.test_maintained_wfi_fences_deliver_original_a_then_revised_b_through_both_installers
+#   InstalledDefaultNativeCallerCandidateTests.test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch
+#   InstalledDefaultNativeCallerCandidateTests.test_each_managed_caller_role_and_host_executes_installed_typed_stop_before_any_work
+#   InstalledDomainCallerTests.test_maintained_domain_copilot_auto_route_is_typed_model_unavailable_before_allocation
+#   InstalledDomainCallerTests.test_maintained_domain_fence_blocks_drift_identity_and_guard_violations_and_keeps_legacy_without_forwarding
+#   InstalledDomainCallerTests.test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending
+#   InstalledQualityCallerTests.test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation
+#   InstalledQualityCallerTests.test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation
+#   InstalledQualityCallerTests.test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation
+#   InstalledSpecCallerTests.test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation
+#   InstalledSpecCallerTests.test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation
+#   InstalledSpecCallerTests.test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle
+#   InstalledSpecCallerTests.test_maintained_spec_pair_preserves_sanitized_boundary_and_both_retrospective_bindings
+
 class ManagedFixture(LaunchFixture):
     """T-007 LaunchFixture plus both renderers and the role files exercised by the suite."""
     host = launch.HOST
@@ -321,70 +353,21 @@ class ManagedClaudeRoles(ManagedFixture):
                     self.rejected(result, {'config-conflict', 'model-unavailable', 'discovery-unavailable'})
                     self.assertEqual(tree(self.root), before)
 
-    def test_protected_reviewers_stage_exact_current_copy_and_raw_pin(self):
-        self.require_protected_sources()
-        for rel, role in PROTECTED.items():
-            resolved = self.bind(role)
-            for shell in SHELLS:
-                with self.subTest(target=rel, shell=shell):
-                    staged = self.root / CURRENT / rel
-                    manifest = self.root / CURRENT / 'MANIFEST.sha256'
-                    self.assert_drift(shell, rel)
-                    before = tree(self.root)
-                    result = self.render(shell, rel)
-                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr[-800:])
-                    self.assertIn('STAGED:', result.stdout)
-                    after = tree(self.root)
-                    self.assertEqual({k: after.get(k) for k in before}, before,
-                                     'live protected roles/skills and frozen human-copy must be unchanged')
-                    self.assertEqual(set(after) - set(before), {CURRENT + '/' + rel, CURRENT + '/MANIFEST.sha256'})
-                    fields, body = frontmatter(staged.read_text(encoding='utf-8'))
-                    old, old_body = frontmatter(self.originals[rel].decode('utf-8'))
-                    self.assertEqual((fields.get('model'), fields.get('effort')),
-                                     (resolved['native_id'], resolved['effort']))
-                    self.assertEqual({k: v for k, v in fields.items() if k not in ('model', 'effort')},
-                                     {k: v for k, v in old.items() if k not in ('model', 'effort')})
-                    self.assertEqual(body, old_body)
-                    self.assertEqual(manifest.read_text(), hashlib.sha256(staged.read_bytes()).hexdigest() + '  ' + rel + '\n')
-                    clean = tree(self.root)
-                    self.assertEqual(self.render(shell, rel, check=True).returncode, 0)
-                    self.assertEqual(tree(self.root), clean)
-                    # Native staged effort drift and manifest-only corruption must both be detected.
-                    raw = staged.read_bytes()
-                    self.assertNotEqual(resolved['effort'], 'low')
-                    staged.write_text(re.sub(r'(?m)^effort:.*$', 'effort: low', raw.decode('utf-8')))
-                    self.assert_drift(shell, rel)
-                    staged.write_bytes(raw)
-                    manifest.write_text('0' * 64 + '  ' + rel + '\n')
-                    self.assert_drift(shell, rel)
-                    manifest.write_text(hashlib.sha256(raw).hexdigest() + '  ' + rel.upper() + '\n')
-                    self.assert_drift(shell, rel)
-                    staged.unlink()
-                    manifest.unlink()
+    def test_retired_reviewers_are_rejected_without_writing_or_staging(self):
+        """Q15 (owner decision 2026-11-28): the four v1 reviewer definitions retired in v2.
+
+        Their managed render is an input error: the original stays byte-identical
+        and no human-copy staging or manifest is created, on both shells."""
+        self.bind('evaluator')  # real bound controls, so only the target can be refused
         for shell in SHELLS:
-            with self.subTest(shell=shell, case='manifest-upsert-and-idempotence'):
-                expected = {}
-                for rel in list(PROTECTED)[:2]:
-                    self.bind(PROTECTED[rel])
-                    self.assertEqual(self.render(shell, rel).returncode, 0)
-                    staged = self.root / CURRENT / rel
-                    self.assertTrue(staged.is_file(), 'managed render did not create the protected proposal')
-                    expected[rel] = hashlib.sha256(staged.read_bytes()).hexdigest()
-                    manifest = self.root / CURRENT / 'MANIFEST.sha256'
-                    self.assertTrue(manifest.is_file(), 'managed render did not create the current manifest')
-                    entries = [line.split('  ', 1) for line in manifest.read_text().splitlines()]
-                    self.assertEqual(len(entries), len(expected), 'no duplicate manifest entries')
-                    self.assertEqual({path: digest for digest, path in entries}, expected)
-                    before = tree(self.root)
-                    self.assertEqual(self.render(shell, rel).returncode, 0)
-                    self.assertEqual(self.render(shell, rel, check=True).returncode, 0)
-                    self.assertEqual(tree(self.root), before, 'repeated render is byte-idempotent')
-                for rel in expected:
-                    self.assertTrue((self.root / CURRENT / rel).is_file(), 'existing protected proposal was removed')
-                    self.assertEqual(hashlib.sha256((self.root / CURRENT / rel).read_bytes()).hexdigest(),
-                                     expected[rel], 'staging another role preserves the existing proposal')
-                    (self.root / CURRENT / rel).unlink()
-                manifest.unlink()
+            for rel in PROTECTED:
+                for target in (rel, rel.replace('reviewer', 'Reviewer')):
+                    with self.subTest(shell=shell, target=target):
+                        before = tree(self.root)
+                        self.rejected(self.render(shell, target), 'input-invalid')
+                        self.rejected(self.render(shell, target, check=True), 'input-invalid')
+                        self.assertEqual(tree(self.root), before, 'a retired reviewer render must write nothing')
+                        self.assertFalse((self.root / CURRENT).exists(), 'a retired reviewer must never be staged')
 
     def test_managed_controls_reject_each_field_mismatch(self):
         rel = 'plugins/sdd-quality-loop/agents/evaluator.md'
@@ -491,54 +474,6 @@ class ManagedClaudeRoles(ManagedFixture):
                 finally:
                     target.unlink()
                     target.write_bytes(original)
-
-    def test_protected_staging_rejects_symlink(self):
-        self.require_protected_sources()
-        for shell in SHELLS:
-            protected_rel = 'plugins/sdd-review-loop/agents/impl-reviewer-a.md'
-            for case in ('staging-ancestor', 'staged-target', 'manifest'):
-                with self.subTest(shell=shell, staging_symlink=case):
-                    resolved = self.bind('impl-reviewer-a')
-                    self.assertEqual(self.render(shell, protected_rel).returncode, 0)
-                    current = self.root / CURRENT
-                    staged = current / protected_rel
-                    manifest = current / 'MANIFEST.sha256'
-                    self.assertTrue(staged.is_file(), 'positive protected render must create staged target')
-                    self.assertTrue(manifest.is_file(), 'positive protected render must create manifest')
-                    fields = frontmatter(staged.read_text())[0]
-                    self.assertEqual((fields.get('model'), fields.get('effort')),
-                                     (resolved['native_id'], resolved['effort']))
-                    self.assertEqual(self.render(shell, protected_rel, check=True).returncode, 0)
-                    outside = self.base / ('stage-outside-' + shell + '-' + case)
-                    if case == 'staging-ancestor':
-                        target = current.parent
-                        saved = self.base / ('saved-staging-' + shell)
-                        target.rename(saved)
-                        shutil.copytree(saved, outside)
-                        outside_before = tree(outside)
-                        target.symlink_to(outside, target_is_directory=True)
-                    else:
-                        target = staged if case == 'staged-target' else manifest
-                        original = target.read_bytes()
-                        outside.write_bytes(original)
-                        target.unlink()
-                        target.symlink_to(outside)
-                    try:
-                        before = tree(self.root)
-                        self.rejected(self.render(shell, protected_rel), launch.MISMATCH)
-                        self.assertEqual(tree(self.root), before)
-                        self.assertTrue(target.is_symlink())
-                        if case == 'staging-ancestor':
-                            self.assertEqual(tree(outside), outside_before)
-                        else:
-                            self.assertEqual(outside.read_bytes(), original)
-                    finally:
-                        target.unlink()
-                        if case == 'staging-ancestor':
-                            saved.rename(target)
-                        else:
-                            target.write_bytes(original)
-
 
     def test_crlf_claude_native_fields_preserve_body_bytes(self):
         rel = 'plugins/sdd-quality-loop/agents/evaluator.md'
@@ -2006,265 +1941,8 @@ class InstalledClaudeInvestigatorTests(unittest.TestCase):
         self.assertNotRegex(script, r'<[a-z][a-z-]*>', 'unresolved caller fixture placeholder')
         return script
 
-    def test_maintained_investigator_entry_selects_before_one_fresh_work_allocation(self):
-        for shell in SHELLS:
-            installed = self.prep.install(shell)
-            self.prep.claude_positive(installed, self.prep.output())  # actual current configuration-only setup positive
-            for name in [INVESTIGATION_AGENT, *INVESTIGATION_SOURCES]:
-                self.assertTrue((installed / name).is_file(), 'installed investigator workload source is missing: ' + name)
-                self.assertEqual((installed / name).read_bytes(), (ROOT / name).read_bytes())
-            self.fresh_session()
-            output = self.prep.output()
-            script = self.fence(installed, output)
-            self.reset_events()
-            result = self.case.run_process([launch.BASH, '-c', script], timeout=120, label='maintained investigator caller')
-            self.assert_work(result, output)
-            self.assertEqual([e['event'] for e in self.events()].count('work'), 1)
-            # A genuine configuration-only call still succeeds, but cannot satisfy the work-result oracle.
-            legacy_output = self.prep.output()
-            legacy = self.fence(installed, legacy_output).replace('claude-entry', 'claude-prepare')
-            legacy = legacy.replace('--prompt-file ' + shlex.quote(self.prompt), '')
-            legacy = legacy.replace('--prompt-sha256 ' + launch.sha_file(self.case.root / self.prompt), '')
-            self.reset_events()
-            legacy_result = self.case.run_process([launch.BASH, '-c', legacy], timeout=120, label='configuration-only counterfactual')
-            self.assertEqual(legacy_result.returncode, 0, legacy_result.stderr[:1000])
-            self.assertNotIn('result', json.loads(legacy_result.stdout))
-            self.assertEqual([e for e in self.events() if e['event'] == 'work'], [])
-
-    def test_caller_adoption_cannot_promote_production_candidates_into_installed_work(self):
-        case = self.case
-        production_raw = (ROOT / launch.TRUSTED_POLICY).read_bytes()
-        production = json.loads(production_raw)
-        claude_models = [model for model in production['models'] if 'claude-code' in model['hosts']]
-        self.assertTrue(claude_models)
-        self.assertTrue(all(model['lifecycle'] == 'candidate' and not model['adoption']
-                            for model in claude_models), 'this regression uses the unadopted production policy')
-        # Restore production authority ONLY in the disposable trusted package.
-        # The caller still supplies its forged current/adoption fixture policy.
-        case.authorize_fixture_policy(production)
-        self.assertNotEqual(case.trusted_policy_raw(), launch.canonical(case.policy))
-        for shell in SHELLS:
-            with self.subTest(installer=shell):
-                installed = self.prep.install(shell)
-                self.assertEqual((installed / launch.TRUSTED_POLICY).read_bytes(), case.trusted_policy_raw())
-                self.fresh_session()
-                self.prep.reset_calls()
-                output = self.prep.output()
-                self.reset_events()
-                case.rejected(self.invoke(installed, output), 'config-conflict')
-                self.assertEqual([event for event in self.events() if event['event'] == 'work'], [],
-                                 'untrusted adoption reached native model work')
-                self.assertLessEqual({event['event'] for event in self.events()}, {'help', 'version'})
-                self.prep.assert_discovery_only()
-                for artifact in ('native-result.json', 'validation.json'):
-                    self.assertFalse((case.root / output / artifact).exists())
-                self.assertEqual({name: (case.root / name).read_bytes() for name in self.initial_inputs},
-                                 self.initial_inputs, 'rejected caller policy or work inputs changed')
-                self.prep.assert_unchanged_world()
-        self.assertEqual((ROOT / launch.TRUSTED_POLICY).read_bytes(), production_raw,
-                         'fixture setup or execution changed the production policy')
-
-    def test_investigator_entry_blocks_invalid_bound_inputs_before_work(self):
-        # Installer omissions have independent actual Red even before the new work command exists.
-        installed: dict[str, Path] = {}
-        for shell in SHELLS:
-            installed[shell] = self.prep.install(shell)
-            self.prep.claude_positive(installed[shell], self.prep.output())
-            for index, missing in enumerate([INVESTIGATION_AGENT, *INVESTIGATION_SOURCES]):
-                with self.subTest(shell=shell, missing_dependency=missing):
-                    package = self.case.build_package('missing-inv-' + shell + '-' + str(index), omit=missing)
-                    destination = self.case.base / ('missing-inv-install-' + shell + '-' + str(index))
-                    result = self.case.run_installer(shell, package, destination)
-                    self.assertNotEqual(result.returncode, 0, 'installer accepted an incomplete investigator runtime')
-                    self.assertFalse(destination.exists(), 'incomplete runtime was published')
-        root = installed['bash']
-        self.reset_events()
-        self.fresh_session()
-        output = self.prep.output()
-        self.assert_work(self.invoke(root, output), output)
-        cases = [('wrong-role', {'role': 'evaluator'}, 'model-unavailable'),
-                 ('wrong-host', {'host': 'codex-cli'}, 'model-unavailable'),
-                 ('unsupported-required-identity', {'require_actual_id': 'true'}, 'actual-id-unavailable'),
-                 ('wrong-work-pin', {'prompt_sha': '0' * 64}, 'input-invalid'),
-                 ('invalid-native-session', {'session_id': 'not-a-uuid'}, 'input-invalid')]
-        for label, options, reason in cases:
-            with self.subTest(blocked=label):
-                self.assert_blocked(root, self.prep.output(), reason, **options)
-        setting = self.case.root / '.claude/settings.local.json'
-        original = setting.read_bytes()
-        for key, value, reason in [('maxEffortLevel', 'low', 'effort-unavailable'),
-                                   ('env', {'CLAUDE_CODE_EFFORT_LEVEL': 'low'}, 'native-precedence-conflict')]:
-            with self.subTest(blocked=key):
-                setting.write_text(json.dumps({key: value}) + '\n')
-                try:
-                    self.assert_blocked(root, self.prep.output(), reason)
-                finally:
-                    setting.write_bytes(original)
-        # Missing own installed workload data must not fall back to the project or source package.
-        reference = root / INVESTIGATION_SOURCES[-1]
-        raw, mode = reference.read_bytes(), reference.stat().st_mode & 0o777
-        reference.unlink()
-        try:
-            self.assert_blocked(root, self.prep.output(), 'input-invalid')
-        finally:
-            reference.write_bytes(raw)
-            reference.chmod(mode)
-        for path in (reference, self.case.root / self.prompt):
-            with self.subTest(blocked='source-drift-during-help', path=path.name):
-                raw = path.read_bytes()
-                self.spec['edit_on_help'] = [{'path': str(path), 'text': 'changed during harmless help\n'}]
-                self.save_spec()
-                try:
-                    self.assert_blocked(root, self.prep.output(), 'input-invalid')
-                finally:
-                    path.write_bytes(raw)
-                    self.spec.pop('edit_on_help')
-                    self.save_spec()
-        original_help = self.spec['help']
-        self.spec['help'] = original_help.replace('--tools <tools...>', '--unrelated-carrier <tools...>')
-        self.save_spec()
-        try:
-            self.assert_blocked(root, self.prep.output(), 'config-invalid')
-        finally:
-            self.spec['help'] = original_help
-            self.save_spec()
-        self.prep.write_cli(self_edit=True)  # genuine executable raw drift, not a mocked recheck
-        self.assert_blocked(root, self.prep.output(), 'input-invalid')
-
-    def test_investigator_entry_preserves_permissions_and_reports_only_fixture_identity(self):
-        installed = self.prep.install('bash')
-        permissions = {path: path.read_bytes() for path in (self.case.home / '.claude/settings.json',
-                       self.case.root / '.claude/settings.json', self.case.root / '.claude/settings.local.json')}
-        self.fresh_session()
-        self.reset_events()
-        output = self.prep.output()
-        public = self.assert_work(self.invoke(installed, output), output)
-        self.assertIn('fixture-aggregate-must-not-become-actual-id', public['modelUsage'])
-        work = next(event for event in self.events() if event['event'] == 'work')
-        for flag in ('--allowedTools', '--permission-mode', '--dangerously-skip-permissions', '--settings', '--setting-sources',
-                     '--strict-mcp-config', '--mcp-config', '--continue', '--resume'):
-            self.assertNotIn(flag, work['argv'])
-        self.assertEqual({path: path.read_bytes() for path in permissions}, permissions)
-        self.reset_events()
-        replay_output = self.prep.output()
-        self.case.rejected(self.invoke(installed, replay_output), 'model-unverified')
-        self.assertEqual([e for e in self.events() if e['event'] == 'work'], [], 'existing session must not be resumed')
-        self.assertFalse((self.case.root / replay_output / 'validation.json').exists())
-        self.fresh_session()
-        self.spec['reject_work'] = True
-        self.save_spec()
-        self.reset_events()
-        output = self.prep.output()
-        result = self.invoke(installed, output)
-        self.case.rejected(result, 'model-unverified')
-        self.assertEqual([e['event'] for e in self.events()].count('work'), 1, 'a failed work call must not retry/fallback')
-        self.assertFalse((self.case.root / output / 'validation.json').exists())
-        self.assertFalse((self.case.root / output / 'native-result.json').exists())
-        self.spec.pop('reject_work')
-        for mode in ('malformed', 'error-with-zero-exit', 'empty-result', 'wrong-session', 'overflow'):
-            with self.subTest(public_result=mode):
-                self.spec['reply_mode'] = mode
-                self.spec['other_session_id'] = str(launch.uuid.uuid4())
-                self.fresh_session()
-                self.reset_events()
-                output = self.prep.output()
-                result = self.invoke(installed, output)
-                self.case.rejected(result, 'scope-mismatch' if mode == 'wrong-session' else 'model-unverified')
-                self.assertEqual([e['event'] for e in self.events()].count('work'), 1)
-                self.assertFalse((self.case.root / output / 'validation.json').exists())
-                self.assertFalse((self.case.root / output / 'native-result.json').exists())
-        self.assertEqual({path: path.read_bytes() for path in permissions}, permissions)
-        self.prep.assert_unchanged_world()
-
-
-    def test_indirect_investigator_callers_execute_one_managed_work_handoff(self):
-        callers = ('plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md',
-                   'plugins/sdd-domain/skills/domain-reverse/SKILL.md')
-        for shell in SHELLS:
-            installed = self.prep.install(shell)
-            self.prep.claude_positive(installed, self.prep.output())
-            for caller in callers:
-                with self.subTest(installer=shell, caller=caller):
-                    self.fresh_session()
-                    output = self.prep.output()
-                    script = self.fence(installed, output, caller)
-                    self.reset_events()
-                    result = self.case.run_process([launch.BASH, '-c', script], timeout=120,
-                                                   label='indirect installed investigation caller')
-                    self.assert_work(result, output)
-                    self.assertEqual([e['event'] for e in self.events()].count('work'), 1)
-                    # Same maintained invocation must fail closed before any work for a policy conflict.
-                    setting = self.case.root / '.claude/settings.local.json'
-                    raw = setting.read_bytes()
-                    try:
-                        setting.write_text('{"maxEffortLevel":"low"}\n')
-                        self.fresh_session()
-                        blocked_output = self.prep.output()
-                        blocked_script = self.fence(installed, blocked_output, caller)
-                        self.reset_events()
-                        blocked = self.case.run_process([launch.BASH, '-c', blocked_script], timeout=120,
-                                                        label='indirect investigation conflict')
-                        self.case.rejected(blocked, 'effort-unavailable')
-                        self.assertFalse((self.case.root / blocked_output).exists())
-                        self.assertEqual([e for e in self.events() if e['event'] == 'work'], [])
-                    finally:
-                        setting.write_bytes(raw)
-                    self.prep.assert_unchanged_world()
-
-    def test_domain_reverse_router_preserves_single_delegation_and_seed_failure_boundary(self):
-        installed = self.prep.install('bash')
-        source = (installed / 'plugins/sdd-domain/skills/domain-model/SKILL.md').read_text()
-        reverse = source.split('### `reverse` mode', 1)[1].split('### `update` mode', 1)[0]
-        self.assertNotIn('/sdd-bootstrap:investigate-codebase', reverse,
-                         'router must not bypass domain-reverse with an unmanaged investigation allocation')
-        self.assertEqual(reverse.count('Use the domain-reverse skill.'), 1)
-        self.assertNotIn('claude-entry', reverse, 'router and reverse child must not allocate twice')
-        self.assertIn('Seed-Source: reverse (investigate-codebase, <feature>)', reverse)
-        self.assertIn('do not fall through to `domain-interviewer` with fabricated content', ' '.join(reverse.split()))
-        self.assertIn('Use the domain-interviewer skill.', reverse)
-
-
 class InstalledClaudeDelegationTests(unittest.TestCase):
     """Secondary survey allocation from implement-task uses the existing selected read-only carrier."""
-
-    def test_implementation_delegation_executes_selected_readonly_investigation(self):
-        fixture = InstalledClaudeInvestigatorTests('runTest')
-        self.addCleanup(lambda: self.assertTrue(getattr(fixture, 'doCleanups')(), 'delegation fixture cleanup failed'))
-        fixture.setUp()
-        caller = 'plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md'
-        fixture.case.extra_runtime = (*fixture.case.extra_runtime, caller)
-        for shell in SHELLS:
-            installed = fixture.prep.install(shell)
-            fixture.prep.claude_positive(installed, fixture.prep.output())
-            with self.subTest(installer=shell):
-                fixture.fresh_session()
-                output = fixture.prep.output()
-                script = fixture.fence(installed, output, caller)
-                fixture.reset_events()
-                result = fixture.case.run_process([launch.BASH, '-c', script], timeout=120,
-                                                  label='installed implementation delegation')
-                fixture.assert_work(result, output)
-                source = (installed / caller).read_text()
-                self.assertIn('Done When', source)
-                self.assertIn("Edits to `tasks.md`", source)
-                self.assertIn('The final scoped self-review', source)
-                self.assertIn('`Blocked` judgments', source)
-                setting = fixture.case.root / '.claude/settings.local.json'
-                raw = setting.read_bytes()
-                try:
-                    setting.write_text('{"maxEffortLevel":"low"}\n')
-                    fixture.fresh_session()
-                    output = fixture.prep.output()
-                    fixture.reset_events()
-                    result = fixture.case.run_process([launch.BASH, '-c', fixture.fence(installed, output, caller)],
-                                                      timeout=120, label='implementation delegation conflict')
-                    fixture.case.rejected(result, 'effort-unavailable')
-                    self.assertFalse((fixture.case.root / output).exists())
-                    self.assertEqual([e for e in fixture.events() if e['event'] == 'work'], [])
-                finally:
-                    setting.write_bytes(raw)
-                fixture.prep.assert_unchanged_world()
-
 
 class InstalledClaudeDiagnosisTests(unittest.TestCase):
     """Maintained diagnosis dispatcher, real installers, public CLI fixture and actual Red reproduction."""
@@ -2377,24 +2055,6 @@ class InstalledClaudeDiagnosisTests(unittest.TestCase):
             self.prep.assert_unchanged_world()
         else:
             self.assert_preserved()
-
-    def test_maintained_diagnosis_dispatcher_preserves_writable_evidence_and_original_procedure(self):
-        for shell in SHELLS:
-            installed = self.prep.install(shell)
-            self.fresh()
-            output = self.prep.output()
-            script = self.fence(installed, output)
-            self.assert_work(self.case.run_process([launch.BASH, '-c', script], timeout=120,
-                                                  label='maintained installed diagnosis'), output)
-            self.harness.unlink()
-            self.report.unlink()
-            self.fresh()
-            legacy_output = self.prep.output()
-            legacy = self.case.prepare(installed, legacy_output, role='diagnosis', host='claude-code')
-            self.assertEqual(legacy.returncode, 0, legacy.stderr[:1000])
-            self.assertNotIn('result', json.loads(legacy.stdout))
-            self.assertFalse(self.harness.exists() or self.report.exists())
-            self.assertEqual(self.events(), [], 'configuration-only preparation must not perform diagnosis')
 
     def test_diagnosis_installers_and_entry_reject_missing_or_changed_workload_before_work(self):
         for shell in SHELLS:
@@ -2602,24 +2262,6 @@ class InstalledClaudeImplementerTests(unittest.TestCase):
             self.assertEqual({p: (self.case.root / p).read_bytes() for p in expected}, expected)
             self.prep.assert_unchanged_world()
         else:
-            self.assert_preserved()
-
-    def test_ship_lite_dispatches_one_selected_single_task_implementation(self):
-        for shell in SHELLS:
-            installed = self.prep.install(shell)
-            self.fresh()
-            output = self.prep.output()
-            script = self.fence(installed, output)
-            self.assert_work(self.case.run_process([launch.BASH, '-c', script], timeout=120,
-                                                  label='maintained ship Lite implementer'), output)
-            for name in IMPLEMENTER_SOURCES:
-                self.assertEqual((installed / name).read_bytes(), (ROOT / name).read_bytes())
-            self.fresh()
-            legacy = self.case.prepare(installed, self.prep.output(), role='implementer', host='claude-code')
-            self.assertEqual(legacy.returncode, 0, legacy.stderr[:1000])
-            self.assertNotIn('result', json.loads(legacy.stdout))
-            self.assertFalse(self.report.exists())
-            self.assertEqual(self.events(), [], 'configuration-only allocation is not task implementation')
             self.assert_preserved()
 
     def test_implementer_installers_and_entry_reject_missing_or_changed_workload_before_work(self):
@@ -4418,167 +4060,6 @@ class InstalledSpecCallerTests(unittest.TestCase):
         self.assert_managed(f, project, case, calls)
         return f, project, runtime
 
-    def test_maintained_spec_fence_prepares_forwards_and_delivers_one_reservation(self):
-        self.positive()
-
-    def test_maintained_spec_fence_without_control_forwarding_stays_legacy_and_fails_managed_oracle(self):
-        f, project, runtime = self.positive()
-        case = self.case(f, project, runtime, 'missing-forwarding', mutation='remove-forwarding')
-        # Legacy standalone launch stays compatible: real reservation and delivery with the unselected Sonnet argv.
-        delivery, calls = self.assert_delivered(f, project, case)
-        self.assertTrue((project / case['output_rel'] / 'validation.json').is_file(), 'Mutation must keep real prepare')
-        self.assertEqual(set(delivery), SPEC_DELIVERY_FIELDS)
-        self.assertFalse((case['launch'] / 'model-launch.json').exists())
-        argv = calls[5]['argv']
-        self.assertEqual((argv[argv.index('--model') + 1], '--effort' in argv, '--setting-sources' in argv),
-                         ('sonnet', False, False))
-        with self.assertRaises(AssertionError):
-            self.assert_managed(f, project, case, calls)
-
-    def test_maintained_spec_fence_blocks_wrong_role_and_raw_control_drift_before_reservation(self):
-        f, project, runtime = self.positive()
-        case = self.case(f, project, runtime, 'wrong-role', request_role='spec-reviewer-b')
-        self.assertEqual(case['result'].returncode, 2, 'Expected the typed prepare failure: ' + case['result'].stderr[-1600:])
-        self.assertEqual(json.loads(case['result'].stderr),
-                         {'schema': 'model-policy-error/v1', 'reason': 'scope-mismatch',
-                          'message': 'Policy request role or host differs from the actual invocation.'},
-                         'The fence must stop on the preparation error alone')
-        self.assertFalse((project / case['output_rel'] / 'validation.json').exists())
-        self.assert_blocked(f, project, case)
-        case = self.case(f, project, runtime, 'raw-control-drift', mutation='raw-control-drift')
-        self.assertEqual((case['result'].returncode, case['result'].stderr),
-                         (1, 'LAUNCH_STOPPED: input-invalid: Controls bytes do not match the supplied raw SHA-256 pin.\n'))
-        directory = project / case['output_rel']
-        validation = json.loads((directory / 'validation.json').read_bytes())
-        self.assertNotEqual(validation['controls']['sha256'], launch.sha_file(directory / 'controls.json'),
-                            'Mutation must follow real prepare and drift the validated raw controls')
-        self.assert_blocked(f, project, case)
-
-
-    def test_maintained_spec_pair_preserves_sanitized_boundary_and_both_retrospective_bindings(self):
-        b_agent = 'plugins/sdd-review-loop/agents/' + SPEC_CALLER_B_ROLE + '.md'
-        b_checks = ['AMBIGUITY', 'CONTRADICTION', 'EDGE-CASE-COVERAGE', 'ASSUMPTIONS-RESOLVABLE', 'APPROVAL-BOUNDARY',
-                    'DOWNSTREAM-READINESS', 'DOMAIN-CONFORMANCE']
-        f, project, runtime = self.fixture(extra_runtime=(b_agent,))
-        self.assertEqual(runtime.get(b_agent), launch.sha_file(ROOT / b_agent),
-                         'Actual B role source must be installed before reviewer A launches')
-        # Reviewer A: fresh per-role request/observation, then the existing complete positive assertions.
-        a = self.case(f, project, runtime, 'pair-a', names=('request-spec-a.json', 'observation-spec-a.json'))
-        _, calls_a = self.assert_delivered(f, project, a)
-        self.assert_managed(f, project, a, calls_a)
-        after_a = self.chain(project / SPEC_LEDGER)
-        round_dir = project / a['round_rel']
-        raw_a, summary_path = round_dir / 'reviewer-a.json', round_dir / 'integrated-summary.json'
-        summary_rel = a['round_rel'] + '/integrated-summary.json'
-        self.assertFalse(raw_a.exists() or summary_path.exists(), 'Round already holds reviewer output before A is persisted')
-        wrapper_a = json.loads((a['launch'] / 'wrapper.json').read_bytes())
-        review_a = wrapper_a['structured_output']
-        raw_a.write_text(wrapper_a['result'] + '\n')  # the actual returned raw JSON; no invented review
-        self.assertEqual(json.loads(raw_a.read_bytes()), review_a)
-        counts = {result: sum(1 for check in review_a['checks'] if check['result'] == result)
-                  for result in ('FAIL', 'PASS', 'SKIP')}
-        summary_path.write_text(json.dumps({
-            'schema': 'integrated-summary/v1', 'attempt': 1, 'round': 1, 'generated_at': launch.utc_now(),
-            'reviewer_a_checks': [{key: check[key] for key in ('id', 'result', 'severity')} for check in review_a['checks']],
-            'reviewer_a_fail_count': counts['FAIL'], 'reviewer_a_pass_count': counts['PASS'],
-            'reviewer_a_skip_count': counts['SKIP']}, indent=2) + '\n')
-        summary_text = summary_path.read_text()
-        summary = json.loads(summary_text)
-        self.assertEqual(sorted(summary), ['attempt', 'generated_at', 'reviewer_a_checks', 'reviewer_a_fail_count',
-                                           'reviewer_a_pass_count', 'reviewer_a_skip_count', 'round', 'schema'])
-        self.assertTrue(all(sorted(check) == ['id', 'result', 'severity'] for check in summary['reviewer_a_checks']))
-        self.assertEqual((counts['FAIL'], counts['PASS'], counts['SKIP']), (1, 0, len(review_a['checks']) - 1),
-                         'Fixture-only A output is first FAIL, remaining SKIP')
-        for forbidden in (review_a['checks'][0]['finding'], a['session'], 'finding', 'allowed_input_manifest', 'sha256',
-                          'run_id', 'host_session_id'):
-            self.assertNotIn(forbidden, summary_text, 'The sanitized summary leaked reviewer A raw content')
-        # The precheck's own jq comparisons (spec-review-precheck.sh:403-406), run by the actual jq.
-        for left, right in (('[.checks[] | {id, result, severity}]', '.reviewer_a_checks'),
-                            ('[.checks[] | select(.result == "FAIL")] | length', '.reviewer_a_fail_count'),
-                            ('[.checks[] | select(.result == "PASS")] | length', '.reviewer_a_pass_count'),
-                            ('[.checks[] | select(.result == "SKIP")] | length', '.reviewer_a_skip_count')):
-            projected = [self.execute(f, ['jq', '-c', expression, str(path)], cwd=project)
-                         for expression, path in ((left, raw_a), (right, summary_path))]
-            self.assertEqual([item.returncode for item in projected], [0, 0])
-            self.assertEqual(projected[0].stdout, projected[1].stdout, 'Summary differs from A projection: ' + right)
-
-        def pin(case):
-            """Complete persisted closure of one launch plus every request, input and policy it pinned."""
-            files = {case['invocation'].relative_to(project).as_posix(), case['request'], 'registry.json',
-                     *case['closure'], *case['paths']}
-            return {'outputs': tree(project / case['output_rel']), 'launch': tree(case['launch']),
-                    'files': {path: launch.sha_file(project / path) for path in sorted(files)}}
-        a_pin = pin(a)
-        sealed = {path: launch.sha_file(path) for path in (raw_a, summary_path)}
-        diagnostic_a = json.loads((a['launch'] / 'native.jsonl').read_text().splitlines()[0])['diagnostic_session']
-        # Reviewer B: same feature/round, actual A precheck reused, fresh UUID, ledger tip produced by A.
-        b = self.case(f, project, runtime, 'pair-b', role=SPEC_CALLER_B_ROLE, request_role=SPEC_CALLER_B_ROLE, shared=a,
-                      names=('request-spec-b.json', 'observation-spec-b.json'))
-        self.assertEqual((b['feature'], b['round_rel'], b['records'], b['paths']),
-                         (a['feature'], a['round_rel'], after_a, [*a['paths'], summary_rel]))
-        self.assertEqual(len({a['session'], diagnostic_a, b['session']}), 3, 'B identity must be disjoint from A and its probe')
-        _, calls_b = self.assert_delivered(f, project, b)
-        self.assert_managed(f, project, b, calls_b)
-        after_b = self.chain(project / SPEC_LEDGER)
-        self.assertEqual((after_b[:-1], after_b[-1]['sequence'], after_b[-1]['previous_record_sha256'], after_b[-1]['role'],
-                          after_b[-1]['run_id'], after_b[-1]['host_session_id']),
-                         (after_a, len(after_a) + 1, after_a[-1]['record_sha256'], SPEC_CALLER_B_ROLE, b['session'],
-                          b['session']), 'B must append exactly one canonical record after the A tip')
-        diagnostic_b = json.loads((b['launch'] / 'native.jsonl').read_text().splitlines()[0])['diagnostic_session']
-        self.assertFalse([r for r in after_b if {r['run_id'], r['host_session_id']} & {diagnostic_a, diagnostic_b}],
-                         'Probe identities must stay unreserved')
-        # B's schema, check order, manifest, generated policy and formal Read audit: summary in, raw A/wrapper/transcript out.
-        review_b = json.loads((b['launch'] / 'wrapper.json').read_bytes())['structured_output']
-        self.assertEqual((review_b['schema'], review_b['role'], [check['id'] for check in review_b['checks']]),
-                         (SPEC_CALLER_B_ROLE + '/v1', SPEC_CALLER_B_ROLE, b_checks))
-        manifest_b = json.loads(b['invocation'].read_bytes())['allowed_input_manifest']
-        self.assertEqual((manifest_b, manifest_b[-1]), (b['entries'], {'path': summary_rel, 'sha256': launch.sha_file(summary_path)}))
-        a_launch = a['launch'].relative_to(project).as_posix()
-        excluded = [a['round_rel'] + '/reviewer-a.json', a_launch + '/wrapper.json', a_launch + '/' + a['session'] + '.jsonl']
-        self.assertFalse(set(excluded) & {entry['path'] for entry in manifest_b})
-        reads = [str((project / path).resolve()) for path in
-                 [b['invocation'].relative_to(project).as_posix(), SPEC_CALLER_BOUNDARY, *b['paths']]]
-        audited = [tool['path'] for tool in calls_b[5]['tools'] if tool['tool'] == 'Read']
-        settings = json.loads((b['launch'] / 'settings.json').read_bytes())
-        hooks = [hook['command'] for group in settings['hooks']['PreToolUse'] for hook in group['hooks']]
-        self.assertEqual(len(hooks), 1)
-        guard = project / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
-        parts = shlex.split(hooks[0])
-        self.assertEqual((parts[:4], parts[6:]), (['rtk', 'proxy', 'node', str(guard)], ['||', 'exit', '2']))
-        policy_raw = Path(parts[4]).read_bytes()
-        self.assertEqual(parts[5], hashlib.sha256(policy_raw).hexdigest(), 'Hook must pin the exact raw policy bytes')
-        policy = json.loads(policy_raw)
-        self.assertEqual((sorted(policy), policy['schema'], policy['output_tool']),
-                         (['bash_commands', 'output_tool', 'read_paths', 'schema'], 'impl-nontty-pretool/v1', 'StructuredOutput'))
-        self.assertEqual((policy['read_paths'], audited), (reads, reads),
-                         'Generated policy and formal Read audit must be the exact B closure')
-        self.assertIn(str(summary_path.resolve()), policy['read_paths'])
-        for path in excluded:
-            self.assertNotIn(str((project / path).resolve()), policy['read_paths'] + audited)
-        self.assertFalse([path for path in policy['read_paths'] + audited if a['session'] in path])
-        # Real generated B hook: summary is admitted, raw A is denied by the actual Node guard; no native send, no writes.
-        ledger_bytes = (project / SPEC_LEDGER).read_bytes()
-
-        def hook(path):
-            event = json.dumps({'session_id': b['session'], 'transcript_path': str(b['launch'] / (b['session'] + '.jsonl')),
-                                'cwd': str(project), 'hook_event_name': 'PreToolUse', 'tool_name': 'Read',
-                                'tool_input': {'file_path': str(path)}})
-            return self.execute(f, [launch.BASH, '-c', hooks[0]], cwd=project, stdin=event)
-        allowed, denied = hook(summary_path), hook(raw_a)
-        self.assertEqual((allowed.returncode, allowed.stdout, allowed.stderr), (0, '', ''), 'Summary Read must be admitted')
-        self.assertEqual((denied.returncode, denied.stderr), (0, ''))
-        self.assertEqual(json.loads(denied.stdout), {'hookSpecificOutput': {
-            'hookEventName': 'PreToolUse', 'permissionDecision': 'deny',
-            'permissionDecisionReason': 'Impl non-TTY tool call differs from caller-pinned inputs'}})
-        self.assertEqual((len(self.native_calls(f, b)), (project / SPEC_LEDGER).read_bytes()),
-                         (len(SPEC_NATIVE_MODES), ledger_bytes), 'Guard probes must not send or reserve')
-        # A's complete closure is unchanged by B and both actual retrospective consumers accept their bindings.
-        self.assertEqual(pin(a), a_pin, 'Reviewer B changed reviewer A persisted closure')
-        self.assertEqual({path: launch.sha_file(path) for path in (raw_a, summary_path)}, sealed)
-        self.assert_run_record(f, project, a)
-        self.assert_run_record(f, project, b)
-
-
 # ---- Maintained quality-gate non-TTY evaluator caller (FIXTURE ONLY) ---------------------------------------------------
 # The same complete installed project as InstalledSpecCallerTests (its fixture/execute/chain are composed, no test method is
 # inherited) with exactly six more quality files. Real: installer, prepare, canonical validator, scratch-history,
@@ -5026,68 +4507,6 @@ class InstalledQualityCallerTests(unittest.TestCase):
         _, calls = self.assert_delivered(f, project, case)
         self.assert_managed(f, project, case, calls)
         return f, project, runtime
-
-    def test_maintained_quality_entry_prepares_forwards_and_delivers_one_reservation(self):
-        f, project, runtime = self.positive()
-        case = self.case(f, project, runtime, 'missing-forwarding', mutation='remove-forwarding')
-        # Legacy standalone launch stays compatible: real reservation and delivery with the unselected Sonnet argv.
-        delivery, calls = self.assert_delivered(f, project, case)
-        self.assertTrue((project / case['output_rel'] / 'validation.json').is_file(), 'Mutation must keep real prepare')
-        self.assertEqual(set(delivery), SPEC_DELIVERY_FIELDS)
-        self.assertFalse((case['launch'] / 'model-launch.json').exists())
-        argv = calls[5]['argv']
-        self.assertEqual((argv[argv.index('--model') + 1], '--effort' in argv, '--setting-sources' in argv),
-                         ('sonnet', False, False))
-        with self.assertRaises(AssertionError):
-            self.assert_managed(f, project, case, calls)
-
-    def test_maintained_quality_entry_blocks_wrong_role_and_raw_control_drift_before_reservation(self):
-        f, project, runtime = self.positive()
-        case = self.case(f, project, runtime, 'wrong-role', request_role=SPEC_CALLER_ROLE)
-        self.assertEqual(case['result'].returncode, 2, 'Expected the typed prepare failure: ' + case['result'].stderr[-1600:])
-        self.assertEqual(json.loads(case['result'].stderr),
-                         {'schema': 'model-policy-error/v1', 'reason': 'scope-mismatch',
-                          'message': 'Policy request role or host differs from the actual invocation.'},
-                         'The entry must stop on the preparation error alone')
-        self.assertFalse((project / case['output_rel'] / 'validation.json').exists())
-        self.assert_blocked(f, project, case)
-        self.assert_canonical(f, project, case)
-        case = self.case(f, project, runtime, 'raw-control-drift', mutation='raw-control-drift')
-        self.assertEqual((case['result'].returncode, case['result'].stderr),
-                         (1, 'LAUNCH_STOPPED: input-invalid: Controls bytes do not match the supplied raw SHA-256 pin.\n'))
-        directory = project / case['output_rel']
-        validation = json.loads((directory / 'validation.json').read_bytes())
-        self.assertNotEqual(validation['controls']['sha256'], launch.sha_file(directory / 'controls.json'),
-                            'Mutation must follow real prepare and drift the validated raw controls')
-        self.assert_blocked(f, project, case)
-        self.assert_canonical(f, project, case)
-
-    def test_maintained_quality_entry_blocks_scratch_pin_and_identity_drift_before_reservation(self):
-        f, project, runtime = self.positive()
-        case = self.case(f, project, runtime, 'scratch-copy-drift', defect='scratch-drift')
-        self.assertEqual((case['result'].returncode, case['result'].stderr),
-                         (1, 'LAUNCH_STOPPED: evaluator delivery preflight rejected: '
-                             'EVALUATOR_DELIVERY_REJECTED: fixture-hash-mismatch\n'))
-        self.assert_blocked(f, project, case)
-        self.assert_canonical(f, project, case)  # the canonical validator admits it; only the scratch readback differs
-        case = self.case(f, project, runtime, 'scratch-overlap', defect='scratch-overlap')
-        self.assertEqual((case['result'].returncode, case['result'].stdout), (1, ''))
-        self.assertTrue(case['result'].stderr.startswith('LAUNCH_STOPPED: '), case['result'].stderr[-800:])
-        self.assert_blocked(f, project, case)
-        self.assert_canonical(f, project, case,
-                              'REVIEW_CONTEXT_PATH: evaluator scratch root overlaps the implementation scratch root')
-        case = self.case(f, project, runtime, 'stale-pin', defect='stale-pin')
-        self.assertEqual((case['result'].returncode, case['result'].stdout, case['result'].stderr),
-                         (1, '', 'LAUNCH_STOPPED: caller invocation pin mismatch\n'))
-        self.assert_blocked(f, project, case)
-        self.assert_canonical(f, project, case)  # only the caller's external raw pin is stale
-        case = self.case(f, project, runtime, 'report-identity', defect='report-identity')
-        self.assertEqual((case['result'].returncode, case['result'].stdout), (1, ''))
-        self.assertTrue(case['result'].stderr.startswith('LAUNCH_STOPPED: '), case['result'].stderr[-800:])
-        self.assert_blocked(f, project, case)
-        self.assert_canonical(f, project, case,
-                              'REVIEW_CONTEXT_IDENTITY: implementation report run/session does not match its manifest')
-
 
 # ---- Original WFI auditors: ordinary managed selected native CLI handoffs (FIXTURE ONLY) -------------------------
 # Composes (never inherits) InstalledClaudePreparationTests/InstalledEntryTests: genuine setUp, both official installers,
@@ -5558,56 +4977,6 @@ class InstalledClaudeWfiTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout), WFI_DENIAL, 'event was not denied by the actual guard: ' + label)
 
     # ---- the three bounded acceptance methods ------------------------------------------------------------------------
-
-    def test_maintained_wfi_fences_deliver_original_a_then_revised_b_through_both_installers(self):
-        case = self.case
-        for shell in SHELLS:
-            installed = self.prep.install(shell)
-            for rel in WFI_RUNTIME:
-                self.assertEqual((installed / rel).read_bytes(), (ROOT / rel).read_bytes(), 'installed bytes: ' + rel)
-            self.seed()
-            a = self.launch_run(installed, 'a', shell, via='fence')
-            public_a, audit_a, located_a = self.assert_work(a, installed)
-            self.assertEqual(audit_a['verdict'], 'PASS')
-            self.complete_a(a, public_a, located_a)
-            a_pin, original_wfi = self.pin(a), a['wfi']
-            sealed = {rel: self.read(rel) for rel in (WFI_RAW_A_REL, WFI_SUMMARY_REL, WFI_REPORT_REL)}
-            self.assertIn(self.draft.encode(), original_wfi)
-            _, revised_wfi = self.revise()
-            b = self.launch_run(installed, 'b', shell, via='fence',
-                                absent=(self.draft, self.canary, a['session'], WFI_RAW_A_REL, WFI_REPORT_REL))
-            public_b, audit_b, located_b = self.assert_work(b, installed)
-            summary = json.loads(sealed[WFI_SUMMARY_REL])
-            self.assertEqual(audit_b['cycle_1_summary'], {key: summary[key] for key in (
-                'auditor_a_fail_count', 'auditor_a_pass_count', 'auditor_a_verdict')}, 'B must see the bridge counts')
-            self.assertIn(self.revised, audit_b['checks'][0]['finding'])
-            # B sees the revised WFI and the bridge only; A's original draft and raw findings are nowhere in its closure.
-            self.assertEqual(b['wfi'], revised_wfi)
-            self.assertEqual(located_b[WFI_REL].read_bytes(), revised_wfi)
-            self.assertEqual(located_a[WFI_REL].read_bytes(), original_wfi, 'A retains its original-draft pin')
-            self.assertEqual(located_b[WFI_SUMMARY_REL].read_bytes(), sealed[WFI_SUMMARY_REL])
-            for path in (case.root / b['output']).rglob('*'):
-                if path.is_file():
-                    for leaked in (self.draft, self.canary, a['session']):
-                        self.assertNotIn(leaked.encode(), path.read_bytes(), 'A draft/raw data reached B: ' + path.name)
-            stdin_b = self.work_events()[0]['stdin']
-            for leaked in (self.draft, self.canary, a['session']):
-                self.assertNotIn(leaked, stdin_b)
-            self.assertEqual(stdin_b.count(revised_wfi.decode()), 1)
-            # Fresh request, observation, controls, output and session; A's complete closure is unchanged by B.
-            self.assertEqual(len({a['session'], b['session']}), 2)
-            self.assertEqual(len({a['run_id'], b['run_id']}), 2)
-            self.assertNotEqual((a['request'], a['observation'], a['output']), (b['request'], b['observation'], b['output']))
-            self.assertNotEqual(launch.sha_file(case.root / a['output'] / 'controls.json'),
-                                launch.sha_file(case.root / b['output'] / 'controls.json'))
-            self.assertEqual(self.pin(a), a_pin, 'B changed the persisted A closure')
-            self.assertEqual({rel: self.read(rel) for rel in sealed}, sealed, 'B changed parent-owned A artifacts')
-            wfi_text = self.read(WFI_REL).decode()
-            self.assertIn('Status: Draft', wfi_text)
-            self.assertNotIn('Approved', wfi_text, 'no auditor sets approval')
-            self.assert_owned()
-            self.assertEqual(len(self.work_events()), 1)
-        self.assert_skill_semantics(installed)
 
     def test_actual_node_guard_admits_frozen_reads_and_denies_raw_audit_and_tool_events(self):
         case = self.case
@@ -6723,131 +6092,6 @@ class InstalledDomainCallerTests(unittest.TestCase):
 
     # ---- the three bounded acceptance methods -------------------------------------------------------------------------
 
-    def test_maintained_domain_pair_delivers_selected_models_through_both_installers_and_stays_pending(self):
-        hashes = []
-        for shell in SHELLS:
-            with self.subTest(shell=shell):
-                st = self.fixture(shell)
-                pair = self.run_pair(st)
-                self.assertEqual(st['shell'], shell)
-                hashes.append(pair['precheck']['input_sha256'])
-                self.assert_guard_matrix(st, pair['a'], pair['b'])
-        self.assertEqual(len(set(hashes)), 1, 'Both installed shells must bind the identical canonical input hash')
-
-    def test_maintained_domain_fence_blocks_drift_identity_and_guard_violations_and_keeps_legacy_without_forwarding(self):
-        st = self.fixture('bash')
-        f, project = st['f'], st['project']
-        pair = self.run_pair(st)  # the complete positive fixture
-        a, b, round_dir = pair['a'], pair['b'], pair['round_dir']
-        self.assert_guard_matrix(st, a, b)
-        # Original replay behavior remains: initializer, finalizer and the verified evidence reject a repeat without change.
-        evidence = tree(round_dir)
-        replay = self.execute(f, [launch.BASH, str(project / 'plugins/sdd-domain/scripts/domain-review-precheck.sh'), '1', '1'], cwd=project)
-        self.assertEqual(replay.returncode, 1)
-        self.assertIn('round destination already exists (replay is forbidden)', replay.stderr)
-        again = self.run_finalizer(st, 'finalize')
-        self.assertNotEqual(again.returncode, 0)
-        self.assertIn('DOMAIN_REVIEW_BLOCKED', again.stderr)
-        self.assertEqual(self.run_finalizer(st, 'verify').returncode, 0)
-        self.assertEqual(tree(round_dir), evidence, 'A replay changed existing evidence')
-        # A fresh real round 2 (changed domain content, real initializer) carries every pre-reservation negative.
-        precheck2, paths2 = self.initialize_round(st, 2)
-        self.assertNotEqual(precheck2['input_sha256'], pair['precheck']['input_sha256'])
-        for label, role in (('wrong-role-b', 'domain-reviewer-b'), ('wrong-role-spec', 'spec-reviewer-a')):
-            with self.subTest(blocked=label):
-                case = self.case(st, label, paths=paths2, round_number=2, request_role=role)
-                self.assert_typed(case['result'], 'scope-mismatch')
-                self.assertEqual(json.loads(case['result'].stderr)['message'],
-                                 'Policy request role or host differs from the actual invocation.')
-                self.assertFalse((project / case['output_rel'] / 'validation.json').exists())
-                self.assert_blocked(st, case)
-        with self.subTest(blocked='raw-control-drift'):
-            case = self.case(st, 'raw-control-drift', paths=paths2, round_number=2, mutation='raw-control-drift')
-            self.assertEqual((case['result'].returncode, case['result'].stderr),
-                             (1, 'LAUNCH_STOPPED: input-invalid: Controls bytes do not match the supplied raw SHA-256 pin.\n'))
-            directory = project / case['output_rel']
-            validation = json.loads((directory / 'validation.json').read_bytes())
-            self.assertNotEqual(validation['controls']['sha256'], launch.sha_file(directory / 'controls.json'),
-                                'Mutation must follow real prepare and drift the validated raw controls')
-            self.assert_blocked(st, case)
-        for defect in ('canonical-drift', 'aggregate-added', 'calibration-drift', 'precheck-drift', 'status-reviewed'):
-            with self.subTest(blocked=defect):
-                case = self.case(st, defect, paths=paths2, round_number=2, defect=defect)
-                self.assertEqual(case['result'].returncode, 1, 'Drifted state must stop the launcher: ' + case['result'].stderr[-800:])
-                self.assertTrue(case['result'].stderr.startswith(DOMAIN_STOPPED), case['result'].stderr[-400:])
-                self.assert_blocked(st, case)
-                self.assertEqual(self.verified(st, 2)[1], paths2, 'The genuine precheck must hold again once the drift is restored')
-        with self.subTest(blocked='duplicate-identity'):
-            case = self.case(st, 'duplicate-identity', paths=paths2, round_number=2, session=a['session'],
-                             output_rel='runs/domain-reviewer-a-duplicate-' + uuid.uuid4().hex[:8])
-            self.assertEqual(case['result'].returncode, 1, 'A persisted identity must not reserve twice: ' + case['result'].stderr[-800:])
-            self.assertTrue(case['result'].stderr.startswith(DOMAIN_STOPPED), case['result'].stderr[-400:])
-            self.assertEqual([r['run_id'] for r in self.chain(project / SPEC_LEDGER)].count(a['session']), 1)
-            self.assert_blocked(st, case)
-        # Counterfactual: without the real forwarding the actual fence stays legacy and fails the managed oracle.
-        case = self.case(st, 'missing-forwarding', paths=paths2, round_number=2, mutation='remove-forwarding')
-        delivery, calls = self.assert_delivered(st, case)
-        self.assertTrue((project / case['output_rel'] / 'validation.json').is_file(), 'Mutation must keep real prepare')
-        self.assertEqual(set(delivery), SPEC_DELIVERY_FIELDS)
-        self.assertFalse((case['launch'] / 'model-launch.json').exists())
-        argv = calls[5]['argv']
-        self.assertEqual((argv[argv.index('--model') + 1], '--effort' in argv, '--setting-sources' in argv), ('sonnet', False, False))
-        with self.assertRaises(AssertionError):
-            self.assert_managed(st, case, calls)
-        self.assertEqual(self.verified(st, 2)[1], paths2)
-        self.assert_pending(st)
-
-    def test_maintained_domain_copilot_auto_route_is_typed_model_unavailable_before_allocation(self):
-        st = self.fixture('bash')
-        f, project = st['f'], st['project']
-        _, paths = self.initialize_round(st, 1)
-        skill = (project / DOMAIN_CALLER_SKILL).read_text(encoding='utf-8')
-        for fragment in DOMAIN_LEGACY_COPILOT:
-            self.assertEqual(skill.count(fragment), 1, 'Original Copilot legacy documentation must remain as data: ' + fragment[:40])
-        self.assertIsNone(re.search(r'(?m)(?:^|[\s;&|(])copilot[ \t]+(?:-|--)|--model[ \t]+auto', self.fence(project)),
-                          'The managed Claude fence must never fall back to the Copilot --model auto route')
-        self.assertFalse([m['id'] for m in f.trusted_policy['models'] if 'copilot-cli' in m['hosts']],
-                         'A trusted Copilot mapping exists now: replace this branch with a supported test')
-        role_rel = 'plugins/sdd-domain/agents/domain-reviewer-a.md'
-        raw_role = (project / role_rel).read_bytes()
-        # Renderer-style comments are data only: they must not close (or open) the caller, nor change the typed outcome.
-        rendered = f.base / 'rendered-domain-reviewer-a.md'
-        rendered.write_bytes(raw_role + b'\n<!-- x-sdd-effort: high -->\n<!-- x-sdd-model: opus -->\n')
-        for label, options in (
-                ('copilot-host', {'request_host': 'copilot-cli', 'mutation': 'flag-host-copilot', 'reason': 'model-unavailable'}),
-                ('request-copilot-flag-claude', {'request_host': 'copilot-cli', 'reason': 'scope-mismatch'}),
-                ('request-claude-flag-copilot', {'mutation': 'flag-host-copilot', 'reason': 'scope-mismatch'})):
-            with self.subTest(maintained=label):
-                reason = options.pop('reason')
-                case = self.case(st, label, paths=paths, **options)
-                self.assert_typed(case['result'], reason)
-                self.assertFalse((project / case['output_rel'] / 'validation.json').exists())
-                self.assert_blocked(st, case)
-        for label, comments in (('direct-claude-prepare', False), ('direct-claude-prepare-rendered-comments', True)):
-            with self.subTest(entry=label):
-                case = self.case(st, label, paths=paths, request_host='copilot-cli', run=False)
-                if comments:
-                    self.assertTrue(rendered.read_bytes().startswith(raw_role) and b'x-sdd-effort' in rendered.read_bytes())
-                result = self.execute(f, [sys.executable, '-I', '-B', str(project / ADAPTER), 'claude-prepare', '--request',
-                                          case['request'], '--registry', 'registry.json', '--role', case['role'], '--host',
-                                          'copilot-cli', '--run-id', case['session'], '--session-id', case['session'],
-                                          '--attempt', '1', '--output-dir', case['output_rel'], '--require-actual-id', 'false',
-                                          '--executable', str(f.base / 'shims/claude')], cwd=project)
-                self.assert_typed(result, 'model-unavailable')
-                self.assertFalse((project / case['output_rel'] / 'validation.json').exists())
-                self.assertEqual(self.live(project), case['live_before'], 'The closed error changed live inputs or state')
-                self.assert_blocked(st, dict(case, live_after=self.live(project)))
-        self.assertEqual((project / role_rel).read_bytes(), raw_role, 'The source role body must never be edited')
-        # Claude domains stay enabled and the round is untouched: the real positive A still delivers after every rejection.
-        case = self.case(st, 'claude-after-copilot', paths=paths)
-        _, calls = self.assert_delivered(st, case)
-        self.assert_managed(st, case, calls)
-        self.assertEqual(self.verified(st, 1)[1], paths)
-        self.assert_pending(st)
-
-
-
-
 class InstalledProtectedCallerTests(unittest.TestCase):
     """The two retired public launchers survive only as review-history contracts (ADR-0051)."""
 
@@ -7239,7 +6483,7 @@ class InstalledClaudeBatchTests(unittest.TestCase):
         f.setUp()
         # Fixture-only trusted full-ID carrier: source helper and installed package share
         # these exact trusted bytes. This is not a product catalog change or adoption.
-        mapping = {'sonnet': 'claude-sonnet-5-5', 'opus': 'claude-opus-fixture-full-id',
+        mapping = {'sonnet': 'claude-sonnet-fixture-full-id', 'opus': 'claude-opus-fixture-full-id',
                    'haiku': 'claude-haiku-fixture-full-id'}
         for policy in (f.trusted_policy, f.policy):
             for model in policy['models']:
@@ -7280,84 +6524,6 @@ class InstalledClaudeBatchTests(unittest.TestCase):
         for key, value in values.items():
             command = command.replace('"<' + key + '>"', shlex.quote(value))
         return self.fixture.run_process([_batch_fixture.launch.BASH, '-c', command], label='managed definition fence')
-
-    def test_installed_definition_forwards_bound_full_native_controls_without_per_call_aliases(self):
-        f = self.fixture
-        for shell in _batch_fixture.SHELLS:
-            with self.subTest(shell=shell):
-                root = f.install(shell)
-                expected = f.oracle_selection()['resolved']
-                result = self.definition(root, 'runs/definition-' + shell)
-                self.assertEqual(result.returncode, 0, result.stderr)
-                definitions = json.loads(result.stdout)
-                self.assertEqual(len(definitions), 1)
-                name, definition = next(iter(definitions.items()))
-                self.assertRegex(name, r'^sdd-batch-implementer-[0-9a-f]{16}$')
-                self.assertEqual(definition['model'], expected['native_id'])
-                self.assertEqual(definition['effort'], expected['effort'])
-                self.assertNotIn(definition['model'], ('sonnet', 'opus', 'haiku', 'fable'))
-                self.assertEqual(set(definition), {'description', 'prompt', 'model', 'effort'})
-                source = (root / _BATCH_CALLER).read_text()
-                shapes = [b for b in re.findall(r'```json\n(.*?)```', source, re.S)
-                          if '"subagent_type"' in b]
-                self.assertEqual(len(shapes), 1)
-                call = json.loads(shapes[0].replace('<managed-definition-name>', name))
-                # Recording native boundary: look up exactly the loaded custom definition.
-                # This is allocation/call-shape fixture proof, not a backend execution claim.
-                definition_file = f.root / ('native-definitions-' + shell + '.json')
-                definition_file.write_text(result.stdout)
-                recorder = _BATCH_NATIVE_RECORDER
-                native = subprocess.run([sys.executable, '-I', '-B', str(recorder), str(definition_file)],
-                    input=json.dumps(call), text=True, capture_output=True, check=False)
-                self.assertEqual(native.returncode, 0, native.stderr)
-                recorded = json.loads(native.stdout)
-                broken = dict(call, model='sonnet')
-                rejected = subprocess.run([sys.executable, '-I', '-B', str(recorder), str(definition_file)],
-                    input=json.dumps(broken), text=True, capture_output=True, check=False)
-                self.assertNotEqual(rejected.returncode, 0, 'oracle must detect per-call alias regression')
-                self.assertNotIn('model', recorded['call'])
-                self.assertNotIn('effort', recorded['call'])
-                self.assertEqual(recorded['definition']['model'], expected['native_id'])
-                self.assertEqual(recorded['definition']['effort'], expected['effort'])
-                self.assertFalse(f.marker.exists())
-
-    def test_maintained_unknown_startup_fence_is_typed_and_cannot_enter_fallback_or_work(self):
-        f = self.fixture
-        for shell in _batch_fixture.SHELLS:
-            with self.subTest(shell=shell):
-                root = f.install(shell)
-                source = (root / _BATCH_CALLER).read_text()
-                section = source.split('### Managed Claude batch model routing\n', 1)[1]
-                section = section.split('\n## ', 1)[0]
-                fences = [b for b in re.findall(r'```bash\n(.*?)```', section, re.S)
-                          if 'unsupported-entry' in b]
-                self.assertEqual(len(fences), 1, 'missing executable unknown/stale-startup branch')
-                command = fences[0].replace('"<installed-root>"', shlex.quote(str(root)))
-                before = _batch_fixture.tree(f.root)
-                result = f.run_process([_batch_fixture.launch.BASH, '-c', command], label='batch unknown startup')
-                value = self.error(result, 'model-unavailable')
-                self.assertIn('matching startup', value['message'])
-                self.assertNotIn('host-does-not-support-implementation-subagents', value['message'])
-                self.assertEqual(_batch_fixture.tree(f.root), before)
-                self.assertFalse(f.marker.exists())
-                self.assertFalse(f.poison.exists())
-
-    def test_definition_reuses_original_selection_errors_and_rejects_missing_forwarding(self):
-        f = self.fixture
-        root = f.install('bash')
-        f.request['role'] = 'investigator'
-        f.save()
-        self.error(self.definition(root, 'runs/wrong-role'), 'scope-mismatch')
-        self.assertFalse((f.root / 'runs/wrong-role').exists())
-        result = f.run_process([sys.executable, '-I', '-B', str(root / _batch_fixture.ADAPTER),
-            'claude-batch-definition'], label='missing forwarding')
-        self.error(result, 'input-invalid')
-        f.request['role'] = 'implementer'
-        f.save()
-        f.request['unexpected'] = 'invalid schema must not become reload fallback'
-        f.save()
-        self.error(self.definition(root, 'runs/invalid-schema'), 'config-invalid')
-        self.assertFalse((f.root / 'runs/invalid-schema').exists())
 
     def test_generic_unsupported_branch_validates_exact_role_host_grammar_without_effects(self):
         f = self.fixture
@@ -7429,68 +6595,6 @@ class InstalledDefaultNativeCallerCandidateTests(unittest.TestCase):
         self.assertEqual(len(fences), 1, 'comments or model hints cannot replace the executable refusal')
         self.assertIn('--role "<policy-role>" --host "<host>"', fences[0])
         return fences[0]
-
-    def test_each_managed_caller_role_and_host_executes_installed_typed_stop_before_any_work(self):
-        f = self.fixture
-        for shell in _default_native_fixture.SHELLS:
-            root = f.install(shell)
-            world = _default_native_fixture.tree(f.root)
-            source_bytes = {rel: (root / rel).read_bytes() for rel in _DEFAULT_NATIVE_BOUNDARIES}
-            for rel, roles in _DEFAULT_NATIVE_BOUNDARIES.items():
-                fence = self.boundary(source_bytes[rel].decode(), rel)
-                for role in roles:
-                    for host in _DEFAULT_NATIVE_HOSTS:
-                        with self.subTest(shell=shell, caller=rel, role=role, host=host):
-                            command = fence
-                            for key, value in {'installed-root': str(root), 'policy-role': role, 'host': host}.items():
-                                command = command.replace('"<' + key + '>"', shlex.quote(value))
-                            self.assertNotRegex(command, r'<[a-z][a-z-]*>')
-                            result = f.run_process([_default_native_fixture.launch.BASH, '-c', command], label='explicit managed native boundary')
-                            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-                            self.assertEqual(result.stdout, '')
-                            error = json.loads(result.stderr)
-                            self.assertEqual(set(error), {'schema', 'reason', 'message'})
-                            self.assertEqual(error['schema'], 'model-policy-error/v1')
-                            self.assertEqual(error['reason'], 'model-unavailable')
-                            self.assertIn(role, error['message'])
-                            self.assertIn(host, error['message'])
-                            self.assertNotIn('host-does-not-support-implementation-subagents', error['message'])
-                            self.assertFalse(f.marker.exists(), 'native client allocation escaped the typed boundary')
-                            self.assertFalse(f.poison.exists(), 'installed entry fell back to the poisoned source package')
-            self.assertEqual(_default_native_fixture.tree(f.root), world, 'refusal created evidence/output/shared state')
-            self.assertEqual({rel: (root / rel).read_bytes() for rel in _DEFAULT_NATIVE_BOUNDARIES}, source_bytes)
-
-    def test_boundary_oracle_rejects_absence_comment_only_and_wrong_role_before_native_dispatch(self):
-        f = self.fixture
-        root = f.install('bash')
-        self.assertEqual(len(_DEFAULT_NATIVE_BOUNDARIES), 16)
-        self.assertEqual(sum(len(v) for v in _DEFAULT_NATIVE_BOUNDARIES.values()), 22)
-        self.assertEqual(len(_DEFAULT_NATIVE_HOSTS), 4)
-        for rel in _DEFAULT_NATIVE_BOUNDARIES:
-            source = (root / rel).read_text(encoding='utf-8')
-            fence = self.boundary(source, rel)
-            title = '## Managed allocation boundary\n'
-            start = source.index(title)
-            end = source.index(_DEFAULT_NATIVE_FIRST_SECTIONS.get(rel, '## Invocation') + '\n', start)
-            with self.subTest(caller=rel, defect='missing-section'):
-                with self.assertRaises(AssertionError):
-                    self.boundary(source[:start] + source[end:], rel)
-            with self.subTest(caller=rel, defect='only-comment'):
-                with self.assertRaises(AssertionError):
-                    self.boundary(source.replace('```bash\n' + fence + '```', '<!-- unsupported-entry hint only -->', 1), rel)
-            with self.subTest(caller=rel, defect='forces-managed-on-legacy'):
-                with self.assertRaises(AssertionError):
-                    self.boundary(source.replace('only when the caller explicitly selects managed routing',
-                                                 'for every invocation', 1), rel)
-            with self.subTest(caller=rel, defect='permits-failure-fallback'):
-                with self.assertRaises(AssertionError):
-                    self.boundary(source.replace('Once managed is selected, do not switch that workflow to legacy',
-                                                 'After managed failure, retry legacy', 1), rel)
-            with self.subTest(caller=rel, defect='wrong-role'):
-                with self.assertRaises(AssertionError):
-                    self.boundary(source.replace('--role "<policy-role>"', '--role evaluator', 1), rel)
-        self.assertFalse(f.marker.exists())
-
 
 if __name__ == '__main__':
     unittest.main()

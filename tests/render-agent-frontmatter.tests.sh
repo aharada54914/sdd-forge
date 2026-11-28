@@ -36,14 +36,16 @@ RENDER_SH="$ROOT/render-agent-frontmatter.sh"
 RUN_ALL_SH="$ROOT/tests/run-all.sh"
 RUN_ALL_PS1="$ROOT/tests/run-all.ps1"
 REAL_REGISTRY="$ROOT/contracts/agent-model-capabilities.v2.json"
-HUMAN_COPY_DIR="$ROOT/specs/epic-159-pillar-c/human-copy"
-MANIFEST="$HUMAN_COPY_DIR/MANIFEST.sha256"
 
-PROTECTED_RELPATHS=(
-  "plugins/sdd-review-loop/agents/impl-reviewer-a.md"
-  "plugins/sdd-review-loop/agents/impl-reviewer-b.md"
-  "plugins/sdd-review-loop/agents/task-reviewer-a.md"
-  "plugins/sdd-review-loop/agents/task-reviewer-b.md"
+# Q15 (owner decision 2026-11-28): the four v1 reviewer definitions retired in
+# v2 (ADR-0051 decision 2). An explicit render target for one is an input
+# error; this suite proves it writes and stages nothing. The protected-target
+# staging checks that used them retired with the human-copy procedure.
+RETIRED_TARGETS=(
+  "impl-reviewer plugins/sdd-review-loop/agents/impl-reviewer-a.md"
+  "impl-reviewer plugins/sdd-review-loop/agents/impl-reviewer-b.md"
+  "task-reviewer plugins/sdd-review-loop/agents/task-reviewer-a.md"
+  "task-reviewer plugins/sdd-review-loop/agents/task-reviewer-b.md"
 )
 UNPROTECTED_CLAUDE_RELPATHS=(
   "plugins/sdd-quality-loop/agents/evaluator.md"
@@ -106,14 +108,6 @@ TMP="$(mktemp -d)"
 TMP="$(cd "$TMP" && pwd -P)"
 trap 'rm -rf "$TMP"' EXIT
 
-# --- Suite-wide safety proof: this suite never touches the LIVE protected
-# reviewer files (captured before AND after every check below) ------------
-LIVE_PROTECTED_SHA_BEFORE_KEYS=()
-LIVE_PROTECTED_SHA_BEFORE_VALS=()
-for rel in "${PROTECTED_RELPATHS[@]}"; do
-  kv_set LIVE_PROTECTED_SHA_BEFORE "$rel" "$(sha256_of "$ROOT/$rel")"
-done
-
 # --- Build a scratch mirror of the real production targets ---------------
 mkdir -p "$TMP/plugins/sdd-quality-loop/agents" \
   "$TMP/plugins/sdd-bootstrap/agents" \
@@ -121,7 +115,7 @@ mkdir -p "$TMP/plugins/sdd-quality-loop/agents" \
   "$TMP/.codex/agents" \
   "$TMP/contracts"
 
-for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}" "${PROTECTED_RELPATHS[@]}"; do
+for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}"; do
   mkdir -p "$TMP/$(dirname "$rel")"
   cp "$ROOT/$rel" "$TMP/$rel"
 done
@@ -138,7 +132,7 @@ cp "$REAL_REGISTRY" "$TMP/contracts/agent-model-capabilities.v2.json"
 # deterministic and independently re-runnable in CI: strip any existing
 # x-sdd-effort comment / x-sdd-model|x-sdd-effort header from every scratch
 # copy before any drift/render assertion below.
-python3 - "$TMP" "${UNPROTECTED_CLAUDE_RELPATHS[*]}" "${PROTECTED_RELPATHS[*]}" "${CODEX_RELPATHS[*]}" <<'PY'
+python3 - "$TMP" "${UNPROTECTED_CLAUDE_RELPATHS[*]}" "" "${CODEX_RELPATHS[*]}" <<'PY'
 import re
 import sys
 
@@ -187,7 +181,7 @@ PY
 MODEL_BEFORE_KEYS=(); MODEL_BEFORE_VALS=()
 SHA_BEFORE_KEYS=(); SHA_BEFORE_VALS=()
 LINE_COUNT_BEFORE_KEYS=(); LINE_COUNT_BEFORE_VALS=()
-for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}" "${PROTECTED_RELPATHS[@]}"; do
+for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}"; do
   kv_set MODEL_BEFORE "$rel" "$(grep -m1 '^model:' "$TMP/$rel" | sed 's/^model:[[:space:]]*//')"
   kv_set SHA_BEFORE "$rel" "$(sha256_of "$TMP/$rel")"
   kv_set LINE_COUNT_BEFORE "$rel" "$(grep -c '' "$TMP/$rel")"
@@ -207,33 +201,30 @@ set +e
 CHECK_EXIT=$?
 set -e
 
-if [[ "$CHECK_EXIT" -ne 0 ]]; then
-  ok "TEST-016: --check exits non-zero on Claude target drift"
+# v2 ships every default Claude and Codex target as `model: inherit` (the
+# caller's model), which the renderer excludes (TEST-018). The default
+# --check is therefore clean; drift detection itself is proven by the
+# TEST-020 RED/GREEN pair below on an explicit-model fixture.
+if [[ "$CHECK_EXIT" -eq 0 ]]; then
+  ok "TEST-016: --check exits 0 on the shipped default targets (all inherit the caller's model)"
 else
-  bad "TEST-016: --check exited 0 despite injected/pre-existing drift"
+  bad "TEST-016: --check reported drift on the shipped default targets -- $(cat "$CHECK_LOG")"
 fi
-
-drift_all_present=1
-for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}" "${PROTECTED_RELPATHS[@]}"; do
-  if ! grep -Fq "DRIFT: $rel" "$CHECK_LOG"; then
-    drift_all_present=0
-  fi
+default_ok=1
+for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}" "${CODEX_RELPATHS[@]}"; do
+  grep -Fxq "OK: $rel" "$CHECK_LOG" || default_ok=0
+  grep -Fxq 'model: inherit' "$TMP/$rel" 2>/dev/null || [[ "$rel" == *.toml ]] || default_ok=0
 done
-for rel in "${CODEX_RELPATHS[@]}"; do
-  if ! grep -Fxq "OK: $rel" "$CHECK_LOG"; then
-    drift_all_present=0
-  fi
-done
-if [[ "$drift_all_present" -eq 1 ]]; then
-  ok "TEST-016: --check accepts shipped Codex roles and reports un-rendered Claude targets"
+if [[ "$default_ok" -eq 1 ]]; then
+  ok "TEST-016: --check reports OK for every default target, and each Claude target inherits the caller's model"
 else
-  bad "TEST-016: --check unexpected default target status -- $(cat "$CHECK_LOG")"
+  bad "TEST-016: unexpected default target status -- $(cat "$CHECK_LOG")"
 fi
 
 # TEST-020 read-boundary: --check performed ZERO writes anywhere in the
-# scratch tree, including the four protected-position targets.
+# scratch tree.
 no_write_during_check=1
-for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}" "${CODEX_RELPATHS[@]}" "${PROTECTED_RELPATHS[@]}"; do
+for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}" "${CODEX_RELPATHS[@]}"; do
   after="$(sha256_of "$TMP/$rel")"
   if [[ "$after" != "$(kv_get SHA_BEFORE "$rel")" ]]; then
     no_write_during_check=0
@@ -246,54 +237,47 @@ else
 fi
 
 # --- TEST-020 mutation-based negative self-check (RED/GREEN pair) --------
-# A scratch copy of a protected-position target that IS already correctly
-# rendered must report OK; the same copy with its x-sdd-effort value
-# mutated must report DRIFT again -- proving the read-only check's drift
-# report is live, not vacuously true.
+# A protected-position copy of a current role that IS correctly rendered must
+# report OK; the same copy with its x-sdd-effort value mutated must report
+# DRIFT again -- proving the read-only check's drift report is live.
+MUT_REL="plugins/sdd-review-loop/agents/spec-reviewer-a.md"
 MUT_ROOT="$TMP/ac020-mutation"
 mkdir -p "$MUT_ROOT/plugins/sdd-review-loop/agents" "$MUT_ROOT/contracts"
-cp "$TMP/plugins/sdd-review-loop/agents/impl-reviewer-a.md" "$MUT_ROOT/plugins/sdd-review-loop/agents/impl-reviewer-a.md"
+# An explicit model line (not inherit) makes the fixture a render target.
+sed 's/^model: inherit$/model: fixture-explicit/' "$TMP/$MUT_REL" >"$MUT_ROOT/$MUT_REL"
+grep -Fxq 'model: fixture-explicit' "$MUT_ROOT/$MUT_REL" || bad "TEST-020: mutation fixture did not get an explicit model line"
 cp "$TMP/contracts/agent-model-capabilities.v2.json" "$MUT_ROOT/contracts/agent-model-capabilities.v2.json"
 MUT_TARGETS="$MUT_ROOT/targets.json"
-cat >"$MUT_TARGETS" <<'EOF'
-[{"role": "impl-reviewer", "kind": "claude", "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md", "protected": true}]
-EOF
-# Render it once (this scratch copy only) so it is correctly synced.
+printf '[{"role": "spec-reviewer", "kind": "claude", "path": "%s", "protected": true}]\n' "$MUT_REL" >"$MUT_TARGETS"
 "$RENDER_SH" --root "$MUT_ROOT" --targets-file "$MUT_TARGETS" --registry "$MUT_ROOT/contracts/agent-model-capabilities.v2.json" >/dev/null
-# The render above staged the corrected content under
-# $MUT_ROOT/specs/.../impl-reviewer-a.md (protected: true); overwrite the
-# REAL-position scratch copy with that staged (correctly synced) content so
-# --check's read-only comparison below has something to report OK against.
-cp "$MUT_ROOT/specs/epic-159-pillar-c/human-copy/plugins/sdd-review-loop/agents/impl-reviewer-a.md" \
-  "$MUT_ROOT/plugins/sdd-review-loop/agents/impl-reviewer-a.md"
+# The render staged the corrected content (protected: true); copy it to the
+# real position so --check's read-only comparison has something to report OK.
+cp "$MUT_ROOT/specs/epic-159-pillar-c/human-copy/$MUT_REL" "$MUT_ROOT/$MUT_REL"
 GREEN020_LOG="$TMP/green-ac020.log"
 set +e
 "$RENDER_SH" --check --root "$MUT_ROOT" --targets-file "$MUT_TARGETS" --registry "$MUT_ROOT/contracts/agent-model-capabilities.v2.json" >"$GREEN020_LOG" 2>&1
 GREEN020_EXIT=$?
 set -e
-if [[ "$GREEN020_EXIT" -eq 0 ]] && grep -Fq "OK: plugins/sdd-review-loop/agents/impl-reviewer-a.md" "$GREEN020_LOG"; then
+if [[ "$GREEN020_EXIT" -eq 0 ]] && grep -Fq "OK: $MUT_REL" "$GREEN020_LOG"; then
   ok "TEST-020 GREEN: --check reports OK (no drift) against a correctly-synced protected-position target"
 else
   bad "TEST-020 GREEN: --check did not report OK against a correctly-synced target -- $(cat "$GREEN020_LOG")"
 fi
-
-# Mutate the rendered copy's x-sdd-effort value (simulating a stale/edited
-# protected target) and confirm the check goes red again.
-python3 - "$MUT_ROOT/plugins/sdd-review-loop/agents/impl-reviewer-a.md" <<'PY'
-import sys
+python3 - "$MUT_ROOT/$MUT_REL" <<'PY'
+import re, sys
 path = sys.argv[1]
-with open(path, encoding="utf-8") as fh:
-    text = fh.read()
-text = text.replace("<!-- x-sdd-effort: medium -->", "<!-- x-sdd-effort: high -->")
-with open(path, "w", encoding="utf-8") as fh:
-    fh.write(text)
+text = open(path, encoding="utf-8").read()
+mutated = re.sub(r"<!-- x-sdd-effort: (\S+) -->",
+                 lambda m: "<!-- x-sdd-effort: " + ("low" if m.group(1) != "low" else "high") + " -->", text, count=1)
+assert mutated != text, "the synced target carries no x-sdd-effort comment to mutate"
+open(path, "w", encoding="utf-8").write(mutated)
 PY
 RED020_LOG="$TMP/red-ac020.log"
 set +e
 "$RENDER_SH" --check --root "$MUT_ROOT" --targets-file "$MUT_TARGETS" --registry "$MUT_ROOT/contracts/agent-model-capabilities.v2.json" >"$RED020_LOG" 2>&1
 RED020_EXIT=$?
 set -e
-if [[ "$RED020_EXIT" -ne 0 ]] && grep -Fq "DRIFT: plugins/sdd-review-loop/agents/impl-reviewer-a.md" "$RED020_LOG"; then
+if [[ "$RED020_EXIT" -ne 0 ]] && grep -Fq "DRIFT: $MUT_REL" "$RED020_LOG"; then
   ok "TEST-020 RED (negative self-check): mutating a synced protected-position target's x-sdd-effort value turns --check red again"
 else
   bad "TEST-020 RED (negative self-check): mutated target did NOT turn --check red -- $(cat "$RED020_LOG")"
@@ -302,61 +286,41 @@ fi
 # ===========================================================================
 # TEST-019 (AC-019): write-target resolution FUNCTION self-check, RED/GREEN.
 # ===========================================================================
-# GREEN (real, correctly scoped map): forcing Protected=1 on the four real
-# protected basenames always resolves under specs/epic-159-pillar-c/human-copy/.
+# GREEN: forcing Protected=1 on a target resolves under
+# specs/epic-159-pillar-c/human-copy/; RED: Protected=0 resolves to the real
+# path -- the branch is sensitive to the flag, not hardcoded.
+RESOLVE_RELPATHS=("${UNPROTECTED_CLAUDE_RELPATHS[@]}")
 green019_ok=1
-for rel in "${PROTECTED_RELPATHS[@]}"; do
-  resolved="$("$RENDER_SH" --resolve-target-raw "$rel" 1)"
-  case "$resolved" in
-    "$ROOT/specs/epic-159-pillar-c/human-copy/$rel") : ;;
-    *) green019_ok=0 ;;
-  esac
+red019_ok=1
+for rel in "${RESOLVE_RELPATHS[@]}"; do
+  [[ "$("$RENDER_SH" --resolve-target-raw "$rel" 1)" == "$ROOT/specs/epic-159-pillar-c/human-copy/$rel" ]] || green019_ok=0
+  [[ "$("$RENDER_SH" --resolve-target-raw "$rel" 0)" == "$ROOT/$rel" ]] || red019_ok=0
 done
 if [[ "$green019_ok" -eq 1 ]]; then
-  ok "TEST-019 GREEN: resolve-target-raw(Protected=1) resolves all four protected basenames under specs/epic-159-pillar-c/human-copy/, never the real path"
+  ok "TEST-019 GREEN: resolve-target-raw(Protected=1) resolves under specs/epic-159-pillar-c/human-copy/, never the real path"
 else
-  bad "TEST-019 GREEN: resolve-target-raw(Protected=1) resolved at least one protected basename OUTSIDE human-copy/"
+  bad "TEST-019 GREEN: resolve-target-raw(Protected=1) resolved a target OUTSIDE human-copy/"
 fi
-
-# GREEN (default table): the shipped, built-in target table classifies the
-# four real basenames as protected -- looked up via role+kind+relpath, not
-# an override flag.
-ROLE_FOR_RELPATH_KEYS=()
-ROLE_FOR_RELPATH_VALS=()
-kv_set ROLE_FOR_RELPATH "plugins/sdd-review-loop/agents/impl-reviewer-a.md" "impl-reviewer"
-kv_set ROLE_FOR_RELPATH "plugins/sdd-review-loop/agents/impl-reviewer-b.md" "impl-reviewer"
-kv_set ROLE_FOR_RELPATH "plugins/sdd-review-loop/agents/task-reviewer-a.md" "task-reviewer"
-kv_set ROLE_FOR_RELPATH "plugins/sdd-review-loop/agents/task-reviewer-b.md" "task-reviewer"
-green019_table_ok=1
-for rel in "${PROTECTED_RELPATHS[@]}"; do
-  role="$(kv_get ROLE_FOR_RELPATH "$rel")"
-  resolved="$("$RENDER_SH" --resolve-target "$role" claude "$rel")"
-  case "$resolved" in
-    "$ROOT/specs/epic-159-pillar-c/human-copy/$rel") : ;;
-    *) green019_table_ok=0 ;;
-  esac
-done
-if [[ "$green019_table_ok" -eq 1 ]]; then
-  ok "TEST-019 GREEN (default table): the shipped TARGETS table resolves all four protected basenames to human-copy/"
-else
-  bad "TEST-019 GREEN (default table): the shipped TARGETS table failed to classify a protected basename correctly"
-fi
-
-# RED (deliberately widened/mis-scoped map): forcing Protected=0 on the same
-# four basenames resolves to the REAL protected path -- proving the branch
-# is meaningfully sensitive to the protected flag, not hardcoded to always
-# return the safe path regardless of input.
-red019_ok=1
-for rel in "${PROTECTED_RELPATHS[@]}"; do
-  resolved="$("$RENDER_SH" --resolve-target-raw "$rel" 0)"
-  if [[ "$resolved" != "$ROOT/$rel" ]]; then
-    red019_ok=0
-  fi
-done
 if [[ "$red019_ok" -eq 1 ]]; then
-  ok "TEST-019 RED (widened/mis-scoped map): forcing Protected=0 on a protected basename resolves to the REAL path -- proves the resolution function is live, not vacuously safe"
+  ok "TEST-019 RED: forcing Protected=0 resolves to the REAL path -- the resolution function is live, not vacuously safe"
 else
-  bad "TEST-019 RED (widened/mis-scoped map): forcing Protected=0 did NOT resolve to the real path (resolution function may be broken/vacuous)"
+  bad "TEST-019 RED: forcing Protected=0 did NOT resolve to the real path"
+fi
+
+# Q15: every shipped default target is unprotected and current; the retired
+# reviewer roles are refused by --resolve-target before any table lookup.
+q15_resolve_ok=1
+for entry in "${RETIRED_TARGETS[@]}"; do
+  role="${entry%% *}"; rel="${entry#* }"
+  set +e
+  out="$("$RENDER_SH" --resolve-target "$role" claude "$rel" 2>&1)"; rc=$?
+  set -e
+  [[ "$rc" -ne 0 && "$out" == *"role '$role' was retired in v2 and cannot be rendered"* ]] || q15_resolve_ok=0
+done
+if [[ "$q15_resolve_ok" -eq 1 ]]; then
+  ok "Q15: --resolve-target refuses all four retired reviewer targets"
+else
+  bad "Q15: --resolve-target resolved a retired reviewer target"
 fi
 
 # ===========================================================================
@@ -365,36 +329,18 @@ fi
 RENDER_LOG="$TMP/render.log"
 "$RENDER_SH" --root "$TMP" --registry "$TMP/contracts/agent-model-capabilities.v2.json" >"$RENDER_LOG" 2>&1
 
-# TEST-014: unprotected Claude .md targets get only the model: line
-# rewritten (here: left as-is, since role_defaults was seeded from these
-# exact current values) + x-sdd-effort inserted/refreshed.
-EXPECTED_EFFORT_KEYS=()
-EXPECTED_EFFORT_VALS=()
-kv_set EXPECTED_EFFORT "plugins/sdd-quality-loop/agents/evaluator.md" "medium"
-kv_set EXPECTED_EFFORT "plugins/sdd-bootstrap/agents/investigator.md" "low"
-kv_set EXPECTED_EFFORT "plugins/sdd-review-loop/agents/spec-reviewer-a.md" "medium"
-kv_set EXPECTED_EFFORT "plugins/sdd-review-loop/agents/spec-reviewer-b.md" "medium"
+# TEST-014: every shipped Claude target is `model: inherit`, so a render
+# leaves it byte-identical (AC-018 exclusion). The rendered model line and
+# x-sdd-effort comment of an explicit-model target are proved by the TEST-020
+# fixture above and the override checks below.
 test014_ok=1
 for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}"; do
-  model_line="$(grep -m1 '^model:' "$TMP/$rel" | sed 's/^model:[[:space:]]*//')"
-  if [[ "$model_line" != "$(kv_get MODEL_BEFORE "$rel")" ]]; then
-    test014_ok=0
-  fi
-  if ! grep -Fq "<!-- x-sdd-effort: $(kv_get EXPECTED_EFFORT "$rel") -->" "$TMP/$rel"; then
-    test014_ok=0
-  fi
-  # No OTHER frontmatter field touched: exactly one line was added (the
-  # x-sdd-effort comment); every other line is byte-identical in position.
-  before_count="$(kv_get LINE_COUNT_BEFORE "$rel")"
-  after_count="$(grep -c '' "$TMP/$rel")"
-  if [[ $((after_count - before_count)) -ne 1 ]]; then
-    test014_ok=0
-  fi
+  [[ "$(sha256_of "$TMP/$rel")" == "$(kv_get SHA_BEFORE "$rel")" ]] || test014_ok=0
 done
 if [[ "$test014_ok" -eq 1 ]]; then
-  ok "TEST-014: unprotected Claude .md targets keep model: unchanged and gain exactly one x-sdd-effort comment line, sourced from role_defaults"
+  ok "TEST-014: a render leaves every shipped (inherit) Claude target byte-identical"
 else
-  bad "TEST-014: unprotected Claude .md render produced an unexpected diff"
+  bad "TEST-014: a render changed a shipped Claude target that inherits the caller's model"
 fi
 
 # TEST-015: Codex .toml targets get the two reference comment lines,
@@ -445,42 +391,12 @@ else
   bad "TEST-017: render against real production content changed a model: value that role_defaults seeding should have kept identical"
 fi
 
-# TEST-019 continued: the render above must NEVER have opened the four
-# protected-position scratch files (representing the real path) for write.
-test019_write_ok=1
-for rel in "${PROTECTED_RELPATHS[@]}"; do
-  after="$(sha256_of "$TMP/$rel")"
-  if [[ "$after" != "$(kv_get SHA_BEFORE "$rel")" ]]; then
-    test019_write_ok=0
-  fi
-done
-if [[ "$test019_write_ok" -eq 1 ]]; then
-  ok "TEST-019: a full render pass left all four protected-position targets byte-unchanged at their real path"
+# The shipped default table has no protected target, so a full render stages
+# nothing.
+if [[ ! -e "$TMP/specs" ]]; then
+  ok "TEST-019: a full default render staged nothing under specs/ (no protected default target)"
 else
-  bad "TEST-019: a full render pass modified a protected-position target's real path"
-fi
-
-# Corrected content for the four protected targets landed ONLY under the
-# scratch human-copy staging dir, with a MANIFEST.sha256 entry each.
-test019_staged_ok=1
-for rel in "${PROTECTED_RELPATHS[@]}"; do
-  staged="$TMP/specs/epic-159-pillar-c/human-copy/$rel"
-  if [[ ! -f "$staged" ]]; then
-    test019_staged_ok=0
-    continue
-  fi
-  if ! grep -Fq "<!-- x-sdd-effort: medium -->" "$staged"; then
-    test019_staged_ok=0
-  fi
-  staged_sha="$(sha256_of "$staged")"
-  if ! grep -Fq "$staged_sha  $rel" "$TMP/specs/epic-159-pillar-c/human-copy/MANIFEST.sha256"; then
-    test019_staged_ok=0
-  fi
-done
-if [[ "$test019_staged_ok" -eq 1 ]]; then
-  ok "TEST-019: corrected content for all four protected targets staged under human-copy/ with a matching MANIFEST.sha256 entry"
-else
-  bad "TEST-019: staged protected-target content or its MANIFEST.sha256 entry is missing/incorrect"
+  bad "TEST-019: a full default render created a staging directory"
 fi
 
 # ===========================================================================
@@ -536,12 +452,8 @@ else
   bad "TEST-016: tests/validate-repository.ps1 does not invoke render-agent-frontmatter --check"
 fi
 
-STAGED_TEST_YML="$HUMAN_COPY_DIR/.github/workflows/test.yml"
-if [[ -f "$STAGED_TEST_YML" ]] && grep -Fq "render-agent-frontmatter" "$STAGED_TEST_YML"; then
-  ok "TEST-016: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)"
-else
-  bad "TEST-016: the staged .github/workflows/test.yml candidate does not reference render-agent-frontmatter"
-fi
+# The staged .github/workflows/test.yml candidate check retired with the
+# human-copy procedure (2026-11-28 owner decision, ADR-0051 decision 1).
 
 # ===========================================================================
 # Mis-cased registry fixtures (PowerShell case-sensitivity discipline
@@ -620,15 +532,20 @@ for name, value in cases.items():
         role['claude_frontmatter'] = value
     pathlib.Path(sys.argv[2], 'override-' + name + '.json').write_text(json.dumps(source))
 PY
-if "$RENDER_SH" --root "$TMP" --targets-file "$MISCASED_TARGETS" --registry "$TMP/override-absent.json" >"$TMP/override.log" 2>&1 &&
-  grep -Fx 'model: opus' "$TMP/plugins/sdd-quality-loop/agents/evaluator.md" >/dev/null &&
-  grep -Fx '<!-- x-sdd-effort: high -->' "$TMP/plugins/sdd-quality-loop/agents/evaluator.md" >/dev/null; then
+# The shipped evaluator inherits the caller's model, so the override checks
+# render an explicit-model copy of it.
+sed 's/^model: inherit$/model: fixture-explicit/' "$TMP/plugins/sdd-quality-loop/agents/evaluator.md" >"$TMP/explicit-evaluator.md"
+OVERRIDE_TARGETS="$TMP/override-targets.json"
+printf '[{"role": "sdd-evaluator", "kind": "claude", "path": "explicit-evaluator.md", "protected": false}]\n' >"$OVERRIDE_TARGETS"
+if "$RENDER_SH" --root "$TMP" --targets-file "$OVERRIDE_TARGETS" --registry "$TMP/override-absent.json" >"$TMP/override.log" 2>&1 &&
+  grep -Fx 'model: opus' "$TMP/explicit-evaluator.md" >/dev/null &&
+  grep -Fx '<!-- x-sdd-effort: high -->' "$TMP/explicit-evaluator.md" >/dev/null; then
   ok "Claude override absent preserves base role defaults"
 else
   bad "Claude override absent did not preserve base role defaults"
 fi
 for case_name in null array missing extra tier-case effort-case; do
-  if "$RENDER_SH" --check --root "$TMP" --targets-file "$MISCASED_TARGETS" --registry "$TMP/override-$case_name.json" >"$TMP/override.log" 2>&1; then
+  if "$RENDER_SH" --check --root "$TMP" --targets-file "$OVERRIDE_TARGETS" --registry "$TMP/override-$case_name.json" >"$TMP/override.log" 2>&1; then
     bad "Claude override $case_name accepted"
   elif grep -F 'invalid claude_frontmatter' "$TMP/override.log" >/dev/null; then
     ok "Claude override $case_name rejected"
@@ -654,44 +571,53 @@ else
 fi
 
 # ===========================================================================
-# Human-copy staging: five protected real targets (four reviewer .md files
-# + .github/workflows/test.yml) have a staged candidate + correct
-# MANIFEST.sha256 entry; the five LIVE files are byte-identical before and
-# after THIS SUITE's own run (mirrors tests/agent-capabilities-v2.tests.sh's
-# established pattern, extended from one file to five).
+# Q15 (owner decision 2026-11-28): an explicit render of a retired reviewer
+# role is refused before any write -- in render and --check mode, protected or
+# not, and even when listed with a valid current target. The original file
+# stays byte-identical and no staging directory or manifest appears. A
+# mis-cased role is refused as an unknown role. (The human-copy staging checks
+# on the four v1 reviewer candidates retired with ADR-0051 decision 1.)
 # ===========================================================================
-STAGED_ALL_RELPATHS=("${PROTECTED_RELPATHS[@]}" ".github/workflows/test.yml")
-human_copy_ok=1
-for rel in "${STAGED_ALL_RELPATHS[@]}"; do
-  staged="$HUMAN_COPY_DIR/$rel"
-  if [[ ! -f "$staged" ]]; then
-    human_copy_ok=0
-    continue
-  fi
-  staged_sha="$(sha256_of "$staged")"
-  if ! grep -Fq "$staged_sha  $rel" "$MANIFEST"; then
-    human_copy_ok=0
-  fi
+Q15_ROOT="$TMP/q15-retired"
+mkdir -p "$Q15_ROOT/plugins/sdd-review-loop/agents" "$Q15_ROOT/contracts" "$Q15_ROOT/plugins/sdd-quality-loop/agents"
+cp "$REAL_REGISTRY" "$Q15_ROOT/contracts/agent-model-capabilities.v2.json"
+cp "$TMP/plugins/sdd-quality-loop/agents/evaluator.md" "$Q15_ROOT/plugins/sdd-quality-loop/agents/evaluator.md"
+q15_ok=1
+q15_cases=0
+for entry in "${RETIRED_TARGETS[@]}"; do
+  role="${entry%% *}"; rel="${entry#* }"
+  printf -- '---\nname: %s\nmodel: opus\n---\nRetired v1 reviewer fixture.\n' "$(basename "$rel" .md)" >"$Q15_ROOT/$rel"
+  for variant in protected unprotected mixed mis-cased; do
+    case "$variant" in
+      protected) table="[{\"role\": \"$role\", \"kind\": \"claude\", \"path\": \"$rel\", \"protected\": true}]" ;;
+      unprotected) table="[{\"role\": \"$role\", \"kind\": \"claude\", \"path\": \"$rel\", \"protected\": false}]" ;;
+      mixed) table="[{\"role\": \"sdd-evaluator\", \"kind\": \"claude\", \"path\": \"plugins/sdd-quality-loop/agents/evaluator.md\", \"protected\": false}, {\"role\": \"$role\", \"kind\": \"claude\", \"path\": \"$rel\", \"protected\": false}]" ;;
+      mis-cased) table="[{\"role\": \"$(printf '%s' "$role" | sed 's/^i/I/; s/^t/T/')\", \"kind\": \"claude\", \"path\": \"$rel\", \"protected\": false}]" ;;
+    esac
+    printf '%s\n' "$table" >"$Q15_ROOT/targets.json"
+    for mode in render check; do
+      before="$(cd "$Q15_ROOT" && find . -type f ! -name targets.json -exec sha256sum {} + | sort)"
+      set +e
+      if [[ "$mode" == check ]]; then
+        out="$("$RENDER_SH" --check --root "$Q15_ROOT" --targets-file "$Q15_ROOT/targets.json" --registry "$Q15_ROOT/contracts/agent-model-capabilities.v2.json" 2>&1)"; rc=$?
+      else
+        out="$("$RENDER_SH" --root "$Q15_ROOT" --targets-file "$Q15_ROOT/targets.json" --registry "$Q15_ROOT/contracts/agent-model-capabilities.v2.json" 2>&1)"; rc=$?
+      fi
+      set -e
+      after="$(cd "$Q15_ROOT" && find . -type f ! -name targets.json -exec sha256sum {} + | sort)"
+      q15_cases=$((q15_cases + 1))
+      if [[ "$variant" == mis-cased ]]; then expected="role_defaults missing or incomplete"; else expected="was retired in v2 and cannot be rendered"; fi
+      if [[ "$rc" -eq 0 || "$out" != *RENDER_ERROR*"$expected"* || "$before" != "$after" || -e "$Q15_ROOT/specs" ]]; then
+        q15_ok=0
+        printf 'Q15 case failed: %s %s %s rc=%s %s\n' "$rel" "$variant" "$mode" "$rc" "$out" >&2
+      fi
+    done
+  done
 done
-if [[ "$human_copy_ok" -eq 1 ]]; then
-  ok "human-copy: all five staged candidates (four reviewer .md + test.yml) exist with a correct MANIFEST.sha256 entry"
+if [[ "$q15_ok" -eq 1 && "$q15_cases" -eq 32 ]]; then
+  ok "Q15: all 32 retired-reviewer render/check cases are refused with nothing written or staged"
 else
-  bad "human-copy: at least one staged candidate or its MANIFEST.sha256 entry is missing/incorrect"
-fi
-
-live_protected_unchanged=1
-for rel in "${PROTECTED_RELPATHS[@]}"; do
-  after="$(sha256_of "$ROOT/$rel")"
-  if [[ "$after" != "$(kv_get LIVE_PROTECTED_SHA_BEFORE "$rel")" ]]; then
-    live_protected_unchanged=0
-  fi
-done
-LIVE_TEST_YML_SHA_BEFORE_MARKER="$TMP/.test-yml-sha-before"
-sha256_of "$ROOT/.github/workflows/test.yml" >"$LIVE_TEST_YML_SHA_BEFORE_MARKER"
-if [[ "$live_protected_unchanged" -eq 1 ]]; then
-  ok "AC-019/AC-027-style: the four live protected reviewer .md files are byte-unchanged before/after this suite's own run"
-else
-  bad "AC-019/AC-027-style: a live protected reviewer .md file CHANGED during this suite's own run"
+  bad "Q15: a retired-reviewer render was accepted or wrote something ($q15_cases cases)"
 fi
 
 # Malformed values must fail before rendering any disposable target.

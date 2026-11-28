@@ -19,6 +19,10 @@
 - **tasks.md の位置にフォルダーがある場合のゲート**: EISDIR で落ちず、パスを示して止まる。
 - **リリース前の CI 確認の案内**: 後続の push で CI が取り消されたコミットは、そのコミットで test.yml を手動実行するよう案内する。
 
+### Changed
+
+- **退役したレビュー役のモデル表記の書き込みを拒否（Q15）**: `render-agent-frontmatter.{sh,ps1}` は、v2 で廃止した `impl-reviewer` と `task-reviewer` を対象に指定されると `RENDER_ERROR: role ... was retired in v2 and cannot be rendered` で停止する。これまでは正常終了し、補正後の内容を `specs/epic-159-pillar-c/human-copy/` に書き出していた。対象一覧のどこかに含まれていれば、ほかの対象も含めて何も書き込まない（`--check` と `--resolve-target` も同じ）。配布している6つの対象と管理経路（`--managed-target`）の挙動は変わらない。
+
 ### Added
 
 - **モデル表の生成と週次の更新案（ADR-0055）**: ティアとモデルの対応表、役割ごとの下限、退役モデルの表を契約から生成し（`scripts/render-model-routing-docs.py`、`--check` で差分を検出）、モデル ID のティアを系列規則（`contracts/model-families.v1.json`、`model-tier.py`）で判定する。`model-registry-update.yml` は週次で Anthropic・OpenAI・Google の公式ページを取得し、登録済み系列の新しい版だけを `adoption: []`（自動では選ばれない）で追加した更新案 PR を開く。自動マージはしない。新しい系列・古い版・2世代以上の飛び越し・ページに見当たらない現行モデルは報告だけにとどめる。

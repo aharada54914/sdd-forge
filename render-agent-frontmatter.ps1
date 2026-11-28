@@ -126,6 +126,14 @@ function Resolve-WriteTarget($Targets, [string]$Role, [string]$Kind, [string]$Re
     throw "RENDER_ERROR: target not found in table: $Role/$Kind/$RelPath"
 }
 
+# Roles whose agent definitions v2 removed (ADR-0051 decision 2; owner
+# decision 2026-11-28). Exact, case-sensitive twin of the bash RETIRED_ROLES:
+# an explicit target for one is an input error and nothing is written.
+$RetiredRoles = @('impl-reviewer', 'task-reviewer')
+function Assert-NotRetiredRole([string]$Role) {
+    if ($RetiredRoles -ccontains $Role) { throw "RENDER_ERROR: role '$Role' was retired in v2 and cannot be rendered" }
+}
+
 function Split-ContentLines([string]$Content) {
     $trailingNl = $Content.EndsWith("`n")
     $parts = $Content -split "`n"
@@ -444,12 +452,15 @@ if ($TargetsFile) {
         }
         $targets += [pscustomobject]@{ Role = [string]$p.role; Kind = [string]$p.kind; Path = [string]$p.path; Protected = [bool]$p.protected }
     }
+    # Validate every target before any render, so one retired role stops the whole run.
+    foreach ($t in $targets) { Assert-NotRetiredRole $t.Role }
 }
 
 if ($ResolveTargetRole) {
     if (-not $ResolveTargetKind -or -not $ResolveTargetRelPath) {
         throw 'RENDER_ERROR: -ResolveTargetRole requires -ResolveTargetKind and -ResolveTargetRelPath'
     }
+    Assert-NotRetiredRole $ResolveTargetRole
     Write-Output (Resolve-WriteTarget -Targets $targets -Role $ResolveTargetRole -Kind $ResolveTargetKind -RelPath $ResolveTargetRelPath)
     exit 0
 }
