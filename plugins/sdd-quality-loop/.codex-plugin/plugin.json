@@ -2,11 +2,11 @@
   "name": "sdd-quality-loop",
   "version": "2.1.5",
   "description": "Independently verify Implementation Complete tasks, run critical review, fix approved tickets, verify differential baselines, retrospect on workflow performance, and decide Done.",
-  "skills": "./skills/",
-  "hooks": "./hooks/codex-hooks.json",
   "author": {
     "name": "Harada"
   },
+  "skills": "./skills/",
+  "hooks": "./hooks/codex-hooks.json",
   "interface": {
     "displayName": "SDD Quality Loop",
     "shortDescription": "Independently verify completed implementations",

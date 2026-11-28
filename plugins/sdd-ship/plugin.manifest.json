@@ -1,0 +1,40 @@
+{
+  "name": "sdd-ship",
+  "order": 2,
+  "description": "Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow.",
+  "author": {
+    "name": "Harada"
+  },
+  "skillsDir": "./skills/",
+  "category": "Developer Tools",
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "targets": {
+    "codex": {
+      "interface": {
+        "displayName": "SDD Ship",
+        "shortDescription": "Implement and verify approved SDD tasks",
+        "longDescription": "Orchestrate approved tasks through spec baseline → implement-tasks → sdd-gate → optional workflow-retrospective. Adapts checks to per-task Risk tiers (low/standard/high) and supports zero-argument context-aware invocation. The second of the two-command SDD workflow — use after sdd-bootstrap.",
+        "developerName": "Harada",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Batch implementation of approved tasks in dependency order",
+          "Risk-tiered SDD Core execution (low/standard/high) with lightweight soft guardrails",
+          "Quality gate orchestration per task",
+          "Workflow retrospective on feature completion",
+          "Zero-argument context-aware feature selection"
+        ],
+        "defaultPrompt": "Use the ship skill for specs/<feature>/tasks.md"
+      }
+    },
+    "gemini": {
+      "description": "Implement approved SDD tasks through deterministic quality gates to Done and inspect read-only status dashboards in Gemini CLI.",
+      "contextFileName": "GEMINI.md",
+      "paths": [
+        "gemini-extension.json"
+      ]
+    }
+  }
+}

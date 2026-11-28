@@ -32,3 +32,12 @@ OS/image, tested commit and per-suite results, including failures. These checks
 do not certify desktop interaction, authenticated host registration, every
 PowerShell entry point, or every Windows version. Keep the existing broader
 PowerShell 7 suites required alongside this profile.
+
+## AI Pitfalls (Auto-Generated from `contracts/pitfalls-catalog.json`)
+
+<!-- BEGIN GENERATED:pitfalls-powershell -->
+| ID | Severity | Symptom | Good Pattern | Layer | Status | Source |
+|---|---|---|---|---|---|---|
+| `PIT-PS-001` | high | Using case-insensitive -eq/-match in .ps1 ports accepts mis-cased inputs that POSIX .sh rejects | Use -ceq / -cmatch / [StringComparer]::Ordinal and include a mis-cased negative test per layer | `ci-test` | `enforced-by-lint` | WFI-012 |
+| `PIT-PS-002` | medium | PowerShell unrolls single-element arrays and ignores native command failures without explicit $LASTEXITCODE checks | Wrap collections with @(...) and assert $LASTEXITCODE -eq 0 alongside $ErrorActionPreference = 'Stop' | `review-checklist` | `active` | CS-019 |
+<!-- END GENERATED:pitfalls-powershell -->

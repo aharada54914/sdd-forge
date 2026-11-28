@@ -1,0 +1,50 @@
+{
+  "name": "sdd-quality-loop",
+  "order": 4,
+  "description": "Independently verify Implementation Complete tasks, run differential baseline checks, retrospect on workflow performance, and decide Done.",
+  "marketplaceDescription": "Lightweight soft guardrails, Spec Drift detection, and unified sdd-gate verification.",
+  "author": {
+    "name": "Harada"
+  },
+  "skillsDir": "./skills/",
+  "category": "Developer Tools",
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "targets": {
+    "claude": {
+      "hooks": "./hooks/claude-hooks.json"
+    },
+    "codex": {
+      "description": "Independently verify Implementation Complete tasks, run critical review, fix approved tickets, verify differential baselines, retrospect on workflow performance, and decide Done.",
+      "hooks": "./hooks/codex-hooks.json",
+      "interface": {
+        "displayName": "SDD Quality Loop",
+        "shortDescription": "Independently verify completed implementations",
+        "longDescription": "Final SDD stage for CI-equivalent verification, critical review, UI checks, review-ticket fixes, traceability, and Done decisions.",
+        "developerName": "Harada",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Independent quality gate",
+          "Critical review and UI verification",
+          "Scoped review-ticket fixes",
+          "Differential baseline verification",
+          "Workflow retrospective and self-improvement"
+        ],
+        "defaultPrompt": "Use the sdd-gate skill for an Implementation Complete task."
+      }
+    },
+    "copilot": {
+      "hooks": "hooks/copilot-hooks.json",
+      "agents": "copilot-agents/"
+    },
+    "gemini": {
+      "description": "Lightweight soft guardrails (BeforeTool), Spec Drift detection, and unified sdd-gate independent quality verification for Gemini CLI.",
+      "contextFileName": "GEMINI.md",
+      "paths": [
+        "gemini/gemini-extension.json"
+      ]
+    }
+  }
+}

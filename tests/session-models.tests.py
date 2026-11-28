@@ -496,7 +496,7 @@ class GeminiInstaller(unittest.TestCase):
                 result = subprocess.run(args, capture_output=True, text=True, env=env, timeout=30)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 calls = [json.loads(line) for line in log.read_text().splitlines()]
-                self.assertEqual(calls[-1], ['extensions', 'uninstall', 'sdd-forge-model-selection'])
+                self.assertEqual(calls[-1], ['extensions', 'uninstall', 'sdd-implementation'])
             else:
                 self.assertEqual(normalized_calls, [
                     ['extensions', 'link', str(resolved_installed / 'plugins/sdd-review-loop')],

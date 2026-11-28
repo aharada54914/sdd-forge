@@ -58,7 +58,7 @@ flowchart TD
 
 ## インストール
 
-前提ランタイムは **Node.js >= 20 LTS** のみです（v1 系の過剰な `Node >= 26.13.0` / `Claude >= 2.1.295` 強制停止と 4 言語パリティ要件は撤廃しました）。
+前提ランタイムは **Node.js >= 26.13.0** です（[ADR-0056](docs/adr/0056-ssot-unification-pitfalls-and-test-lifecycle.md) に基づき `contracts/release-manifest.json` を SSOT として統合管理しています）。
 
 ```bash
 # macOS / Linux — 既定（sdd-bootstrap, sdd-ship + 依存自動解決。ローカル CLI 向けのため MCP は既定オプトイン）
@@ -96,6 +96,8 @@ flowchart TD
 - [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) — v2 脅威モデル（Local Soft, Boundary Firm）
 - [docs/adr/0051-lightweight-guardrails-and-sdd-core.md](docs/adr/0051-lightweight-guardrails-and-sdd-core.md) — v2 設計決定記録（ADR-0051）
 - [docs/adr/0052-mcp-architecture-and-v2-consolidation.md](docs/adr/0052-mcp-architecture-and-v2-consolidation.md) — MCP v2 統合・オプトイン化（ADR-0052）
+- [docs/adr/0056-ssot-unification-pitfalls-and-test-lifecycle.md](docs/adr/0056-ssot-unification-pitfalls-and-test-lifecycle.md) — SSOT 統合・再発防止・動的テスト改廃・ユーザー導入自動化（ADR-0056）
+- [docs/coding-conventions.md](docs/coding-conventions.md) — 静的解析・コンテキスト衛生・SSOT 規約（R-01〜R-05）
 - [docs/architecture/mcp-v2-spec.md](docs/architecture/mcp-v2-spec.md) — `sdd-forge-mcp` v2 規範仕様
 - [docs/non-interactive-factory.md](docs/non-interactive-factory.md) — 非対話・自律ファクトリ運用ガイド（`claude -p` / `codex exec` / `agy -p`）
 - [USERGUIDE.md](USERGUIDE.md) — MCP サーバー・運用詳細

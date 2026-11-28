@@ -274,3 +274,4 @@ must never rely on a bare legacy number.
 | 0050 | [Session model preferences without weakening launch admission](0050-session-model-preferences.md) | Accepted |
 | 0051 | [Lightweight Guardrails and SDD Core Consolidation](0051-lightweight-guardrails-and-sdd-core.md) | Accepted |
 | 0053 | [DDDの概念判断を対話ターミナルで記録する](0053-keyless-concept-decisions.md) | Proposed |
+| 0056 | [SSOT 統合・AI ピットフォール自動更新・動的テスト改廃アーキテクチャ](0056-ssot-unification-pitfalls-and-test-lifecycle.md) | Accepted |

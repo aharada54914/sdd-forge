@@ -1,16 +1,26 @@
-# CODEOWNERS for sdd-forge (v2 Lightweight Guardrails — Layer 3 Boundary)
+# CODEOWNERS for sdd-forge (v2 Lightweight Guardrails + ADR-0056 SSOT Boundary)
 #
-# In SDD Forge v2 (ADR-0051), local hooks stay lightweight and non-intrusive
-# ("Local Soft"), while Git/PR/CODEOWNERS/CI serve as the firm governance
-# boundary ("Boundary Firm").
+# In SDD Forge v2 (ADR-0051 & ADR-0056), local hooks stay lightweight ("Local Soft"),
+# while Git/PR/CODEOWNERS/CI serve as the firm governance boundary ("Boundary Firm").
 
 # Guardrails hooks, scripts, and schemas
 /plugins/sdd-quality-loop/hooks/           @aharada54914
 /plugins/sdd-quality-loop/gemini/hooks/    @aharada54914
 /plugins/sdd-quality-loop/scripts/         @aharada54914
 /plugins/sdd-quality-loop/references/      @aharada54914
+/contracts/                                @aharada54914
 /contracts/guardrails.schema.json          @aharada54914
 /sdd/guardrails.yaml                       @aharada54914
+/sdd/approved-test-retirements.json        @aharada54914
+
+# SSOT sync, impact, and lifecycle gates
+/scripts/sync-ssot.mjs                     @aharada54914
+/scripts/check-ecosystem-impact.mjs        @aharada54914
+/scripts/harvest-pitfalls.mjs              @aharada54914
+/plugins/*/plugin.manifest.json            @aharada54914
+/install-payload.txt                       @aharada54914
+/CODEOWNERS                                @aharada54914
+/.gitattributes                            @aharada54914
 
 # CI/CD and governance
 /.github/                                  @aharada54914
@@ -18,3 +28,4 @@
 # Approved specifications and ADRs
 /specs/                                    @aharada54914
 /docs/adr/                                 @aharada54914
+/docs/coding-conventions.md                @aharada54914

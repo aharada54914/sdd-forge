@@ -130,14 +130,25 @@ the lexicographically smaller provider/model identifier.
 
 ### Provider Tier Mapping
 
-| Tier | Provider | Model family | Reasoning effort | 最終確認日 | 参照ソース |
+<!-- BEGIN GENERATED:capability-matrix-tiers -->
+| Model ID | Canonical Tier | Default Effort | Supported Efforts | Lifecycle | Source Date |
 |---|---|---|---|---|---|
-| lightweight | Anthropic | Haiku | low | 未確認 | Anthropic official docs (models overview) |
-| standard | Anthropic | Sonnet | medium | 未確認 | Anthropic official docs (models overview) |
-| strong | Anthropic | Opus | high | 未確認 | Anthropic official docs (models overview) |
-| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low | 未確認 | OpenAI developers docs (Codex) |
-| standard | OpenAI/Codex | `gpt-5.1-codex` | medium | 未確認 | OpenAI developers docs (Codex) |
-| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies | 現在の可用性は未確認 | contracts/agent-model-capabilities.v2.json（候補の登録情報） |
+| `anthropic/haiku` | lightweight | low | low | candidate | 2026-07-19 |
+| `anthropic/sonnet` | standard | medium | medium | candidate | 2026-07-19 |
+| `anthropic/opus` | strong | high | low, medium, high, xhigh, max | candidate | 2026-07-19 |
+| `anthropic/opus-5-5` | strong | high | low, medium, high, xhigh, max | current | 2026-11-21 |
+| `anthropic/sonnet-5-5` | standard | medium | low, medium, high | current | 2026-11-21 |
+| `anthropic/fable` | strong | high | low, medium, high, xhigh, max | current | 2026-11-21 |
+| `google/gemini-4-neon` | strong | high | low, medium, high, xhigh | current | 2026-11-21 |
+| `openai/gpt-5.1-codex-mini` | lightweight | low | low | historical | 2026-07-19 |
+| `openai/gpt-5.1-codex` | standard | medium | medium | historical | 2026-07-19 |
+| `openai/gpt-5.2-codex` | strong | high | high, xhigh | historical | 2026-07-19 |
+| `openai/gpt-5.1-codex-max` | strong | high | high, xhigh | historical | 2026-07-19 |
+| `openai/gpt-5.4-codex-mini` | lightweight | low | low | historical | 2026-07-19 |
+| `openai/gpt-5.5-codex` | standard | medium | medium | historical | 2026-07-19 |
+| `openai/gpt-5.6-codex` | strong | high | high, xhigh | historical | 2026-07-19 |
+| `gpt-6-astra` | strong | high | low, medium, high, xhigh | current | 2026-09-28 |
+<!-- END GENERATED:capability-matrix-tiers -->
 
 For legacy routing, Codex agent model selection is a runtime control (`--model`
 / `--effort` flags passed to the Codex CLI at invocation). Legacy reference
@@ -224,13 +235,27 @@ computation at all.
 
 ### Role Floors
 
-| Role | Required tier | Anthropic route | OpenAI/Codex route |
-|---|---|---|---|
-| sdd-investigator | lightweight | Anthropic Haiku | OpenAI/Codex `gpt-5.1-codex-mini`, effort low |
-| spec-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
-| impl-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
-| task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
-| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |
+<!-- BEGIN GENERATED:capability-matrix-role-floors -->
+| Policy Role | Capability Role | Env Override | Min Tier | Default Effort | Candidate Preferences |
+|---|---|---|---|---|---|
+| `implementer` | `—` | `SDD_MODEL_IMPLEMENTER` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `investigator` | `sdd-investigator` | `SDD_MODEL_INVESTIGATOR` | lightweight | low | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `spec-reviewer-a` | `spec-reviewer` | `SDD_MODEL_SPEC_REVIEWER_A` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `spec-reviewer-b` | `spec-reviewer` | `SDD_MODEL_SPEC_REVIEWER_B` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `impl-reviewer-a` | `impl-reviewer` | `SDD_MODEL_IMPL_REVIEWER_A` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `impl-reviewer-b` | `impl-reviewer` | `SDD_MODEL_IMPL_REVIEWER_B` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `task-reviewer-a` | `task-reviewer` | `SDD_MODEL_TASK_REVIEWER_A` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `task-reviewer-b` | `task-reviewer` | `SDD_MODEL_TASK_REVIEWER_B` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `evaluator` | `sdd-evaluator` | `SDD_MODEL_EVALUATOR` | strong | high | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `domain-reviewer-a` | `domain-reviewer` | `SDD_MODEL_DOMAIN_REVIEWER_A` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `domain-reviewer-b` | `domain-reviewer` | `SDD_MODEL_DOMAIN_REVIEWER_B` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `workflow-auditor-a` | `workflow-auditor` | `SDD_MODEL_WORKFLOW_AUDITOR_A` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `workflow-auditor-b` | `workflow-auditor` | `SDD_MODEL_WORKFLOW_AUDITOR_B` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `diagnosis` | `diagnosis` | `SDD_MODEL_DIAGNOSIS` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `self-improvement` | `self-improvement` | `SDD_MODEL_SELF_IMPROVEMENT` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `panelist-gpt` | `panelist-gpt` | `SDD_MODEL_PANELIST_GPT` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `panelist-gemini` | `panelist-gemini` | `SDD_MODEL_PANELIST_GEMINI` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+<!-- END GENERATED:capability-matrix-role-floors -->
 
 ### Escalation
 
@@ -252,56 +277,29 @@ Deterministic parsing, validation, hashing, and state transitions use scripts ra
 
 ---
 
-## Shared Constraints (All Agents)
+## Shared Constraints (All Agents — SDD Forge v2)
 
-| Constraint | Rule | Enforcement |
+<!-- BEGIN GENERATED:capability-matrix-v2-guardrails -->
+| Constraint | Rule | Enforcement (v2) |
 |---|---|---|
-| **Cannot increase Approval: Approved count in tasks.md** | Any write that increases this count is denied (unless valid SDD_SUDO exists) | sdd-hook-guard; approval count logic (line 99–104 in sdd-hook-guard.py) |
-| **Cannot write Second Approval: Approved in tasks.md** | Any write that increases this count is denied (never bypassed by sudo) | sdd-hook-guard; second-approval count logic (line 126–130 in sdd-hook-guard.py) |
-| **Cannot set Status: Approved in docs/workflow-improvements/WFI-*.md** | Any write that increases WFI approval count is denied (never bypassed by sudo) | sdd-hook-guard; WFI approval logic (line 112–124 in sdd-hook-guard.py) |
-| **Cannot edit .codex/agents/*.toml without developer_instructions** | If a .toml file is written and lacks the `developer_instructions` field, the write is rejected | sdd-hook-guard; agent-role guard logic (line 133–145 in sdd-hook-guard.py) |
-| **Cannot create, edit, or delete SDD_SUDO** | Any shell write command targeting SDD_SUDO is blocked (Bash/PowerShell pattern matching) | sdd-hook-guard; shell-command guard (line 54–60 in sdd-hook-guard.py) |
-| **Kill switch (AGENT_STOP) blocks ALL tool calls** | If AGENT_STOP file exists at project root, every tool call is denied (no bypass) | sdd-hook-guard; kill-switch check runs first (line 192–223 in sdd-hook-guard.py) |
+| **Kill switch (`AGENT_STOP`)** | When `AGENT_STOP` exists at project root, all tool calls are denied (no bypass) | `plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs` |
+| **Approval self-escalation** | Agents cannot add `Approval: Approved` in `tasks.md` or `Domain-Model-Status: Approved` in `domain/context-map.md` | `plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs` |
+| **Approved spec protection** | Edits to approved `requirements.md` / `design.md` / `tasks.md` trigger configured mode (`confirm` / `warn` / `strict`); `Spec Amendments` remains editable | `sdd-soft-guard.mjs` + `check-spec-drift.mjs` |
+| **Concept Test receipt integrity** | Agent edits to `concept-test.decision.json` / approval receipts are denied across all file tool families | `sdd-soft-guard.mjs` + `run-sdd-gate.mjs` |
+| **SSOT & CI merge boundary** | Generated artifacts, `CODEOWNERS`, and test lifecycle rules are verified fail-closed in CI | `scripts/sync-ssot.mjs --check` + `.github/workflows/test.yml` |
+<!-- END GENERATED:capability-matrix-v2-guardrails -->
 
 ---
 
-## Hook Guard Enforcement Matrix
+## Hook Guard Enforcement Matrix (v2 Lightweight Guardrails)
 
-The sdd-hook-guard.py script enforces the following checks at the PreToolUse event:
+The `plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs` script enforces Layer 1 soft guardrails across all 5 supported hosts (Claude Code, Codex CLI, Copilot CLI, Antigravity CLI, Gemini CLI):
 
-1. **Kill Switch (AGENT_STOP)** — Lines 192–223
-   - If file exists at `$CLAUDE_PROJECT_DIR` or git root, deny all tool calls
-   - Never bypassed by sudo mode
-   - Fail-closed: any OSError is treated as "cannot verify, block"
-
-2. **Approval Guard** — Lines 65–104
-   - For any write to a file ending in `tasks.md`:
-     - Count `Approval: Approved` on `+` lines minus count on `−` lines
-     - Subtract `Second Approval: Approved` occurrences (substring match) to avoid double-counting
-     - If net increase > 0: deny (unless valid, unexpired SDD_SUDO exists)
-   - Applies to Edit, Write, apply_patch, and Bash commands
-
-3. **WFI Approval Guard** — Lines 112–124
-   - For any write to a file matching `docs/workflow-improvements/*.md`:
-     - Count `Status: Approved` lines on `+` vs `−`
-     - If net increase > 0: deny (NO BYPASS, even under sudo)
-   - Applies to Edit, Write, apply_patch, and Bash commands
-
-4. **Second Approval Guard** — Lines 126–130
-   - For tasks.md: count `Second Approval: Approved` lines on `+` vs `−`
-   - If net increase > 0: deny (NO BYPASS, even under sudo)
-   - Applies to Edit, Write, apply_patch, and Bash commands
-   - Note: check-task-state also verifies approver names are distinct
-
-5. **Agent-Role Guard** — Lines 133–145
-   - For any write to a file matching `.codex/agents/*.toml`:
-     - If the resulting file does NOT contain `developer_instructions` field, deny
-   - Applies to Edit, Write, apply_patch, and Bash commands targeting agent role paths
-
-6. **SDD_SUDO Write Guard** — Lines 54–60 (Bash pattern) and parallel logic in Python
-   - For any Bash/shell command on the command line:
-     - If it contains write operators (`>`, `>>`, `tee`, `cp`, `mv`, `rm`, `Set-Content`, etc.) AND targets SDD_SUDO, deny
-   - Applies to Bash, shell, exec_command, and exec tool calls
+1. **Kill Switch (`AGENT_STOP`)** — Denies all tool calls when `AGENT_STOP` exists at project root (no bypass, fail-closed).
+2. **Approval Guard** — Blocks agent self-approval (`Approval: Approved` in `tasks.md` and `Domain-Model-Status: Approved` in `domain/context-map.md`).
+3. **Approved Spec Body Guard** — Protects approved `requirements.md` / `design.md` / `tasks.md` according to `sdd/guardrails.yaml` (`confirm` default, `warn`, or `strict`), while allowing `Spec Amendments` additions.
+4. **Concept Test Receipt Guard** — Denies mutations to human decision receipts across every file tool family.
+5. **Merge Boundary (Layer 3)** — `.github/workflows/sdd-guardrails.yml`, `.github/workflows/test.yml` (`ssot-sync-check` / `test-lifecycle-check`), and `CODEOWNERS` enforce fail-closed governance at PR time.
 
 ---
 

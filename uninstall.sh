@@ -533,11 +533,7 @@ fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Gemini" ]]; then
     if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]] && command -v gemini >/dev/null 2>&1; then
         for p in "${PLUGIN_LIST[@]}"; do
-            if [[ "$p" == "sdd-implementation" ]]; then
-                try_plugin_command gemini extensions uninstall sdd-forge-model-selection
-            else
-                try_plugin_command gemini extensions uninstall "$p"
-            fi
+            try_plugin_command gemini extensions uninstall "$p"
         done
     fi
     unregister_gemini_mcp

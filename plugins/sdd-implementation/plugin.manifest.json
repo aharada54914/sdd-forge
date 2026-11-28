@@ -1,0 +1,46 @@
+{
+  "name": "sdd-implementation",
+  "order": 3,
+  "description": "[internal] Implement approved SDD tasks (one at a time or in batch) and prepare them for independent quality review. Use /sdd-ship:ship for the standard workflow.",
+  "marketplaceDescription": "[internal] Implement one approved task and prepare a quality-gate handoff. Use /sdd-ship:ship for the standard workflow.",
+  "author": {
+    "name": "Harada"
+  },
+  "skillsDir": "./skills/",
+  "category": "Developer Tools",
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "targets": {
+    "claude": {
+      "hooks": "./hooks/claude-hooks.json"
+    },
+    "codex": {
+      "hooks": "./hooks/codex-hooks.json",
+      "interface": {
+        "displayName": "SDD Implementation",
+        "shortDescription": "Implement approved specification tasks",
+        "longDescription": "Restores task state, implements approved tasks one at a time or in batch (dependency-aware), runs scoped tests, and hands off Implementation Complete tasks to ship for sdd-gate verification.",
+        "developerName": "Harada",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Approved task implementation (single: implement-task)",
+          "Batch task implementation in dependency order (implement-tasks)",
+          "Task state restoration and dependency-aware scheduling",
+          "Clean Implementation Complete handoff to sdd-gate via ship",
+          "Implementation handoff reporting",
+          "Context-safe delegation to helper agents"
+        ],
+        "defaultPrompt": "Use the implement-tasks skill for specs/<feature>/tasks.md to implement all approved tasks in order."
+      }
+    },
+    "gemini": {
+      "description": "SDD Forge session model selection, implementation skills, diagnosis, SQL development, and visual verification for Gemini CLI.",
+      "contextFileName": "GEMINI.md",
+      "paths": [
+        "gemini/gemini-extension.json"
+      ]
+    }
+  }
+}

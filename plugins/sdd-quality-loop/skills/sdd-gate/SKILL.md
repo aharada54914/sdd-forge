@@ -28,6 +28,7 @@ user-invocable: false
    - `concept-test.decision.json` は人が対話確認で作成する。ソフトガードは対応ホストのファイル編集とパッチからの作成・変更・削除・移動を拒否する。端末操作はフックの検査対象外で、記録だけから操作者の本人性は判定できない。
    - Spec Drift 検査（`check-spec-drift.mjs` 統合 — `UNDECLARED_DRIFT` と `UNVERIFIABLE`（読取上限超で未判定の仕様ファイルあり）は自動 FAIL。ベースライン後に承認されたタスクは `APPROVED_AFTER_BASELINE` 警告になるため、独立レビューで人間の承認であることを確認する）
    - 変更コード（新規未追跡ファイル含む）のプレースホルダー検査および非機能静的センサー（SQL 破壊的 DDL・`WHERE` 欠落・`SELECT *` 性能助言、Cloud ワイルドカード IAM・管理ポート開放、秘密情報）。依存脆弱性チェックが必要な場合は `--cmd "audit=..."` で統合する。
+   - `sdd/context-map.json` または `sdd/glossary.json` が存在するプロジェクトでは `<installed-root>/plugins/sdd-quality-loop/scripts/v2/check-architecture-fitness.mjs --root <repo-root>` を実行し、境界コンテキスト依存違反（`domain-isolated` / `context-via-api`）・禁止シノニム（`ubiquitous-language`）・コンテキスト衛生（`CLAUDE.md` 非混在）を検証する。
    - `Risk: high` タスクに対する未確定 `OQ-NNN`（非 `Confirmed`）残存ブロック
    - 指定コマンド実行と `reports/quality-gate/<feature>-<task-id>.execution.json` 保存（および `.sdd/factory-metrics.jsonl` への軽量計測追記；FAIL 時は原因工程を 1 試行につき 1 回だけ `factory-metrics.mjs record-attribution --root-cause <phase> --run-id <execution.json の runId>` で記録する。ゲート実行時に `--root-cause` を渡した場合は記録済みなので重ねない）
 

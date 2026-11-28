@@ -44,7 +44,7 @@ disable-model-invocation: true
 
 ## Flow
 
-- `adopt` / `investigate`: 該当スキルへ委譲して終了。
+- `adopt` / `investigate`: 該当スキルへ委譲して終了。`adopt` または `project` では必要に応じて `<installed-root>/plugins/sdd-bootstrap/scripts/init-project-governance.mjs --root <project-root>` を実行し、言語自動検出に基づく軽量 `AGENTS.md`（100行以下）・`sdd/glossary.json`・`sdd/context-map.json`・`sdd/pitfalls-catalog.json`・`sdd/verification-catalog.json`・`sdd/approved-test-retirements.json` を自動生成する（`--tier lite|standard|full` 選択可）。
 - オプトイン専門ルート: 外部資料調査は `research-sources`、UI デザインシステムは `design-system/` 存在時のみ `design-sync-loop` を委譲する。DDD モデル構築（`/sdd-domain:domain-model`）および既存クラウド運用（`/sdd-azure-cloud:orchestrate` / `/sdd-aws-cloud:orchestrate`）は公開コマンド（`disable-model-invocation: true`）のため自動委譲せず、該当する場合のみユーザーへ実行を案内する。
 
 `feature` / `bugfix` / `refactor` / `project` は次の 3 ステップで進める:

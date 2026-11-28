@@ -127,18 +127,29 @@ sufficient vendor-neutral tier, then compares invocation-supplied
 Equal costs are resolved by the lexicographically smaller `provider/model`
 identifier.
 
-Survey and exploration tasks use the `lightweight` tier: Anthropic Haiku on
-Claude hosts, or OpenAI/Codex `gpt-5.1-codex-mini` with low reasoning effort.
-Specification, implementation-policy, and task reviewers use at least the
-`standard` tier: Anthropic Sonnet or OpenAI/Codex `gpt-5.1-codex` with medium
-or stronger effort. The Done evaluator uses Anthropic Sonnet (`standard`) on Claude
-hosts, or an available registered `strong` model on Codex. The capability registry
-includes `gpt-6-astra` as well as legacy strong candidates; it is not limited to
-`gpt-5.2-codex`. Respect the selected role effort floor and record the actual model.
-The model names in this section are legacy examples of each tier, not fixed
-choices: the actual model and effort for a delegated unit, including the
-managed investigator handoff, come from the shared routing selection and the
-resolved native configuration, not from this document.
+<!-- BEGIN GENERATED:delegation-role-floors -->
+> **SSOT Notice**: Model tiers, role floors, and candidate preferences are defined solely in `contracts/agent-model-capabilities.v2.json` and `contracts/model-policy.v1.json` (rendered in `docs/agent-capability-matrix.md`). Do not hardcode legacy model IDs in prose.
+
+| Policy Role | Capability Role | Env Override | Min Tier | Default Effort | Candidate Preferences |
+|---|---|---|---|---|---|
+| `implementer` | `—` | `SDD_MODEL_IMPLEMENTER` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `investigator` | `sdd-investigator` | `SDD_MODEL_INVESTIGATOR` | lightweight | low | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `spec-reviewer-a` | `spec-reviewer` | `SDD_MODEL_SPEC_REVIEWER_A` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `spec-reviewer-b` | `spec-reviewer` | `SDD_MODEL_SPEC_REVIEWER_B` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `impl-reviewer-a` | `impl-reviewer` | `SDD_MODEL_IMPL_REVIEWER_A` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `impl-reviewer-b` | `impl-reviewer` | `SDD_MODEL_IMPL_REVIEWER_B` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `task-reviewer-a` | `task-reviewer` | `SDD_MODEL_TASK_REVIEWER_A` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `task-reviewer-b` | `task-reviewer` | `SDD_MODEL_TASK_REVIEWER_B` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `evaluator` | `sdd-evaluator` | `SDD_MODEL_EVALUATOR` | strong | high | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `domain-reviewer-a` | `domain-reviewer` | `SDD_MODEL_DOMAIN_REVIEWER_A` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `domain-reviewer-b` | `domain-reviewer` | `SDD_MODEL_DOMAIN_REVIEWER_B` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `workflow-auditor-a` | `workflow-auditor` | `SDD_MODEL_WORKFLOW_AUDITOR_A` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `workflow-auditor-b` | `workflow-auditor` | `SDD_MODEL_WORKFLOW_AUDITOR_B` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `diagnosis` | `diagnosis` | `SDD_MODEL_DIAGNOSIS` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `self-improvement` | `self-improvement` | `SDD_MODEL_SELF_IMPROVEMENT` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `panelist-gpt` | `panelist-gpt` | `SDD_MODEL_PANELIST_GPT` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+| `panelist-gemini` | `panelist-gemini` | `SDD_MODEL_PANELIST_GEMINI` | standard | medium | `gpt-6-astra` → `anthropic/opus` → `anthropic/sonnet` → `anthropic/haiku` |
+<!-- END GENERATED:delegation-role-floors -->
 
 Before selection, filter candidates through the host capability registry.
 Substitution is allowed only for a model registered in the same canonical

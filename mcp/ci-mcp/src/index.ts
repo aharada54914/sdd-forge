@@ -24,7 +24,7 @@ import { buildServer } from "./server.js";
 import { logStartup, logFatal } from "./diagnostics.js";
 
 async function main(): Promise<void> {
-  logStartup({ name: "ci-mcp", version: "0.1.0", transport: "stdio" });
+  logStartup({ name: "ci-mcp", version: "2.1.5", transport: "stdio" });
 
   const server = buildServer();
   const transport = new StdioServerTransport();

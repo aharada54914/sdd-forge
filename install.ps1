@@ -431,11 +431,14 @@ function Test-ClaudeHookRuntime {
         'sdd-quality-loop' -notin $Plugins -or -not $script:ResolvedClaudeCommand) { return }
 
     if (-not (Test-NodeVersionOk)) {
-        Write-Warning 'Node.js >= 20.0.0 is recommended on PATH for v2 soft guardrail hooks (sdd-soft-guard.mjs).'
+        Write-Warning "Node.js >= $($script:MinNodeVersion) is recommended on PATH for v2 soft guardrail hooks (sdd-soft-guard.mjs)."
     }
 }
 
 function Test-NodeVersionOk {
+    # BEGIN GENERATED:install-min-node
+    $script:MinNodeVersion = "26.13.0"
+# END GENERATED:install-min-node
     if (-not (Get-Command "node" -ErrorAction SilentlyContinue)) {
         Write-Warning "Node.js was not found in PATH. MCP server installation was skipped (plugin installation continues)."
         return $false
@@ -460,8 +463,8 @@ function Test-NodeVersionOk {
         return $false
     }
     $parsedVersion = [version]::new($major, $minor, $patch)
-    if ($parsedVersion -lt [version]"20.0.0") {
-        Write-Warning "Node.js >= 20.0.0 is required for v2 guardrails and MCP servers (found $version). MCP server installation was skipped (plugin installation continues)."
+    if ($parsedVersion -lt [version]$script:MinNodeVersion) {
+        Write-Warning "Node.js >= $($script:MinNodeVersion) is required for v2 guardrails and MCP servers (found $version). MCP server installation was skipped (plugin installation continues)."
         return $false
     }
     return $true
@@ -981,94 +984,119 @@ function Expand-DownloadedZipArchive {
 $cloudEntryFiles = @(".antigravity-plugin/plugin.json", ".claude-plugin/plugin.json", ".codex-plugin/plugin.json", ".plugin/plugin.json", "skills/orchestrate/SKILL.md", "scripts/cloud.py")
 
 function Get-RequiredPaths {
-    $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-review-loop", "sdd-ship", "sdd-domain")
-    $paths = @(
-        # Managed prepare/launch runtime closure read by the installed entry and helper.
-        "plugins/sdd-implementation/scripts/managed-model-entry.py",
-        "plugins/sdd-implementation/scripts/session-models.py",
-        "plugins/sdd-implementation/scripts/model-discovery.py",
-        "plugins/sdd-implementation/scripts/session-model-start.py",
-        "plugins/sdd-implementation/skills/model-selection/SKILL.md",
-        "plugins/sdd-implementation/gemini/gemini-extension.json",
-        "plugins/sdd-implementation/hooks/claude-hooks.json",
-        "plugins/sdd-implementation/hooks/codex-hooks.json",
-        "plugins/sdd-implementation/gemini/hooks/hooks.json",
-        "plugins/sdd-quality-loop/gemini/gemini-extension.json",
-        "plugins/sdd-quality-loop/gemini/hooks/hooks.json",
-        "plugins/sdd-bootstrap/gemini/gemini-extension.json",
-        "plugins/sdd-implementation/hooks.json",
-        "plugins/sdd-quality-loop/hooks.json",
-        "plugins/sdd-bootstrap/gemini/commands/sdd-bootstrap/bootstrap.toml",
-        "plugins/sdd-bootstrap/gemini-extension.json",
-        "plugins/sdd-ship/gemini-extension.json",
-        "plugins/sdd-domain/gemini-extension.json",
-        "plugins/sdd-review-loop/gemini/gemini-extension.json",
-        "plugins/sdd-review-loop/gemini-extension.json",
-        "plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs",
-        "plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs",
-        "plugins/sdd-implementation/scripts/model-policy.py",
-        "plugins/sdd-implementation/scripts/select-agent-model.sh",
-        "plugins/sdd-implementation/scripts/select-agent-model.ps1",
-        "plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1",
-        "contracts/agent-model-capabilities.v2.json",
-        "contracts/model-policy.v1.json",
-        "contracts/model-launch-controls.schema.json",
-        "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
-        "plugins/sdd-quality-loop/agents/wfi-auditor-a.md",
-        "plugins/sdd-quality-loop/agents/wfi-auditor-b.md",
-        "plugins/sdd-quality-loop/references/wfi-category-guide.md",
-        "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
-        "plugins/sdd-implementation/skills/diagnose/SKILL.md",
-        "plugins/sdd-implementation/skills/diagnose/references/diagnosis-loop-policy.md",
-        "plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh",
-        "plugins/sdd-implementation/templates/diagnosis-report.template.md",
-        "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
-        "plugins/sdd-implementation/skills/implement-task/SKILL.md",
-        "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
-        "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
-        "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
-        "plugins/sdd-quality-loop/references/sudo-mode-policy.md",
-        "plugins/sdd-quality-loop/references/debugging-recovery-policy.md",
-        "plugins/sdd-implementation/templates/implementation-report.template.md",
-        "plugins/sdd-bootstrap/agents/investigator.md",
-        "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
-        "plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md",
-        "plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md",
-        "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md",
-        "plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md",
-        "plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md",
-        ".agents/plugins/marketplace.json",
-        ".claude-plugin/marketplace.json",
-        ".codex/agents/sdd-investigator.toml",
-        ".codex/agents/sdd-evaluator.toml",
-        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
-        "plugins/sdd-ship/skills/ship/SKILL.md",
-        "install-payload.txt"
-        # Existing selector/launch runtime closure; keep in sync with install.sh.
+    # BEGIN GENERATED:install-required-paths
+    $required = [System.Collections.Generic.List[string]]::new()
+    $basePaths = @(
+        'plugins/sdd-implementation/scripts/managed-model-entry.py'
+        'plugins/sdd-implementation/scripts/session-models.py'
+        'plugins/sdd-implementation/scripts/model-discovery.py'
+        'plugins/sdd-implementation/scripts/session-model-start.py'
+        'plugins/sdd-implementation/skills/model-selection/SKILL.md'
+        'plugins/sdd-implementation/gemini/gemini-extension.json'
+        'plugins/sdd-implementation/hooks/claude-hooks.json'
+        'plugins/sdd-implementation/hooks/codex-hooks.json'
+        'plugins/sdd-implementation/hooks.json'
+        'plugins/sdd-implementation/gemini/hooks/hooks.json'
+        'plugins/sdd-quality-loop/hooks.json'
+        'plugins/sdd-quality-loop/gemini/gemini-extension.json'
+        'plugins/sdd-quality-loop/gemini/hooks/hooks.json'
+        'plugins/sdd-bootstrap/gemini/gemini-extension.json'
+        'plugins/sdd-bootstrap/gemini/commands/sdd-bootstrap/bootstrap.toml'
+        'plugins/sdd-bootstrap/gemini-extension.json'
+        'plugins/sdd-ship/gemini-extension.json'
+        'plugins/sdd-domain/gemini-extension.json'
+        'plugins/sdd-review-loop/gemini/gemini-extension.json'
+        'plugins/sdd-review-loop/gemini-extension.json'
+        'plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/guardrails-lib.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/sdd-soft-guard.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/check-spec-drift.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/render-decision-view.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/check-traceability.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/task-lock.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs'
+        'plugins/sdd-quality-loop/scripts/v2/check-architecture-fitness.mjs'
+        'plugins/sdd-bootstrap/scripts/init-project-governance.mjs'
+        'plugins/sdd-implementation/scripts/inject-pitfalls.mjs'
+        'plugins/sdd-review-loop/scripts/compound-pitfalls.mjs'
+        'plugins/sdd-implementation/scripts/model-policy.py'
+        'plugins/sdd-implementation/scripts/select-agent-model.sh'
+        'plugins/sdd-implementation/scripts/select-agent-model.ps1'
+        'plugins/sdd-quality-loop/scripts/lib/native-arguments.ps1'
+        'contracts/agent-model-capabilities.v2.json'
+        'contracts/model-policy.v1.json'
+        'contracts/model-launch-controls.schema.json'
+        'contracts/release-manifest.json'
+        'contracts/pitfalls-catalog.json'
+        'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py'
+        'plugins/sdd-quality-loop/agents/wfi-auditor-a.md'
+        'plugins/sdd-quality-loop/agents/wfi-auditor-b.md'
+        'plugins/sdd-quality-loop/references/wfi-category-guide.md'
+        'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
+        'plugins/sdd-implementation/skills/diagnose/SKILL.md'
+        'plugins/sdd-implementation/skills/diagnose/references/diagnosis-loop-policy.md'
+        'plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh'
+        'plugins/sdd-implementation/templates/diagnosis-report.template.md'
+        'plugins/sdd-quality-loop/references/risk-gate-matrix.md'
+        'plugins/sdd-implementation/skills/implement-task/SKILL.md'
+        'plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md'
+        'plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md'
+        'plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md'
+        'plugins/sdd-quality-loop/references/sudo-mode-policy.md'
+        'plugins/sdd-quality-loop/references/debugging-recovery-policy.md'
+        'plugins/sdd-implementation/templates/implementation-report.template.md'
+        'plugins/sdd-bootstrap/agents/investigator.md'
+        'plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md'
+        'plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md'
+        'plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md'
+        'plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md'
+        'plugins/sdd-bootstrap/skills/investigate-codebase/references/spec-id-rules.md'
+        'plugins/sdd-bootstrap/skills/investigate-codebase/references/investigation-policy.md'
+        'install-payload.txt'
+        '.agents/plugins/marketplace.json'
+        '.claude-plugin/marketplace.json'
+        'plugins/sdd-bootstrap/.antigravity-plugin/plugin.json'
+        'plugins/sdd-bootstrap/.codex-plugin/plugin.json'
+        'plugins/sdd-bootstrap/.plugin/plugin.json'
+        'plugins/sdd-ship/.antigravity-plugin/plugin.json'
+        'plugins/sdd-ship/.claude-plugin/plugin.json'
+        'plugins/sdd-ship/.codex-plugin/plugin.json'
+        'plugins/sdd-ship/.plugin/plugin.json'
+        'plugins/sdd-implementation/.antigravity-plugin/plugin.json'
+        'plugins/sdd-implementation/.codex-plugin/plugin.json'
+        'plugins/sdd-implementation/.plugin/plugin.json'
+        'plugins/sdd-quality-loop/.antigravity-plugin/plugin.json'
+        'plugins/sdd-quality-loop/.codex-plugin/plugin.json'
+        'plugins/sdd-quality-loop/.plugin/plugin.json'
+        'plugins/sdd-review-loop/.antigravity-plugin/plugin.json'
+        'plugins/sdd-review-loop/.claude-plugin/plugin.json'
+        'plugins/sdd-review-loop/.codex-plugin/plugin.json'
+        'plugins/sdd-review-loop/.plugin/plugin.json'
+        'plugins/sdd-domain/.antigravity-plugin/plugin.json'
+        'plugins/sdd-domain/.claude-plugin/plugin.json'
+        'plugins/sdd-domain/.codex-plugin/plugin.json'
+        'plugins/sdd-domain/.plugin/plugin.json'
+        '.codex/agents/sdd-investigator.toml'
+        '.codex/agents/sdd-evaluator.toml'
+        'plugins/sdd-bootstrap/skills/bootstrap/SKILL.md'
+        'plugins/sdd-ship/skills/ship/SKILL.md'
+        'plugins/sdd-bootstrap/.claude-plugin/plugin.json'
+        'plugins/sdd-implementation/.claude-plugin/plugin.json'
+        'plugins/sdd-quality-loop/.claude-plugin/plugin.json'
     )
-    foreach ($plugin in $allPluginNames) {
-        $paths += "plugins/$plugin/.antigravity-plugin/plugin.json"
-        $paths += "plugins/$plugin/.codex-plugin/plugin.json"
-        $paths += "plugins/$plugin/.claude-plugin/plugin.json"
-        $paths += "plugins/$plugin/.plugin/plugin.json"
-    }
+    foreach ($p in $basePaths) { $required.Add($p) }
+# END GENERATED:install-required-paths
     foreach ($plugin in @($Plugins | Where-Object { $_ -cin @("sdd-azure-cloud", "sdd-aws-cloud") })) {
         foreach ($file in $cloudEntryFiles + @("scripts/$($plugin.Split('-')[1])_local.py")) {
-            $paths += "plugins/$plugin/$file"
+            $required.Add("plugins/$plugin/$file")
         }
     }
-    return $paths
+    return @($required)
 }
 
 # install-payload.txt (repository root) lists the exact paths and directory

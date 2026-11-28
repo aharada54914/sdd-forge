@@ -20,6 +20,7 @@ user-invocable: false
 
 - `AGENTS.md`、`specs/<feature>/{requirements,design,tasks}.md`
 - 存在する場合: `specs/<feature>/codemap.md`（探索前に読む）、`references/implementation-policy.md`、`references/implementation-craft-policy.md`
+- `sdd/pitfalls-catalog.json` が存在する場合: `<installed-root>/plugins/sdd-implementation/scripts/inject-pitfalls.mjs --root <repo-root> --files <変更予定ファイル...>` で該当言語・領域の落とし穴（Progressive Disclosure）だけを抽出して確認する
 - UI タスクかつ `design-system/` 存在時: `design-system/design-system.md`、`design-system/ui-patterns.md`
 - SQL / DB スキーマ変更時: `../sql-develop/references/sql-development-policy.md`（隔離 DB 検証まで。本番・共有 DB へは接続しない）
 

@@ -926,3 +926,41 @@ PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在す�
 - [troubleshooting.md](troubleshooting.md) — よくあるエラー・解決方法
 
 文書中心の固有手順は `project-skill.py seal --root . --name <name> --document-only --check <check-id>` で記録できます。実行可能な手順ではないため draft/not-run を保持し、試行・保守から成功判定は生成されません。
+
+## 自動生成サマリー（ADR-0056 SSOT）
+
+<!-- BEGIN GENERATED:skill-reference-summary -->
+Shipped plugins: **8** / Shipped plugin skills: **29**
+
+| Skill | Plugin | Path |
+|---|---|---|
+| `orchestrate` | `sdd-aws-cloud` | `plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md` |
+| `orchestrate` | `sdd-azure-cloud` | `plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md` |
+| `bootstrap` | `sdd-bootstrap` | `plugins/sdd-bootstrap/skills/bootstrap/SKILL.md` |
+| `create-project-skill` | `sdd-bootstrap` | `plugins/sdd-bootstrap/skills/create-project-skill/SKILL.md` |
+| `design-sync-loop` | `sdd-bootstrap` | `plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md` |
+| `investigate-codebase` | `sdd-bootstrap` | `plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md` |
+| `maintain-project-skill` | `sdd-bootstrap` | `plugins/sdd-bootstrap/skills/maintain-project-skill/SKILL.md` |
+| `research-sources` | `sdd-bootstrap` | `plugins/sdd-bootstrap/skills/research-sources/SKILL.md` |
+| `sdd-adopt` | `sdd-bootstrap` | `plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md` |
+| `sdd-core-spec` | `sdd-bootstrap` | `plugins/sdd-bootstrap/skills/sdd-core-spec/SKILL.md` |
+| `concept-test` | `sdd-domain` | `plugins/sdd-domain/skills/concept-test/SKILL.md` |
+| `domain-interviewer` | `sdd-domain` | `plugins/sdd-domain/skills/domain-interviewer/SKILL.md` |
+| `domain-model` | `sdd-domain` | `plugins/sdd-domain/skills/domain-model/SKILL.md` |
+| `domain-reverse` | `sdd-domain` | `plugins/sdd-domain/skills/domain-reverse/SKILL.md` |
+| `domain-review-loop` | `sdd-domain` | `plugins/sdd-domain/skills/domain-review-loop/SKILL.md` |
+| `domain-sync` | `sdd-domain` | `plugins/sdd-domain/skills/domain-sync/SKILL.md` |
+| `diagnose` | `sdd-implementation` | `plugins/sdd-implementation/skills/diagnose/SKILL.md` |
+| `implement-task` | `sdd-implementation` | `plugins/sdd-implementation/skills/implement-task/SKILL.md` |
+| `implement-tasks` | `sdd-implementation` | `plugins/sdd-implementation/skills/implement-tasks/SKILL.md` |
+| `model-selection` | `sdd-implementation` | `plugins/sdd-implementation/skills/model-selection/SKILL.md` |
+| `sql-develop` | `sdd-implementation` | `plugins/sdd-implementation/skills/sql-develop/SKILL.md` |
+| `visual-verify-loop` | `sdd-implementation` | `plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md` |
+| `fix-by-review-ticket` | `sdd-quality-loop` | `plugins/sdd-quality-loop/skills/fix-by-review-ticket/SKILL.md` |
+| `sdd-gate` | `sdd-quality-loop` | `plugins/sdd-quality-loop/skills/sdd-gate/SKILL.md` |
+| `wfi-audit-cycle` | `sdd-quality-loop` | `plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md` |
+| `workflow-retrospective` | `sdd-quality-loop` | `plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md` |
+| `spec-check` | `sdd-review-loop` | `plugins/sdd-review-loop/skills/spec-check/SKILL.md` |
+| `ship` | `sdd-ship` | `plugins/sdd-ship/skills/ship/SKILL.md` |
+| `status` | `sdd-ship` | `plugins/sdd-ship/skills/status/SKILL.md` |
+<!-- END GENERATED:skill-reference-summary -->

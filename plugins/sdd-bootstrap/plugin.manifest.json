@@ -1,0 +1,45 @@
+{
+  "name": "sdd-bootstrap",
+  "order": 1,
+  "description": "Create implementation-ready SDD specifications and approved task contracts. Supports project, feature, bugfix, and refactor modes with read-only codebase investigation.",
+  "marketplaceDescription": "Prepare implementation-ready specifications and tasks.",
+  "author": {
+    "name": "Harada"
+  },
+  "skillsDir": "./skills/",
+  "category": "Developer Tools",
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "targets": {
+    "codex": {
+      "description": "Create implementation-ready SDD specifications and approved task contracts from GitHub/GitLab issues or supplied requirements. Supports project, feature, bugfix, and refactor modes with read-only codebase investigation.",
+      "interface": {
+        "displayName": "SDD Bootstrap",
+        "shortDescription": "Prepare approved specification tasks",
+        "longDescription": "Interview-driven project, feature, and bugfix specification for the first stage of the three-stage SDD workflow.",
+        "developerName": "Harada",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Issue-driven specification",
+          "Project, feature, bugfix, and refactor modes",
+          "Read-only codebase investigation",
+          "Approved task preparation"
+        ],
+        "defaultPrompt": "Use the bootstrap skill to prepare approved implementation tasks."
+      }
+    },
+    "copilot": {
+      "agents": "copilot-agents/"
+    },
+    "gemini": {
+      "description": "SDD specification bootstrap, codebase investigation, design-sync loop, research sources, and adopt workflows for Gemini CLI.",
+      "contextFileName": "GEMINI.md",
+      "paths": [
+        "gemini-extension.json",
+        "gemini/gemini-extension.json"
+      ]
+    }
+  }
+}

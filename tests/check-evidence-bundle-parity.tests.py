@@ -94,8 +94,10 @@ def run_ps1(bundle, root, cwd):
 
 
 def runners():
-    """The .ps1 runner is None without pwsh, so each test reports that half as skipped."""
+    """Return both .sh and .ps1 runners; fail closed when pwsh is absent in CI/required mode (ADR-0056)."""
     yield "sh", run_sh
+    if PWSH is None and (os.environ.get("SDD_REQUIRE_PWSH") == "1" or os.environ.get("CI") == "true"):
+        raise AssertionError("pwsh is required for fail-closed .sh/.ps1 parity check (silent skip prohibited)")
     yield "ps1", run_ps1 if PWSH else None
 
 
