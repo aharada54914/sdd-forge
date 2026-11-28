@@ -176,6 +176,22 @@ jobs:
         shell: pwsh
         run: ./tests/release-loop-gate.tests.ps1
 
+      # Model registry, family rules and generated routing tables (ADR-0055):
+      # the plugin copies must match, generated tables must not drift, and the
+      # renderer must refuse retired roles (Q15).
+      - name: Check model routing contracts and generated tables
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cmp contracts/agent-model-capabilities.v2.json plugins/sdd-implementation/contracts/agent-model-capabilities.v2.json
+          cmp contracts/model-families.v1.json plugins/sdd-implementation/contracts/model-families.v1.json
+          python3 scripts/render-model-routing-docs.py --check
+          python3 tests/model-families.tests.py
+          python3 tests/model-registry-update.tests.py
+          bash tests/agent-model-routing.tests.sh
+          bash tests/render-agent-frontmatter.tests.sh
+
       - name: Verify the required CI workload on each matrix route
         if: runner.os == 'Linux'
         working-directory: tests

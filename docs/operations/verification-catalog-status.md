@@ -17,7 +17,7 @@
 | `coding-standards` | no | 2 | 0 | 2 | 0 |
 | `installers` | yes | 7 | 2 | 5 | 0 |
 | `interrupted-recovery` | no | 2 | 0 | 2 | 0 |
-| `loops-routing` | no | 18 | 0 | 18 | 0 |
+| `loops-routing` | no | 18 | 2 | 16 | 0 |
 | `posix-regression` | no | 56 | 2 | 54 | 0 |
 | `sql-contract` | no | 1 | 1 | 0 | 0 |
 | `sql-mysql` | no | 1 | 0 | 1 | 0 |

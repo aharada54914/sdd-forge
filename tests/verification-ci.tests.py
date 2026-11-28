@@ -167,6 +167,16 @@ class CurrentV2WorkflowTests(unittest.TestCase):
                     if os_name != 'Windows':
                         expected.append({'shell': 'pwsh', 'commands': ['./tests/release-loop-gate.tests.ps1']})
                     if os_name == 'Linux':
+                        # ADR-0055 / Q15: model routing contracts, generated tables, renderer.
+                        expected.append({'shell': 'bash', 'commands': [
+                            'set -euo pipefail',
+                            'cmp contracts/agent-model-capabilities.v2.json plugins/sdd-implementation/contracts/agent-model-capabilities.v2.json',
+                            'cmp contracts/model-families.v1.json plugins/sdd-implementation/contracts/model-families.v1.json',
+                            'python3 scripts/render-model-routing-docs.py --check',
+                            'python3 tests/model-families.tests.py',
+                            'python3 tests/model-registry-update.tests.py',
+                            'bash tests/agent-model-routing.tests.sh',
+                            'bash tests/render-agent-frontmatter.tests.sh']})
                         expected.append({'working-directory': 'tests', 'commands': [
                             'python3 -B verification-ci.tests.py CurrentV2WorkflowTests.test_hosts_and_workloads_on_each_v2_job_route']})
                     expected.append({'shell': 'bash', 'commands': ['node .github/scripts/check-release-source.mjs']})
