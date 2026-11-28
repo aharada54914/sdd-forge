@@ -561,18 +561,21 @@ preflight_claude_hook_runtime() {
     case ",$PLUGINS," in *,sdd-quality-loop,*) ;; *) return 0 ;; esac
     command -v claude >/dev/null 2>&1 || return 0
     if ! node_version_ok >/dev/null 2>&1; then
-        echo "Warning: Node.js >= 20.0.0 is recommended on PATH for v2 soft guardrail hooks (sdd-soft-guard.mjs)." >&2
+        echo "Warning: Node.js >= 26.13.0 is recommended on PATH for v2 soft guardrail hooks (sdd-soft-guard.mjs)." >&2
     fi
 }
 
 node_version_ok() {
-    # Returns 0 if `node` is on PATH and its version is >= 20.0.0 (LTS).
+    # Returns 0 if `node` is on PATH and its version meets contracts/release-manifest.json minNodeVersion.
     if ! command -v node >/dev/null 2>&1; then
         echo "Warning: Node.js was not found in PATH. MCP server installation was skipped (plugin installation continues)." >&2
         return 1
     fi
     local version major minor patch
-    local minimum_major=20 minimum_minor=0 minimum_patch=0
+    # BEGIN GENERATED:install-min-node
+    local minimum_major=26 minimum_minor=13 minimum_patch=0
+    local min_node_display="26.13.0"
+# END GENERATED:install-min-node
     version="$(read_command_version node)" || version=""
     # Stable Node releases report vNN.N.N. Fail closed on any other shape.
     if [[ ! "$version" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
@@ -590,7 +593,7 @@ node_version_ok() {
     if (( major < minimum_major ||
           (major == minimum_major && minor < minimum_minor) ||
           (major == minimum_major && minor == minimum_minor && patch < minimum_patch) )); then
-        echo "Warning: Node.js >= 20.0.0 is required for v2 guardrails and MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
+        echo "Warning: Node.js >= ${min_node_display} is required for v2 guardrails and MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
         return 1
     fi
     return 0
@@ -1222,10 +1225,10 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Validate required paths
+# Validate required paths (synced from contracts/release-manifest.json)
 # ---------------------------------------------------------------------------
+# BEGIN GENERATED:install-required-paths
 REQUIRED_PATHS=(
-    # Managed prepare/launch runtime closure read by the installed entry and helper.
     "plugins/sdd-implementation/scripts/managed-model-entry.py"
     "plugins/sdd-implementation/scripts/session-models.py"
     "plugins/sdd-implementation/scripts/model-discovery.py"
@@ -1259,6 +1262,10 @@ REQUIRED_PATHS=(
     "plugins/sdd-quality-loop/scripts/v2/task-lock.mjs"
     "plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs"
     "plugins/sdd-quality-loop/scripts/v2/sync-knowledge.mjs"
+    "plugins/sdd-quality-loop/scripts/v2/check-architecture-fitness.mjs"
+    "plugins/sdd-bootstrap/scripts/init-project-governance.mjs"
+    "plugins/sdd-implementation/scripts/inject-pitfalls.mjs"
+    "plugins/sdd-review-loop/scripts/compound-pitfalls.mjs"
     "plugins/sdd-implementation/scripts/model-policy.py"
     "plugins/sdd-implementation/scripts/select-agent-model.sh"
     "plugins/sdd-implementation/scripts/select-agent-model.ps1"
@@ -1266,6 +1273,8 @@ REQUIRED_PATHS=(
     "contracts/agent-model-capabilities.v2.json"
     "contracts/model-policy.v1.json"
     "contracts/model-launch-controls.schema.json"
+    "contracts/release-manifest.json"
+    "contracts/pitfalls-catalog.json"
     "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py"
     "plugins/sdd-quality-loop/agents/wfi-auditor-a.md"
     "plugins/sdd-quality-loop/agents/wfi-auditor-b.md"
@@ -1316,7 +1325,6 @@ REQUIRED_PATHS=(
     "plugins/sdd-domain/.plugin/plugin.json"
     ".codex/agents/sdd-investigator.toml"
     ".codex/agents/sdd-evaluator.toml"
-    # Core entry points and the existing selector/launch runtime closure.
     "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
     "plugins/sdd-ship/skills/ship/SKILL.md"
     "plugins/sdd-bootstrap/.claude-plugin/plugin.json"
@@ -1324,6 +1332,7 @@ REQUIRED_PATHS=(
     "plugins/sdd-quality-loop/.claude-plugin/plugin.json"
 )
 CLOUD_ENTRY_FILES=(.antigravity-plugin/plugin.json .claude-plugin/plugin.json .codex-plugin/plugin.json .plugin/plugin.json skills/orchestrate/SKILL.md scripts/cloud.py)
+# END GENERATED:install-required-paths
 # Source precheck covers explicit selections; retained entries are checked in staging.
 for plugin in "${PLUGIN_LIST[@]}"; do
     case "$plugin" in

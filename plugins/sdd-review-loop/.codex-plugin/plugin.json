@@ -2,10 +2,10 @@
   "name": "sdd-review-loop",
   "version": "2.1.5",
   "description": "[internal] Run risk-scaled single-pass pre-implementation specification review (spec-check) with P1-P6 perspective parity for sdd-bootstrap.",
-  "skills": "./skills/",
   "author": {
     "name": "Harada"
   },
+  "skills": "./skills/",
   "interface": {
     "displayName": "SDD Review Loop",
     "shortDescription": "Pre-implementation spec-check review",

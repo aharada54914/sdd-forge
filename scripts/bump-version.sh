@@ -1,30 +1,25 @@
 #!/usr/bin/env bash
-# bump-version.sh — synchronize every release surface to a new plugin version.
+# bump-version.sh — SSOT-driven release version synchronizer (ADR-0056).
 #
-# Usage: scripts/bump-version.sh <new-version>   (e.g. scripts/bump-version.sh 1.7.0)
+# Usage: scripts/bump-version.sh <new-version>   (e.g. scripts/bump-version.sh 2.2.0)
 #
-# Updates, in one pass:
-#   - plugins/*/{.claude-plugin,.codex-plugin,.plugin}/plugin.json  "version" fields
-#   - plugins/*/{gemini-extension.json,gemini/gemini-extension.json}
-#   - .claude-plugin/marketplace.json and .agents/plugins/marketplace.json
-#   - README.md current-release line (vX.Y.Z — ...)
-#
-# It does NOT create the CHANGELOG heading: rename "## Unreleased" to
-# "## v<new-version> (<date>)" yourself so release notes stay intentional.
-# The script verifies the heading exists and fails closed if it does not.
+# Updates contracts/release-manifest.json and delegates ALL derived surfaces
+# (all plugins, both marketplaces, all mcp/*/package.json & server.ts, README.md,
+# and MCP dist/index.js rebuilds) to `node scripts/sync-ssot.mjs`.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 NEW="${1:-}"
 
 if ! printf '%s' "$NEW" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-    echo "Usage: scripts/bump-version.sh <new-version>  (semver, e.g. 2.0.1)" >&2
+    echo "Usage: scripts/bump-version.sh <new-version>  (semver, e.g. 2.2.0)" >&2
     exit 1
 fi
 
-OLD="$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).version)' "${ROOT}/plugins/sdd-ship/.claude-plugin/plugin.json")"
+MANIFEST="${ROOT}/contracts/release-manifest.json"
+OLD="$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).version)' "${MANIFEST}")"
 if [[ -z "$OLD" ]]; then
-    echo "Error: could not derive the current version from plugins/sdd-ship/.claude-plugin/plugin.json" >&2
+    echo "Error: could not read current version from ${MANIFEST}" >&2
     exit 1
 fi
 if [[ "$OLD" == "$NEW" ]]; then
@@ -32,84 +27,32 @@ if [[ "$OLD" == "$NEW" ]]; then
     exit 1
 fi
 
-echo "Bumping release surfaces: ${OLD} -> ${NEW}"
+echo "Bumping SSOT release-manifest: ${OLD} -> ${NEW}"
 
-# CHANGELOG heading must exist before surfaces are synchronized (fail closed).
 if ! grep -Eq "^## v${NEW//./\\.}( |\$)" "${ROOT}/CHANGELOG.md"; then
     echo "Error: CHANGELOG.md has no '## v${NEW}' heading. Rename '## Unreleased' first." >&2
     exit 1
 fi
 
-# Validate v2 test suite and doctor before mutating any release surface.
-gate_log="$(mktemp)"
-if ! (cd "${ROOT}" && node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs && node plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root . --quiet-info) >"${gate_log}" 2>&1; then
-    echo "Error: v2 pre-release checks failed; no release surface was modified." >&2
-    cat "${gate_log}" >&2
-    rm -f "${gate_log}"
-    exit 1
-fi
-rm -f "${gate_log}"
+# Update SSOT manifest cleanly via Node.js (zero sed portability pitfalls)
+node -e '
+const fs = require("node:fs");
+const [file, ver] = process.argv.slice(1);
+const data = JSON.parse(fs.readFileSync(file, "utf8"));
+data.version = ver;
+fs.writeFileSync(file, JSON.stringify(data, null, 2) + "\n", "utf8");
+' "${MANIFEST}" "${NEW}"
 
-OLD_PLAIN_RE="${OLD//./\\.}"
+# Regenerate all derived manifests, marketplaces, MCP packages, and README via SSOT CLI
+node "${ROOT}/scripts/sync-ssot.mjs" --target manifests
+node "${ROOT}/scripts/sync-ssot.mjs" --target release
 
-# Portable in-place sed helper (GNU sed and BSD/macOS sed).
-sed_inplace() {
-    local expr="$1" file="$2"
-    if sed --version >/dev/null 2>&1; then
-        sed -i "$expr" "$file"
-    else
-        sed -i '' "$expr" "$file"
-    fi
-}
-
-# 1. Every plugin's host manifests (Antigravity, Claude, Codex, Copilot, Gemini) + both marketplaces + sdd-forge-mcp.
-for manifest in "${ROOT}"/plugins/*/.antigravity-plugin/plugin.json \
-                "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
-                "${ROOT}"/plugins/*/.codex-plugin/plugin.json \
-                "${ROOT}"/plugins/*/.plugin/plugin.json \
-                "${ROOT}"/plugins/*/gemini-extension.json \
-                "${ROOT}"/plugins/*/gemini/gemini-extension.json \
-                "${ROOT}/.claude-plugin/marketplace.json" \
-                "${ROOT}/.agents/plugins/marketplace.json" \
-                "${ROOT}/mcp/sdd-forge-mcp/package.json"; do
-    [[ -f "$manifest" ]] || continue
-    sed_inplace "s/\"version\": \"[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\"/\"version\": \"${NEW}\"/g" "$manifest"
+# Rebuild every auto-discovered MCP bundle when dependencies are present
+for pkg_dir in "${ROOT}"/mcp/*/; do
+    [[ -f "${pkg_dir}/package.json" && -d "${pkg_dir}/node_modules" ]] || continue
+    (cd "${pkg_dir}" && npm run build >/dev/null)
 done
 
-if [[ -f "${ROOT}/mcp/sdd-forge-mcp/src/server.ts" ]]; then
-    sed_inplace "s/version: \"[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\"/version: \"${NEW}\"/" "${ROOT}/mcp/sdd-forge-mcp/src/server.ts"
-fi
-
-if [[ -d "${ROOT}/mcp/sdd-forge-mcp/node_modules" ]]; then
-    (cd "${ROOT}/mcp/sdd-forge-mcp" && npm run build >/dev/null)
-fi
-
-# 2. README current-release line (first line starting with vX.Y.Z).
-sed_inplace "s/^v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\([^0-9]\)/v${NEW}\1/" "${ROOT}/README.md"
-
-# 3. Verify: no stale old-version strings remain on release surfaces.
-stale=0
-for f in "${ROOT}"/plugins/*/.antigravity-plugin/plugin.json \
-         "${ROOT}"/plugins/*/.claude-plugin/plugin.json \
-         "${ROOT}"/plugins/*/.codex-plugin/plugin.json \
-         "${ROOT}"/plugins/*/.plugin/plugin.json \
-         "${ROOT}"/plugins/*/gemini-extension.json \
-         "${ROOT}"/plugins/*/gemini/gemini-extension.json \
-         "${ROOT}/.claude-plugin/marketplace.json" \
-         "${ROOT}/.agents/plugins/marketplace.json" \
-         "${ROOT}/mcp/sdd-forge-mcp/package.json" \
-         "${ROOT}/mcp/sdd-forge-mcp/src/server.ts" \
-         "${ROOT}/README.md"; do
-    [[ -f "$f" ]] || continue
-    if grep -q "${OLD_PLAIN_RE}" "$f" 2>/dev/null; then
-        echo "WARNING: stale ${OLD} reference remains in: ${f#"$ROOT"/}" >&2
-        stale=1
-    fi
-done
-
-if [[ $stale -eq 1 ]]; then
-    echo "Bump completed with warnings — review the files above manually." >&2
-    exit 2
-fi
-
-echo "All release surfaces now identify ${NEW}."
+# Fail-closed verification
+node "${ROOT}/scripts/sync-ssot.mjs" --check
+echo "All release surfaces synchronized to ${NEW} via contracts/release-manifest.json."

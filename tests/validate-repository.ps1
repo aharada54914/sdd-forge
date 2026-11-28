@@ -61,7 +61,7 @@ foreach ($name in $expectedPlugins) {
         "plugins/$name/gemini-extension.json"
     }
     $geminiManifest = Read-JsonFile $geminiManifestPath
-    $expectedGeminiName = if ($name -ceq "sdd-implementation") { "sdd-forge-model-selection" } else { $name }
+    $expectedGeminiName = $name
     if ($codexManifest.name -cne $name -or $claudeManifest.name -cne $name -or $copilotManifest.name -cne $name -or $geminiManifest.name -cne $expectedGeminiName) {
         throw "Plugin directory and manifest names differ for $name."
     }

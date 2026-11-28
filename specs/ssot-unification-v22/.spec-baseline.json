@@ -1,0 +1,230 @@
+{
+  "schema": "sdd-spec-baseline/v1",
+  "feature": "ssot-unification-v22",
+  "recordedAt": "2026-11-28T11:55:12.117Z",
+  "gitHead": "4876b04e997bdfd80252b1076c646d27db050f6f",
+  "amendmentCount": 0,
+  "files": {
+    "specs/ssot-unification-v22/design.md": {
+      "fileName": "design.md",
+      "rawSha256": "59fc1f7c51595c8e83a8a75e558dd921434b3c950706e5e3420ffafd14a0653b",
+      "contractSha256": "212d868aef7784a2c1b5b5a50724329b68abb381df5236404c33b0803ee8a914",
+      "identifiers": {},
+      "amendmentCount": 0
+    },
+    "specs/ssot-unification-v22/requirements.md": {
+      "fileName": "requirements.md",
+      "rawSha256": "3ada4edc2d56e5f9096f179819a7c4e8c48536eff13c4b4a65a0e1e155e91d22",
+      "contractSha256": "37b7d509e0d3fb2a9f974cd7468ec9b6146f3bfc37820538874e6de3a1d9a653",
+      "identifiers": {
+        "REQ-001": {
+          "line": "- **REQ-001（契約 JSON・能力レジストリ・モデルポリシー・文書表の SSOT 化）**:",
+          "hash": "84b9c1cc990c6ceeb9a16a0567582ddabe7505d9255868248e78d4d29cf8c3ba"
+        },
+        "REQ-002": {
+          "line": "- **REQ-002（マルチ CLI マニフェスト & 2 種 `marketplace.json` の自動走査生成）**:",
+          "hash": "9ccc591927d26bed6990dd6cbef8843dab41d399fa0b2f200950dbcf9751eeaf"
+        },
+        "REQ-003": {
+          "line": "- **REQ-003（全階層エージェントプロンプトの SSOT 化と 6 ブロック標準化）**:",
+          "hash": "f18ef254ec12ccfa24613002ae52a590a057b1272ed85020349198ea0028b1e4"
+        },
+        "REQ-004": {
+          "line": "- **REQ-004（統一バージョニング・Node 26.13+ 要件・配布必須パス SSOT 化）**:",
+          "hash": "db61b61ecd95cdbb2577d2c53bbdfa1acaaab2f65cb850c72cd9e6fba6774a5d"
+        },
+        "REQ-005": {
+          "line": "- **REQ-005（CI ゲート強化・パリティテスト正規接続・サイレントスキップ廃止）**:",
+          "hash": "a6b39be53c2732dc3b5537c7f51f90569e9224668b633c1f32ad105d8080f8a5"
+        },
+        "REQ-006": {
+          "line": "- **REQ-006（言語別規約・AI ピットフォール正本化・全階層 `AGENTS.md` 一本化）**:",
+          "hash": "5cdc21f0b05509eb011de8a31c1c81e8b7e25bf8f4549ac504587d0b5d00639b"
+        },
+        "REQ-007": {
+          "line": "- **REQ-007（Compound Engineering 自動抽出・2 回発生昇格・ドキュメント自動生成）**:",
+          "hash": "612a6e6e4e0005235a0486c370b54b4442c23f50e1c56f5ee4fc7a8dc2294123"
+        },
+        "REQ-008": {
+          "line": "- **REQ-008（動的影響範囲チェック TIA と承認付き安全テスト改廃）**:",
+          "hash": "1e8cacdf1ee01e9e6c0e5e82c6ac44c9c2376aa34da9fcfaa09d2dc2fe64a524"
+        },
+        "REQ-009": {
+          "line": "- **REQ-009（軸 B: 利用者プロジェクトへの戦略的 DDD 3 ティア＆SSOT 横展開）**:",
+          "hash": "3d8bb18f955ba3a0f58d9d9134cf84cb2aac78530d692e0da59fa3d2a1fd4f83"
+        },
+        "AC-001": {
+          "line": "- **AC-001** (REQ-001): `contracts/agent-model-capabilities.v2.json` / `model-policy.v1.json` / `capability-registry.json` 更新後に `node scripts/sync-ssot.mjs --target contracts` を実行すると、プラグイン内複製 JSON および `docs/agent-capability-matrix.md` 等のマーカー区間表が決定論的に同期され、2 回連続実行で差分ゼロとなる。",
+          "hash": "1005e70bce121bbdbaa85f9f543c661b23068024303a3254891ff2b483658232"
+        },
+        "AC-002": {
+          "line": "- **AC-002** (REQ-001, REQ-005): `node scripts/sync-ssot.mjs --check` がドリフトを exit 1 で検知し、違反ファイル・編集すべき正本パス・修復コマンドを標準エラー（および `--json` で構造化 JSON）に出力する。正本 JSON 破損やマーカー破損時は exit 2 で終了する。",
+          "hash": "74251c6c2cea128b570f0ce9eba722dc6ec363f4e82a779ab0c5790be52db5c9"
+        },
+        "AC-003": {
+          "line": "- **AC-003** (REQ-002): 全 8 プラグインの `plugin.manifest.json` から全 CLI マニフェストおよび `.claude-plugin/marketplace.json`・`.agents/plugins/marketplace.json` がバイト再現でき、`.gitattributes` に `linguist-generated=true` が設定される。`plugin.manifest.json` を持たない新規ディレクトリは exit 2 で Fail-Closed する。",
+          "hash": "8dd326ea3a50d91d71b6aa94e4a009c3d68f0029aa11d12265949bff0c334dc4"
+        },
+        "AC-004": {
+          "line": "- **AC-004** (REQ-002): `plugins/sdd-implementation/gemini/gemini-extension.json` の `name` 不整合（`sdd-forge-model-selection` → `sdd-implementation`）および `skills` 記法揺れがジェネレータのスキーマ変換により解消される。",
+          "hash": "2c922b6d1b92df36eaf1dfbbcd472a884fad5305c2a37657023a59c58f058a62"
+        },
+        "AC-005": {
+          "line": "- **AC-005** (REQ-003): `contracts/agents/*.agent.yaml` から全 CLI エージェント定義（Claude `.md` / Codex `.toml` / Copilot `.agent.md`）が 6 ブロック標準化かつバイト再現でき、Codex `.toml` への Claude 固有ツール名混入、`# x-sdd-model:` / `# x-sdd-effort:` 欠落、R-10 ゴーストパス、および `render-agent-frontmatter.{sh,ps1}` がすべて解消・廃止される。",
+          "hash": "ed53cf12b35947849a551e119701573cfa3ad2444f4cbc8bc2ad99e052aa7db3"
+        },
+        "AC-006": {
+          "line": "- **AC-006** (REQ-004): `contracts/release-manifest.json`（`version: \"2.1.5\"`, `minNodeVersion: \"26.13.0\"`, 必須配布パス正本）から `install.sh` / `install.ps1` 両方の必須パスおよび最小 Node.js 要件が連動し、`scripts/bump-version.sh` が `sync-ssot.mjs --target release` を利用する。",
+          "hash": "4f3c7863d0bc2acca238818208ccde11487a87d85d531a885e03c26ca55276d4"
+        },
+        "AC-007": {
+          "line": "- **AC-007** (REQ-005): `.github/workflows/test.yml` に `paths` フィルタなしの必須ジョブ `ssot-sync-check`・`test-lifecycle-check` が追加され、`tests/capability-registry-parity.tests.sh` が CI へ接続され、`tests/check-evidence-bundle-parity.tests.py` に `pwsh` サイレントスキップが残らない。",
+          "hash": "63f747791b67113f818c57b67a5303a0934f29b9ecba7fc96a20b13d43bdf617"
+        },
+        "AC-008": {
+          "line": "- **AC-008** (REQ-004): `mcp/*/package.json`（`sdd-forge-mcp`, `ci-mcp`, `local-env-mcp`）すべてが `2.1.5` かつ `engines.node: \">=26.13.0\"` に統一され、未登録またはバージョン不一致の新規 `mcp/<new>/package.json` を `sync-ssot.mjs --check` が自動検知して exit 1 でブロックする。",
+          "hash": "445f774c2842cf87462b62b0604d3bb2026af802ca1a6fe7c4e56616d6bec7e3"
+        },
+        "AC-009": {
+          "line": "- **AC-009** (REQ-006): ルート `AGENTS.md` が 100 行以内を維持し、アクティブ領域に `CLAUDE.md` や symlink が混在していないことを `sync-ssot.mjs --check` が検証し、`contracts/pitfalls-catalog.json` から `docs/contributor/coding-standards/*.md` のピットフォール表が自動生成され、`docs/coding-conventions.md`（R-01〜R-05）および `CODEOWNERS` が整備される。",
+          "hash": "40eae0d2fded0a3e74ef0d76aedc4653ee757639c16d08f58c2be6383d1a787d"
+        },
+        "AC-010": {
+          "line": "- **AC-010** (REQ-008): `scripts/check-ecosystem-impact.mjs` と `tests/verification-catalog-status.mjs --check` が機能廃止 PR でのゴーストテスト放置または `sdd/approved-test-retirements.json` 未承認のテスト削除を exit 1 でブロックし、承認済みかつ負例パリティ確認済み削除のみ許可する。",
+          "hash": "0934d44e799b80f39ae68fb1022d43f735cb626075ea1706d10e772654cf2ecd"
+        },
+        "AC-011": {
+          "line": "- **AC-011** (REQ-007): `scripts/harvest-pitfalls.mjs` が `docs/review-tickets/RT-*.yml`・`docs/workflow-improvements/WFI-*.md`・`fix:` コミットからピットフォール候補を抽出し、2 回以上発生項目に機械ルール昇格（`enforced-by-lint`）フラグを付与する。また `sync-ssot.mjs --target docs` が `PLUGIN-CONTRACTS.md` / `docs/skill-reference.md` のマーカー区間を同期する。",
+          "hash": "99622f72642928d285bbde26a456dbfda40ebd8695e4fb4e1749816deeaba58b"
+        },
+        "AC-012": {
+          "line": "- **AC-012** (REQ-009): 利用者プロジェクト向けの初期化・実装・検証・振り返りツール群（`init-project-governance.mjs`、ピットフォール動的注入、依存方向 Fitness Function `domain-isolated` / `context-via-api`、ユビキタス言語検査、TIA＋テスト改廃、Compound ステップ）が新規プロジェクト E2E テストで動作実証される。",
+          "hash": "f76464aca560d45dcab0b05b67b9fee31cf222aeb98dd4dfb658ed2471d7c5b1"
+        }
+      },
+      "amendmentCount": 0
+    },
+    "specs/ssot-unification-v22/tasks.md": {
+      "fileName": "tasks.md",
+      "rawSha256": "280326166d64234f9dc4a9340855addca1cba11ff056e687bebaeeb78c1d4ae1",
+      "contractSha256": "ca4cc09798a0db2ddc55803e855e733ba5a483dd36cd4d7ba412e1ab9a474920",
+      "identifiers": {},
+      "amendmentCount": 0,
+      "approvalContractSha256": "0b9c6b27b2bf005e5e5a4a49161c64d4cbb782bb05bc891ad871c1189448b8e4",
+      "taskApprovals": {
+        "T-001": "Approved",
+        "T-002": "Approved",
+        "T-003": "Approved",
+        "T-004": "Approved",
+        "T-005": "Approved"
+      }
+    }
+  },
+  "identifiers": {
+    "REQ-001": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **REQ-001（契約 JSON・能力レジストリ・モデルポリシー・文書表の SSOT 化）**:",
+      "hash": "84b9c1cc990c6ceeb9a16a0567582ddabe7505d9255868248e78d4d29cf8c3ba"
+    },
+    "REQ-002": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **REQ-002（マルチ CLI マニフェスト & 2 種 `marketplace.json` の自動走査生成）**:",
+      "hash": "9ccc591927d26bed6990dd6cbef8843dab41d399fa0b2f200950dbcf9751eeaf"
+    },
+    "REQ-003": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **REQ-003（全階層エージェントプロンプトの SSOT 化と 6 ブロック標準化）**:",
+      "hash": "f18ef254ec12ccfa24613002ae52a590a057b1272ed85020349198ea0028b1e4"
+    },
+    "REQ-004": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **REQ-004（統一バージョニング・Node 26.13+ 要件・配布必須パス SSOT 化）**:",
+      "hash": "db61b61ecd95cdbb2577d2c53bbdfa1acaaab2f65cb850c72cd9e6fba6774a5d"
+    },
+    "REQ-005": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **REQ-005（CI ゲート強化・パリティテスト正規接続・サイレントスキップ廃止）**:",
+      "hash": "a6b39be53c2732dc3b5537c7f51f90569e9224668b633c1f32ad105d8080f8a5"
+    },
+    "REQ-006": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **REQ-006（言語別規約・AI ピットフォール正本化・全階層 `AGENTS.md` 一本化）**:",
+      "hash": "5cdc21f0b05509eb011de8a31c1c81e8b7e25bf8f4549ac504587d0b5d00639b"
+    },
+    "REQ-007": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **REQ-007（Compound Engineering 自動抽出・2 回発生昇格・ドキュメント自動生成）**:",
+      "hash": "612a6e6e4e0005235a0486c370b54b4442c23f50e1c56f5ee4fc7a8dc2294123"
+    },
+    "REQ-008": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **REQ-008（動的影響範囲チェック TIA と承認付き安全テスト改廃）**:",
+      "hash": "1e8cacdf1ee01e9e6c0e5e82c6ac44c9c2376aa34da9fcfaa09d2dc2fe64a524"
+    },
+    "REQ-009": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **REQ-009（軸 B: 利用者プロジェクトへの戦略的 DDD 3 ティア＆SSOT 横展開）**:",
+      "hash": "3d8bb18f955ba3a0f58d9d9134cf84cb2aac78530d692e0da59fa3d2a1fd4f83"
+    },
+    "AC-001": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-001** (REQ-001): `contracts/agent-model-capabilities.v2.json` / `model-policy.v1.json` / `capability-registry.json` 更新後に `node scripts/sync-ssot.mjs --target contracts` を実行すると、プラグイン内複製 JSON および `docs/agent-capability-matrix.md` 等のマーカー区間表が決定論的に同期され、2 回連続実行で差分ゼロとなる。",
+      "hash": "1005e70bce121bbdbaa85f9f543c661b23068024303a3254891ff2b483658232"
+    },
+    "AC-002": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-002** (REQ-001, REQ-005): `node scripts/sync-ssot.mjs --check` がドリフトを exit 1 で検知し、違反ファイル・編集すべき正本パス・修復コマンドを標準エラー（および `--json` で構造化 JSON）に出力する。正本 JSON 破損やマーカー破損時は exit 2 で終了する。",
+      "hash": "74251c6c2cea128b570f0ce9eba722dc6ec363f4e82a779ab0c5790be52db5c9"
+    },
+    "AC-003": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-003** (REQ-002): 全 8 プラグインの `plugin.manifest.json` から全 CLI マニフェストおよび `.claude-plugin/marketplace.json`・`.agents/plugins/marketplace.json` がバイト再現でき、`.gitattributes` に `linguist-generated=true` が設定される。`plugin.manifest.json` を持たない新規ディレクトリは exit 2 で Fail-Closed する。",
+      "hash": "8dd326ea3a50d91d71b6aa94e4a009c3d68f0029aa11d12265949bff0c334dc4"
+    },
+    "AC-004": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-004** (REQ-002): `plugins/sdd-implementation/gemini/gemini-extension.json` の `name` 不整合（`sdd-forge-model-selection` → `sdd-implementation`）および `skills` 記法揺れがジェネレータのスキーマ変換により解消される。",
+      "hash": "2c922b6d1b92df36eaf1dfbbcd472a884fad5305c2a37657023a59c58f058a62"
+    },
+    "AC-005": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-005** (REQ-003): `contracts/agents/*.agent.yaml` から全 CLI エージェント定義（Claude `.md` / Codex `.toml` / Copilot `.agent.md`）が 6 ブロック標準化かつバイト再現でき、Codex `.toml` への Claude 固有ツール名混入、`# x-sdd-model:` / `# x-sdd-effort:` 欠落、R-10 ゴーストパス、および `render-agent-frontmatter.{sh,ps1}` がすべて解消・廃止される。",
+      "hash": "ed53cf12b35947849a551e119701573cfa3ad2444f4cbc8bc2ad99e052aa7db3"
+    },
+    "AC-006": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-006** (REQ-004): `contracts/release-manifest.json`（`version: \"2.1.5\"`, `minNodeVersion: \"26.13.0\"`, 必須配布パス正本）から `install.sh` / `install.ps1` 両方の必須パスおよび最小 Node.js 要件が連動し、`scripts/bump-version.sh` が `sync-ssot.mjs --target release` を利用する。",
+      "hash": "4f3c7863d0bc2acca238818208ccde11487a87d85d531a885e03c26ca55276d4"
+    },
+    "AC-007": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-007** (REQ-005): `.github/workflows/test.yml` に `paths` フィルタなしの必須ジョブ `ssot-sync-check`・`test-lifecycle-check` が追加され、`tests/capability-registry-parity.tests.sh` が CI へ接続され、`tests/check-evidence-bundle-parity.tests.py` に `pwsh` サイレントスキップが残らない。",
+      "hash": "63f747791b67113f818c57b67a5303a0934f29b9ecba7fc96a20b13d43bdf617"
+    },
+    "AC-008": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-008** (REQ-004): `mcp/*/package.json`（`sdd-forge-mcp`, `ci-mcp`, `local-env-mcp`）すべてが `2.1.5` かつ `engines.node: \">=26.13.0\"` に統一され、未登録またはバージョン不一致の新規 `mcp/<new>/package.json` を `sync-ssot.mjs --check` が自動検知して exit 1 でブロックする。",
+      "hash": "445f774c2842cf87462b62b0604d3bb2026af802ca1a6fe7c4e56616d6bec7e3"
+    },
+    "AC-009": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-009** (REQ-006): ルート `AGENTS.md` が 100 行以内を維持し、アクティブ領域に `CLAUDE.md` や symlink が混在していないことを `sync-ssot.mjs --check` が検証し、`contracts/pitfalls-catalog.json` から `docs/contributor/coding-standards/*.md` のピットフォール表が自動生成され、`docs/coding-conventions.md`（R-01〜R-05）および `CODEOWNERS` が整備される。",
+      "hash": "40eae0d2fded0a3e74ef0d76aedc4653ee757639c16d08f58c2be6383d1a787d"
+    },
+    "AC-010": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-010** (REQ-008): `scripts/check-ecosystem-impact.mjs` と `tests/verification-catalog-status.mjs --check` が機能廃止 PR でのゴーストテスト放置または `sdd/approved-test-retirements.json` 未承認のテスト削除を exit 1 でブロックし、承認済みかつ負例パリティ確認済み削除のみ許可する。",
+      "hash": "0934d44e799b80f39ae68fb1022d43f735cb626075ea1706d10e772654cf2ecd"
+    },
+    "AC-011": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-011** (REQ-007): `scripts/harvest-pitfalls.mjs` が `docs/review-tickets/RT-*.yml`・`docs/workflow-improvements/WFI-*.md`・`fix:` コミットからピットフォール候補を抽出し、2 回以上発生項目に機械ルール昇格（`enforced-by-lint`）フラグを付与する。また `sync-ssot.mjs --target docs` が `PLUGIN-CONTRACTS.md` / `docs/skill-reference.md` のマーカー区間を同期する。",
+      "hash": "99622f72642928d285bbde26a456dbfda40ebd8695e4fb4e1749816deeaba58b"
+    },
+    "AC-012": {
+      "file": "specs/ssot-unification-v22/requirements.md",
+      "line": "- **AC-012** (REQ-009): 利用者プロジェクト向けの初期化・実装・検証・振り返りツール群（`init-project-governance.mjs`、ピットフォール動的注入、依存方向 Fitness Function `domain-isolated` / `context-via-api`、ユビキタス言語検査、TIA＋テスト改廃、Compound ステップ）が新規プロジェクト E2E テストで動作実証される。",
+      "hash": "f76464aca560d45dcab0b05b67b9fee31cf222aeb98dd4dfb658ed2471d7c5b1"
+    }
+  }
+}

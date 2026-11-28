@@ -357,7 +357,7 @@ if ($Target -in @("All", "Antigravity")) {
 if ($Target -in @("All", "Gemini")) {
     if (-not $SkipPluginUninstall -and (Get-Command gemini -ErrorAction SilentlyContinue)) {
         foreach ($plugin in $Plugins) {
-            $extName = if ($plugin -ceq 'sdd-implementation') { 'sdd-forge-model-selection' } else { $plugin }
+            $extName = $plugin
             Invoke-BestEffortPluginCommand 'gemini' @('extensions', 'uninstall', $extName)
         }
     }

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://github.com/aharada54914/sdd-forge/contracts/approved-test-retirements.schema.json",
+  "schema": "sdd-approved-test-retirements/v1",
+  "description": "CODEOWNERS-protected registry of approved test retirements/consolidations (ADR-0056). Removing any existing test file without a matching entry (including git_blob_sha and negative_parity_verified: true) is blocked by CI.",
+  "retirements": []
+}

@@ -1,12 +1,12 @@
 {
   "name": "sdd-quality-loop",
-  "description": "Independently verify Implementation Complete tasks, run differential baseline checks, retrospect on workflow performance, and decide Done.",
   "version": "2.1.5",
+  "description": "Independently verify Implementation Complete tasks, run differential baseline checks, retrospect on workflow performance, and decide Done.",
   "author": {
     "name": "Harada"
   },
-  "hooks": "./hooks/claude-hooks.json",
   "skills": [
     "./skills/"
-  ]
+  ],
+  "hooks": "./hooks/claude-hooks.json"
 }

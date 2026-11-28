@@ -2,8 +2,27 @@
 *.sh text eol=lf
 *.ps1 text eol=lf
 *.js text eol=lf
+*.mjs text eol=lf
+*.ts text eol=lf
 *.py text eol=lf
 *.json text eol=lf
 *.md text eol=lf
 *.yml text eol=lf
+*.yaml text eol=lf
 *.toml text eol=lf
+
+# Generated SSOT derivatives (ADR-0056 — do not edit directly; run node scripts/sync-ssot.mjs)
+.claude-plugin/marketplace.json linguist-generated=true
+.agents/plugins/marketplace.json linguist-generated=true
+plugins/*/.claude-plugin/plugin.json linguist-generated=true
+plugins/*/.codex-plugin/plugin.json linguist-generated=true
+plugins/*/.plugin/plugin.json linguist-generated=true
+plugins/*/.antigravity-plugin/plugin.json linguist-generated=true
+plugins/*/gemini-extension.json linguist-generated=true
+plugins/*/gemini/gemini-extension.json linguist-generated=true
+plugins/*/contracts/*.json linguist-generated=true
+.codex/agents/*.toml linguist-generated=true
+plugins/*/agents/*.md linguist-generated=true
+plugins/*/copilot-agents/*.agent.md linguist-generated=true
+mcp/*/dist/index.js linguist-generated=true
+docs/operations/verification-catalog-status.md linguist-generated=true

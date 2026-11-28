@@ -6,36 +6,35 @@
 `.github/workflows/test.yml` にほとんど存在しません。カタログのリンクだけでは「CI で実行済み」と数えず、
 現行ジョブの手順がそのパスを実行している場合だけ「実行中」とします（#862）。
 
-現行ジョブ: `v2-guardrails`, `sdd-forge-mcp-v2`, `mcp-tests`, `cloud-and-ddd`, `installers`, `required-checks`
+現行ジョブ: `ssot-sync-check`, `test-lifecycle-check`, `v2-guardrails`, `sdd-forge-mcp-v2`, `mcp-tests`, `cloud-and-ddd`, `installers`, `required-checks`
 
 ## カタログのジョブ名と現行ジョブ
 
 | カタログのジョブ名 | 現行に存在 | 登録数 | 実行中 | CI 外 | 廃止 |
 |---|---|---|---|---|---|
-| `cli-hook-enforcement` | no | 2 | 0 | 0 | 2 |
 | `cloud-and-ddd` | yes | 4 | 4 | 0 | 0 |
 | `cloud-native` | no | 6 | 4 | 2 | 0 |
 | `coding-standards` | no | 2 | 0 | 2 | 0 |
 | `installers` | yes | 7 | 2 | 5 | 0 |
 | `interrupted-recovery` | no | 2 | 0 | 2 | 0 |
 | `loops-routing` | no | 23 | 0 | 23 | 0 |
-| `posix-regression` | no | 62 | 1 | 57 | 4 |
+| `posix-regression` | no | 58 | 1 | 57 | 0 |
 | `sql-contract` | no | 1 | 1 | 0 | 0 |
 | `sql-mysql` | no | 1 | 0 | 1 | 0 |
 | `sql-postgres` | no | 1 | 0 | 1 | 0 |
 | `sql-tsql` | no | 1 | 0 | 1 | 0 |
-| `test` | no | 51 | 3 | 41 | 7 |
-| `test-windows-heavy` | no | 20 | 0 | 17 | 3 |
-| `version-gates` | no | 78 | 0 | 39 | 39 |
+| `test` | no | 44 | 3 | 41 | 0 |
+| `test-windows-heavy` | no | 17 | 0 | 17 | 0 |
+| `v2-guardrails` | yes | 1 | 1 | 0 | 0 |
+| `version-gates` | no | 39 | 0 | 39 | 0 |
 | `version-gates-windows-bump` | no | 3 | 0 | 3 | 0 |
-| `windows-powershell` | no | 2 | 0 | 1 | 1 |
+| `windows-powershell` | no | 1 | 0 | 1 | 0 |
 
 ## `posix-regression` に登録されたスイート
 
 | スイート | 状態 | 実行している現行ジョブ |
 |---|---|---|
 | `tests/codex-mcp-config.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
-| `tests/kill-switch-inspection.tests.sh` | 廃止（ファイルなし） | — |
 | `tests/guard-stop-inspection.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/mcp-diagnostics-sharing.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/python-input-boundaries.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
@@ -70,8 +69,6 @@
 | `tests/fixed-review-precheck-bash.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/fixed-review-precheck-ps.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/fixed-review-state.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
-| `tests/guard-dispatch-fallback.tests.sh` | 廃止（ファイルなし） | — |
-| `tests/guard-negative-corpus.tests.sh` | 廃止（ファイルなし） | — |
 | `tests/host-review-preflight.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/issue311-scratch-isolation.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/review-implementation-binding.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
@@ -81,7 +78,6 @@
 | `tests/required-checks-posix.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/review-conditional-inputs.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/sdd-domain.tests.ps1` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
-| `tests/sdd-sudo-guard-mutation.tests.py` | 廃止（ファイルなし） | — |
 | `tests/shared-launch-build.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/spec-review-verify-inputs.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |
 | `tests/supplemental-delivery-declaration.tests.py` | CI 外（ファイルあり・現行ジョブは実行しない） | — |

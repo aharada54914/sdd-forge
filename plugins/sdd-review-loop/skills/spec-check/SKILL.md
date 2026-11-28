@@ -38,7 +38,7 @@ user-invocable: false
 | **P3** | **タスク分解・依存・テスト戦略** | `tasks.md` の `### Scope` / `### Done When` がテスト可能な粒度か、`### Blockers` に循環・欠落がないか、`Risk:` 判定と TDD/回帰テスト戦略が妥当か | Reviewer A | Reviewer A |
 | **P4** | **セキュリティ・非機能境界** | 認証/認可・入力検証・秘密情報管理・SQL 破壊操作/性能・Cloud 権限/ネットワーク境界に欠陥がないか（無関係時は `N/A（理由）`） | Reviewer A | Reviewer B |
 | **P5** | **データ移行・ロールバック・既存破壊リスク** | スキーマ/データ移行・ロールバック手順の現実性と既存機能への回帰リスクが検討されているか（無関係時は `N/A（理由）`） | Reviewer A | Reviewer B |
-| **P6** | **未決 `OQ-NNN`・ドメイン/デザイン規約整合** | 重要 `Open Questions`（特に `Risk: high` 時の未確定 `OQ-NNN`）が残存していないか、`domain/`（`Bounded-Context:`・正典用語・概念境界）や `design-system/` との乖離がないか | Reviewer A | Reviewer A |
+| **P6** | **未決 `OQ-NNN`・ドメイン/デザイン規約整合** | 重要 `Open Questions`（特に `Risk: high` 時の未確定 `OQ-NNN`）が残存していないか、`domain/` / `sdd/glossary.json` / `sdd/context-map.json`（`Bounded-Context:`・正典用語・概念境界・SSOT 重複禁止・テスト改廃計画）や `design-system/` との乖離がないか | Reviewer A | Reviewer A |
 
 ## Integration Rules
 

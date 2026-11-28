@@ -1,0 +1,40 @@
+{
+  "name": "sdd-review-loop",
+  "order": 5,
+  "description": "[internal] Run risk-scaled single-pass pre-implementation specification review (spec-check) for sdd-bootstrap.",
+  "marketplaceDescription": "[internal] Independent implementation and task decomposition reviews used by sdd-bootstrap.",
+  "author": {
+    "name": "Harada"
+  },
+  "skillsDir": "./skills/",
+  "category": "Developer Tools",
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "targets": {
+    "codex": {
+      "description": "[internal] Run risk-scaled single-pass pre-implementation specification review (spec-check) with P1-P6 perspective parity for sdd-bootstrap.",
+      "interface": {
+        "displayName": "SDD Review Loop",
+        "shortDescription": "Pre-implementation spec-check review",
+        "longDescription": "Internal dependency of sdd-bootstrap. Runs risk-scaled single-pass pre-implementation specification review (single on standard, dual-parallel on high) over canonical perspectives P1-P6 before human approval.",
+        "developerName": "Harada",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Risk-scaled pre-implementation specification review (spec-check)",
+          "Strict P1-P6 perspective parity across single and dual-parallel modes"
+        ],
+        "defaultPrompt": "Use /sdd-bootstrap:bootstrap to generate SDD Core specifications; it invokes spec-check automatically."
+      }
+    },
+    "gemini": {
+      "description": "Risk-scaled single-pass pre-implementation specification review (spec-check) with strict P1-P6 perspective parity for Gemini CLI.",
+      "contextFileName": "GEMINI.md",
+      "paths": [
+        "gemini-extension.json",
+        "gemini/gemini-extension.json"
+      ]
+    }
+  }
+}

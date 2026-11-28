@@ -2,10 +2,11 @@
   "name": "sdd-implementation",
   "version": "2.1.5",
   "description": "[internal] Implement approved SDD tasks (one at a time or in batch) and prepare them for independent quality review. Use /sdd-ship:ship for the standard workflow.",
-  "skills": "./skills/",
   "author": {
     "name": "Harada"
   },
+  "skills": "./skills/",
+  "hooks": "./hooks/codex-hooks.json",
   "interface": {
     "displayName": "SDD Implementation",
     "shortDescription": "Implement approved specification tasks",
@@ -21,6 +22,5 @@
       "Context-safe delegation to helper agents"
     ],
     "defaultPrompt": "Use the implement-tasks skill for specs/<feature>/tasks.md to implement all approved tasks in order."
-  },
-  "hooks": "./hooks/codex-hooks.json"
+  }
 }

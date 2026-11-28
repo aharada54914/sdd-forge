@@ -49,8 +49,6 @@ def _manifest_dir(plugin: str) -> Path:
 
 
 def _expected_extension_name(plugin: str) -> str:
-    if plugin == "sdd-implementation":
-        return "sdd-forge-model-selection"
     return plugin
 
 
@@ -323,7 +321,7 @@ class GeminiInstallerAndMcpTests(unittest.TestCase):
                 "sdd-ship",
                 "sdd-domain",
                 "sdd-quality-loop",
-                "sdd-forge-model-selection",
+                "sdd-implementation",
             ):
                 self.assertIn(f"extensions uninstall {ext_name}", un_calls)
             partial_settings = json.loads(settings_path.read_text(encoding="utf-8"))

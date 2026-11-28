@@ -1,0 +1,38 @@
+{
+  "name": "sdd-azure-cloud",
+  "order": 7,
+  "description": "Explicit opt-in Azure orchestration: local planning and validation, protected CI execution, and read-only verification.",
+  "author": {
+    "name": "Harada"
+  },
+  "skillsDir": "./skills/",
+  "category": "Developer Tools",
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "targets": {
+    "codex": {
+      "interface": {
+        "displayName": "SDD Azure Cloud",
+        "shortDescription": "Opt-in governed Azure orchestration",
+        "longDescription": "Explicit opt-in Azure orchestration: local planning and validation, protected CI execution, and read-only verification.",
+        "developerName": "Harada",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Local owner-aware routing",
+          "Governed CI admission",
+          "Read-only observation and verification"
+        ],
+        "defaultPrompt": "Use the orchestrate skill only for an explicitly selected cloud request."
+      }
+    },
+    "gemini": {
+      "description": "Governed Azure Bicep cloud orchestration workflows for Gemini CLI.",
+      "contextFileName": "GEMINI.md",
+      "paths": [
+        "gemini-extension.json"
+      ]
+    }
+  }
+}

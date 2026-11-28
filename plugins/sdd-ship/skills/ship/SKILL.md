@@ -59,7 +59,7 @@ node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/record-spec-baseline.
 - `FAIL`: 失敗理由と原因工程（`requirements` / `design` / `code` / `test` / `harness`）を報告して停止（`Status` は変えない。`Implementation Complete` はそのまま、再検証した `Done` タスクも `Done` のまま人間へ報告し、開き直すかは人間が決める）。原因工程の計測記録は子の `sdd-gate` が `--run-id` 付きで 1 回だけ行うため、ship 側では重ねて記録しない。
 
 ### Step 5 — 回顧（`--retro` 指定時のみ）
-全対象タスクが `Status: Done` に到達し、`--retro` が指定されている場合は `workflow-retrospective` スキルを呼び出し、事実ログ（`sdd-doctor.mjs`, `.sdd/drift-events.jsonl`, `reports/quality-gate/`）から改善候補を抽出してレポートを出力する。
+全対象タスクが `Status: Done` に到達し、`--retro` が指定されている場合は `workflow-retrospective` スキルを呼び出し、事実ログ（`sdd-doctor.mjs`, `.sdd/drift-events.jsonl`, `reports/quality-gate/`）から改善候補を抽出してレポートを出力する。再発し得るレビュー指摘や不具合教訓は `<installed-root>/plugins/sdd-review-loop/scripts/compound-pitfalls.mjs` で `sdd/pitfalls-catalog.json` へ蓄積し、2回以上発生したものは機械的強制（Lint / CI）へ昇格する。
 
 ## Handoff
 

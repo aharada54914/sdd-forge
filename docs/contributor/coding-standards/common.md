@@ -698,3 +698,15 @@ assert observed == contract_expected
 ## Reuse decisions (CS-013 through CS-016)
 
 Record intent, public signature and semantic/error/side-effect/ordering/encoding contract; history and reasons for change; consumers and their present/future requirements; a concrete attempted divergence counterexample; adoption/rejection and rationale; regressions. New APIs have no historical stability evidence. A future unconditional guarantee cannot be proved by finite tests. Unknown divergence means keep upper-level feature behavior separate. Logging mechanics, redaction, DB authentication/pooling/release and resource transport should use compatible shared infrastructure; queries, transactions, event content, business retry and compensation remain feature-owned. No duplicate-line quota can override this boundary.
+
+## AI Pitfalls (Auto-Generated from `contracts/pitfalls-catalog.json`)
+
+<!-- BEGIN GENERATED:pitfalls-common -->
+| ID | Severity | Symptom | Good Pattern | Layer | Status | Source |
+|---|---|---|---|---|---|---|
+| `PIT-COM-001` | high | Hardcoding plugin or MCP package lists in sync/bump scripts silently omits newly added components (e.g. ci-mcp / local-env-mcp stuck at 0.1.0) | Auto-discover plugins/*/ and mcp/*/package.json; fail closed (exit 1/2) when a manifest or version is missing or mismatched | `ci-test` | `enforced-by-lint` | ADR-0056 |
+| `PIT-COM-002` | high | Duplicating rules or placing CLAUDE.md alongside AGENTS.md causes Context Clash and makes Claude Code v2.1.277+ ignore AGENTS.md | Keep root AGENTS.md <= 100 lines as an index, place domain details in subdirectory AGENTS.md, and prohibit CLAUDE.md across active directories | `ci-test` | `enforced-by-lint` | ADR-0056 |
+| `PIT-COM-003` | high | Silent test skips or empty catch blocks produce false-positive CI green runs | Fail closed when required verification tools are absent or run parity suites on a guaranteed runner | `ci-test` | `enforced-by-lint` | WFI-015 |
+| `PIT-COM-004` | medium | Manually editing generated artifacts (manifests, marketplaces, agent prompts) causes immediate SSOT drift | Edit the SSOT under plugins/*/plugin.manifest.json or contracts/agents/*.agent.yaml and run node scripts/sync-ssot.mjs | `ci-test` | `enforced-by-lint` | ADR-0056 |
+| `PIT-COM-005` | medium | Detection test suites embed contiguous banned marker literals and become false-positive hits of their own gate | Assemble scanned marker tokens dynamically at runtime (e.g. ['T','O','D','O'].join('')) | `review-checklist` | `active` | WFI-012 |
+<!-- END GENERATED:pitfalls-common -->

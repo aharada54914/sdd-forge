@@ -608,3 +608,11 @@ sdd-lite would at that point gain a runtime dependency on the
 sdd-quality-loop scripts directory, and that dependency would have to be
 declared in `plugins/sdd-lite/.plugin/plugin.json` before the merge
 proceeded. No such refactoring is planned or in progress.
+
+## Auto-Generated Plugin & Schema Inventory (ADR-0056)
+
+<!-- BEGIN GENERATED:plugin-contracts-summary -->
+Shipped plugins (8): `sdd-aws-cloud`, `sdd-azure-cloud`, `sdd-bootstrap`, `sdd-domain`, `sdd-implementation`, `sdd-quality-loop`, `sdd-review-loop`, `sdd-ship`
+
+Root contract schemas (68): auto-discovered from `contracts/*.schema.json`.
+<!-- END GENERATED:plugin-contracts-summary -->

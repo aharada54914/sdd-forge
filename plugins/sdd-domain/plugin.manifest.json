@@ -1,0 +1,43 @@
+{
+  "name": "sdd-domain",
+  "order": 6,
+  "description": "Domain-Driven Design upstream lane producing a human-approved v2 domain model (domain story, event storming, concept model, ubiquitous language, context map, aggregates, message flow) ahead of sdd-bootstrap.",
+  "marketplaceDescription": "Domain-Driven Design upstream lane producing a human-approved domain model ahead of sdd-forge Phase 1.",
+  "author": {
+    "name": "Harada"
+  },
+  "skillsDir": "./skills/",
+  "category": "Developer Tools",
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "targets": {
+    "antigravity": {
+      "description": "Domain-Driven Design upstream lane producing a human-approved v2 domain model ahead of sdd-bootstrap."
+    },
+    "codex": {
+      "interface": {
+        "displayName": "SDD Domain",
+        "shortDescription": "DDD upstream lane for domain modeling",
+        "longDescription": "Interview-driven, seven-stage Domain-Driven Design pipeline that produces a reviewed and human-approved domain model consumed by downstream sdd-forge specifications.",
+        "developerName": "Harada",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Seven-stage domain modeling interview",
+          "Independent 2-perspective domain review (strategic + tactical)",
+          "Human-approved domain contract",
+          "Downstream conformance sync for bootstrap specs"
+        ],
+        "defaultPrompt": "Use the domain-model skill to build or update the approved domain model."
+      }
+    },
+    "gemini": {
+      "description": "DDD upstream domain modeling, domain review loop, concept tests, and domain-sync conformance workflows for Gemini CLI.",
+      "contextFileName": "GEMINI.md",
+      "paths": [
+        "gemini-extension.json"
+      ]
+    }
+  }
+}

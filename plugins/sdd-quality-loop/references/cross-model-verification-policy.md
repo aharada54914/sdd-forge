@@ -1,5 +1,10 @@
 # Cross-Model Verification Policy
 
+<!-- BEGIN GENERATED:cross-model-policy-models -->
+> **SSOT Notice**: Active frontier model IDs are maintained in `contracts/model-policy.v1.json` and `contracts/agent-model-capabilities.v2.json`.
+> Current registered frontier candidates: `gpt-6-astra` (codex-cli), `anthropic/opus-5-5` (claude-code), `anthropic/sonnet-5-5` (claude-code), `anthropic/fable` (claude-code), `google/gemini-4-neon` (gemini-cli, antigravity-cli).
+<!-- END GENERATED:cross-model-policy-models -->
+
 A critical task's semantic verdict depends on a single LLM evaluator — a real blind
 spot. Multi-vendor verification adds an independent, orthogonal signal: **≥2 distinct
 vendors** run the same verification question in parallel, blind and unaware of each

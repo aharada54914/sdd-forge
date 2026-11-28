@@ -49,7 +49,7 @@ export function buildServer(options: ToolProbeOptions = {}): McpServer {
   const probeOptions = { ...options, probe: options.probe ?? createProbeEngine().probe };
   const server = new McpServer({
     name: "local-env-mcp",
-    version: "0.1.0",
+    version: "2.1.5",
   });
 
   server.registerTool(

@@ -83,9 +83,26 @@ export function renderReport({ jobs, catalogJobNames, suites }) {
 
 const invokedDirectly = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (invokedDirectly) {
-  const report = renderReport(classifyCatalog());
+  const classified = classifyCatalog();
+  const report = renderReport(classified);
   if (process.argv.includes('--write')) {
     fs.writeFileSync(path.join(REPO_ROOT, REPORT_PATH), report, 'utf8');
+  } else if (process.argv.includes('--check')) {
+    const missing = classified.suites.filter((s) => s.state === 'file-missing');
+    const reportPath = path.join(REPO_ROOT, REPORT_PATH);
+    const current = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, 'utf8') : '';
+    const errors = [];
+    if (missing.length > 0) {
+      errors.push(`file-missing suites in verification-catalog.json (${missing.length}): ${missing.map((s) => s.path).join(', ')}`);
+    }
+    if (current !== report) {
+      errors.push(`${REPORT_PATH} is out of date. Run: node tests/verification-catalog-status.mjs --write`);
+    }
+    if (errors.length > 0) {
+      for (const e of errors) process.stderr.write(`FAIL [verification-catalog-status]: ${e}\n`);
+      process.exit(1);
+    }
+    process.stdout.write(`verification-catalog-status --check: CLEAN (${classified.suites.length} suites, 0 file-missing)\n`);
   } else {
     process.stdout.write(report);
   }

@@ -1599,9 +1599,9 @@ fi
 rm -rf "$_w_root"
 [[ $_w_ok -eq 1 ]] && ok "unsupported Node warns and skips MCP only, plugin install continues"
 
-# Scenario (w1): enforce the exact supported MCP runtime floor (Node 20.0.0 LTS,
+# Scenario (w1): enforce the exact supported MCP runtime floor (Node 26.13.0+,
 # install.sh node_version_ok). Older releases and malformed output fail closed.
-for _w1_case in "v18.20.4:reject" "v19.9.0:reject" "v20.0.0:accept" "v22.19.0:accept" "v26.14.0:accept" "v20.0.0-rc.1:reject" "v999999999999999999999.0.0:reject" "not-a-version:reject"; do
+for _w1_case in "v18.20.4:reject" "v19.9.0:reject" "v20.0.0:reject" "v24.13.0:reject" "v26.13.0:accept" "v26.14.0:accept" "v26.13.0-rc.1:reject" "v999999999999999999999.0.0:reject" "not-a-version:reject"; do
     _w1_version="${_w1_case%%:*}"
     _w1_expected="${_w1_case##*:}"
     _w1_root="$(mktemp -d)"
@@ -2003,7 +2003,7 @@ chmod +x "${_hook_bin}/claude" "${_hook_bin}/node"
 _hook_install="${_hook_root}/installed"
 _hook_failed=0
 _hook_out="$(PATH="${_hook_bin}:${PATH}" bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_hook_install" --target Claude --plugins sdd-quality-loop --skip-agent-install --skip-mcp 2>&1)" || _hook_failed=1
-if [[ $_hook_failed -eq 0 && -f "${_hook_install}/plugins/sdd-quality-loop/.claude-plugin/plugin.json" && "$_hook_out" == *'Node.js >= 20.0.0 is recommended'* ]]; then
+if [[ $_hook_failed -eq 0 && -f "${_hook_install}/plugins/sdd-quality-loop/.claude-plugin/plugin.json" && "$_hook_out" == *'Node.js >= 26.13.0 is recommended'* ]]; then
     ok "Claude hooks: unusable Node warns and still installs (v2 soft guard)"
 else
     fail "Claude hooks: unusable Node did not warn-and-install (exit=$_hook_failed): $_hook_out"
