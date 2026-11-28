@@ -11,14 +11,24 @@ CORPUS="$REPO_ROOT/tests/fixtures/structural-fixture-corpus"
 # and templates are read from the v1.26.0 release that produced it, as the
 # owner decided for other v1-only surfaces (Q05/Q10/Q12/Q14). Override with
 # STRUCTURAL_COMPAT_SURFACE_ROOT to test another tree.
+#
+# FROZEN-ARTIFACT CHECK: by default this suite does not exercise the current
+# product. It checks that the archived v1.26.0 surfaces still match the
+# recorded corpus, which A9 promotion and the skip audit rely on. A pass says
+# nothing about v2 behaviour.
 V1_RELEASE="b193c75be2"
 tmp_surface="$(mktemp -d "${TMPDIR:-/tmp}/structural-surface.XXXXXX")"
 SURFACE_ROOT="${STRUCTURAL_COMPAT_SURFACE_ROOT:-}"
 if [[ -z "$SURFACE_ROOT" ]]; then
   SURFACE_ROOT="$tmp_surface"
-  git -C "$REPO_ROOT" archive "$V1_RELEASE" plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer plugins/sdd-lite 2>/dev/null \
-    | tar -x -C "$SURFACE_ROOT" 2>/dev/null || true
+  if ! git -C "$REPO_ROOT" archive "$V1_RELEASE" plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer plugins/sdd-lite 2>/dev/null \
+    | tar -x -C "$SURFACE_ROOT" 2>/dev/null; then
+    rm -rf "$tmp_surface"
+    printf 'not ok: cannot read v1.26.0 (%s) surfaces; fetch that commit (a shallow clone lacks it) or set STRUCTURAL_COMPAT_SURFACE_ROOT\n' "$V1_RELEASE" >&2
+    exit 1
+  fi
 fi
+printf '# frozen-artifact check: surfaces from %s\n' "${STRUCTURAL_COMPAT_SURFACE_ROOT:-v1.26.0 ($V1_RELEASE)}"
 BOOTSTRAP_SKILL="$SURFACE_ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 LITE_SKILL="$SURFACE_ROOT/plugins/sdd-lite/skills/lite-spec/SKILL.md"
 DESIGN="$REPO_ROOT/specs/epic-195-a7-compatibility/design.md"

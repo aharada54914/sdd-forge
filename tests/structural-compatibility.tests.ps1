@@ -7,6 +7,7 @@ $Canon = Join-Path $RepoRoot 'tests/lib/markdown-ast-canonicalizer.ps1'
 $Corpus = Join-Path $RepoRoot 'tests/fixtures/structural-fixture-corpus'
 # 2026-11-28 (T-010, ADR-0051 decision 2): see the bash twin. The interviewer
 # and sdd-lite surfaces that recorded the corpus are read from v1.26.0.
+# FROZEN-ARTIFACT CHECK: by default this does not exercise the current product.
 $V1Release = 'b193c75be2'
 $SurfaceTemp = Join-Path ([IO.Path]::GetTempPath()) ('structural-surface-' + [guid]::NewGuid().ToString('N'))
 $SurfaceRoot = $env:STRUCTURAL_COMPAT_SURFACE_ROOT
@@ -15,9 +16,16 @@ if (-not $SurfaceRoot) {
     New-Item -ItemType Directory -Path $SurfaceRoot -Force | Out-Null
     $archive = Join-Path $SurfaceRoot 'v1.tar'
     & git -C $RepoRoot archive -o $archive $V1Release plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer plugins/sdd-lite 2>$null
-    if ($LASTEXITCODE -eq 0) { & tar -x -f $archive -C $SurfaceRoot 2>$null }
+    $archived = $LASTEXITCODE -eq 0
+    if ($archived) { & tar -x -f $archive -C $SurfaceRoot 2>$null; $archived = $LASTEXITCODE -eq 0 }
     Remove-Item -LiteralPath $archive -Force -ErrorAction SilentlyContinue
+    if (-not $archived) {
+        Remove-Item -LiteralPath $SurfaceRoot -Recurse -Force -ErrorAction SilentlyContinue
+        [Console]::Error.WriteLine("not ok: cannot read v1.26.0 ($V1Release) surfaces; fetch that commit (a shallow clone lacks it) or set STRUCTURAL_COMPAT_SURFACE_ROOT")
+        exit 1
+    }
 }
+Write-Output ('# frozen-artifact check: surfaces from ' + $(if ($env:STRUCTURAL_COMPAT_SURFACE_ROOT) { $env:STRUCTURAL_COMPAT_SURFACE_ROOT } else { "v1.26.0 ($V1Release)" }))
 $BootstrapSkill = Join-Path $SurfaceRoot 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md'
 $LiteSkill = Join-Path $SurfaceRoot 'plugins/sdd-lite/skills/lite-spec/SKILL.md'
 $Design = Join-Path $RepoRoot 'specs/epic-195-a7-compatibility/design.md'

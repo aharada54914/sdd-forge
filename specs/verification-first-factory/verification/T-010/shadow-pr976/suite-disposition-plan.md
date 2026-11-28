@@ -147,6 +147,6 @@ F1・F2 が通れば、状態遷移を個別の例で確かめていた旧テス
 | compatibility-byte-identical / PLUGIN-CONTRACTS | Q09。公開契約を v2 の標準フロー（Risk 判定）に揃えた | 8ddcc8ce |
 | resolve-project-context-caller-contract | 退役（台帳登録の後に削除） | 8ddcc8ce・503fe4e6 |
 | component-path-ownership-parity | Q11 | ffbcac64 |
-| structural-compatibility | 退役した interviewer・sdd-lite を v1.26.0 から読む（A9 昇格と skip 監査が依存するため維持） | f9bcbb3f |
+| structural-compatibility | 退役した interviewer・sdd-lite を v1.26.0 から読む（A9 昇格と skip 監査が依存するため維持）。**凍結成果物の検査**であり現行製品の動作は検査しない旨を両版の冒頭と出力 1 行目に明記し、v1.26.0 を読めない場合（浅いクローンなど）ははっきり失敗させる | f9bcbb3f, 本コミット |
 
 Q02 は既に release-loop-gate TEST-007 で移行済みだった。
