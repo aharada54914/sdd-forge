@@ -1419,6 +1419,56 @@ set -e
 [[ "$(printf '%s\n' "$pin_multi_add_sh_output" | rule_id)" == "$(printf '%s\n' "$pin_multi_add_ps_output" | rule_id)" ]] ||
   fail "plugins-pin-multi-add fixture diverged: Shell=$pin_multi_add_sh_output PowerShell=$pin_multi_add_ps_output"
 
+# Indeterminate pin, case 3: a shallow clone. --diff-filter=A reports every
+# path that predates the graft as "added" in the shallow-boundary commit, so
+# the pin lands on that boundary rather than on the commit that actually
+# introduced the evidence, and a plugins/ reference doc that evolved before
+# the boundary no longer reconciles. The outcome stays fail-closed, but the
+# diagnostic must name the shallow history (the actionable cause) instead of
+# claiming the recorded hash is stale. A deeper clone whose boundary IS the
+# genuine introducing commit must still reconcile normally, so shallowness
+# alone is never treated as a failure.
+pin_shallow_src="$(make_git_fixture plugins-pin-shallow-source)"
+git -C "$ROOT" show "$pin_amended_intro:$PIN_MATRIX_REL" > "$pin_shallow_src/$PIN_MATRIX_REL"
+git -C "$ROOT" show "$pin_amended_intro:$PIN_POLICY_REL" > "$pin_shallow_src/$PIN_POLICY_REL"
+git -C "$pin_shallow_src" add -A
+git -C "$pin_shallow_src" commit -q -m "baseline"
+cp "$ROOT/$PIN_MATRIX_REL" "$pin_shallow_src/$PIN_MATRIX_REL"
+cp "$ROOT/$PIN_POLICY_REL" "$pin_shallow_src/$PIN_POLICY_REL"
+git -C "$pin_shallow_src" add -A
+git -C "$pin_shallow_src" commit -q -m "evolve plugins reference docs (unrelated legitimate edit)"
+for pin_shallow_depth in 1 2; do
+  pin_shallow="$TMP/plugins-pin-shallow-depth-$pin_shallow_depth"
+  git clone -q --depth "$pin_shallow_depth" "file://$pin_shallow_src" "$pin_shallow"
+  [[ "$(git -C "$pin_shallow" rev-parse --is-shallow-repository)" == true ]] ||
+    fail "plugins-pin-shallow-depth-$pin_shallow_depth precondition not met: clone is not shallow"
+  set +e
+  pin_shallow_sh_output="$(bash "$pin_shallow/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+    --registry "$pin_shallow/specs/workflow-state-registry.json" 2>&1)"
+  pin_shallow_sh_status=$?
+  pin_shallow_ps_output="$(pwsh -NoProfile -File "$pin_shallow/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+    --registry "$pin_shallow/specs/workflow-state-registry.json" 2>&1)"
+  pin_shallow_ps_status=$?
+  set -e
+  if [[ $pin_shallow_depth -eq 2 ]]; then
+    [[ $pin_shallow_sh_status -eq 0 ]] ||
+      fail "plugins-pin-shallow-depth-2 Shell fixture unexpectedly rejected: $pin_shallow_sh_output"
+    [[ $pin_shallow_ps_status -eq 0 ]] ||
+      fail "plugins-pin-shallow-depth-2 PowerShell fixture unexpectedly rejected: $pin_shallow_ps_output"
+    continue
+  fi
+  [[ $pin_shallow_sh_status -ne 0 ]] || fail "plugins-pin-shallow-depth-1 Shell fixture unexpectedly passed"
+  [[ $pin_shallow_ps_status -ne 0 ]] || fail "plugins-pin-shallow-depth-1 PowerShell fixture unexpectedly passed"
+  for pin_shallow_output in "$pin_shallow_sh_output" "$pin_shallow_ps_output"; do
+    [[ "$pin_shallow_output" == *": stage-provenance: "*"history is shallow"*"git fetch --unshallow"* ]] ||
+      fail "plugins-pin-shallow-depth-1 fixture did not name the shallow history: $pin_shallow_output"
+    [[ "$pin_shallow_output" != *"hash is stale"* ]] ||
+      fail "plugins-pin-shallow-depth-1 fixture still blamed a stale hash: $pin_shallow_output"
+  done
+  [[ "$pin_shallow_sh_output" == "$pin_shallow_ps_output" ]] ||
+    fail "plugins-pin-shallow-depth-1 fixture diverged: Shell=$pin_shallow_sh_output PowerShell=$pin_shallow_ps_output"
+done
+
 # --- Downstream input-hash staleness tolerance under --opening ---
 #
 # epic-196's deadlock: task-review-precheck's --provenance-rereview requires
