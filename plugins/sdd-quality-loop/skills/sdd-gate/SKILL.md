@@ -29,7 +29,7 @@ user-invocable: false
    - Spec Drift 検査（`check-spec-drift.mjs` 統合 — `UNDECLARED_DRIFT` と `UNVERIFIABLE`（読取上限超で未判定の仕様ファイルあり）は自動 FAIL。ベースライン後に承認されたタスクは `APPROVED_AFTER_BASELINE` 警告になるため、独立レビューで人間の承認であることを確認する）
    - 変更コード（新規未追跡ファイル含む）のプレースホルダー検査および非機能静的センサー（SQL 破壊的 DDL・`WHERE` 欠落・`SELECT *` 性能助言、Cloud ワイルドカード IAM・管理ポート開放、秘密情報）。依存脆弱性チェックが必要な場合は `--cmd "audit=..."` で統合する。
    - `Risk: high` タスクに対する未確定 `OQ-NNN`（非 `Confirmed`）残存ブロック
-   - 指定コマンド実行と `reports/quality-gate/<feature>-<task-id>.execution.json` 保存（および `.sdd/factory-metrics.jsonl` への軽量計測追記；FAIL 時は原因工程を 1 試行につき 1 回だけ `factory-metrics.mjs record-attribution --root-cause <phase> --run-id <execution.json の runId>` で記録する。ゲート実行時に `--root-cause` を渡した場合は記録済みなので重ねない）
+   - 指定コマンド実行と `reports/quality-gate/<feature>-<task-id>.execution.json` 保存（および `.sdd/factory-metrics.jsonl` への軽量計測追記；FAIL 時は原因工程を 1 試行につき 1 回だけ `factory-metrics.mjs record-attribution --root-cause <phase> --run-id <execution.json の runId>` で記録する。ゲート実行時に `--root-cause` を渡した場合は記録済みなので重ねない。`lockCheck.passed` が `false` の実行は別の担当がロックを持つため検査を行っておらず、`execution.json` も公開しないので、原因工程を記録せず、ロックの解放を待って再実行する）
 
    ```bash
    node "<installed-root>/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs" \
@@ -46,7 +46,7 @@ user-invocable: false
 
    v2 実装レポートの `- Model:` / `- Effort:` に実行時のモデルと推論レベルが記録されていることを確認する。形式は実装プラグインの `scripts/validate-implementation-report.sh` に対象レポートを渡して検証する。
 
-   評価者（`sdd-evaluator`）は呼び出し元のモデルを継承する。評価者を起動したホストが実際に使ったモデル ID をレポートの `Evaluator Model` に記録し、役の下限（`strong`）を次のコマンドで確認する。終了 3（下限未満または未分類）のときは `BELOW (<tier>)` / `UNCLASSIFIED` を記録し、レビューは継続したうえで、下限を満たすモデルでの再評価を人間に勧める（判定値は変えない）:
+   評価者（`sdd-evaluator`）は呼び出し元のモデルを継承する。評価者を起動したホストが実際に使ったモデル ID をレポートの `Evaluator Model` に記録し、役の下限（`strong`）を次のコマンドで確認する。終了 3（下限未満または未分類）のときは `BELOW (<tier>)` / `UNCLASSIFIED` を、終了 2（ID の形式が不正）のときは `UNCLASSIFIED (invalid id)` を記録する。いずれもレビューは継続したうえで、下限を満たすモデルでの再評価を人間に勧める（判定値は変えない）。`[1m]` などの文脈長の接尾辞、Bedrock・Vertex AI 形式の ID、登録済みの正規名はそのまま渡してよい:
    ```bash
    python3 "<installed-root>/plugins/sdd-implementation/scripts/model-tier.py" check --role sdd-evaluator --model <native-model-id>
    ```

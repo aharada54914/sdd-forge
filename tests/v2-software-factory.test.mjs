@@ -1380,3 +1380,22 @@ describe('T-010 N4: gate run records across failure, re-run and lock refusal', (
     assert.deepEqual(summary.attemptsByTask['demo/T-001'].history.map((h) => h.verdict), ['FAIL', 'PASS']);
   });
 });
+
+describe('T-010 N4 (review fix): a lock-refused run carries no root cause', () => {
+  it('drops the root cause recorded on a refused run from the breakdown', async (t) => {
+    const { summarizeFactoryMetrics } = await import('../plugins/sdd-quality-loop/scripts/v2/factory-metrics.mjs');
+    const { acquireLock } = await import('../plugins/sdd-quality-loop/scripts/v2/task-lock.mjs');
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sdd-n4-attr-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(root, 'specs/demo'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'specs/demo/tasks.md'),
+      '## T-001 Attribution\nApproval: Approved\nStatus: Implementation Complete\nRisk: low\n');
+    const base = { projectRoot: root, feature: 'demo', taskId: 'T-001', changedFiles: [], skipDrift: true, skipSensors: true };
+    runSddGate({ ...base, commands: [{ label: 'test', command: 'node -e "process.exit(1)"' }], rootCausePhase: 'code' });
+    assert.equal(acquireLock({ feature: 'demo', taskId: 'T-001', owner: 'other', projectRoot: root }).acquired, true);
+    runSddGate({ ...base, commands: [], lockOwner: 'w2', rootCausePhase: 'design' });
+    const summary = summarizeFactoryMetrics({ projectRoot: root, feature: 'demo' });
+    assert.equal(summary.rootCauseBreakdown.code, 1);
+    assert.equal(summary.rootCauseBreakdown.design, 0, 'the refused run attributed a root cause');
+  });
+});

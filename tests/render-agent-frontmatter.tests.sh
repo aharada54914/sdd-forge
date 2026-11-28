@@ -249,7 +249,23 @@ grep -Fxq 'model: fixture-explicit' "$MUT_ROOT/$MUT_REL" || bad "TEST-020: mutat
 cp "$TMP/contracts/agent-model-capabilities.v2.json" "$MUT_ROOT/contracts/agent-model-capabilities.v2.json"
 MUT_TARGETS="$MUT_ROOT/targets.json"
 printf '[{"role": "spec-reviewer", "kind": "claude", "path": "%s", "protected": true}]\n' "$MUT_REL" >"$MUT_TARGETS"
+MUT_REAL_SHA_BEFORE="$(sha256_of "$MUT_ROOT/$MUT_REL")"
 "$RENDER_SH" --root "$MUT_ROOT" --targets-file "$MUT_TARGETS" --registry "$MUT_ROOT/contracts/agent-model-capabilities.v2.json" >/dev/null
+# TEST-019 write boundary: a protected target is never written at its real
+# path; the corrected content is staged with a matching MANIFEST.sha256 line.
+MUT_STAGED="$MUT_ROOT/specs/epic-159-pillar-c/human-copy/$MUT_REL"
+if [[ "$(sha256_of "$MUT_ROOT/$MUT_REL")" == "$MUT_REAL_SHA_BEFORE" ]]; then
+  ok "TEST-019: a protected render leaves the real path byte-unchanged"
+else
+  bad "TEST-019: a protected render wrote the real path"
+fi
+if [[ -f "$MUT_STAGED" ]] \
+   && grep -Fxq "$(sha256_of "$MUT_STAGED")  $MUT_REL" "$MUT_ROOT/specs/epic-159-pillar-c/human-copy/MANIFEST.sha256" \
+   && ! grep -Fxq 'model: fixture-explicit' "$MUT_STAGED" && grep -Eq '^<!-- x-sdd-effort: [a-z]+ -->$' "$MUT_STAGED"; then
+  ok "TEST-019: the corrected content is staged under human-copy/ with a matching MANIFEST.sha256 line"
+else
+  bad "TEST-019: staged content or its MANIFEST.sha256 line is missing or wrong"
+fi
 # The render staged the corrected content (protected: true); copy it to the
 # real position so --check's read-only comparison has something to report OK.
 cp "$MUT_ROOT/specs/epic-159-pillar-c/human-copy/$MUT_REL" "$MUT_ROOT/$MUT_REL"

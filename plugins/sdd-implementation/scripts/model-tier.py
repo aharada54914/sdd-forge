@@ -24,7 +24,22 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 CONTRACTS = HERE.parent / 'contracts'
 TIERS = ('lightweight', 'standard', 'strong')
-NATIVE_ID = re.compile(r'^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$')
+NATIVE_ID = re.compile(r'^[A-Za-z0-9][A-Za-z0-9._:/@\[\]-]{0,127}$')
+# Host spellings of one model: a context-window suffix (claude-opus-5-5[1m]),
+# a Vertex AI date (claude-opus-4-1@20250805) and a Bedrock inference profile
+# (us.anthropic.claude-opus-5-5-v1:0) all name the family model inside them.
+HOST_SPELLINGS = (
+    (re.compile(r'\[[0-9a-z]+\]$'), ''),
+    (re.compile(r'@[0-9]{8}$'), ''),
+    (re.compile(r'^(?:[a-z]{2,4}\.)?anthropic\.'), ''),
+    (re.compile(r'-v[0-9]+(?::[0-9]+)?$'), ''),
+)
+
+
+def normalize(native_id):
+    for pattern, replacement in HOST_SPELLINGS:
+        native_id = pattern.sub(replacement, native_id)
+    return native_id
 
 
 def _load(name):
@@ -56,7 +71,8 @@ def classify(native_id, contracts=None):
     registered, _ = registry_tiers(contracts)
     if native_id in registered:
         return {'model': native_id, 'tier': registered[native_id], 'source': 'registry'}
-    matches = [(tier, vendor, family) for pattern, tier, vendor, family in families(contracts) if pattern.fullmatch(native_id)]
+    family_id = normalize(native_id)
+    matches = [(tier, vendor, family) for pattern, tier, vendor, family in families(contracts) if pattern.fullmatch(family_id)]
     if len({m[0] for m in matches}) != 1:
         return {'model': native_id, 'tier': 'unclassified', 'source': 'family' if matches else 'none'}
     tier, vendor, family = matches[0]

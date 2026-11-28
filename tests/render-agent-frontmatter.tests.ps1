@@ -168,8 +168,25 @@ try {
         Out-File -FilePath $mutTargetsPath -Encoding utf8 -NoNewline
 
     $mutRegistry = Join-Path $mutRoot 'contracts/agent-model-capabilities.v2.json'
+    $mutRealShaBefore = Get-Sha256OfFile $mutFile
     Invoke-Render -RenderArgs @('-RepoRoot', $mutRoot, '-TargetsFile', $mutTargetsPath, '-Registry', $mutRegistry) | Out-Null
-    Copy-Item -Path (Join-Path $mutRoot (Join-Path 'specs/epic-159-pillar-c/human-copy' $mutRel)) -Destination $mutFile -Force
+    # TEST-019 write boundary: a protected target is never written at its real
+    # path; the corrected content is staged with a matching MANIFEST.sha256 line.
+    $mutStaged = Join-Path $mutRoot (Join-Path 'specs/epic-159-pillar-c/human-copy' $mutRel)
+    if ((Get-Sha256OfFile $mutFile) -ceq $mutRealShaBefore) { Test-Ok 'TEST-019: a protected render leaves the real path byte-unchanged' }
+    else { Test-Bad 'TEST-019: a protected render wrote the real path' }
+    $mutManifest = Join-Path $mutRoot 'specs/epic-159-pillar-c/human-copy/MANIFEST.sha256'
+    $stagedOk = (Test-Path -LiteralPath $mutStaged) -and (Test-Path -LiteralPath $mutManifest)
+    if ($stagedOk) {
+        $stagedLines = @(Get-Content -Encoding utf8 $mutStaged)
+        $manifestLines = @(Get-Content -LiteralPath $mutManifest)
+        $stagedOk = ($manifestLines -ccontains "$(Get-Sha256OfFile $mutStaged)  $mutRel") -and
+            -not ($stagedLines -ccontains 'model: fixture-explicit') -and
+            (@($stagedLines | Where-Object { $_ -cmatch '^<!-- x-sdd-effort: [a-z]+ -->$' }).Count -gt 0)
+    }
+    if ($stagedOk) { Test-Ok 'TEST-019: the corrected content is staged under human-copy/ with a matching MANIFEST.sha256 line' }
+    else { Test-Bad 'TEST-019: staged content or its MANIFEST.sha256 line is missing or wrong' }
+    Copy-Item -Path $mutStaged -Destination $mutFile -Force
 
     $green020 = Invoke-Render -RenderArgs @('-Check', '-RepoRoot', $mutRoot, '-TargetsFile', $mutTargetsPath, '-Registry', $mutRegistry)
     if ($green020.ExitCode -eq 0 -and $green020.Combined -cmatch [regex]::Escape("OK: $mutRel")) {

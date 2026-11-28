@@ -48,6 +48,22 @@ class FamilyRules(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 tier.classify(bad)
 
+    def test_host_spellings_classify_as_their_family_model(self):
+        # Review fix (T-010): canonical names and host spellings of one model.
+        for spelling, expected in (('anthropic/opus-5-5', 'strong'), ('claude-opus-5-5[1m]', 'strong'),
+                                   ('us.anthropic.claude-opus-5-5-v1:0', 'strong'),
+                                   ('claude-opus-4-1@20250805', 'strong'),
+                                   ('eu.anthropic.claude-haiku-5-5-v1:0', 'lightweight')):
+            with self.subTest(spelling=spelling):
+                self.assertEqual(tier.classify(spelling)['tier'], expected)
+        # Only the documented spellings are stripped; anything else stays unclassified.
+        for other in ('claude-opus-5-5[1m]x', 'claude-opus-5-5@2025', 'xx.openai.claude-opus-5-5', 'CLAUDE-OPUS-5-5'):
+            with self.subTest(other=other):
+                self.assertEqual(tier.classify(other)['tier'], 'unclassified')
+        for bad in ('claude-opus-5-5 [1m]', '../claude-opus-5-5', '/claude-opus-5-5'):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                tier.classify(bad)
+
     def test_role_floor_check_cli(self):
         def run(role, model):
             result = subprocess.run([sys.executable, str(TOOL), 'check', '--role', role, '--model', model],

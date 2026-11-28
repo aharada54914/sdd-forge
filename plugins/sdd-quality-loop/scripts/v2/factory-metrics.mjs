@@ -126,7 +126,10 @@ export function summarizeFactoryMetrics({ projectRoot = null, feature = null } =
   const finalVerdicts = metrics.filter((r) => r.kind === 'final-verdict' && typeof r.finalVerdict === 'string');
   const finalPass = finalVerdicts.filter((r) => r.finalVerdict === 'PASS').length;
   const finalFail = finalVerdicts.filter((r) => r.finalVerdict === 'FAIL').length;
-  const attributions = metrics.filter((r) => r.kind === 'attribution' || typeof r.rootCausePhase === 'string');
+  // A lock-refused run never ran the checks, so it has no root cause to attribute (T-010 N4).
+  const attributions = metrics.filter(
+    (r) => (r.kind === 'attribution' || typeof r.rootCausePhase === 'string') && r.lockDenied !== true,
+  );
 
   const passCount = gateRuns.filter((r) => r.verdict === 'PASS').length;
   const failCount = gateRuns.filter((r) => r.verdict === 'FAIL').length;

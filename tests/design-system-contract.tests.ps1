@@ -159,7 +159,7 @@ Write-Host "ok: DS-012 implementation policy UI rules"
 # DS-013 visual-verify-loop design-system comparison
 $vvl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md")
 foreach ($needle in @('design-system/{design-tokens.json,ui-patterns.md}', 'verdicts stay with sdd-gate')) {
-    if ($vvl -notmatch [regex]::Escape($needle)) { throw "not ok: DS-013 missing $needle" }
+    if ($vvl -cnotmatch [regex]::Escape($needle)) { throw "not ok: DS-013 missing $needle" }
 }
 Write-Host "ok: DS-013 visual-verify-loop design-system comparison"
 
@@ -170,7 +170,7 @@ if ($dsc -notmatch [regex]::Escape('## UI Patterns (ui-patterns.md)')) { throw "
 $rub = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/references/evaluation-rubric.md")
 if ($rub -notmatch 'design-system non-conformance') { throw "not ok: DS-014 rubric classification missing" }
 $evaluator = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/agents/evaluator.md")
-if ($evaluator -notmatch 'G5.*design-system/') { throw "not ok: DS-014 the v2 evaluator does not check design-system conformance (G5)" }
+if ($evaluator -cnotmatch 'G5.*design-system/') { throw "not ok: DS-014 the v2 evaluator does not check design-system conformance (G5)" }
 Write-Host "ok: DS-014 design-system checklist wiring"
 
 # DS-015 WCAG 2.2 AA update
@@ -185,14 +185,14 @@ if ($vct -notmatch '"id": "design-system"') { throw "not ok: DS-016 contract che
 $rgm = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/references/risk-gate-matrix.md")
 if ($rgm -notmatch 'design-system conformance') { throw "not ok: DS-016 matrix row missing" }
 # The retired quality-gate skill ran check-design-system; v2 keeps it standalone (as T-010 N2).
-if ((Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "docs/skill-reference.md")) -notmatch 'check-design-system') { throw "not ok: DS-016 check-design-system is no longer documented" }
+if ((Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "docs/skill-reference.md")) -cnotmatch 'check-design-system') { throw "not ok: DS-016 check-design-system is no longer documented" }
 Write-Host "ok: DS-016 contract and matrix wiring"
 
 # DS-017 user-facing documentation (ASCII-checkable subset; the Japanese changelog heading is asserted by the sh twin)
 $sref = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "docs/skill-reference.md")
-if ($sref -notmatch '(?m)^\| design-sync-loop \| sdd-bootstrap \|') { throw "not ok: DS-017 skill reference does not list design-sync-loop" }
+if ($sref -cnotmatch '(?m)^\| design-sync-loop \| sdd-bootstrap \|') { throw "not ok: DS-017 skill reference does not list design-sync-loop" }
 # The workflow-guide wording (Japanese) is checked through the shared v2 needle fixture.
-if ($sref -notmatch 'check-design-system') { throw "not ok: DS-017 skill-reference missing" }
+if ($sref -cnotmatch 'check-design-system') { throw "not ok: DS-017 skill-reference missing" }
 Write-Host "ok: DS-017 documentation"
 
 Write-Host "ok: design-system contract tests passed"
