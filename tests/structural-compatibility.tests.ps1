@@ -5,8 +5,21 @@ $RepoRoot = if ($env:STRUCTURAL_COMPAT_REPO_ROOT) { $env:STRUCTURAL_COMPAT_REPO_
 $EvidenceRepo = if ($env:STRUCTURAL_COMPAT_EVIDENCE_REPO) { $env:STRUCTURAL_COMPAT_EVIDENCE_REPO } else { $RepoRoot }
 $Canon = Join-Path $RepoRoot 'tests/lib/markdown-ast-canonicalizer.ps1'
 $Corpus = Join-Path $RepoRoot 'tests/fixtures/structural-fixture-corpus'
-$BootstrapSkill = Join-Path $RepoRoot 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md'
-$LiteSkill = Join-Path $RepoRoot 'plugins/sdd-lite/skills/lite-spec/SKILL.md'
+# 2026-11-28 (T-010, ADR-0051 decision 2): see the bash twin. The interviewer
+# and sdd-lite surfaces that recorded the corpus are read from v1.26.0.
+$V1Release = 'b193c75be2'
+$SurfaceTemp = Join-Path ([IO.Path]::GetTempPath()) ('structural-surface-' + [guid]::NewGuid().ToString('N'))
+$SurfaceRoot = $env:STRUCTURAL_COMPAT_SURFACE_ROOT
+if (-not $SurfaceRoot) {
+    $SurfaceRoot = $SurfaceTemp
+    New-Item -ItemType Directory -Path $SurfaceRoot -Force | Out-Null
+    $archive = Join-Path $SurfaceRoot 'v1.tar'
+    & git -C $RepoRoot archive -o $archive $V1Release plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer plugins/sdd-lite 2>$null
+    if ($LASTEXITCODE -eq 0) { & tar -x -f $archive -C $SurfaceRoot 2>$null }
+    Remove-Item -LiteralPath $archive -Force -ErrorAction SilentlyContinue
+}
+$BootstrapSkill = Join-Path $SurfaceRoot 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md'
+$LiteSkill = Join-Path $SurfaceRoot 'plugins/sdd-lite/skills/lite-spec/SKILL.md'
 $Design = Join-Path $RepoRoot 'specs/epic-195-a7-compatibility/design.md'
 $Acceptance = Join-Path $RepoRoot 'specs/epic-195-a7-compatibility/acceptance-tests.md'
 $EmittedSkips = [Collections.Generic.List[string]]::new()
@@ -29,7 +42,7 @@ $Required = @(
 )
 $Missing = $false
 foreach ($Path in $Required) {
-    if (-not (Test-Path -LiteralPath $Path)) { Fail "required shipped product surface exists: $Path"; $Missing = $true }
+    if (-not (Test-Path -LiteralPath $Path)) { Fail "required product surface exists: $Path (v1.26.0 surfaces need full git history)"; $Missing = $true }
 }
 if ($Missing) { Write-Output "$($script:Passed) passed, $($script:Failed) failed"; exit 1 }
 
@@ -51,10 +64,10 @@ function Get-LitePaths {
 }
 function Get-Template([string]$Track, [string]$Path) {
     if ($Track -ceq 'full') {
-        return Join-Path $RepoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/$($Path.Substring(0, $Path.Length - 3)).template.md"
+        return Join-Path $SurfaceRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/$($Path.Substring(0, $Path.Length - 3)).template.md"
     }
     $Name = switch -CaseSensitive ($Path) { 'requirements.md' { 'requirements-lite.md' }; 'design.md' { 'design-lite.md' }; 'tasks.md' { 'tasks-lite.md' }; default { throw "unknown lite path: $Path" } }
-    Join-Path $RepoRoot "plugins/sdd-lite/templates/$Name"
+    Join-Path $SurfaceRoot "plugins/sdd-lite/templates/$Name"
 }
 
 $DesignText = Get-Content -LiteralPath $Design -Raw
@@ -302,7 +315,10 @@ function Invoke-Canon([string]$Path) {
     Assert-True 'registration detects duplicate entries' (-not (Test-Registration @($target, $target) 0))
     Assert-True 'registration rejects failed queries even with a matching path' (-not (Test-Registration @($target) 7))
 }
-finally { Remove-Item -LiteralPath $Temp -Recurse -Force }
+finally {
+    Remove-Item -LiteralPath $Temp -Recurse -Force
+    Remove-Item -LiteralPath $SurfaceTemp -Recurse -Force -ErrorAction SilentlyContinue
+}
 
 Write-Output "$($script:Passed) passed, $($script:Failed) failed"
 if ($script:Failed -ne 0) { exit 1 }

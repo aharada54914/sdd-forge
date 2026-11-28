@@ -6,8 +6,21 @@ REPO_ROOT="${STRUCTURAL_COMPAT_REPO_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd -P)}"
 EVIDENCE_REPO="${STRUCTURAL_COMPAT_EVIDENCE_REPO:-$REPO_ROOT}"
 CANON="$REPO_ROOT/tests/lib/markdown-ast-canonicalizer.sh"
 CORPUS="$REPO_ROOT/tests/fixtures/structural-fixture-corpus"
-BOOTSTRAP_SKILL="$REPO_ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-LITE_SKILL="$REPO_ROOT/plugins/sdd-lite/skills/lite-spec/SKILL.md"
+# 2026-11-28 (T-010, ADR-0051 decision 2): v2 retired the interviewer and
+# sdd-lite. The F1-F6 corpus was recorded from them, so their output surfaces
+# and templates are read from the v1.26.0 release that produced it, as the
+# owner decided for other v1-only surfaces (Q05/Q10/Q12/Q14). Override with
+# STRUCTURAL_COMPAT_SURFACE_ROOT to test another tree.
+V1_RELEASE="b193c75be2"
+tmp_surface="$(mktemp -d "${TMPDIR:-/tmp}/structural-surface.XXXXXX")"
+SURFACE_ROOT="${STRUCTURAL_COMPAT_SURFACE_ROOT:-}"
+if [[ -z "$SURFACE_ROOT" ]]; then
+  SURFACE_ROOT="$tmp_surface"
+  git -C "$REPO_ROOT" archive "$V1_RELEASE" plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer plugins/sdd-lite 2>/dev/null \
+    | tar -x -C "$SURFACE_ROOT" 2>/dev/null || true
+fi
+BOOTSTRAP_SKILL="$SURFACE_ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+LITE_SKILL="$SURFACE_ROOT/plugins/sdd-lite/skills/lite-spec/SKILL.md"
 DESIGN="$REPO_ROOT/specs/epic-195-a7-compatibility/design.md"
 ACCEPTANCE="$REPO_ROOT/specs/epic-195-a7-compatibility/acceptance-tests.md"
 SKIP_MANIFEST="$REPO_ROOT/tests/fixtures/skip-allowlist-manifest.json"
@@ -25,14 +38,14 @@ fail() {
 assert_true() { local label="$1"; shift; if "$@"; then pass "$label"; else fail "$label"; fi; }
 
 tmp="$(mktemp -d "${TMPDIR:-/tmp}/structural-compat.XXXXXX")"
-trap 'rm -rf "$tmp"' EXIT
+trap 'rm -rf "$tmp" "$tmp_surface"' EXIT
 : > "$tmp/emitted-skips.log"
 
 required=("$CANON" "$BOOTSTRAP_SKILL" "$LITE_SKILL" "$DESIGN" "$ACCEPTANCE" "$CORPUS/f1-full.json" "$CORPUS/f2-lite.json" "$CORPUS/f3-advisory.json" "$CORPUS/f4-required.json")
 missing=0
 for path in "${required[@]}"; do
   if [[ ! -e "$path" ]]; then
-    fail "required shipped product surface exists: ${path#$REPO_ROOT/}"
+    fail "required product surface exists: ${path#$REPO_ROOT/} (v1.26.0 surfaces need full git history)"
     missing=1
   fi
 done
@@ -65,12 +78,12 @@ extract_lite_paths() {
 template_for() {
   local track="$1" path="$2"
   if [[ "$track" == full ]]; then
-    printf '%s/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/%s.template.md\n' "$REPO_ROOT" "${path%.md}"
+    printf '%s/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/%s.template.md\n' "$SURFACE_ROOT" "${path%.md}"
   else
     case "$path" in
-      requirements.md) printf '%s/plugins/sdd-lite/templates/requirements-lite.md\n' "$REPO_ROOT" ;;
-      design.md) printf '%s/plugins/sdd-lite/templates/design-lite.md\n' "$REPO_ROOT" ;;
-      tasks.md) printf '%s/plugins/sdd-lite/templates/tasks-lite.md\n' "$REPO_ROOT" ;;
+      requirements.md) printf '%s/plugins/sdd-lite/templates/requirements-lite.md\n' "$SURFACE_ROOT" ;;
+      design.md) printf '%s/plugins/sdd-lite/templates/design-lite.md\n' "$SURFACE_ROOT" ;;
+      tasks.md) printf '%s/plugins/sdd-lite/templates/tasks-lite.md\n' "$SURFACE_ROOT" ;;
       *) return 1 ;;
     esac
   fi
