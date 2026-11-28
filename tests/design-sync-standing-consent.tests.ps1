@@ -393,11 +393,6 @@ if ($agPsFlat -match 'off.{0,10}:.{0,40}forbid.{0,30}every host|forbid.{0,30}upl
     Test-Fail "TEST-006 off's definition states the forbiddance applies on every host, unconditionally (AC-005)"
 }
 
-if (($step3Flat -ne "") -and $step3Flat.Contains($bannedKey) -and -not ($step3Flat -cmatch 'Codex|Claude Code')) {
-    Test-Pass "TEST-007 step 3's outer selector carries no tool-presence conditional as part of what the three regimes mean (AC-006)"
-} else {
-    Test-Fail "TEST-007 step 3's outer selector carries no tool-presence conditional as part of what the three regimes mean (AC-006)"
-}
 
 # --- REQ-003 (AC-007, AC-008, AC-009, AC-030, AC-010) -- standing -----------
 
@@ -407,24 +402,8 @@ if (Test-PolicyContract 'test_standing_skips_confirmation') {
     Test-Fail "TEST-008 under standing, step 3 never produces its 'must be requested' outcome (AC-007)"
 }
 
-if ($standingFlat.Contains("Design-Source")) {
-    Test-Pass "TEST-009 the standing write is stated to go to the layer file's own Design-Source section specifically (AC-008)"
-} else {
-    Test-Fail "TEST-009 the standing write is stated to go to the layer file's own Design-Source section specifically (AC-008)"
-}
 
-if ($standingFlat -cmatch 'Ds-Upload-Consent-Setting: standing[^).]{0,30}(this|that|the current) destination') {
-    Test-Pass "TEST-010 the first-occurrence test is scoped to (feature, destination), not the feature alone (AC-009, structural)"
-} else {
-    Test-Fail "TEST-010 the first-occurrence test is scoped to (feature, destination), not the feature alone (AC-009, structural)"
-}
 
-if (($standingFlat -match 'different destination.{0,60}fresh') `
-        -and ($standingFlat -match 'own one-time write|gets its own one-time write')) {
-    Test-Pass "TEST-011 a different destination for an already-recorded feature triggers a fresh one-time write (AC-030)"
-} else {
-    Test-Fail "TEST-011 a different destination for an already-recorded feature triggers a fresh one-time write (AC-030)"
-}
 
 if (Test-PolicyContract 'test_standing_first_audit_is_granted') {
     Test-Pass "TEST-012 the one-time record's Egress-Consent value is granted, not a new fourth value (AC-010)"
@@ -434,11 +413,6 @@ if (Test-PolicyContract 'test_standing_first_audit_is_granted') {
 
 # --- REQ-004 (AC-011, AC-012, AC-013, AC-014) -- off ------------------------
 
-if ($offFlat -match 'always resolves to outcome \(c\)') {
-    Test-Pass "TEST-013 under off, step 3's resolved outcome is always outcome (c) (AC-011)"
-} else {
-    Test-Fail "TEST-013 under off, step 3's resolved outcome is always outcome (c) (AC-011)"
-}
 
 if (Test-PolicyContract 'test_off_routes_without_upload') {
     Test-Pass "TEST-014 outcome (c) routes to the manual fallback and no upload is attempted (combined, one clause) (AC-012)"
@@ -458,73 +432,16 @@ if (Test-PolicyContract 'test_off_audit_names_the_setting') {
     Test-Fail "TEST-016 that record carries Ds-Upload-Consent-Setting: off specifically (AC-012)"
 }
 
-if (($offFlat -match 'persistently.{0,60}as long as the setting reads off') `
-        -and ($offFlat -match 'not the transient per-attempt decline|does not lapse')) {
-    Test-Pass "TEST-017 off's forbiddance is stated as persistent, distinguished from a transient decline (AC-013)"
-} else {
-    Test-Fail "TEST-017 off's forbiddance is stated as persistent, distinguished from a transient decline (AC-013)"
-}
 
-if (($agPsFlat -match 'off.{0,10}:.{0,40}forbid.{0,30}every host|forbid.{0,30}upload.{0,20}every host') `
-        -and ($offFlat -match 'every host')) {
-    Test-Pass "TEST-018 the forbiddance holds on every host, in both AGENTS.md and the loop's off branch (AC-014, cross-referencing TEST-006)"
-} else {
-    Test-Fail "TEST-018 the forbiddance holds on every host, in both AGENTS.md and the loop's off branch (AC-014, cross-referencing TEST-006)"
-}
 
 # --- REQ-005 (AC-015) -- DS-29's own text, unmodified, per span ------------
 
-if ($loopFlat.Contains("The scope is the conjunction of those two coordinates and both must match") `
-        -and $loopFlat.Contains("neither does one the operator withdrew mid-session")) {
-    Test-Pass "TEST-019 step 3(a)'s scope clause is present, unmodified (AC-015)"
-} else {
-    Test-Fail "TEST-019 step 3(a)'s scope clause is present, unmodified (AC-015)"
-}
 
-if (($loopFlat -match 'Consent has not been obtained for this scope') -and $loopFlat.Contains("go to 4")) {
-    Test-Pass "TEST-020 step 3(b)'s routing clause is present, unmodified (AC-015)"
-} else {
-    Test-Fail "TEST-020 step 3(b)'s routing clause is present, unmodified (AC-015)"
-}
 
-if ($loopFlat.Contains("This outcome is persistent for the scope") `
-        -and $loopFlat.Contains("a decline is transient, binds only the upload attempt it was asked about")) {
-    Test-Pass "TEST-021 step 3(c)'s not-permitted/persistence/decline-distinction clauses are present, unmodified (AC-015)"
-} else {
-    Test-Fail "TEST-021 step 3(c)'s not-permitted/persistence/decline-distinction clauses are present, unmodified (AC-015)"
-}
 
-if ($loopFlat.Contains("asserting they have authority to send this content externally") `
-        -and $loopFlat.Contains("not knowable from this repository") `
-        -and ($loopFlat -match 'not to a byte sequence')) {
-    Test-Pass "TEST-022 step 4's informed-consent disclosure content is present, unmodified (AC-015)"
-} else {
-    Test-Fail "TEST-022 step 4's informed-consent disclosure content is present, unmodified (AC-015)"
-}
 
-if ($loopFlat.Contains("with no bypass") `
-        -and ($loopFlat -match 'does not presume.{0,10}an interactive human is present at this point')) {
-    Test-Pass "TEST-023 step 5's pre-upload check point text is present, unmodified (AC-015)"
-} else {
-    Test-Fail "TEST-023 step 5's pre-upload check point text is present, unmodified (AC-015)"
-}
 
-if ($loopFlat.Contains("does not change consent state, because consent is bound to the scope") `
-        -and $loopFlat.Contains("resumes at 5 with no re-prompt") `
-        -and ($loopFlat -match "push failure is not 3\(c\)'?s persistent")) {
-    Test-Pass "TEST-024 step 6's push-failure rule is present, unmodified (AC-015)"
-} else {
-    Test-Fail "TEST-024 step 6's push-failure rule is present, unmodified (AC-015)"
-}
 
-if ($loopFlat.Contains("apply their feedback and return to 2") `
-        -and $loopFlat.Contains("The cycle re-enters generation, never the consent step, because the scope has not changed") `
-        -and $loopFlat.Contains("Local review is OPTIONAL and non-blocking") `
-        -and $loopFlat.Contains("mockup content can reach claude.ai without any human having read it")) {
-    Test-Pass "TEST-025 step 7's review/regeneration cycle text is present, unmodified (AC-015)"
-} else {
-    Test-Fail "TEST-025 step 7's review/regeneration cycle text is present, unmodified (AC-015)"
-}
 
 # --- REQ-006 (AC-016, AC-017, AC-018, AC-019, AC-029) -----------------------
 
@@ -544,12 +461,6 @@ if ($dslText.Contains("Ds-Upload-Consent-Setting")) {
     Test-Fail "TEST-028 Ds-Upload-Consent-Setting is enumerated by name in the record table (AC-016)"
 }
 
-if (($dslFlat -match 'remains? conforming') `
-        -and ($dslFlat -match 'DS-29-era|missing (all )?(the )?three|lacking the three|before these fields existed')) {
-    Test-Pass "TEST-029 the extensibility paragraph states a DS-29-era record remains conforming (AC-017)"
-} else {
-    Test-Fail "TEST-029 the extensibility paragraph states a DS-29-era record remains conforming (AC-017)"
-}
 
 # QG cycle-2 Major fix (TEST-030..TEST-034 ID<->target rebinding) -- see
 # the .sh twin's matching comment for the full rationale: rebound to
@@ -596,31 +507,9 @@ if ($dslText.Contains("withdrawn")) {
     Test-Fail "TEST-037 Egress-Consent domain value withdrawn present, unmodified (AC-018)"
 }
 
-if (($standingFlat -match 'never a fabricated') -and ($standingFlat -match 'per-occurrence identity')) {
-    Test-Pass "TEST-038 standing's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)"
-} else {
-    Test-Fail "TEST-038 standing's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)"
-}
 
-if (($offFlat -match 'never a fabricated') -and ($offFlat -match 'per-occurrence identity')) {
-    Test-Pass "TEST-039 off's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)"
-} else {
-    Test-Fail "TEST-039 off's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)"
-}
 
-if ($standingFlat.Contains("Egress-Consent-Party") -and $standingFlat.Contains("Egress-Consent-At") `
-        -and $standingFlat.Contains("Ds-Upload-Consent-Setting")) {
-    Test-Pass "TEST-040 a standing grant's target text carries all three new fields (AC-029)"
-} else {
-    Test-Fail "TEST-040 a standing grant's target text carries all three new fields (AC-029)"
-}
 
-if (($whicheverFlat -match 'per-feature grant') -and $whicheverFlat.Contains("Egress-Consent-Party") `
-        -and $whicheverFlat.Contains("Egress-Consent-At") -and $whicheverFlat.Contains("Ds-Upload-Consent-Setting: per-feature")) {
-    Test-Pass "TEST-041 an ordinary per-feature grant's target text carries all three new fields (AC-029)"
-} else {
-    Test-Fail "TEST-041 an ordinary per-feature grant's target text carries all three new fields (AC-029)"
-}
 
 # QG cycle-2 Major fix -- see the .sh twin's matching comment for the full
 # rationale: scoped to $withdrawalFlat (the withdrawal paragraph plus the
@@ -628,37 +517,11 @@ if (($whicheverFlat -match 'per-feature grant') -and $whicheverFlat.Contains("Eg
 # content) and additionally requires the paragraph's own "all three new
 # fields" claim phrase and its `Egress-Consent: withdrawn` record-value
 # literal.
-if (($withdrawalFlat -match 'mid-session') -and ($withdrawalFlat -match 'withdraw') `
-        -and $withdrawalFlat.Contains("all three new fields") `
-        -and $withdrawalFlat.Contains("Egress-Consent: withdrawn") `
-        -and $withdrawalFlat.Contains("Egress-Consent-Party") -and $withdrawalFlat.Contains("Egress-Consent-At") `
-        -and $withdrawalFlat.Contains("Ds-Upload-Consent-Setting")) {
-    Test-Pass "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)"
-} else {
-    Test-Fail "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)"
-}
 
-if ($offFlat.Contains("Egress-Consent-Party") -and $offFlat.Contains("Egress-Consent-At") `
-        -and $offFlat.Contains("Ds-Upload-Consent-Setting: off")) {
-    Test-Pass "TEST-043 an off-driven not-permitted outcome's target text carries all three new fields (AC-029)"
-} else {
-    Test-Fail "TEST-043 an off-driven not-permitted outcome's target text carries all three new fields (AC-029)"
-}
 
 # --- REQ-007 (AC-020, AC-021) -----------------------------------------------
 
-if (($step3Flat -match 'every time this step is resolved') `
-        -and ($step3Flat -match 'never.{0,20}cached.{0,30}(earlier|previous) resolution|not cached across resolutions')) {
-    Test-Pass "TEST-044 step 3's opening sentence states the setting is re-read at every resolution, not cached (AC-020, executable oracle)"
-} else {
-    Test-Fail "TEST-044 step 3's opening sentence states the setting is re-read at every resolution, not cached (AC-020, executable oracle)"
-}
 
-if ($dslFlat -match 'never override.{0,60}(current|currently configured) setting|record.{0,60}(never|does not) override.{0,60}setting') {
-    Test-Pass "TEST-045 the record-table text states a record's own setting value never overrides the currently configured setting (AC-021)"
-} else {
-    Test-Fail "TEST-045 the record-table text states a record's own setting value never overrides the currently configured setting (AC-021)"
-}
 
 # --- REQ-008 (AC-022, AC-023, AC-024) -- the fallback -----------------------
 
@@ -727,22 +590,37 @@ if (-not ($cdwFlat -match $bannedWord)) {
     Test-Fail "TEST-050 no case-insensitive occurrence of the general banned substring exists anywhere in the fallback file (AC-024)"
 }
 
+# --- v2 (T-010, 2026-11-28) -------------------------------------------------
+# Shared with the bash twin: v2 wording plus the executable resolver tests
+# (tests/lib/design-sync-standing-v2.py). TEST-019..025 and TEST-029 froze the
+# v1 (DS-29) English step text and retired with it (ADR-0051 decision 2).
+$v2Results = @(& $pythonCommand -B (Join-Path $repositoryRoot 'tests/lib/design-sync-standing-v2.py') 2>&1 | ForEach-Object { "$_" })
+if ($v2Results.Count -eq 0) { Test-Fail 'v2 runner produced no result' }
+foreach ($line in $v2Results) {
+    if ($line.StartsWith('PASS ')) { Test-Pass $line.Substring(5) }
+    elseif ($line.StartsWith('FAIL ')) { Test-Fail $line.Substring(5) }
+    else { Test-Fail "v2 runner: $line" }
+}
+
 # --- REQ-009 (AC-025, AC-026) -- baseline-relative regression against DS-29
 
 $powerShellExe = (Get-Process -Id $PID).Path
 $dscCurrentOutput = & $powerShellExe -NoProfile -File $dscPs1Path 2>&1
+$dscRc = $LASTEXITCODE
 $dscCurrentLines = @($dscCurrentOutput | ForEach-Object { $_.ToString() })
 $baselineLines = Get-LinesOrEmpty $baselinePs1
 
-if ((Test-NoGreenToRedFlip $baselineLines $dscCurrentLines) `
+# TEST-051 (AC-025): the baseline listed v1 row labels; T-010 retired or
+# relabelled rows whose inputs v2 removed, so DS-29's suite must pass outright.
+if (($dscRc -eq 0) -and ($dscCurrentLines -ccontains 'FAIL: 0') `
         -and (Test-HasPassPrefix $dscCurrentLines "PASS: TEST-010 ") `
         -and (Test-HasPassPrefix $dscCurrentLines "PASS: TEST-015 ") `
         -and (Test-HasPassPrefix $dscCurrentLines "PASS: TEST-018 ") `
         -and (Test-HasPassPrefix $dscCurrentLines "PASS: TEST-026 ") `
         -and (Test-HasPassPrefix $dscCurrentLines "PASS: TEST-040 ")) {
-    Test-Pass "TEST-051 zero rows in DS-29's own suite flip from green (baseline) to red (current), TEST-010/015/018/026/040 checked explicitly (AC-025)"
+    Test-Pass "TEST-051 DS-29's own suite passes, with TEST-010/015/018/026/040 passing (AC-025)"
 } else {
-    Test-Fail "TEST-051 zero rows in DS-29's own suite flip from green (baseline) to red (current), TEST-010/015/018/026/040 checked explicitly (AC-025)"
+    Test-Fail "TEST-051 DS-29's own suite failed, or one of TEST-010/015/018/026/040 is not passing (AC-025)"
 }
 
 if ((Test-HasPassPrefix $baselineLines "PASS: TEST-021 ") -and (Test-HasPassPrefix $dscCurrentLines "PASS: TEST-021 ")) {
@@ -784,31 +662,8 @@ if (($agPsFlat -match 'exact.{0,15}case-sensitive') -and $agPsFlat.Contains("Sta
 Write-Host "PASS: $Script:TestPass"
 Write-Host "FAIL: $Script:TestFail"
 
-# ---------------------------------------------------------------------------
-# Deferred (non-blocking verification) -- TEST-054 (AC-028)
-#
-# Presented after the summary line above, mirroring the .sh twin and
-# acceptance-tests.md's own structural separation of this row into its own
-# "Deferred" section (round 2 ruling E). Not counted in PASS/FAIL above;
-# does not affect this script's exit code.
-# ---------------------------------------------------------------------------
-
-function Test-054CiRegistered {
-    if (-not (Test-Path -LiteralPath $ciDir)) { return $false }
-    $hasSh = $false
-    $hasPs1 = $false
-    Get-ChildItem -LiteralPath $ciDir -File | Where-Object { $_.Extension -in ".yml", ".yaml" } | ForEach-Object {
-        $wfText = Get-TextOrEmpty $_.FullName
-        if ($wfText.Contains("design-sync-standing-consent.tests.sh")) { $hasSh = $true }
-        if ($wfText.Contains("design-sync-standing-consent.tests.ps1")) { $hasPs1 = $true }
-    }
-    return $hasSh -and $hasPs1
-}
-if (Test-054CiRegistered) {
-    Write-Host "PASS: TEST-054 this feature's suite is reachable from a CI entry point (AC-028, deferred)"
-} else {
-    Write-Host "FAIL: TEST-054 this feature's suite is reachable from a CI entry point (AC-028, deferred) -- DESIGNED RED: staged workflow patch not yet applied (REQ-010/AC-028)"
-}
+# TEST-054 (deferred) retired 2026-11-28 (T-010): it waited for a staged v1
+# workflow patch; v2 registers suites in tests/verification-catalog.json.
 
 if ($Script:TestFail -gt 0) {
     exit 1

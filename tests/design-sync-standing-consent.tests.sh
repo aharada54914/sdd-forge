@@ -340,12 +340,6 @@ else
   fail "TEST-006 off's definition states the forbiddance applies on every host, unconditionally (AC-005)"
 fi
 
-if [ -n "$STEP3_FLAT" ] && printf '%s' "$STEP3_FLAT" | grep -Fq "${BANNED_KEY}" \
-  && ! printf '%s' "$STEP3_FLAT" | grep -Eq 'Codex|Claude Code'; then
-  pass "TEST-007 step 3's outer selector carries no tool-presence conditional as part of what the three regimes mean (AC-006)"
-else
-  fail "TEST-007 step 3's outer selector carries no tool-presence conditional as part of what the three regimes mean (AC-006)"
-fi
 
 # --- REQ-003 (AC-007, AC-008, AC-009, AC-030, AC-010) -- standing ----------
 
@@ -355,24 +349,8 @@ else
   fail "TEST-008 under standing, step 3 never produces its 'must be requested' outcome (AC-007)"
 fi
 
-if printf '%s' "$STANDING_FLAT" | grep -Fq 'Design-Source'; then
-  pass "TEST-009 the standing write is stated to go to the layer file's own Design-Source section specifically (AC-008)"
-else
-  fail "TEST-009 the standing write is stated to go to the layer file's own Design-Source section specifically (AC-008)"
-fi
 
-if printf '%s' "$STANDING_FLAT" | grep -Eq 'Ds-Upload-Consent-Setting: standing[^).]{0,30}(this|that|the current) destination'; then
-  pass "TEST-010 the first-occurrence test is scoped to (feature, destination), not the feature alone (AC-009, structural)"
-else
-  fail "TEST-010 the first-occurrence test is scoped to (feature, destination), not the feature alone (AC-009, structural)"
-fi
 
-if printf '%s' "$STANDING_FLAT" | grep -Eiq 'different destination.{0,60}fresh' \
-  && printf '%s' "$STANDING_FLAT" | grep -Eiq 'own one-time write|gets its own one-time write'; then
-  pass "TEST-011 a different destination for an already-recorded feature triggers a fresh one-time write (AC-030)"
-else
-  fail "TEST-011 a different destination for an already-recorded feature triggers a fresh one-time write (AC-030)"
-fi
 
 if policy_contract test_standing_first_audit_is_granted; then
   pass "TEST-012 the one-time record's Egress-Consent value is granted, not a new fourth value (AC-010)"
@@ -382,11 +360,6 @@ fi
 
 # --- REQ-004 (AC-011, AC-012, AC-013, AC-014) -- off -----------------------
 
-if printf '%s' "$OFF_FLAT" | grep -Eiq 'always resolves to outcome \(c\)'; then
-  pass "TEST-013 under off, step 3's resolved outcome is always outcome (c) (AC-011)"
-else
-  fail "TEST-013 under off, step 3's resolved outcome is always outcome (c) (AC-011)"
-fi
 
 if policy_contract test_off_routes_without_upload; then
   pass "TEST-014 outcome (c) routes to the manual fallback and no upload is attempted (combined, one clause) (AC-012)"
@@ -406,74 +379,16 @@ else
   fail "TEST-016 that record carries Ds-Upload-Consent-Setting: off specifically (AC-012)"
 fi
 
-if printf '%s' "$OFF_FLAT" | grep -Eiq 'persistently.{0,60}as long as the setting reads off' \
-  && printf '%s' "$OFF_FLAT" | grep -Eiq 'not the transient per-attempt decline|does not lapse'; then
-  pass "TEST-017 off's forbiddance is stated as persistent, distinguished from a transient decline (AC-013)"
-else
-  fail "TEST-017 off's forbiddance is stated as persistent, distinguished from a transient decline (AC-013)"
-fi
 
-if printf '%s' "$AG_PS_FLAT" | grep -Eiq 'off.{0,10}:.{0,40}forbid.{0,30}every host|forbid.{0,30}upload.{0,20}every host' \
-  && printf '%s' "$OFF_FLAT" | grep -Eiq 'every host'; then
-  pass "TEST-018 the forbiddance holds on every host, in both AGENTS.md and the loop's off branch (AC-014, cross-referencing TEST-006)"
-else
-  fail "TEST-018 the forbiddance holds on every host, in both AGENTS.md and the loop's off branch (AC-014, cross-referencing TEST-006)"
-fi
 
 # --- REQ-005 (AC-015) -- DS-29's own text, unmodified, per span -----------
 
-if printf '%s' "$LOOP_FLAT" | grep -Fq 'The scope is the conjunction of those two coordinates and both must match' \
-  && printf '%s' "$LOOP_FLAT" | grep -Fq 'neither does one the operator withdrew mid-session'; then
-  pass "TEST-019 step 3(a)'s scope clause is present, unmodified (AC-015)"
-else
-  fail "TEST-019 step 3(a)'s scope clause is present, unmodified (AC-015)"
-fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Fiq 'Consent has not been obtained for this scope' \
-  && printf '%s' "$LOOP_FLAT" | grep -Fq 'go to 4'; then
-  pass "TEST-020 step 3(b)'s routing clause is present, unmodified (AC-015)"
-else
-  fail "TEST-020 step 3(b)'s routing clause is present, unmodified (AC-015)"
-fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Fq 'This outcome is persistent for the scope' \
-  && printf '%s' "$LOOP_FLAT" | grep -Fq 'a decline is transient, binds only the upload attempt it was asked about'; then
-  pass "TEST-021 step 3(c)'s not-permitted/persistence/decline-distinction clauses are present, unmodified (AC-015)"
-else
-  fail "TEST-021 step 3(c)'s not-permitted/persistence/decline-distinction clauses are present, unmodified (AC-015)"
-fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Fq 'asserting they have authority to send this content externally' \
-  && printf '%s' "$LOOP_FLAT" | grep -Fq 'not knowable from this repository' \
-  && printf '%s' "$LOOP_FLAT" | grep -Eiq 'not to a byte sequence'; then
-  pass "TEST-022 step 4's informed-consent disclosure content is present, unmodified (AC-015)"
-else
-  fail "TEST-022 step 4's informed-consent disclosure content is present, unmodified (AC-015)"
-fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Fq 'with no bypass' \
-  && printf '%s' "$LOOP_FLAT" | grep -Eiq 'does not presume.{0,10}an interactive human is present at this point'; then
-  pass "TEST-023 step 5's pre-upload check point text is present, unmodified (AC-015)"
-else
-  fail "TEST-023 step 5's pre-upload check point text is present, unmodified (AC-015)"
-fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Fq 'does not change consent state, because consent is bound to the scope' \
-  && printf '%s' "$LOOP_FLAT" | grep -Fq 'resumes at 5 with no re-prompt' \
-  && printf '%s' "$LOOP_FLAT" | grep -Eiq "push failure is not 3\\(c\\)'?s persistent"; then
-  pass "TEST-024 step 6's push-failure rule is present, unmodified (AC-015)"
-else
-  fail "TEST-024 step 6's push-failure rule is present, unmodified (AC-015)"
-fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Fq 'apply their feedback and return to 2' \
-  && printf '%s' "$LOOP_FLAT" | grep -Fq 'The cycle re-enters generation, never the consent step, because the scope has not changed' \
-  && printf '%s' "$LOOP_FLAT" | grep -Fq 'Local review is OPTIONAL and non-blocking' \
-  && printf '%s' "$LOOP_FLAT" | grep -Fq 'mockup content can reach claude.ai without any human having read it'; then
-  pass "TEST-025 step 7's review/regeneration cycle text is present, unmodified (AC-015)"
-else
-  fail "TEST-025 step 7's review/regeneration cycle text is present, unmodified (AC-015)"
-fi
 
 # --- REQ-006 (AC-016, AC-017, AC-018, AC-019, AC-029) ----------------------
 
@@ -495,12 +410,6 @@ else
   fail "TEST-028 Ds-Upload-Consent-Setting is enumerated by name in the record table (AC-016)"
 fi
 
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'remains? conforming' \
-  && printf '%s' "$DSL_FLAT" | grep -Eiq 'DS-29-era|missing (all )?(the )?three|lacking the three|before these fields existed'; then
-  pass "TEST-029 the extensibility paragraph states a DS-29-era record remains conforming (AC-017)"
-else
-  fail "TEST-029 the extensibility paragraph states a DS-29-era record remains conforming (AC-017)"
-fi
 
 # QG cycle-2 Major fix (TEST-030..TEST-034 ID<->target rebinding): these
 # five IDs were bound one position out of step against acceptance-tests.md's
@@ -552,36 +461,9 @@ else
   fail "TEST-037 Egress-Consent domain value withdrawn present, unmodified (AC-018)"
 fi
 
-if printf '%s' "$STANDING_FLAT" | grep -Eiq 'never a fabricated' \
-  && printf '%s' "$STANDING_FLAT" | grep -Eiq 'per-occurrence identity'; then
-  pass "TEST-038 standing's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)"
-else
-  fail "TEST-038 standing's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)"
-fi
 
-if printf '%s' "$OFF_FLAT" | grep -Eiq 'never a fabricated' \
-  && printf '%s' "$OFF_FLAT" | grep -Eiq 'per-occurrence identity'; then
-  pass "TEST-039 off's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)"
-else
-  fail "TEST-039 off's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)"
-fi
 
-if printf '%s' "$STANDING_FLAT" | grep -Fq 'Egress-Consent-Party' \
-  && printf '%s' "$STANDING_FLAT" | grep -Fq 'Egress-Consent-At' \
-  && printf '%s' "$STANDING_FLAT" | grep -Fq 'Ds-Upload-Consent-Setting'; then
-  pass "TEST-040 a standing grant's target text carries all three new fields (AC-029)"
-else
-  fail "TEST-040 a standing grant's target text carries all three new fields (AC-029)"
-fi
 
-if printf '%s' "$WHICHEVER_FLAT" | grep -Eiq 'per-feature grant' \
-  && printf '%s' "$WHICHEVER_FLAT" | grep -Fq 'Egress-Consent-Party' \
-  && printf '%s' "$WHICHEVER_FLAT" | grep -Fq 'Egress-Consent-At' \
-  && printf '%s' "$WHICHEVER_FLAT" | grep -Fq 'Ds-Upload-Consent-Setting: per-feature'; then
-  pass "TEST-041 an ordinary per-feature grant's target text carries all three new fields (AC-029)"
-else
-  fail "TEST-041 an ordinary per-feature grant's target text carries all three new fields (AC-029)"
-fi
 
 # QG cycle-2 Major fix: checking against the whole of STEP3_FLAT made the
 # three-field-names assertion vacuous with respect to this occasion
@@ -597,40 +479,11 @@ fi
 # `Egress-Consent: withdrawn` record-value literal, so weakening that
 # specific claim -- even while the field names remain present downstream --
 # now fails.
-if printf '%s' "$WITHDRAWAL_FLAT" | grep -Eiq 'mid-session' \
-  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Eiq 'withdraw' \
-  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Fq 'all three new fields' \
-  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Fq 'Egress-Consent: withdrawn' \
-  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Fq 'Egress-Consent-Party' \
-  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Fq 'Egress-Consent-At' \
-  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Fq 'Ds-Upload-Consent-Setting'; then
-  pass "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)"
-else
-  fail "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)"
-fi
 
-if printf '%s' "$OFF_FLAT" | grep -Fq 'Egress-Consent-Party' \
-  && printf '%s' "$OFF_FLAT" | grep -Fq 'Egress-Consent-At' \
-  && printf '%s' "$OFF_FLAT" | grep -Fq 'Ds-Upload-Consent-Setting: off'; then
-  pass "TEST-043 an off-driven not-permitted outcome's target text carries all three new fields (AC-029)"
-else
-  fail "TEST-043 an off-driven not-permitted outcome's target text carries all three new fields (AC-029)"
-fi
 
 # --- REQ-007 (AC-020, AC-021) ----------------------------------------------
 
-if printf '%s' "$STEP3_FLAT" | grep -Eiq 'every time this step is resolved' \
-  && printf '%s' "$STEP3_FLAT" | grep -Eiq 'never.{0,20}cached.{0,30}(earlier|previous) resolution|not cached across resolutions'; then
-  pass "TEST-044 step 3's opening sentence states the setting is re-read at every resolution, not cached (AC-020, executable oracle)"
-else
-  fail "TEST-044 step 3's opening sentence states the setting is re-read at every resolution, not cached (AC-020, executable oracle)"
-fi
 
-if printf '%s' "$DSL_FLAT" | grep -Eiq 'never override.{0,60}(current|currently configured) setting|record.{0,60}(never|does not) override.{0,60}setting'; then
-  pass "TEST-045 the record-table text states a record's own setting value never overrides the currently configured setting (AC-021)"
-else
-  fail "TEST-045 the record-table text states a record's own setting value never overrides the currently configured setting (AC-021)"
-fi
 
 # --- REQ-008 (AC-022, AC-023, AC-024) -- the fallback ----------------------
 
@@ -725,19 +578,40 @@ else
   fail "TEST-050 no case-insensitive occurrence of the general banned substring exists anywhere in the fallback file (AC-024)"
 fi
 
+# --- v2 (T-010, 2026-11-28) -------------------------------------------------
+# v2 rewrote step 3 in Japanese. TEST-007..045 that remain are checked by one
+# runner shared with the PowerShell twin: v2 wording plus the executable
+# resolver tests. TEST-019..TEST-025 and TEST-029 froze the v1 (DS-29) English
+# step text and retired with it (ADR-0051 decision 2); the behaviour they
+# guarded is covered by design-system-contract and design-sync-policy tests.
+v2_results=$(python3 -B "$ROOT/tests/lib/design-sync-standing-v2.py" 2>&1)
+while IFS= read -r line; do
+  case "$line" in
+    PASS\ *) pass "${line#PASS }" ;;
+    FAIL\ *) fail "${line#FAIL }" ;;
+    *) fail "v2 runner: $line" ;;
+  esac
+done <<EOF_V2
+$v2_results
+EOF_V2
+[ -n "$v2_results" ] || fail "v2 runner produced no result"
+
 # --- REQ-009 (AC-025, AC-026) -- baseline-relative regression against DS-29
 
-DSC_CURRENT_SH=$(bash "$DSC_SH" 2>&1)
+DSC_CURRENT_SH=$(bash "$DSC_SH" 2>&1); dsc_rc=$?
 
-if no_green_to_red_flip "$BASELINE_SH" "$DSC_CURRENT_SH" \
+# TEST-051 (AC-025): the documented baseline listed v1 row labels; T-010
+# retired or relabelled DS-29 rows whose inputs v2 removed, so DS-29's suite is
+# now required to pass outright, with its five load-bearing rows present.
+if [ "$dsc_rc" -eq 0 ] && printf '%s\n' "$DSC_CURRENT_SH" | grep -Fxq 'FAIL: 0' \
   && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-010 ' \
   && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-015 ' \
   && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-018 ' \
   && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-026 ' \
   && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-040 '; then
-  pass "TEST-051 zero rows in DS-29's own suite flip from green (baseline) to red (current), TEST-010/015/018/026/040 checked explicitly (AC-025)"
+  pass "TEST-051 DS-29's own suite passes, with TEST-010/015/018/026/040 passing (AC-025)"
 else
-  fail "TEST-051 zero rows in DS-29's own suite flip from green (baseline) to red (current), TEST-010/015/018/026/040 checked explicitly (AC-025)"
+  fail "TEST-051 DS-29's own suite failed, or one of TEST-010/015/018/026/040 is not passing (AC-025)"
 fi
 
 if grep -Eq '^PASS: TEST-021 ' "$BASELINE_SH" && printf '%s\n' "$DSC_CURRENT_SH" | grep -Eq '^PASS: TEST-021 '; then
@@ -776,33 +650,6 @@ fi
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 
-# ---------------------------------------------------------------------------
-# Deferred (non-blocking verification) -- TEST-054 (AC-028)
-#
-# Presented after the summary line above (mirroring acceptance-tests.md's
-# own structural separation of this row into its own "Deferred" section,
-# distinct from the main pass/fail Test Matrix, round 2 ruling E), so a
-# reviewer scanning PASS/FAIL counts above does not read this row's designed
-# RED as an authoring defect. Not counted in PASS/FAIL above; does not
-# affect this script's exit code.
-# ---------------------------------------------------------------------------
-
-test_054_ci_registered() {
-  ci_dir="$CI_DIR"
-  [ -d "$ci_dir" ] || return 1
-  has_sh=0
-  has_ps1=0
-  for wf in "$ci_dir"/*.yml "$ci_dir"/*.yaml; do
-    [ -f "$wf" ] || continue
-    grep -q 'design-sync-standing-consent\.tests\.sh' "$wf" && has_sh=1
-    grep -q 'design-sync-standing-consent\.tests\.ps1' "$wf" && has_ps1=1
-  done
-  [ "$has_sh" -eq 1 ] && [ "$has_ps1" -eq 1 ]
-}
-if test_054_ci_registered; then
-  printf 'PASS: %s\n' "TEST-054 this feature's suite is reachable from a CI entry point (AC-028, deferred)"
-else
-  printf 'FAIL: %s\n' "TEST-054 this feature's suite is reachable from a CI entry point (AC-028, deferred) -- DESIGNED RED: staged workflow patch not yet applied (REQ-010/AC-028)"
-fi
-
+# TEST-054 (deferred) retired 2026-11-28 (T-010): it waited for a staged v1
+# workflow patch; v2 registers suites in tests/verification-catalog.json.
 [ "$FAIL" -eq 0 ]

@@ -190,7 +190,10 @@ class PolicyTests(unittest.TestCase):
 
     def test_off_audit_names_the_setting(self):
         self.assertIn("`Ds-Upload-Consent-Setting: off`", self.consent_branch("off"))
-        self.assertEqual(self.resolve(request(setting="off"))["audit"]["setting"], "off")
+        audit = self.resolve(request(setting="off"))["audit"]
+        self.assertEqual(audit["setting"], "off")
+        # off has no live per-occurrence human: the party names the setting, never a person (AC-019).
+        self.assertEqual(audit["party"], "ds_upload_consent: off")
 
     def test_default_unknown_and_case_variants_require_consent(self):
         for setting in (None, "per-feature", "unknown", "Standing", "OFF", ""):
