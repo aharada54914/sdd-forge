@@ -36,7 +36,7 @@
      - 読んだ ID は、ベンダーごとの固定パターンに合うものだけを使う。日付付きのスナップショット ID は対象外。
      - それ以外のページの文章は、契約・文書・PR 本文のいずれにも入れない。
    - **自動マージはしない。** 未マージの更新案 PR がある間は、新しい更新案を作らない。
-5. **権限を分ける。** 新しいワークフローだけに `contents: write` と `pull-requests: write` を与える。`model-freshness-check.yml` は従来どおり issue 起票だけを行い、`pull-requests` 権限を持たない（TEST-005 の固定はそのまま）。PR の作成には、登録されていれば既存の fine-grained PAT（`SDD_SESSION_PR_TOKEN`）を使う。未登録なら既定トークンで作り、CI が起動していないことを PR 本文に明記する。
+5. **権限を分ける。** 新しいワークフローだけに `contents: write` と `pull-requests: write` を与える。`model-freshness-check.yml` は従来どおり issue 起票だけを行い、`pull-requests` 権限を持たない（TEST-005 の固定はそのまま）。PR の作成には、登録されていれば既存の fine-grained PAT（`SDD_SESSION_PR_TOKEN`）を使う。未登録なら既定トークンで作り、CI が起動していないことを PR 本文に明記する。既定トークンで作る場合は、リポジトリ設定の「Allow GitHub Actions to create and approve pull requests」を有効にしておく必要がある。checkout はトークンを `.git/config` に残さず（`persist-credentials: false`）、push と PR 作成の段階だけトークンを渡す。PR を作れなかった場合は、push したブランチを削除してから失敗させる。取得に失敗したベンダー（ネットワーク・TLS のエラー、途中で切れた応答、不正な HTTP 応答）は、実行を失敗させずに「取得できなかったベンダー」として報告する。
 
 ## 3. Consequences
 

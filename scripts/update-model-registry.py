@@ -18,6 +18,7 @@ is changed automatically.
 import argparse
 import datetime
 import html
+import http.client
 import json
 import re
 import subprocess
@@ -171,6 +172,13 @@ def report(summary):
     return '\n'.join(lines)
 
 
+# A vendor page that cannot be read in full is reported as unavailable instead of
+# failing the run: network and TLS errors (OSError, including URLError and
+# timeouts), truncated or malformed HTTP responses (http.client.HTTPException,
+# e.g. IncompleteRead, BadStatusLine) and a rejected URL (ValueError).
+FETCH_ERRORS = (OSError, http.client.HTTPException, ValueError)
+
+
 def fetch(url):
     request = urllib.request.Request(url, headers={'User-Agent': 'sdd-forge-model-registry-update'})
     with urllib.request.urlopen(request, timeout=20) as response:  # noqa: S310 - fixed HTTPS vendor URLs
@@ -198,7 +206,7 @@ def main(argv=None):
                 continue
             try:
                 sources[vendor] = fetch(spec['url'])
-            except OSError:
+            except FETCH_ERRORS:
                 pass  # reported as unavailable; nothing changes for that vendor
     registry, policy, summary = plan(sources, args.root, args.today)
     if args.write and summary['added']:

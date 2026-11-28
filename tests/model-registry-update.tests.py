@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """The weekly registry proposal adds only newer versions of known families, from allowlisted tokens (ADR-0055)."""
+import contextlib
+import http.client
 import importlib.util
+import io
 import json
 import shutil
 import subprocess
@@ -135,6 +138,27 @@ class RegistryUpdate(unittest.TestCase):
         self.assertIn('gpt-6-luna', summary['not_seen'])
         registry, policy = self.contracts()
         self.assertEqual(next(m for m in policy['models'] if m['id'] == 'gpt-6-luna')['lifecycle'], 'current')
+
+    def test_unreadable_responses_are_reported_unavailable_not_fatal(self):
+        spec = importlib.util.spec_from_file_location('update_registry', self.root / 'scripts/update-model-registry.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        failures = {'anthropic': http.client.IncompleteRead(b'<h1>Mod'), 'google': http.client.BadStatusLine('')}
+
+        def fake_fetch(url):
+            vendor = next(v for v, s in module.VENDORS.items() if s['url'] == url)
+            if vendor in failures:
+                raise failures[vendor]
+            return PAGES[vendor]
+
+        out = io.StringIO()
+        module.fetch = fake_fetch
+        with contextlib.redirect_stdout(out):
+            code = module.main(['--fetch', '--root', str(self.root), '--today', '2027-01-04T00:00:00Z'])
+        self.assertEqual(code, 0)
+        summary = json.loads(out.getvalue())
+        self.assertEqual(sorted(summary['unavailable']), ['anthropic', 'google'])
+        self.assertEqual([a['id'] for a in summary['added']], ['gpt-7-luna'])
 
     def test_without_write_no_file_changes(self):
         before = {p: p.read_bytes() for p in self.root.rglob('*') if p.is_file()}

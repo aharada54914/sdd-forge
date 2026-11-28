@@ -15,6 +15,15 @@ name: Model Registry Update
 # (SDD_SESSION_PR_TOKEN、contents:write + pull_requests:write) が登録されて
 # いればそれで PR を作り、CI を通常どおり走らせる。未登録なら既定トークンで
 # 作り、PR 本文で CI の手動起動を求める。
+#
+# 前提: 既定トークンで PR を作る場合は、リポジトリ設定 Settings > Actions >
+# General > Workflow permissions の「Allow GitHub Actions to create and approve
+# pull requests」を有効にする。無効のままだと gh pr create が失敗する
+# (失敗時は push したブランチを削除して終了する)。
+#
+# 資格情報: checkout は persist-credentials: false とし、取得・生成の段階では
+# .git/config にトークンを残さない。push と PR 作成の段階だけ、環境変数の
+# トークンを一時的なヘッダーで渡す。
 on:
   schedule:
     - cron: "41 4 * * 1" # 毎週月曜 04:41 UTC (鮮度チェックの 03:00 の後)
@@ -34,6 +43,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       # 未マージの更新案があれば新しく作らない (人の判断待ちを重ねない)。
       - name: Skip while a proposal is open
@@ -77,14 +88,18 @@ jobs:
           GH_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN || github.token }}
           HAS_PAT: ${{ secrets.SDD_SESSION_PR_TOKEN != '' }}
         run: |
+          set -euo pipefail
           branch="automation/model-registry-update-$(date -u +%Y%m%d)-${GITHUB_RUN_ID}"
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$auth"
+          remote="https://github.com/${GITHUB_REPOSITORY}.git"
           git switch -c "$branch"
           git add contracts plugins/sdd-implementation/contracts docs/agent-capability-matrix.md \
             plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md
           git -c user.name='github-actions[bot]' \
             -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
             commit -m "chore(models): propose registry update from official model pages"
-          git push origin "$branch"
+          git -c http.extraheader="$auth" push "$remote" "HEAD:refs/heads/$branch"
           {
             cat "$RUNNER_TEMP/body.md"
             echo
@@ -95,5 +110,11 @@ jobs:
               echo "**CI 未起動**: 既定トークンで作成したため test.yml が起動していません。メンテナーがこのブランチに push するか、PR を閉じて開き直してから判断してください。"
             fi
           } > "$RUNNER_TEMP/pr.md"
-          gh pr create --repo "$GITHUB_REPOSITORY" --base "${{ github.event.repository.default_branch }}" \
-            --head "$branch" --title "chore(models): 公式ページに基づくモデル登録の更新案" --body-file "$RUNNER_TEMP/pr.md"
+          if ! gh pr create --repo "$GITHUB_REPOSITORY" --base "${{ github.event.repository.default_branch }}" \
+            --head "$branch" --title "chore(models): 公式ページに基づくモデル登録の更新案" --body-file "$RUNNER_TEMP/pr.md"; then
+            # PR のないブランチを残すと、次回以降の「未マージの更新案」判定をすり抜けた
+            # 孤立ブランチが溜まる。作れなかったら削除して失敗させる。
+            git -c http.extraheader="$auth" push "$remote" --delete "$branch" || true
+            echo "PR を作成できませんでした。ブランチ $branch は削除しました。Workflow permissions の設定 (ファイル冒頭の前提) を確認してください。" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
