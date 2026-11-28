@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Read-only MCP server exposing local environment info (OS, toolchain versions, CLI availability). No execution capability.",
+  "description": "[DEPRECATED / Maintenance-only (ADR-0052 / ADR-0055)] Read-only MCP server exposing local environment info (OS, toolchain versions, CLI availability). Not a target for new investment; prefer sdd-doctor.mjs or sdd-forge-mcp.",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=26.13.0"
   },
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js",

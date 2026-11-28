@@ -7,7 +7,7 @@
           {
             "name": "sdd-soft-guard",
             "type": "command",
-            "command": "node \"${extensionPath}/../scripts/v2/sdd-soft-guard.mjs\" --emit gemini",
+            "command": "NODE_COMPILE_CACHE=\"${extensionPath}/../../../.sdd-compile-cache\" NODE_COMPILE_CACHE_PORTABLE=1 NODE_COMPILE_CACHE_READONLY=1 node --config-file=\"${extensionPath}/../config/hook.node.json\" --disallow-code-generation-from-strings --env-file-if-exists=.sdd/env \"${extensionPath}/../scripts/v2/sdd-soft-guard.mjs\" --emit gemini",
             "timeout": 15000
           }
         ]

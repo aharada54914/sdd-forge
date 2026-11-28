@@ -97,6 +97,7 @@ flowchart TD
 - [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) — v2 脅威モデル（Local Soft, Boundary Firm）
 - [docs/adr/0051-lightweight-guardrails-and-sdd-core.md](docs/adr/0051-lightweight-guardrails-and-sdd-core.md) — v2 設計決定記録（ADR-0051）
 - [docs/adr/0052-mcp-architecture-and-v2-consolidation.md](docs/adr/0052-mcp-architecture-and-v2-consolidation.md) — MCP v2 統合・オプトイン化（ADR-0052）
+- [docs/adr/0055-node26-ts7-mcpv2-unified-runtime.md](docs/adr/0055-node26-ts7-mcpv2-unified-runtime.md) — Node.js 26.13+・TypeScript 7.0・MCP SDK v2 統合最適化（ADR-0055）
 - [docs/architecture/mcp-v2-spec.md](docs/architecture/mcp-v2-spec.md) — `sdd-forge-mcp` v2 規範仕様
 - [docs/non-interactive-factory.md](docs/non-interactive-factory.md) — 非対話・自律ファクトリ運用ガイド（`claude -p` / `codex exec` / `agy -p`）
 - [USERGUIDE.md](USERGUIDE.md) — MCP サーバー・運用詳細

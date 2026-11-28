@@ -21,11 +21,11 @@ import { fileURLToPath } from "node:url";
 import { getOsInfo } from "../../src/tools/env.js";
 import { isOk } from "../../src/envelope.js";
 
-// Compiled location: dist-test/tests/tools/. Walk up 5 levels
-// (tools -> tests -> dist-test -> local-env-mcp -> mcp -> repo root) to contracts/.
+// Compiled location: dist-test/local-env-mcp/tests/tools/. Walk up 6 levels
+// to the repo root to reach contracts/.
 const CONTRACT_PATH = join(
   dirname(fileURLToPath(import.meta.url)),
-  "..", "..", "..", "..", "..",
+  "..", "..", "..", "..", "..", "..",
   "contracts",
   "local-env-mcp-tools.v1.schema.json",
 );

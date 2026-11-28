@@ -196,8 +196,8 @@ def collect(root, contract_path, task_path, skill, check_id, *, timeout=30,
         output.write("\n")
     checked = subprocess.run(
         [
-            sys.executable,
-            str(HERE / "check-contract.py"),
+            "node",
+            str(HERE / "check-contract.ts"),
             str(output_contract),
             str(root),
         ],

@@ -17,16 +17,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup Node.js (20 LTS)
+      - name: Setup Node.js (26.13 LTS)
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "20"
+          node-version: "26.13.0"
 
       - name: Run v2 Lightweight Guardrails test suite
-        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs
+        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/node26-ts7-optimization.test.mjs
 
       - name: Run sdd-doctor read-only harness health check
-        run: node plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root . --quiet-info
+        run: node --config-file=plugins/sdd-quality-loop/config/readonly.node.json --disallow-code-generation-from-strings --env-file-if-exists=.sdd/env plugins/sdd-quality-loop/scripts/v2/sdd-doctor.mjs --root . --quiet-info
 
       - name: Check Spec Drift across all baselined features
         run: |

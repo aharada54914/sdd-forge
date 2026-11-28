@@ -37,7 +37,8 @@ import {
   renderDecisionViewMarkdown,
   runDoctorCore,
   featureEvidenceInputs,
-} from "../../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
+  type TaskEvidenceInputs,
+} from "../../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.ts";
 
 const FEATURE_RE = /^[A-Za-z0-9._-]+$/;
 const TASK_ID_RE = /^T-[A-Za-z0-9._-]+$/;
@@ -229,7 +230,7 @@ function validateTaskId(taskId: string): Result<string> {
 
 type GuardedIo = ReturnType<typeof createGuardedIo>;
 
-type EvidenceInputs = Map<string, unknown>;
+type EvidenceInputs = Map<string, TaskEvidenceInputs>;
 
 /**
  * Spec inputs that changed since a task's gate run (#831). `undefined` when

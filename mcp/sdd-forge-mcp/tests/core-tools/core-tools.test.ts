@@ -12,7 +12,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolResultSchema } from "@modelcontextprotocol/core";
 import {
   getNextSddCommand,
   getQualityGateSummary,
@@ -250,13 +250,14 @@ test("invalid feature argument shape is rejected as invalid-input", async () => 
     assert.ok(v2InvalidFirst?.type === "text");
     assert.match(v2InvalidFirst.text, /Invalid arguments for tool sdd_feature_state/);
 
-    const retired = CallToolResultSchema.parse(
-      await fixture.client.callTool({ name: "get_task_state", arguments: { feature: "feature-a" } }),
+    await assert.rejects(
+      fixture.client.callTool({ name: "get_task_state", arguments: { feature: "feature-a" } }),
+      (error: unknown) => {
+        assert.ok(error instanceof Error);
+        assert.match(error.message, /Tool get_task_state not found/);
+        return true;
+      },
     );
-    assert.equal(retired.isError, true);
-    const retiredFirst = retired.content[0];
-    assert.ok(retiredFirst?.type === "text");
-    assert.match(retiredFirst.text, /Tool get_task_state not found/);
 
     const missing = CallToolResultSchema.parse(
       await fixture.client.callTool({ name: "sdd_gate_audit", arguments: { feature: "feature-a", taskId: "T-999" } }),

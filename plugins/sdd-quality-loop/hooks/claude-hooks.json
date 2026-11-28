@@ -1,5 +1,5 @@
 {
-  "description": "SDD Forge v2 Lightweight Soft Guardrails for Claude Code (ADR-0051). Runs the single zero-dependency Node.js ESM soft guard (AGENT_STOP kill switch, tasks.md human-only Approval guard, and configurable warn/confirm/strict protection for approved specs).",
+  "description": "SDD Forge v2 Lightweight Soft Guardrails for Claude Code (ADR-0051 / ADR-0055). Runs the single zero-dependency Node.js ESM soft guard with read-only portable Compile Cache and role-scoped --config-file permission profile.",
   "hooks": {
     "PreToolUse": [
       {
@@ -8,7 +8,19 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/v2/sdd-soft-guard.mjs", "--emit", "exit"]
+            "args": [
+              "--config-file=${CLAUDE_PLUGIN_ROOT}/config/hook.node.json",
+              "--disallow-code-generation-from-strings",
+              "--env-file-if-exists=.sdd/env",
+              "${CLAUDE_PLUGIN_ROOT}/scripts/v2/sdd-soft-guard.mjs",
+              "--emit",
+              "exit"
+            ],
+            "env": {
+              "NODE_COMPILE_CACHE": "${CLAUDE_PLUGIN_ROOT}/../../.sdd-compile-cache",
+              "NODE_COMPILE_CACHE_PORTABLE": "1",
+              "NODE_COMPILE_CACHE_READONLY": "1"
+            }
           }
         ]
       }

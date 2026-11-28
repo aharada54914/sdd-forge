@@ -20,17 +20,17 @@ install-payload.txt
 .agents/plugins/marketplace.json
 .claude-plugin/marketplace.json
 .codex/agents/
+.sdd-compile-cache/
 plugins/
 contracts/
 templates/cloud/
 sdd/guardrails.example.yaml
 scripts/check-sdd-structure.sh
+scripts/render-agent-frontmatter.ts
 install.sh
 install.ps1
 uninstall.sh
 uninstall.ps1
-render-agent-frontmatter.sh
-render-agent-frontmatter.ps1
 LICENSE
 
 # --- User and normative documentation --------------------------------------

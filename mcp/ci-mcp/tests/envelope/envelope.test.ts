@@ -22,11 +22,12 @@ import { fileURLToPath } from "node:url";
 import { ok, err, isOk, isErr } from "../../src/envelope.js";
 import type { ErrorCode } from "../../src/envelope.js";
 
-// Compiled location: mcp/ci-mcp/dist-test/tests/envelope/. Walk up to the repo
-// root (5 levels: envelope -> tests -> dist-test -> ci-mcp -> mcp -> repo root)
+// Compiled location: mcp/ci-mcp/dist-test/ci-mcp/tests/envelope/. Walk up to the repo
+// root (6 levels: envelope -> tests -> ci-mcp -> dist-test -> ci-mcp -> mcp -> repo root)
 // to reach contracts/.
 const CONTRACT_PATH = join(
   dirname(fileURLToPath(import.meta.url)),
+  "..",
   "..",
   "..",
   "..",

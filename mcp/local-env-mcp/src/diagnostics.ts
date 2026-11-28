@@ -28,11 +28,11 @@
  * field.
  */
 
-import { defaultSink, type StartupInfo, type WriteSink } from "./diagnostics-core.js";
-export type { StartupInfo, WriteSink } from "./diagnostics-core.js";
+import { defaultSink, type StartupInfo, type WriteSink } from "../../shared/diagnostics-core.js";
+export type { StartupInfo, WriteSink } from "../../shared/diagnostics-core.js";
 
-export { scrubKnownSecrets as scrubMessage } from "./diagnostics-core.js";
-import { scrubKnownSecrets as scrubMessage } from "./diagnostics-core.js";
+export { scrubKnownSecrets as scrubMessage } from "../../shared/diagnostics-core.js";
+import { scrubKnownSecrets as scrubMessage } from "../../shared/diagnostics-core.js";
 
 /**
  * Writes the single startup diagnostic line to stderr (or the provided sink).

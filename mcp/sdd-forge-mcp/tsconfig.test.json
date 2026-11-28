@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "rewriteRelativeImportExtensions": true,
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "lib": ["ES2022"],
     "strict": true,
     "esModuleInterop": true,
@@ -20,6 +21,6 @@
     "tests/**/*.ts",
     "scripts/**/*.ts",
     "../../plugins/sdd-quality-loop/scripts/v2/v2-pure-lib.mjs",
-    "../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs"
+    "../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.ts"
   ]
 }

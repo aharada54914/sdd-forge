@@ -1,4 +1,4 @@
-import { loadGuardrailsConfigFromIo, stripFencedCodeBlocks } from "../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.mjs";
+import { loadGuardrailsConfigFromIo, stripFencedCodeBlocks } from "../../../plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.ts";
 import { createGuardedIo, guardedRead } from "./path-guard.js";
 import type { SddRoot } from "./root.js";
 

@@ -274,3 +274,4 @@ must never rely on a bare legacy number.
 | 0050 | [Session model preferences without weakening launch admission](0050-session-model-preferences.md) | Accepted |
 | 0051 | [Lightweight Guardrails and SDD Core Consolidation](0051-lightweight-guardrails-and-sdd-core.md) | Accepted |
 | 0053 | [DDDの概念判断を対話ターミナルで記録する](0053-keyless-concept-decisions.md) | Proposed |
+| 0055 | [Node.js 26.13+・TypeScript 7.0・MCP SDK v2 統合ランタイム最適化](0055-node26-ts7-mcpv2-unified-runtime.md) | Accepted |

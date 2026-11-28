@@ -3397,7 +3397,7 @@ class ProtectedProfileCases(unittest.TestCase):
             ])
             path = root / "contract.json"
             path.write_text(json.dumps(contract))
-            proc = subprocess.run([sys.executable, "-B", str(SHARED / "check-contract.py"), str(path), str(root)], capture_output=True, text=True)
+            proc = subprocess.run(["node", str(SHARED / "check-contract.ts"), str(path), str(root)], capture_output=True, text=True)
             self.assertNotEqual(proc.returncode, 0, proc.stdout)
             self.assertIn("cloud profile requires verification-contract/v3", proc.stdout)
 
@@ -3499,15 +3499,8 @@ class ProfileSavedConsumers(unittest.TestCase):
         plan_path = case.root / (case.directory + "/saved.json.selected-plan.json")
         plan = json.loads(plan_path.read_bytes())
         commands = [
-            [sys.executable, "-B", str(SHARED / "check-contract.py"), str(path), str(case.root)],
-            ["sh", str(SHARED / "check-contract.sh"), str(path), str(case.root)],
+            ["node", str(SHARED / "check-contract.ts"), str(path), str(case.root)],
         ]
-        powershell = shutil.which("pwsh") or shutil.which("powershell")
-        if powershell:
-            commands.append([powershell, "-NoProfile", "-File", str(SHARED / "check-contract.ps1"), "-ContractPath", str(path), "-RepoRoot", str(case.root)])
-        else:
-            with self.subTest(consumer="PowerShell"):
-                self.skipTest("PowerShell unavailable; native PowerShell consumer coverage not executed")
         for command in commands:
             with self.subTest(consumer=command[0]):
                 proc = subprocess.run(command, capture_output=True, text=True, timeout=30)
@@ -3655,12 +3648,11 @@ class ProfileSavedConsumers(unittest.TestCase):
             self.assertEqual((ROOT / "contracts" / name).read_bytes(), (SHARED.parent / "contracts" / name).read_bytes())
 
     def test_legacy_import_never_loads_cloud_runtime(self):
-        import ast
-
-        script = SHARED / "check-contract.py"
-        ast.parse(script.read_text(), feature_version=(3, 6))
-        source = "import runpy,sys; runpy.run_path(sys.argv[1],run_name='legacy_import'); assert 'cloud_verification' not in sys.modules; assert 'cloud_contracts' not in sys.modules"
-        proc = subprocess.run([sys.executable, "-B", "-c", source, str(script)], capture_output=True, text=True)
+        script = SHARED / "check-contract.ts"
+        text = script.read_text(encoding="utf-8")
+        self.assertNotIn("cloud_verification", text)
+        self.assertNotIn("cloud_contracts", text)
+        proc = subprocess.run(["node", str(script), "--help"], capture_output=True, text=True)
         self.assertEqual(proc.returncode, 0, proc.stderr)
 
 

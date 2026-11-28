@@ -7,7 +7,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
-const testsRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "dist-test", "tests");
+const testsRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "dist-test", "ci-mcp", "tests");
 
 function collect(dir) {
   const files = [];

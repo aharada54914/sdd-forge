@@ -29,7 +29,7 @@ def load(name, path):
 
 resolver = load('t003_resolver', ROOT / 'specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py')
 digest = load('t003_digest', SCRIPTS / 'generate-registry-digest.py')
-legacy = load('t003_legacy', SCRIPTS / 'check-contract.py')
+legacy = load('t003_evaluator', EVALUATOR).legacy
 TARGETS = ('cli-library', 'ui', 'design-only', 'iac-cloud', 'low-code')
 
 

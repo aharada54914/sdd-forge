@@ -18,12 +18,15 @@
  * `Bearer <token>` pattern).
  */
 
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 
 import { buildServer } from "./server.js";
 import { logStartup, logFatal } from "./diagnostics.js";
 
 async function main(): Promise<void> {
+  if (process.argv.slice(2).includes("--warmup")) {
+    return;
+  }
   logStartup({ name: "ci-mcp", version: "0.1.0", transport: "stdio" });
 
   const server = buildServer();

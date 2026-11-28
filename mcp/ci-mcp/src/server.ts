@@ -19,7 +19,7 @@
  * actually invoked.
  */
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 
 import type { Result } from "./envelope.js";
 import {
@@ -50,10 +50,17 @@ const READ_ONLY_ANNOTATIONS = {
 
 /** Builds the ci-mcp MCP server and registers the read-only Actions tools implemented so far. */
 export function buildServer(): McpServer {
-  const server = new McpServer({
-    name: "ci-mcp",
-    version: "0.1.0",
-  });
+  const server = new McpServer(
+    {
+      name: "ci-mcp",
+      version: "0.1.0",
+    },
+    {
+      cacheHints: {
+        "tools/list": { ttlMs: 300_000, cacheScope: "private" },
+      },
+    },
+  );
 
   server.registerTool(
     "list_workflow_runs",

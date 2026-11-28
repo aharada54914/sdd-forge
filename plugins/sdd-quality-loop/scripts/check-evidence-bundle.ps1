@@ -1,4 +1,4 @@
-# Deterministic gate: validate a Done evidence bundle.
+﻿# Deterministic gate: validate a Done evidence bundle.
 # Usage: check-evidence-bundle.ps1 <path-to-evidence-bundle.json> [-RepoRoot <path>]
 # The bundle must name a quality report, verification contract, and include
 # all passing evidence artifacts from the contract with matching SHA256.
@@ -282,10 +282,9 @@ if ($null -ne $qualityText) {
 }
 
 $scriptRoot = Split-Path -Parent $PSScriptRoot
-$checkContractScript = Join-Path $scriptRoot "scripts/check-contract.ps1"
+$checkContractScript = Join-Path $scriptRoot "scripts/check-contract.ts"
 if ($contractInfo) {
-    $powerShellExe = (Get-Process -Id $PID).Path
-    & $powerShellExe -NoProfile -ExecutionPolicy Bypass -File $checkContractScript -ContractPath $contractInfo.Resolved -RepoRoot $RepoRoot
+    & node $checkContractScript $contractInfo.Resolved $RepoRoot
     if ($LASTEXITCODE -ne 0) {
         Add-Failure "verification_contract failed check-contract validation: $verificationContract"
     }

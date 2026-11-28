@@ -1,0 +1,267 @@
+{
+  "schema": "sdd-spec-baseline/v1",
+  "feature": "node26-ts7-mcpv2-optimization",
+  "recordedAt": "2026-11-28T10:18:42.962Z",
+  "gitHead": "4876b04e997bdfd80252b1076c646d27db050f6f",
+  "amendmentCount": 0,
+  "files": {
+    "specs/node26-ts7-mcpv2-optimization/design.md": {
+      "fileName": "design.md",
+      "rawSha256": "147b6598a6c5511c8d1d7318d7cb6c7999d3df1d93a00d6e10785d033d2a0ecc",
+      "contractSha256": "282b1b5786278f2ddbb4e1f4bcc8d2cb8c439c534645d843593975412a5f5fcf",
+      "identifiers": {},
+      "amendmentCount": 0
+    },
+    "specs/node26-ts7-mcpv2-optimization/requirements.md": {
+      "fileName": "requirements.md",
+      "rawSha256": "f1f9c5cbb67db0f47401499072d0bdd2592a555873cc8e7a574e3aab8872527c",
+      "contractSha256": "6711696e51cf54758f79eeb66e02c6c5aeca3f49e3f88dc25c4ca30e499d3a55",
+      "identifiers": {
+        "REQ-001": {
+          "line": "- **REQ-001 (Node.js 26.13+ 単一基準・TS 7.0 型検査・3 区分計測基盤 — Phase 0)**:",
+          "hash": "89bafe6938aed2e8c7cf60770d71a1ac2b84789254c94c3baa7da469309f46c4"
+        },
+        "REQ-002": {
+          "line": "- **REQ-002 (2 段階ハイブリッド事前生成 Compile Cache & `sdd-doctor` 診断 — Phase 1)**:",
+          "hash": "71814cba1206f6b9618282c44f50e4dcf07d3f6e037a5d75ba3bfbe307085d97"
+        },
+        "REQ-003": {
+          "line": "- **REQ-003 (純粋読み取りコアの `.ts` 化と MCP 完全型共有 — Phase 2)**:",
+          "hash": "8ebd825da0394d66a5fd3c74c02516c97b04c3ca113180e0542e5cdbada326ad"
+        },
+        "REQ-004": {
+          "line": "- **REQ-004 (高速プリミティブ・SQLite 増分スキャン・Git 呼び出し統合 — Phase 2)**:",
+          "hash": "e1751155ce97bd78ef7801da53957d5cef5ae4cdb564dc4db6cd58bea861a5a5"
+        },
+        "REQ-005": {
+          "line": "- **REQ-005 (5 本のビルドレス `.ts` 集約と通常運用・リリースからの Python / `pwsh` 排除 — Phase 2)**:",
+          "hash": "370a1d3f34a6b0a0aefbfdc5ec8316c194e577acd73be9d8ac7a6957b98a6f73"
+        },
+        "REQ-006": {
+          "line": "- **REQ-006 (MCP TypeScript SDK v2 移行と共有診断の直接参照化 — Phase 3)**:",
+          "hash": "b997d4dc9064d00b66db8808650e415e84596b6d8a4303ce9235b425c16f3914"
+        },
+        "REQ-007": {
+          "line": "- **REQ-007 (役割別 `--config-file` 権限プロファイルの全面適用 — Phase 3)**:",
+          "hash": "e39d604192df85428b01fc98b3719af5961b2c223a3052c86b52f612922e50cc"
+        },
+        "REQ-008": {
+          "line": "- **REQ-008 (旧ラッパーおよび `py-dispatch.{sh,ps1}` の撤去とテスト整合 — Phase 3)**:",
+          "hash": "b42b4ffc3bc532e9f45c5926d6706025058d71a8cbbda955165153d9b141f4db"
+        },
+        "AC-001": {
+          "line": "- **AC-001 (REQ-001)**: `.github/workflows/{test,release,sdd-guardrails}.yml` のすべての `node-version` が `\"26.13.0\"` であり、`mcp/{sdd-forge-mcp,ci-mcp,local-env-mcp}/package.json` の `engines.node` が `\">=26.13.0\"` である。",
+          "hash": "2dd504ec2177513a05748d88dabfad2d66f5b40f17781084ac0fe4eb1460f694"
+        },
+        "AC-002": {
+          "line": "- **AC-002 (REQ-001)**: ルート `tsconfig.json` が `erasableSyntaxOnly: true`, `noEmit: true`, `strict: true` を持ち、TS 7.0（`tsc --noEmit -p tsconfig.json`）がエラー 0 件で通過し、`test.yml` に組み込まれている。",
+          "hash": "2cf0433902d2cd557ec9972cddc41cac3843c485ca9b1304c402e867a4c7bb4a"
+        },
+        "AC-003": {
+          "line": "- **AC-003 (REQ-001)**: `runtime-profile.mjs` が `sdd-forge:startup` / `sdd-forge:scan` / `sdd-forge:exec` の 3 チャネルで計測イベントを発行し、購読者不在時はオーバーヘッドなく動作する。",
+          "hash": "c2cc83475c380c07d9af8fc72d5760a43000e90833be4decad857db9237de9fe"
+        },
+        "AC-004": {
+          "line": "- **AC-004 (REQ-001)**: `scripts/bench-runtime.ts` が冷起動・温起動・SHA-256・`fs.promises.glob` を計測し JSON レポートを出力でき、`test.yml` にベンチマークおよび `NODE_DISABLE_COMPILE_CACHE=1` 付きカバレッジ計測ジョブが存在する。",
+          "hash": "c3c4262910a3942bd4704b4b1b6db9ee8acca0617bb87f01aea7ce1468cdf4a5"
+        },
+        "AC-005": {
+          "line": "- **AC-005 (REQ-002)**: `compile-cache.mjs --warmup` が主要エントリのポータブルキャッシュを生成し、`release.yml`（Stage 1）と `install.sh` / `install.ps1`（Stage 2）に組み込まれ、`install-payload.txt` に `.sdd-compile-cache/` が記載されている。",
+          "hash": "8e8c2b6cf7e80c9f919f2cc1dc0307388f4b1dfccc8545d7a8c9b3ece04463ec"
+        },
+        "AC-006": {
+          "line": "- **AC-006 (REQ-002)**: 全 4 ホストのフックマニフェストが `NODE_COMPILE_CACHE`・`NODE_COMPILE_CACHE_PORTABLE=1`・`NODE_COMPILE_CACHE_READONLY=1` を設定し、`sdd-soft-guard.mjs` の初回起動からポータブルキャッシュを参照できる。",
+          "hash": "c4b41924f7a6dbf8dc3f271adbe8f6612dab4e6b26ff90bb82dc9b51627b11a0"
+        },
+        "AC-007": {
+          "line": "- **AC-007 (REQ-002)**: `sdd-doctor.mjs --rebuild-cache` がキャッシュを再生成でき、通常診断で `runtime-node-version`・`compile-cache`・`git-performance-config` を報告し、かつ本リポジトリで `summary.ng === 0` を維持する。",
+          "hash": "48e0a26e5c461a8c71d31942abf774bcf17989ffd7ce8b843edc1c5fa634390d"
+        },
+        "AC-008": {
+          "line": "- **AC-008 (REQ-003)**: `plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.ts` が純粋読み取り不変条件（`node:fs`・`process.env`・書込 API ゼロ）を満たしつつ TS 7.0 型検査を通過し、`mcp/sdd-forge-mcp/src/` から直接インポート・型共有されている。",
+          "hash": "282c0feb3ff5cac14aa1b6ac8dbe641f732d84afa690a61234595085b5b0546f"
+        },
+        "AC-009": {
+          "line": "- **AC-009 (REQ-004)**: `v2-pure-lib.mjs` の `sha256Text` が `crypto.hash('sha256', ...)` を、`escapeRegExp` が `RegExp.escape` を使用し、既存ハッシュ・正規表現テストと完全一致する。",
+          "hash": "561033f39a982bcf9d85bdd3c329c3cd97486e41083a7f354dc5fc393af9c441"
+        },
+        "AC-010": {
+          "line": "- **AC-010 (REQ-004)**: `scan-cache.mjs` が `node:sqlite` により未変更ファイルの増分スキャンスキップを行い、読取専用環境でも安全にフォールバックし、`run-sdd-gate.mjs` が `fs.promises.glob` 並列スキャン・`AbortSignal.timeout()`・`git status --porcelain=v2 -z`・`git cat-file --batch` を使用する。",
+          "hash": "3cf858a6010b8b19216d25ec7fb37d1820aa5aada0518ae42dc1031ceb5183bd"
+        },
+        "AC-011": {
+          "line": "- **AC-011 (REQ-004)**: `run-sdd-gate.mjs` が Concept Test 検証を `node` で `validate-concept-test.ts` 直接実行し、`pwsh` / `sh` を起動しない。",
+          "hash": "8d3434899a2465479d79bf29a0ee7b1a2e893b8b6715389ff33fc859e31b732e"
+        },
+        "AC-012": {
+          "line": "- **AC-012 (REQ-004)**: `task-lock.mjs` の `acquireTaskLockHandle` が `[Symbol.dispose]()` で決定論的にロック解放し、`Temporal` 優先ヘルパーを持ち、`factory-metrics.mjs` の `summarizeMetricsWithSqlite` が `node:sqlite` で p95・サマリを算出する。",
+          "hash": "f7ffeb07353c62a4bc3d952eb7fc8267246b4a1d7322d71fd562c19ae4459101"
+        },
+        "AC-013": {
+          "line": "- **AC-013 (REQ-005)**: 5 本の `.ts` スクリプト（`generate-sbom.ts`, `validate-path.ts`, `check-contract.ts`, `validate-concept-test.ts`, `render-agent-frontmatter.ts`）がすべて外部依存ゼロで動作し、期待仕様と厳密一致する（`release.yml` は `node .github/scripts/generate-sbom.ts` を実行する）。",
+          "hash": "4696cb9bbad794f353ae39267fd935a1a3411c95e1734d9da0630235d6af51d7"
+        },
+        "AC-014": {
+          "line": "- **AC-014 (REQ-006)**: `mcp/sdd-forge-mcp` と `mcp/ci-mcp` が `@modelcontextprotocol/server@^2.4.0` でビルド・起動・テスト通過し、`sdd-forge-mcp` が 4 ツール・2 リソースに `cacheHints`（`ttlMs`, `cacheScope`）を付与する。`mcp/local-env-mcp` は非推奨と明記される。",
+          "hash": "58834795f6f3c617a01aece8ddd39ee5ad6a4e536bdf64a9913beee13a17a66b"
+        },
+        "AC-015": {
+          "line": "- **AC-015 (REQ-006)**: `mcp/shared/sync-diagnostics.py` および複製された `mcp/{ci-mcp,local-env-mcp}/src/diagnostics-core.ts` が撤去され、両パッケージが `mcp/shared/diagnostics-core.ts`（`RegExp.escape` 対応）を直接参照する。",
+          "hash": "84b7fb85d3de1c0930f77add3801f3b7ff3039f41e7d801f0419defd547aa32b"
+        },
+        "AC-016": {
+          "line": "- **AC-016 (REQ-007)**: `plugins/sdd-quality-loop/config/{readonly,hook}.node.json` が Node.js の config-file 検証に実際に合格し（終了コード 0）、`readonly.node.json` では書き込み・子プロセス起動が `ERR_ACCESS_DENIED` で遮断され、`hook.node.json` では `.sdd/drift-events.jsonl` 以外の書き込み・子プロセス起動が遮断され、`claude-hooks.json` / `codex-hooks.json` / `sdd-guardrails.yml` 等へ配線されている。",
+          "hash": "be9545418d4aa1fabbb7df43b02f11a27229758c7f668990df25b4be2c36ea60"
+        },
+        "AC-017": {
+          "line": "- **AC-017 (REQ-008)**: 旧ラッパー（`generate-sbom.py`, `validate_path.py`, `check-contract.{py,sh,ps1}`, `validate-concept-test.{sh,ps1}`, `render-agent-frontmatter.{sh,ps1}`, `sync-diagnostics.py`, `py-dispatch.{sh,ps1}`）が撤去され、全 CI テストスイート（`v2-guardrails`, `sdd-forge-mcp`, `ci-mcp`, `local-env-mcp`, `cloud-and-ddd`, `installers`, `node26-ts7-optimization`）が通過する。",
+          "hash": "015bd538a0654bb49764cc580fe3a45cc9053862061f8026f5b37176f011465c"
+        }
+      },
+      "amendmentCount": 0
+    },
+    "specs/node26-ts7-mcpv2-optimization/tasks.md": {
+      "fileName": "tasks.md",
+      "rawSha256": "9ce320611e26ff3a852d58957524618957e11ca57cc953f6fe3f50e6a545ce27",
+      "contractSha256": "3de782475336b18b410f0fcbab1eaaeb0a3550b35677cca5a74cbe1003eba813",
+      "identifiers": {},
+      "amendmentCount": 0,
+      "approvalContractSha256": "51f5869546be47f7e0d146d0782b6bc1f38549a9f937fedba0988f5bc2e4f981",
+      "taskApprovals": {
+        "T-001": "Approved",
+        "T-002": "Approved",
+        "T-003": "Approved",
+        "T-004": "Approved",
+        "T-005": "Approved",
+        "T-006": "Approved"
+      }
+    }
+  },
+  "identifiers": {
+    "REQ-001": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **REQ-001 (Node.js 26.13+ 単一基準・TS 7.0 型検査・3 区分計測基盤 — Phase 0)**:",
+      "hash": "89bafe6938aed2e8c7cf60770d71a1ac2b84789254c94c3baa7da469309f46c4"
+    },
+    "REQ-002": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **REQ-002 (2 段階ハイブリッド事前生成 Compile Cache & `sdd-doctor` 診断 — Phase 1)**:",
+      "hash": "71814cba1206f6b9618282c44f50e4dcf07d3f6e037a5d75ba3bfbe307085d97"
+    },
+    "REQ-003": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **REQ-003 (純粋読み取りコアの `.ts` 化と MCP 完全型共有 — Phase 2)**:",
+      "hash": "8ebd825da0394d66a5fd3c74c02516c97b04c3ca113180e0542e5cdbada326ad"
+    },
+    "REQ-004": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **REQ-004 (高速プリミティブ・SQLite 増分スキャン・Git 呼び出し統合 — Phase 2)**:",
+      "hash": "e1751155ce97bd78ef7801da53957d5cef5ae4cdb564dc4db6cd58bea861a5a5"
+    },
+    "REQ-005": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **REQ-005 (5 本のビルドレス `.ts` 集約と通常運用・リリースからの Python / `pwsh` 排除 — Phase 2)**:",
+      "hash": "370a1d3f34a6b0a0aefbfdc5ec8316c194e577acd73be9d8ac7a6957b98a6f73"
+    },
+    "REQ-006": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **REQ-006 (MCP TypeScript SDK v2 移行と共有診断の直接参照化 — Phase 3)**:",
+      "hash": "b997d4dc9064d00b66db8808650e415e84596b6d8a4303ce9235b425c16f3914"
+    },
+    "REQ-007": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **REQ-007 (役割別 `--config-file` 権限プロファイルの全面適用 — Phase 3)**:",
+      "hash": "e39d604192df85428b01fc98b3719af5961b2c223a3052c86b52f612922e50cc"
+    },
+    "REQ-008": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **REQ-008 (旧ラッパーおよび `py-dispatch.{sh,ps1}` の撤去とテスト整合 — Phase 3)**:",
+      "hash": "b42b4ffc3bc532e9f45c5926d6706025058d71a8cbbda955165153d9b141f4db"
+    },
+    "AC-001": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-001 (REQ-001)**: `.github/workflows/{test,release,sdd-guardrails}.yml` のすべての `node-version` が `\"26.13.0\"` であり、`mcp/{sdd-forge-mcp,ci-mcp,local-env-mcp}/package.json` の `engines.node` が `\">=26.13.0\"` である。",
+      "hash": "2dd504ec2177513a05748d88dabfad2d66f5b40f17781084ac0fe4eb1460f694"
+    },
+    "AC-002": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-002 (REQ-001)**: ルート `tsconfig.json` が `erasableSyntaxOnly: true`, `noEmit: true`, `strict: true` を持ち、TS 7.0（`tsc --noEmit -p tsconfig.json`）がエラー 0 件で通過し、`test.yml` に組み込まれている。",
+      "hash": "2cf0433902d2cd557ec9972cddc41cac3843c485ca9b1304c402e867a4c7bb4a"
+    },
+    "AC-003": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-003 (REQ-001)**: `runtime-profile.mjs` が `sdd-forge:startup` / `sdd-forge:scan` / `sdd-forge:exec` の 3 チャネルで計測イベントを発行し、購読者不在時はオーバーヘッドなく動作する。",
+      "hash": "c2cc83475c380c07d9af8fc72d5760a43000e90833be4decad857db9237de9fe"
+    },
+    "AC-004": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-004 (REQ-001)**: `scripts/bench-runtime.ts` が冷起動・温起動・SHA-256・`fs.promises.glob` を計測し JSON レポートを出力でき、`test.yml` にベンチマークおよび `NODE_DISABLE_COMPILE_CACHE=1` 付きカバレッジ計測ジョブが存在する。",
+      "hash": "c3c4262910a3942bd4704b4b1b6db9ee8acca0617bb87f01aea7ce1468cdf4a5"
+    },
+    "AC-005": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-005 (REQ-002)**: `compile-cache.mjs --warmup` が主要エントリのポータブルキャッシュを生成し、`release.yml`（Stage 1）と `install.sh` / `install.ps1`（Stage 2）に組み込まれ、`install-payload.txt` に `.sdd-compile-cache/` が記載されている。",
+      "hash": "8e8c2b6cf7e80c9f919f2cc1dc0307388f4b1dfccc8545d7a8c9b3ece04463ec"
+    },
+    "AC-006": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-006 (REQ-002)**: 全 4 ホストのフックマニフェストが `NODE_COMPILE_CACHE`・`NODE_COMPILE_CACHE_PORTABLE=1`・`NODE_COMPILE_CACHE_READONLY=1` を設定し、`sdd-soft-guard.mjs` の初回起動からポータブルキャッシュを参照できる。",
+      "hash": "c4b41924f7a6dbf8dc3f271adbe8f6612dab4e6b26ff90bb82dc9b51627b11a0"
+    },
+    "AC-007": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-007 (REQ-002)**: `sdd-doctor.mjs --rebuild-cache` がキャッシュを再生成でき、通常診断で `runtime-node-version`・`compile-cache`・`git-performance-config` を報告し、かつ本リポジトリで `summary.ng === 0` を維持する。",
+      "hash": "48e0a26e5c461a8c71d31942abf774bcf17989ffd7ce8b843edc1c5fa634390d"
+    },
+    "AC-008": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-008 (REQ-003)**: `plugins/sdd-quality-loop/scripts/v2/v2-readonly-core.ts` が純粋読み取り不変条件（`node:fs`・`process.env`・書込 API ゼロ）を満たしつつ TS 7.0 型検査を通過し、`mcp/sdd-forge-mcp/src/` から直接インポート・型共有されている。",
+      "hash": "282c0feb3ff5cac14aa1b6ac8dbe641f732d84afa690a61234595085b5b0546f"
+    },
+    "AC-009": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-009 (REQ-004)**: `v2-pure-lib.mjs` の `sha256Text` が `crypto.hash('sha256', ...)` を、`escapeRegExp` が `RegExp.escape` を使用し、既存ハッシュ・正規表現テストと完全一致する。",
+      "hash": "561033f39a982bcf9d85bdd3c329c3cd97486e41083a7f354dc5fc393af9c441"
+    },
+    "AC-010": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-010 (REQ-004)**: `scan-cache.mjs` が `node:sqlite` により未変更ファイルの増分スキャンスキップを行い、読取専用環境でも安全にフォールバックし、`run-sdd-gate.mjs` が `fs.promises.glob` 並列スキャン・`AbortSignal.timeout()`・`git status --porcelain=v2 -z`・`git cat-file --batch` を使用する。",
+      "hash": "3cf858a6010b8b19216d25ec7fb37d1820aa5aada0518ae42dc1031ceb5183bd"
+    },
+    "AC-011": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-011 (REQ-004)**: `run-sdd-gate.mjs` が Concept Test 検証を `node` で `validate-concept-test.ts` 直接実行し、`pwsh` / `sh` を起動しない。",
+      "hash": "8d3434899a2465479d79bf29a0ee7b1a2e893b8b6715389ff33fc859e31b732e"
+    },
+    "AC-012": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-012 (REQ-004)**: `task-lock.mjs` の `acquireTaskLockHandle` が `[Symbol.dispose]()` で決定論的にロック解放し、`Temporal` 優先ヘルパーを持ち、`factory-metrics.mjs` の `summarizeMetricsWithSqlite` が `node:sqlite` で p95・サマリを算出する。",
+      "hash": "f7ffeb07353c62a4bc3d952eb7fc8267246b4a1d7322d71fd562c19ae4459101"
+    },
+    "AC-013": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-013 (REQ-005)**: 5 本の `.ts` スクリプト（`generate-sbom.ts`, `validate-path.ts`, `check-contract.ts`, `validate-concept-test.ts`, `render-agent-frontmatter.ts`）がすべて外部依存ゼロで動作し、期待仕様と厳密一致する（`release.yml` は `node .github/scripts/generate-sbom.ts` を実行する）。",
+      "hash": "4696cb9bbad794f353ae39267fd935a1a3411c95e1734d9da0630235d6af51d7"
+    },
+    "AC-014": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-014 (REQ-006)**: `mcp/sdd-forge-mcp` と `mcp/ci-mcp` が `@modelcontextprotocol/server@^2.4.0` でビルド・起動・テスト通過し、`sdd-forge-mcp` が 4 ツール・2 リソースに `cacheHints`（`ttlMs`, `cacheScope`）を付与する。`mcp/local-env-mcp` は非推奨と明記される。",
+      "hash": "58834795f6f3c617a01aece8ddd39ee5ad6a4e536bdf64a9913beee13a17a66b"
+    },
+    "AC-015": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-015 (REQ-006)**: `mcp/shared/sync-diagnostics.py` および複製された `mcp/{ci-mcp,local-env-mcp}/src/diagnostics-core.ts` が撤去され、両パッケージが `mcp/shared/diagnostics-core.ts`（`RegExp.escape` 対応）を直接参照する。",
+      "hash": "84b7fb85d3de1c0930f77add3801f3b7ff3039f41e7d801f0419defd547aa32b"
+    },
+    "AC-016": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-016 (REQ-007)**: `plugins/sdd-quality-loop/config/{readonly,hook}.node.json` が Node.js の config-file 検証に実際に合格し（終了コード 0）、`readonly.node.json` では書き込み・子プロセス起動が `ERR_ACCESS_DENIED` で遮断され、`hook.node.json` では `.sdd/drift-events.jsonl` 以外の書き込み・子プロセス起動が遮断され、`claude-hooks.json` / `codex-hooks.json` / `sdd-guardrails.yml` 等へ配線されている。",
+      "hash": "be9545418d4aa1fabbb7df43b02f11a27229758c7f668990df25b4be2c36ea60"
+    },
+    "AC-017": {
+      "file": "specs/node26-ts7-mcpv2-optimization/requirements.md",
+      "line": "- **AC-017 (REQ-008)**: 旧ラッパー（`generate-sbom.py`, `validate_path.py`, `check-contract.{py,sh,ps1}`, `validate-concept-test.{sh,ps1}`, `render-agent-frontmatter.{sh,ps1}`, `sync-diagnostics.py`, `py-dispatch.{sh,ps1}`）が撤去され、全 CI テストスイート（`v2-guardrails`, `sdd-forge-mcp`, `ci-mcp`, `local-env-mcp`, `cloud-and-ddd`, `installers`, `node26-ts7-optimization`）が通過する。",
+      "hash": "015bd538a0654bb49764cc580fe3a45cc9053862061f8026f5b37176f011465c"
+    }
+  }
+}

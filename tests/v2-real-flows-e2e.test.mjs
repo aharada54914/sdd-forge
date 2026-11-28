@@ -316,32 +316,30 @@ test('AC-002', () => assert.equal(calculateCancelFee(25), 500));
       cleanEnv.PATH = emptyBin;
 
       if (process.platform !== 'win32') {
-        const missingHelperDir = path.join(tmp, 'sh-missing-helper', 'plugins/sdd-domain/scripts');
-        fs.mkdirSync(missingHelperDir, { recursive: true });
-        const shMissing = path.join(missingHelperDir, 'finalize-domain-review.sh');
+        const missingMasterDir = path.join(tmp, 'sh-missing-master', 'plugins/sdd-domain/scripts');
+        fs.mkdirSync(missingMasterDir, { recursive: true });
+        const shMissing = path.join(missingMasterDir, 'finalize-domain-review.sh');
         fs.copyFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/scripts/finalize-domain-review.sh'), shMissing);
 
-        const resMissingHelper = spawnSync('/bin/sh', [shMissing], { cwd: tmp, encoding: 'utf8' });
-        assert.equal(resMissingHelper.status, 3, resMissingHelper.stderr);
-        assert.equal(resMissingHelper.stdout, '');
-        const helperLines = resMissingHelper.stderr.trimEnd().split(/\r?\n/);
+        const resMissingMaster = spawnSync('/bin/sh', [shMissing], { cwd: tmp, encoding: 'utf8' });
+        assert.equal(resMissingMaster.status, 3, resMissingMaster.stderr);
+        assert.equal(resMissingMaster.stdout, '');
+        const masterLines = resMissingMaster.stderr.trimEnd().split(/\r?\n/);
         assert.equal(
-          helperLines[0],
-          'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: lib/py-dispatch.sh unavailable beside this script',
+          masterLines[0],
+          'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: finalize-domain-review.py unavailable beside this script',
         );
-        assert.match(helperLines[1] || '', /operation=finalize-domain-review/);
-        assert.match(helperLines[1] || '', /cause=missing-dispatch-helper/);
+        assert.match(masterLines[1] || '', /operation=finalize-domain-review/);
+        assert.match(masterLines[1] || '', /cause=missing-python-master/);
 
         const missingPyRoot = path.join(tmp, 'sh-missing-py');
         const missingPyDir = path.join(missingPyRoot, 'plugins/sdd-domain/scripts');
-        const libDir = path.join(missingPyRoot, 'plugins/sdd-quality-loop/scripts/lib');
         fs.mkdirSync(missingPyDir, { recursive: true });
-        fs.mkdirSync(libDir, { recursive: true });
         const shMissingPy = path.join(missingPyDir, 'finalize-domain-review.sh');
         fs.copyFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/scripts/finalize-domain-review.sh'), shMissingPy);
         fs.copyFileSync(
-          path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh'),
-          path.join(libDir, 'py-dispatch.sh'),
+          path.join(REPO_ROOT, 'plugins/sdd-domain/scripts/finalize-domain-review.py'),
+          path.join(missingPyDir, 'finalize-domain-review.py'),
         );
 
         const resMissingPy = spawnSync('/bin/sh', [shMissingPy], { cwd: tmp, env: cleanEnv, encoding: 'utf8' });
@@ -361,18 +359,18 @@ test('AC-002', () => assert.equal(calculateCancelFee(25), 500));
       );
       if (pwshProbe.status === 0 && pwshProbe.stdout.trim()) {
         const pwshDir = path.dirname(pwshProbe.stdout.trim());
-        const missingHelperDir = path.join(tmp, 'ps1-missing-helper', 'plugins/sdd-domain/scripts');
-        fs.mkdirSync(missingHelperDir, { recursive: true });
-        const ps1Missing = path.join(missingHelperDir, 'finalize-domain-review.ps1');
+        const missingMasterDir = path.join(tmp, 'ps1-missing-master', 'plugins/sdd-domain/scripts');
+        fs.mkdirSync(missingMasterDir, { recursive: true });
+        const ps1Missing = path.join(missingMasterDir, 'finalize-domain-review.ps1');
         fs.copyFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/scripts/finalize-domain-review.ps1'), ps1Missing);
 
-        const resPsHelper = spawnSync('pwsh', ['-NoProfile', '-File', ps1Missing], { cwd: tmp, encoding: 'utf8' });
-        assert.equal(resPsHelper.status, 3, resPsHelper.stderr);
-        assert.equal(resPsHelper.stdout, '');
-        const psHelperLines = resPsHelper.stderr.trimEnd().split(/\r?\n/);
+        const resPsMaster = spawnSync('pwsh', ['-NoProfile', '-File', ps1Missing], { cwd: tmp, encoding: 'utf8' });
+        assert.equal(resPsMaster.status, 3, resPsMaster.stderr);
+        assert.equal(resPsMaster.stdout, '');
+        const psMasterLines = resPsMaster.stderr.trimEnd().split(/\r?\n/);
         assert.equal(
-          psHelperLines[0],
-          'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: lib/py-dispatch.ps1 unavailable beside this script',
+          psMasterLines[0],
+          'finalize-domain-review: FINALIZE_DOMAIN_REVIEW_RUNTIME_UNAVAILABLE: finalize-domain-review.py unavailable beside this script',
         );
 
         const colocatedPython = ['python3', 'python', 'python3.exe', 'python.exe'].some((name) =>
@@ -381,14 +379,12 @@ test('AC-002', () => assert.equal(calculateCancelFee(25), 500));
         if (!colocatedPython) {
           const missingPyRoot = path.join(tmp, 'ps1-missing-py');
           const missingPyDir = path.join(missingPyRoot, 'plugins/sdd-domain/scripts');
-          const libDir = path.join(missingPyRoot, 'plugins/sdd-quality-loop/scripts/lib');
           fs.mkdirSync(missingPyDir, { recursive: true });
-          fs.mkdirSync(libDir, { recursive: true });
           const ps1MissingPy = path.join(missingPyDir, 'finalize-domain-review.ps1');
           fs.copyFileSync(path.join(REPO_ROOT, 'plugins/sdd-domain/scripts/finalize-domain-review.ps1'), ps1MissingPy);
           fs.copyFileSync(
-            path.join(REPO_ROOT, 'plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1'),
-            path.join(libDir, 'py-dispatch.ps1'),
+            path.join(REPO_ROOT, 'plugins/sdd-domain/scripts/finalize-domain-review.py'),
+            path.join(missingPyDir, 'finalize-domain-review.py'),
           );
 
           const resPsPy = spawnSync(

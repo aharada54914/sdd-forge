@@ -8,9 +8,8 @@
 
 import { readFileSync } from "node:fs";
 import { Ajv2020 } from "ajv/dist/2020.js";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
+import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
+import { CallToolResultSchema } from "@modelcontextprotocol/core";
 import { buildServer } from "../../src/server.js";
 import type { SddRoot } from "../../src/root.js";
 import { repoPath } from "../locate-source.js";

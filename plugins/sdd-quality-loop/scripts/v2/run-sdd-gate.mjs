@@ -35,8 +35,10 @@ import {
   isMainModule,
 } from './guardrails-lib.mjs';
 import { mergeOpenQuestions, parseOpenQuestions } from './render-decision-view.mjs';
+import { profilePhase, recordStartup } from './runtime-profile.mjs';
+import { openScanCache } from './scan-cache.mjs';
 import { extractScopePaths, isApprovedValue, normalizeRiskTier, taskEvidenceInputs } from './v2-readonly-core.mjs';
-import { globToRegExp } from './v2-pure-lib.mjs';
+import { escapeRegExp, globToRegExp } from './v2-pure-lib.mjs';
 
 // The detector is itself scanned. Keep the expression distinct from the text it matches.
 const PLACEHOLDER_RE =
@@ -69,7 +71,7 @@ function truncateTail(text) {
 export function parseTaskBlock(tasksContent, taskId) {
   const { beforeAmendments, afterAmendments } = splitSpecAmendments(tasksContent || '');
   const body = afterAmendments ? `${beforeAmendments}\n\n${afterAmendments}` : beforeAmendments;
-  const escaped = taskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = escapeRegExp(taskId);
   // The ID must end at whitespace or end of line, exactly like the planner and
   // MCP (parseTasksSummary): `T-001` must never match `## T-001.1` (#821).
   const headerRe = new RegExp(`^##[ \\t]+${escaped}(?:[ \\t].*)?$`, 'im');
@@ -94,9 +96,187 @@ export function parseTaskBlock(tasksContent, taskId) {
   };
 }
 
+/**
+ * Single-invocation Git status parser using `--porcelain=v2 -z` (ADR-0055).
+ * Returns tracked/modified/renamed/untracked paths relative to the Git repo root.
+ */
+export function readGitStatusPorcelainV2(projectRoot) {
+  const out = execFileSync(
+    'git',
+    ['-c', 'core.quotePath=false', 'status', '--porcelain=v2', '-z', '--untracked-files=all'],
+    {
+      cwd: projectRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+      maxBuffer: 16 * 1024 * 1024,
+    },
+  );
+  const tokens = out.split('\0');
+  const paths = [];
+  for (let i = 0; i < tokens.length; i += 1) {
+    const entry = tokens[i];
+    if (!entry) continue;
+    if (entry.startsWith('? ') || entry.startsWith('! ')) {
+      paths.push(entry.slice(2));
+    } else if (entry.startsWith('1 ')) {
+      const parts = entry.split(' ');
+      if (parts.length >= 9) paths.push(parts.slice(8).join(' '));
+    } else if (entry.startsWith('2 ')) {
+      const parts = entry.split(' ');
+      if (parts.length >= 10) paths.push(parts.slice(9).join(' '));
+      // Rename/copy entries are followed by an extra NUL-terminated original path token.
+      i += 1;
+    } else if (entry.startsWith('u ')) {
+      const parts = entry.split(' ');
+      if (parts.length >= 11) paths.push(parts.slice(10).join(' '));
+    }
+  }
+  return paths;
+}
+
+/**
+ * Single-invocation Git blob reader using `git cat-file --batch` (ADR-0055).
+ * Reads multiple object IDs in one process instead of spawning `cat-file blob` per OID.
+ */
+export function readGitBlobsBatch(projectRoot, oids, { env = null } = {}) {
+  const list = Array.isArray(oids) ? oids.filter((o) => typeof o === 'string' && /^[0-9a-f]{40,64}$/i.test(o)) : [];
+  const blobs = new Map();
+  if (list.length === 0) return blobs;
+  const cleanEnv =
+    env || Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
+  const raw = execFileSync(
+    'git',
+    ['--no-replace-objects', '--literal-pathspecs', '-C', projectRoot, 'cat-file', '--batch'],
+    {
+      input: `${list.join('\n')}\n`,
+      env: cleanEnv,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: 32 * 1024 * 1024,
+    },
+  );
+  let offset = 0;
+  let idx = 0;
+  while (offset < raw.length && idx < list.length) {
+    const nl = raw.indexOf(0x0a, offset);
+    if (nl === -1) break;
+    const header = raw.subarray(offset, nl).toString('utf8');
+    offset = nl + 1;
+    const requestedOid = list[idx++];
+    if (header.endsWith(' missing')) continue;
+    const parts = header.split(' ');
+    const size = Number.parseInt(parts[2] || '', 10);
+    if (!Number.isFinite(size) || size < 0) break;
+    blobs.set(requestedOid, raw.subarray(offset, offset + size).toString('utf8'));
+    offset += size + 1; // trailing LF after each object payload
+  }
+  return blobs;
+}
+
+/**
+ * Async file collector using native `fs.promises.glob` with optional timeout signal (ADR-0055).
+ */
+export async function collectFilesWithGlob(projectRoot, patterns, { timeoutMs = 30000 } = {}) {
+  const list = Array.isArray(patterns) ? patterns : [patterns];
+  const signal = typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(timeoutMs) : null;
+  const collected = new Set();
+  for (const pattern of list) {
+    if (signal?.aborted) throw signal.reason || new Error('Glob scan timed out');
+    for await (const entry of fs.promises.glob(pattern, { cwd: projectRoot })) {
+      if (signal?.aborted) throw signal.reason || new Error('Glob scan timed out');
+      collected.add(normalizeRelPath(entry));
+    }
+  }
+  return [...collected].sort();
+}
+
+/**
+ * Concurrency-bounded async placeholder scanner using `node:sqlite` incremental
+ * scan cache and `AbortSignal.timeout()` (ADR-0055).
+ */
+export async function scanPlaceholdersAsync(
+  projectRoot,
+  changedFiles,
+  { concurrency = 16, timeoutMs = 30000, scanCache = null } = {},
+) {
+  const targets = changedFiles.filter(isPlaceholderScanTarget);
+  const signal = typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(timeoutMs) : null;
+  const ownCache = !scanCache;
+  const cache = scanCache || openScanCache(projectRoot);
+  const findings = [];
+  let cursor = 0;
+
+  async function worker() {
+    while (cursor < targets.length) {
+      if (signal?.aborted) throw signal.reason || new Error('Placeholder scan timed out');
+      const rel = targets[cursor++];
+      const abs = path.join(projectRoot, rel);
+      let stat;
+      try {
+        stat = await fs.promises.stat(abs);
+      } catch {
+        continue;
+      }
+      if (!stat.isFile()) continue;
+      const cached = cache.get(rel, 'placeholders:v1', stat.mtimeMs, stat.size);
+      if (Array.isArray(cached)) {
+        findings.push(...cached);
+        continue;
+      }
+      const raw = await fs.promises.readFile(abs, { encoding: 'utf8', signal: signal || undefined });
+      const lines = normalizeNewlines(raw).split('\n');
+      const fileFindings = [];
+      for (let i = 0; i < lines.length; i += 1) {
+        if (PLACEHOLDER_RE.test(lines[i])) {
+          fileFindings.push({ file: rel, line: i + 1, text: lines[i].trim().slice(0, 160) });
+        }
+      }
+      cache.set(rel, 'placeholders:v1', stat.mtimeMs, stat.size, fileFindings);
+      findings.push(...fileFindings);
+    }
+  }
+
+  try {
+    const workerCount = Math.max(1, Math.min(concurrency, targets.length || 1));
+    await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  } finally {
+    if (ownCache) cache.close();
+  }
+
+  findings.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
+  return {
+    passed: findings.length === 0,
+    scannedFiles: targets,
+    findings,
+  };
+}
+
 export function discoverChangedFiles(projectRoot, explicitFiles, { baseRef = null } = {}) {
   if (Array.isArray(explicitFiles) && explicitFiles.length > 0) {
     return [...new Set(explicitFiles.map((f) => normalizeRelPath(f)).filter(Boolean))];
+  }
+  // Fast single-process path when checking uncommitted changes against HEAD (#ADR-0055).
+  if (baseRef === null) {
+    try {
+      const prefix = execFileSync('git', ['rev-parse', '--show-prefix'], {
+        cwd: projectRoot,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim();
+      const rawPaths = readGitStatusPorcelainV2(projectRoot);
+      const files = new Set();
+      for (const entry of rawPaths) {
+        let rel = normalizeRelPath(entry);
+        if (!rel) continue;
+        if (prefix) {
+          if (!rel.startsWith(prefix)) continue;
+          rel = normalizeRelPath(rel.slice(prefix.length));
+        }
+        if (rel) files.add(rel);
+      }
+      return [...files];
+    } catch {
+      // Fall through to diff/ls-files fallback if git status cannot run
+    }
   }
   // Default: uncommitted changes against HEAD. --base <ref> widens it to every
   // change since that commit, for a task that committed part of its work
@@ -167,18 +347,32 @@ function isPlaceholderScanTarget(relPath) {
   return true;
 }
 
-function scanPlaceholders(projectRoot, changedFiles) {
+function scanPlaceholders(projectRoot, changedFiles, scanCache = null) {
   const findings = [];
   for (const rel of changedFiles) {
     if (!isPlaceholderScanTarget(rel)) continue;
     const abs = path.join(projectRoot, rel);
-    if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) continue;
+    let stat;
+    try {
+      stat = fs.statSync(abs, { throwIfNoEntry: false });
+    } catch {
+      continue;
+    }
+    if (!stat || !stat.isFile()) continue;
+    const cached = scanCache ? scanCache.get(rel, 'placeholders:v1', stat.mtimeMs, stat.size) : null;
+    if (Array.isArray(cached)) {
+      findings.push(...cached);
+      continue;
+    }
     const lines = normalizeNewlines(fs.readFileSync(abs, 'utf8')).split('\n');
+    const fileFindings = [];
     for (let i = 0; i < lines.length; i += 1) {
       if (PLACEHOLDER_RE.test(lines[i])) {
-        findings.push({ file: rel, line: i + 1, text: lines[i].trim().slice(0, 160) });
+        fileFindings.push({ file: rel, line: i + 1, text: lines[i].trim().slice(0, 160) });
       }
     }
+    if (scanCache) scanCache.set(rel, 'placeholders:v1', stat.mtimeMs, stat.size, fileFindings);
+    findings.push(...fileFindings);
   }
   return {
     passed: findings.length === 0,
@@ -421,7 +615,7 @@ function scanCloudIac(rel, raw, findings) {
   }
 }
 
-function scanNonFunctionalSensors(projectRoot, changedFiles) {
+function scanNonFunctionalSensors(projectRoot, changedFiles, scanCache = null) {
   const findings = [];
   for (const rel of changedFiles) {
     const lower = normalizeRelPath(rel).toLowerCase();
@@ -429,20 +623,32 @@ function scanNonFunctionalSensors(projectRoot, changedFiles) {
       continue;
     }
     const abs = path.join(projectRoot, rel);
-    if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) continue;
+    let stat;
+    try {
+      stat = fs.statSync(abs, { throwIfNoEntry: false });
+    } catch {
+      continue;
+    }
+    if (!stat || !stat.isFile()) continue;
+    const cached = scanCache ? scanCache.get(rel, 'sensors:v1', stat.mtimeMs, stat.size) : null;
+    if (Array.isArray(cached)) {
+      findings.push(...cached);
+      continue;
+    }
+    const fileFindings = [];
     const raw = normalizeNewlines(fs.readFileSync(abs, 'utf8'));
     const lines = raw.split('\n');
 
     for (let i = 0; i < lines.length; i += 1) {
       for (const rule of SECRET_SENSOR_RULES) {
         if (rule.re.test(lines[i])) {
-          findings.push({ rule: rule.id, domain: 'Security', file: rel, line: i + 1, message: rule.msg });
+          fileFindings.push({ rule: rule.id, domain: 'Security', file: rel, line: i + 1, message: rule.msg });
         }
       }
     }
 
     if (lower.endsWith('.sql')) {
-      scanSqlStatements(rel, raw, findings);
+      scanSqlStatements(rel, raw, fileFindings);
     }
 
     const isIac =
@@ -451,8 +657,10 @@ function scanNonFunctionalSensors(projectRoot, changedFiles) {
       ((lower.includes('infra/') || lower.includes('iac/') || lower.includes('cdk/') || lower.includes('cloudformation')) &&
         /\.(?:ts|js|py|ya?ml|json)$/.test(lower));
     if (isIac) {
-      scanCloudIac(rel, raw, findings);
+      scanCloudIac(rel, raw, fileFindings);
     }
+    if (scanCache) scanCache.set(rel, 'sensors:v1', stat.mtimeMs, stat.size, fileFindings);
+    findings.push(...fileFindings);
   }
   const blockingFindings = findings.filter((f) => f.severity !== 'advisory');
   const advisoryFindings = findings.filter((f) => f.severity === 'advisory');
@@ -694,10 +902,23 @@ function conceptRecord(root, feature) {
   const entries = all.filter(entry => entry.split('\t')[1] !== approval);
   if (entries.length === 0) return all.length > 0 ? 'INDEXED_APPROVAL_ONLY' : 'NONE';
   // The validator reads only the working tree, so name a retired v1 record here.
-  const indexedV1 = entries.some(entry => {
+  // Batch all indexed object reads in a single `git cat-file --batch` call (ADR-0055).
+  const candidateObjects = [];
+  for (const entry of entries) {
     const [meta, filename] = entry.split('\t');
     const [mode, oid] = meta.split(' ');
-    return (mode === '100644' || mode === '100755') && isV1Record(git('cat-file', 'blob', oid), filename);
+    if ((mode === '100644' || mode === '100755') && oid) {
+      candidateObjects.push({ oid, filename });
+    }
+  }
+  const blobs = readGitBlobsBatch(
+    root,
+    candidateObjects.map((c) => c.oid),
+    { env },
+  );
+  const indexedV1 = candidateObjects.some(({ oid, filename }) => {
+    const contents = blobs.get(oid);
+    return typeof contents === 'string' && isV1Record(contents, filename);
   });
   return indexedV1 ? 'INDEXED_V1' : 'PRESENT';
 }
@@ -723,8 +944,8 @@ function checkConceptTest(root, feature) {
         error: `concept-test: BLOCK: ${v1Retired(feature)}. The Git index still holds the v1 record; stage its removal too.`,
       };
     }
-    const win = process.platform === 'win32';
-    const script = fileURLToPath(new URL(`../../../sdd-domain/scripts/validate-concept-test.${win ? 'ps1' : 'sh'}`, import.meta.url));
+    // Execute buildless erasable TypeScript validator directly on Node.js (zero pwsh/sh/python spawn, ADR-0055).
+    const script = fileURLToPath(new URL('../../../sdd-domain/scripts/validate-concept-test.ts', import.meta.url));
     if (!fs.existsSync(script)) {
       // Codex's per-plugin, per-version cache has no sibling sdd-domain (#812).
       return {
@@ -737,8 +958,12 @@ function checkConceptTest(root, feature) {
           + ' node <sdd-forge>/plugins/sdd-quality-loop/scripts/v2/run-sdd-gate.mjs.',
       };
     }
-    const args = [...(win ? ['-NoProfile', '-File'] : []), script, '--root', root, '--feature', feature, '--require-v2'];
-    const result = spawnSync(win ? 'pwsh' : 'sh', args, { cwd: root, encoding: 'utf8' });
+    const result = profilePhase('exec', 'validate-concept-test', () =>
+      spawnSync(process.execPath, [script, '--root', root, '--feature', feature, '--require-v2'], {
+        cwd: root,
+        encoding: 'utf8',
+      }),
+    );
     const status = result.stdout?.trim();
     if (result.status === 0 && status === 'CONTINUE') return { passed: true, status };
     if ((result.status === 2 && status === 'DEFER') || (result.status === 3 && status === 'REJECT')) return { passed: false, status };
@@ -820,11 +1045,25 @@ export function runSddGate({
     }
   }
 
-  const resolvedChanged = discoverChangedFiles(root, changedFiles, { baseRef });
-  const placeholders = scanPlaceholders(root, resolvedChanged);
-  const nonFunctionalSensors = skipSensors
-    ? { skipped: true, passed: true, findings: [] }
-    : { skipped: false, ...scanNonFunctionalSensors(root, resolvedChanged) };
+  const resolvedChanged = profilePhase('scan', 'discover-changed-files', () =>
+    discoverChangedFiles(root, changedFiles, { baseRef }),
+  );
+  const scanCache = openScanCache(root);
+  let placeholders;
+  let nonFunctionalSensors;
+  try {
+    placeholders = profilePhase('scan', 'placeholders', () => scanPlaceholders(root, resolvedChanged, scanCache));
+    nonFunctionalSensors = skipSensors
+      ? { skipped: true, passed: true, findings: [] }
+      : {
+          skipped: false,
+          ...profilePhase('scan', 'non-functional-sensors', () =>
+            scanNonFunctionalSensors(root, resolvedChanged, scanCache),
+          ),
+        };
+  } finally {
+    scanCache.close();
+  }
   const openQuestions = checkOpenQuestionsGate(root, feature, taskState);
   const reviewTickets = checkReviewTickets(root, feature, taskState);
   // Label what lies outside the task's ### Scope (#829). The verdict is not
@@ -995,7 +1234,12 @@ function parseArgs(argv) {
 }
 
 function main() {
-  const opts = parseArgs(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  if (argv.includes('--warmup')) {
+    process.exit(0);
+  }
+  recordStartup('run-sdd-gate');
+  const opts = parseArgs(argv);
   if (!opts.feature || !opts.taskId) {
     process.stderr.write(
       'Usage: node run-sdd-gate.mjs --feature <feature> --task <T-NNN> [--root <dir>] [--cmd "label=command"] [--changed-files "a.js,b.js"] [--base <git-ref>] [--output <path>] [--skip-drift] [--skip-sensors]\n',

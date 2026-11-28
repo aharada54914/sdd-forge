@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   CallToolResultSchema, ListResourcesResultSchema, ListResourceTemplatesResultSchema, ListToolsResultSchema,
-} from "@modelcontextprotocol/sdk/types.js";
+} from "@modelcontextprotocol/core";
 import type { Result } from "../../src/envelope.js";
 import type { ProjectOverviewData } from "../../src/tools/v2.js";
 import { getV2DefValidator, parseEnvelope } from "../core-tools/test-helpers.js";

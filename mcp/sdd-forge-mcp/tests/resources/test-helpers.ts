@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 import type { Result } from "../../src/envelope.js";
 import type { FeatureStateData, ProjectOverviewData } from "../../src/tools/v2.js";
 import { getV2DefValidator } from "../core-tools/test-helpers.js";

@@ -19,11 +19,11 @@ import type { ErrorCode } from "../../src/envelope.js";
 import { ALLOWLIST } from "../../src/allowlist.js";
 import type { AllowlistEntry } from "../../src/allowlist.js";
 
-// Compiled location: mcp/local-env-mcp/dist-test/tests/readonly/. Walk up to
-// the repo root (5 levels: readonly -> tests -> dist-test -> local-env-mcp ->
-// mcp -> repo root) to reach contracts/.
+// Compiled location: mcp/local-env-mcp/dist-test/local-env-mcp/tests/readonly/.
+// Walk up to the repo root (6 levels) to reach contracts/.
 const CONTRACT_PATH = join(
   dirname(fileURLToPath(import.meta.url)),
+  "..",
   "..",
   "..",
   "..",

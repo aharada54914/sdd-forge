@@ -127,17 +127,17 @@ jobs:
           ref: ${{ needs.ci-green.outputs.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - name: Set up Node.js 20 LTS
+      - name: Set up Node.js 26.13 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: "20"
+          node-version: "26.13.0"
       - name: Verify loop checkout
         env:
           RELEASE_SHA: ${{ needs.ci-green.outputs.sha }}
         run: test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
       - name: Run SDD Forge v2 deterministic release suites
         shell: bash
-        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs
+        run: node --test tests/v2-soft-guard.test.mjs tests/v2-spec-drift.test.mjs tests/v2-sdd-core-flow.test.mjs tests/v2-hooks-and-ci.test.mjs tests/v2-real-flows-e2e.test.mjs tests/v2-sdd-doctor.test.mjs tests/v2-software-factory.test.mjs tests/v2-prompts-and-delegation.test.mjs tests/v2-mcp-server.test.mjs tests/v2-antigravity-and-factory.test.mjs tests/node26-ts7-optimization.test.mjs
       - name: Run sdd-doctor health check and POSIX installer checks
         shell: bash
         run: |
@@ -214,12 +214,12 @@ jobs:
           ref: ${{ needs.ci-green.outputs.sha }}
           persist-credentials: false
 
-      - name: Set up Node.js 20 LTS
+      - name: Set up Node.js 26.13 LTS
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: "20"
+          node-version: "26.13.0"
 
-      - name: Build reproducible source tarball
+      - name: Build reproducible source tarball with Stage 1 Portable Compile Cache
         run: |
           set -euo pipefail
           # All consumers use the immutable commit admitted by ci-green. A tag
@@ -228,8 +228,17 @@ jobs:
             echo "Release checkout differs from the CI-verified commit" >&2
             exit 1
           fi
-          git archive --format=tar.gz --prefix="sdd-forge-${TAG}/" -o "$PKG" "$RELEASE_SHA"
-          echo "Built $PKG ($(du -h "$PKG" | cut -f1)) from ${RELEASE_SHA}"
+          stage_dir=$(mktemp -d "$RUNNER_TEMP/release-stage.XXXXXX")
+          trap 'rm -rf -- "$stage_dir"' EXIT
+          git archive --format=tar --prefix="sdd-forge-${TAG}/" "$RELEASE_SHA" | tar -xf - -C "$stage_dir"
+          NODE_COMPILE_CACHE_PORTABLE=1 node "$stage_dir/sdd-forge-${TAG}/plugins/sdd-quality-loop/scripts/v2/compile-cache.mjs" \
+            --warmup \
+            --root "$stage_dir/sdd-forge-${TAG}" \
+            --cache-dir "$stage_dir/sdd-forge-${TAG}/.sdd-compile-cache"
+          SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$RELEASE_SHA")"
+          tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner \
+            -czf "$PKG" -C "$stage_dir" "sdd-forge-${TAG}"
+          echo "Built $PKG ($(du -h "$PKG" | cut -f1)) from ${RELEASE_SHA} (with Stage 1 portable compile cache)"
 
       - name: Release-only real host smoke
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_host_smoke }}
@@ -237,14 +246,14 @@ jobs:
           SDD_RELEASE_HOST_SMOKE: "1"
         run: ./tests/release-host-smoke.sh
 
-      - name: Generate CycloneDX SBOM
+      - name: Generate CycloneDX SBOM (zero-dependency TypeScript, ADR-0055)
         run: |
           set -euo pipefail
           # Scan exactly the bytes being published, including manual tag dispatches.
           snapshot=$(mktemp -d "$RUNNER_TEMP/release-sbom.XXXXXX")
           trap 'rm -rf -- "$snapshot"' EXIT
           tar -xzf "$PKG" -C "$snapshot"
-          python3 .github/scripts/generate-sbom.py \
+          node .github/scripts/generate-sbom.ts \
             --source-root "$snapshot/sdd-forge-${TAG}" \
             --version="$TAG" \
             --repo "${GITHUB_REPOSITORY}" \
@@ -259,38 +268,49 @@ jobs:
       - name: Record immutable build inputs
         run: |
           set -euo pipefail
-          python3 - <<'PYCODE'
-          import json, os
-          from pathlib import Path
-          env = os.environ
-          server, repo = env['GITHUB_SERVER_URL'], env['GITHUB_REPOSITORY']
-          workflow, workflow_ref = env['GITHUB_WORKFLOW_REF'].rsplit('@', 1)
-          repository = f'{server}/{repo}'
-          # GitHub validates the first dependency against the workflow's OIDC identity.
-          dependencies = [{'uri': f'git+{repository}@{workflow_ref}',
-                           'digest': {'gitCommit': env['GITHUB_WORKFLOW_SHA']}}]
-          release_source = {'uri': f'git+{repository}@refs/tags/{env["TAG"]}',
-                            'digest': {'gitCommit': env['RELEASE_SHA']}}
-          if release_source not in dependencies:
-              dependencies.append(release_source)
-          predicate = {
-              'buildDefinition': {
-                  'buildType': 'https://actions.github.io/buildtypes/workflow/v1',
-                  'externalParameters': {'workflow': {
-                      'repository': repository,
-                      'path': workflow.removeprefix(repo + '/'),
-                      'ref': workflow_ref}},
-                  'internalParameters': {'github': {
-                      'event_name': env['GITHUB_EVENT_NAME'],
-                      'repository_id': env['GITHUB_REPOSITORY_ID'],
-                      'repository_owner_id': env['GITHUB_REPOSITORY_OWNER_ID'],
-                      'runner_environment': env['RUNNER_ENVIRONMENT']}},
-                  'resolvedDependencies': dependencies},
-              'runDetails': {
-                  'builder': {'id': f'{server}/{env["GITHUB_WORKFLOW_REF"]}'},
-                  'metadata': {'invocationId': f'{repository}/actions/runs/{env["GITHUB_RUN_ID"]}/attempts/{env["GITHUB_RUN_ATTEMPT"]}'}}}
-          Path('release-provenance.json').write_text(json.dumps(predicate) + '\n')
-          PYCODE
+          node - <<'EOF'
+          import fs from 'node:fs';
+          const env = process.env;
+          const server = env.GITHUB_SERVER_URL;
+          const repo = env.GITHUB_REPOSITORY;
+          const wfRef = env.GITHUB_WORKFLOW_REF || '';
+          const atIdx = wfRef.lastIndexOf('@');
+          const workflow = atIdx >= 0 ? wfRef.slice(0, atIdx) : wfRef;
+          const workflowRef = atIdx >= 0 ? wfRef.slice(atIdx + 1) : '';
+          const repository = `${server}/${repo}`;
+          const dependencies = [{ uri: `git+${repository}@${workflowRef}`, digest: { gitCommit: env.GITHUB_WORKFLOW_SHA } }];
+          const releaseSource = { uri: `git+${repository}@refs/tags/${env.TAG}`, digest: { gitCommit: env.RELEASE_SHA } };
+          if (!dependencies.some((d) => d.uri === releaseSource.uri && d.digest.gitCommit === releaseSource.digest.gitCommit)) {
+            dependencies.push(releaseSource);
+          }
+          const prefix = `${repo}/`;
+          const predicate = {
+            buildDefinition: {
+              buildType: 'https://actions.github.io/buildtypes/workflow/v1',
+              externalParameters: {
+                workflow: {
+                  repository,
+                  path: workflow.startsWith(prefix) ? workflow.slice(prefix.length) : workflow,
+                  ref: workflowRef,
+                },
+              },
+              internalParameters: {
+                github: {
+                  event_name: env.GITHUB_EVENT_NAME,
+                  repository_id: env.GITHUB_REPOSITORY_ID,
+                  repository_owner_id: env.GITHUB_REPOSITORY_OWNER_ID,
+                  runner_environment: env.RUNNER_ENVIRONMENT,
+                },
+              },
+              resolvedDependencies: dependencies,
+            },
+            runDetails: {
+              builder: { id: `${server}/${wfRef}` },
+              metadata: { invocationId: `${repository}/actions/runs/${env.GITHUB_RUN_ID}/attempts/${env.GITHUB_RUN_ATTEMPT}` },
+            },
+          };
+          fs.writeFileSync('release-provenance.json', `${JSON.stringify(predicate)}\n`, 'utf8');
+          EOF
 
       - name: Attest build provenance (sigstore keyless)
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
