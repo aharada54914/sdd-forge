@@ -85,6 +85,34 @@ function Test-PluginsGitHistoryAvailable() {
     & git -C $ScriptRoot rev-parse --is-inside-work-tree *> $null
     return $LASTEXITCODE -eq 0
 }
+# Returns $true when $EvidenceFile's introducing-commit pin is a
+# shallow-clone boundary. --diff-filter=A reports every path that predates
+# the graft as "added" in the boundary commit, so such a pin is
+# indeterminate rather than the moment the review ran. Callers still fail
+# closed; this only lets the diagnostic name the actionable cause (missing
+# history) instead of a stale hash. A shallow clone whose boundary is not
+# the pin, or whose pin reconciles anyway, never reaches this.
+function Test-PluginsPinIsShallowBoundary([string]$EvidenceFile) {
+    if (-not (Test-PluginsGitHistoryAvailable)) { return $false }
+    $shallow = & git -C $ScriptRoot rev-parse --is-shallow-repository 2>$null
+    if ($LASTEXITCODE -ne 0 -or [string]$shallow -cne "true") { return $false }
+    $pin = Get-PluginsPinCommit $EvidenceFile
+    if (-not $pin) { return $false }
+    Push-Location -LiteralPath $ScriptRoot
+    try { $shallowFile = [string](& git rev-parse --git-path shallow 2>$null) } finally { Pop-Location }
+    if ($LASTEXITCODE -ne 0 -or -not $shallowFile) { return $false }
+    if (-not [IO.Path]::IsPathRooted($shallowFile)) { $shallowFile = Join-Path $ScriptRoot $shallowFile }
+    if (-not (Test-Path -LiteralPath $shallowFile -PathType Leaf)) { return $false }
+    return @(Get-Content -LiteralPath $shallowFile) -ccontains $pin
+}
+# The stale-hash diagnostic for a manifest input whose pinned-history
+# reconciliation failed, naming shallow history when that is the cause.
+function Get-StaleManifestInputMessage([string]$Stage, [string]$EvidenceFile) {
+    if (Test-PluginsPinIsShallowBoundary $EvidenceFile) {
+        return "$Stage reviewer manifest input history is shallow; fetch full history (git fetch --unshallow)"
+    }
+    return "$Stage reviewer manifest input hash is stale"
+}
 # Returns $true if $PluginsFile's content matches $Expected either right
 # now, or as of the commit that produced $EvidenceFile (the review contract
 # JSON whose recorded manifest hash is being validated). A release artifact
@@ -2086,7 +2114,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             # hide behind this tolerance).
             if ($manifestRelative -like "plugins/*") {
                 if (-not (Test-PluginsHashMatches $manifestFile ([string]$item.sha256) $contractPath)) {
-                    Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
+                    Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" (Get-StaleManifestInputMessage $Stage $contractPath)
                 }
             } elseif ($manifestRelative -eq "specs/$Feature/investigation.md") {
                 # Tolerated STANDALONE (no --opening needed): the amendment
@@ -2103,7 +2131,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                     if (Test-InvestigationAmendmentReconciles $manifestFile ([string]$item.sha256) $contractPath) {
                         Write-InvestigationAmendmentNotice $Feature $Stage $manifestRelative ([string]$item.sha256) $currentHash
                     } else {
-                        Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
+                        Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" (Get-StaleManifestInputMessage $Stage $contractPath)
                     }
                 }
             } elseif ((Get-Sha256 $manifestFile) -cne [string]$item.sha256) {

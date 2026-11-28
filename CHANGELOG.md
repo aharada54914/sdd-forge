@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **浅いクローンで `check-workflow-state` が「hash is stale」と誤った原因を示す件**: 合格済みレビューの `plugins/*`・`investigation.md` 入力は、レビュー契約を追加したコミット（`git log --diff-filter=A`）時点の内容と照合する。浅いクローン（`--depth`）では境界より前に追加されたファイルがすべて境界コミットで「追加」されたように見えるため、照合先がずれて `<stage> reviewer manifest input hash is stale` と報告していた（クラウド環境の浅いクローンで32件）。照合先が浅いクローンの境界コミットに当たる場合は、.sh 版と .ps1 版の両方で `<stage> reviewer manifest input history is shallow; fetch full history (git fetch --unshallow)` と報告する。判定は従来どおり失敗のままで、変わるのはメッセージだけ。境界が本来の追加コミットと一致する浅いクローンは、従来どおり合格する。
+- **v2-lightweight-guardrails が workflow-state レジストリに未登録**: `specs/workflow-state-registry.json` に `lite` として登録した（`registry-unregistered-directory` の解消）。
+
 ## v2.2.0 (2026-11-28)
 
 ### Breaking
