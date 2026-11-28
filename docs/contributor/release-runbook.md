@@ -60,27 +60,24 @@
 
 環境変数・CLI フラグ・その他の条件分岐によって、このループゲート前提条件を
 スキップする手段は一切ありません（fail-closed、no override）。これは本リポジトリの
-既存ガード方針と一致します。`tests/bump-version-gate.tests.sh` / `.ps1` の
-TEST-004 が実スクリプトソースに対する grep 自己チェックで、この制約が保たれていることを
-継続的に確認しています。
+既存ガード方針と一致します。
+
+### 現在の挙動（2026-11-28 追記）
+
+この節の上の記述は v1 時代のものです。現在の `scripts/bump-version.sh` は、CHANGELOG
+見出しチェックの直後、どのリリース面も書き換える前に、ループスイートではなく v2 の
+試験一式（`node --test tests/v2-*.test.mjs` のうちスクリプトに列挙したもの）と
+`sdd-doctor.mjs --root . --quiet-info` を実行し、失敗すれば `v2 pre-release checks
+failed; no release surface was modified.` で停止します。この前提条件にもバイパスは
+ありません。
 
 ### 検証方法
 
-`tests/bump-version-gate.tests.sh` / `.ps1` は、実リポジトリを一切変更せず、
-tar-copy + ローカル `git init` によるフィクスチャリポジトリコピー上で実
-`scripts/bump-version.sh` を実行します。
-
-- **green path**（TEST-001）: 両ループスイートをトリビアルに合格するスタブへ
-  差し替え、`scripts/bump-version.sh` が exit 0 でリリース面を新バージョンへ
-  書き換えることを確認します。
-- **red path**（TEST-002, TEST-003）: `tests/loop-consistency.tests.sh` /
-  `tests/loop-inventory.tests.sh` のいずれか一方だけを失敗するスタブへ
-  差し替え、`scripts/bump-version.sh` が exit 非 0 で停止し、
-  `git status --porcelain` がゼロ差分（リリース面の変更なし）であることを
-  それぞれ独立に確認します。
-
-これらは `tests/run-all.sh` / `.ps1` と `.github/workflows/test.yml` に
-登録済みで、通常の push/PR CI で継続的に実行されます。
+旧前提条件を固定していた `tests/bump-version-gate.tests.sh` / `.ps1` は v1 時代の
+前提のまま失敗し、どこからも実行されていなかったため、所有者の判断（2026-11-28）で
+削除しました。現在の前提条件を固定する専用の試験はありません。リリースの公開は
+`publish-release.yml` が、対象コミットで `test.yml` が成功していることを確かめてから
+行います。
 
 ## クロスホストの degradation（REQ-004）
 

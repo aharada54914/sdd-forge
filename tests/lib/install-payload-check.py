@@ -417,6 +417,13 @@ class PowerShell:
         "& $env:PAYLOAD_TEST_INSTALLER @params\n"
         "exit 0\n")
 
+    SPLAT = (
+        "$ErrorActionPreference = 'Stop'\n"
+        "$params = @{}\n"
+        "foreach ($property in (ConvertFrom-Json $env:PAYLOAD_TEST_PARAMS).PSObject.Properties) { $params[$property.Name] = $property.Value }\n"
+        "& $env:PAYLOAD_TEST_INSTALLER @params\n"
+        "exit 0\n")
+
     def __init__(self):
         self.pwsh = os.environ.get("PWSH") or shutil.which("pwsh")
 
@@ -437,15 +444,16 @@ class PowerShell:
             env.update(GH_TOKEN=TEST_TOKEN, PAYLOAD_TEST_ARCHIVE=str(archive), PAYLOAD_TEST_INSTALLER=installer,
                        PAYLOAD_TEST_PARAMS=json.dumps(params))
             return run(base + [str(wrapper)], cwd=str(tmp), env=env)
-        argv = base + [installer, "-InstallRoot", str(root), "-Target", "FilesOnly",
-                       "-SkipPluginInstall", "-SkipAgentInstall"]
-        argv += ["-SourceDirectory", str(source)] if source else []
-        argv += ["-SkipMcp"] if skip_mcp else []
-        for name in mcp:  # -File passes one value per use; tests select one MCP at a time
-            argv += ["-Mcp", name]
-        for name in plugins:
-            argv += ["-Plugins", name]
-        return run(argv, cwd=str(tmp), env=env)
+        # -File binds each named parameter once and cannot pass an array, so the
+        # parameters are splatted from JSON, as a caller inside PowerShell would.
+        params = {"InstallRoot": str(root), "Target": "FilesOnly", "SkipPluginInstall": True,
+                  "SkipAgentInstall": True, **({"SourceDirectory": str(source)} if source else {}),
+                  **({"SkipMcp": True} if skip_mcp else {}),
+                  **({"Mcp": list(mcp)} if mcp else {}), **({"Plugins": list(plugins)} if plugins else {})}
+        wrapper = tmp / "splat-wrapper.ps1"
+        wrapper.write_text(self.SPLAT)
+        env.update(PAYLOAD_TEST_INSTALLER=installer, PAYLOAD_TEST_PARAMS=json.dumps(params))
+        return run(base + [str(wrapper)], cwd=str(tmp), env=env)
 
 
 # ---------------------------------------------------------------------------
