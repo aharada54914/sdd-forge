@@ -23,6 +23,18 @@ export function parseTaskExecution(contents: string, feature: string, taskId: st
 const V1_RETIRED = "concept-test: BLOCK: concept-test/v1 records are no longer supported";
 // run-sdd-gate.mjs adds this when only the Git index holds the v1 record.
 const V1_INDEX_NOTE = "The Git index still holds the v1 record";
+// The gate's stop for a retired v1 approval left without its record.
+const LEFTOVER_APPROVAL = /^concept-test: BLOCK: leftover specs\/[^\s]+\/concept-test\.approval\.json from a retired v1 record/;
+const LEFTOVER_INDEX_NOTE = "The Git index still holds it";
+
+/** Only v1 wrote concept-test.approval.json; a copy left behind stops every gate run. */
+export function leftoverApprovalAction(feature: string, observation: string): BlockedAction {
+  const approval = `specs/${feature}/concept-test.approval.json`;
+  return {
+    phase: "blocked", command: `human: delete the leftover ${approval}`,
+    rationale: `${observation} ${approval} は廃止された concept-test/v1 の承認ファイルです。削除してください。Concept Test の記録がある場合は、削除後に配布版の validate-concept-test.sh（PowerShell は .ps1）を --root . --feature ${feature} --require-v2 で再検証し、CONTINUE を確認後に品質ゲートを再実行してください。記録がない場合は、削除後にそのまま品質ゲートを再実行してください。`,
+  };
+}
 
 /** Owner decision 2026-11-26: v1 records are retired and must be recreated as v2. */
 export function retiredV1Action(feature: string, observation: string): BlockedAction {
@@ -36,6 +48,13 @@ export function retiredV1Action(feature: string, observation: string): BlockedAc
 
 export function conceptStopAction(feature: string, status: Stop, source: string, diagnostic?: string): BlockedAction {
   const observation = `${source} の Concept Test の記録は ${status} です。`;
+  if (status === "BLOCK" && diagnostic !== undefined && LEFTOVER_APPROVAL.test(diagnostic)) {
+    const action = leftoverApprovalAction(feature, observation);
+    if (diagnostic.includes(LEFTOVER_INDEX_NOTE)) {
+      action.rationale += " Git のインデックスにも残っているため、その削除もステージしてください。";
+    }
+    return action;
+  }
   if (status === "BLOCK" && diagnostic?.startsWith(V1_RETIRED)) {
     const action = retiredV1Action(feature, observation);
     if (diagnostic.includes(V1_INDEX_NOTE)) {
@@ -80,7 +99,7 @@ interface GateStop {
   status: Stop;
   path: string;
   missingDecision: boolean;
-  /** The stop was the v1 retirement, seen in the working tree or only in the Git index. */
+  /** The stop was the v1 retirement (a v1 record, or its approval left behind), seen in the working tree or only in the Git index. */
   retiredV1?: "working-tree" | "index";
   action: BlockedAction;
 }
@@ -104,8 +123,9 @@ export function recordedConceptStop(root: SddRoot, feature: string, tasks: reado
         action.rationale += " この実行後に提案や判断を更新済みの場合は、対象の Concept Test を再検証し、CONTINUE を確認後に品質ゲートを再実行してください。";
       }
       const error = typeof check.error === "string" ? check.error.trim() : "";
-      const retiredV1 = check.status !== "BLOCK" || !error.startsWith(V1_RETIRED) ? undefined
-        : error.includes(V1_INDEX_NOTE) ? "index" as const : "working-tree" as const;
+      const leftover = LEFTOVER_APPROVAL.test(error);
+      const retiredV1 = check.status !== "BLOCK" || !(leftover || error.startsWith(V1_RETIRED)) ? undefined
+        : error.includes(leftover ? LEFTOVER_INDEX_NOTE : V1_INDEX_NOTE) ? "index" as const : "working-tree" as const;
       return {
         status: check.status, path, action, retiredV1,
         missingDecision: error === "concept-test: BLOCK: run --confirm in a separate human-operated terminal",

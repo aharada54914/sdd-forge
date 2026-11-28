@@ -733,6 +733,25 @@ describe('human concept-test decisions at the public gate', () => {
     }
   });
 
+  it('blocks a leftover v1 approval left without its record, in the working tree or only in the index', (t) => {
+    const { feature, git, run } = setup(t);
+    git('init', '-q');
+    const approval = path.join(feature, 'concept-test.approval.json');
+    fs.writeFileSync(approval, '{}');
+    const worktree = run();
+    assert.equal(worktree.checks.conceptTest.status, 'BLOCK');
+    assert.equal(worktree.checks.conceptTest.error,
+      'concept-test: BLOCK: leftover specs/payments/concept-test.approval.json from a retired v1 record: delete it, then validate again');
+    assert.deepEqual(worktree.checks.commands, []);
+    git('add', 'specs');
+    fs.unlinkSync(approval);
+    const indexed = run();
+    assert.equal(indexed.checks.conceptTest.status, 'BLOCK');
+    assert.match(indexed.checks.conceptTest.error, /leftover specs\/payments\/concept-test\.approval\.json .*The Git index still holds it; stage its removal too\.$/);
+    git('rm', '-q', '--cached', '--', 'specs/payments/concept-test.approval.json');
+    assert.equal(run().checks.conceptTest.status, 'NOT_APPLICABLE');
+  });
+
   it('scopes receipts by feature: another feature\'s record does not apply here', (t) => {
     const { repo, git, run } = setup(t);
     git('init', '-q');
