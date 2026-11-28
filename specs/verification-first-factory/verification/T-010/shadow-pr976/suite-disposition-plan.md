@@ -121,3 +121,32 @@ F1・F2 が通れば、状態遷移を個別の例で確かめていた旧テス
 5. N1〜N4 と F1・F2 を作る。
 6. 非 root 環境で全件を単一実行する。
 7. 独立レビューを行う。
+
+## 実施結果（2026-11-28 追記）
+
+計画の手順1〜5を完了した。確認点はすべて所有者が判断した。
+
+- **Q15:** 上記の前提は誤りだった。現行レンダラーは旧4役を受理し、`human-copy/` にステージ出力していた。所有者は「拒否するよう製品を変更」を選んだ。`render-agent-frontmatter.{sh,ps1}` は `impl-reviewer`・`task-reviewer` を含む対象一覧を、何も書かずに `RENDER_ERROR` で停止する。
+- **investigator のモデル:** `model: inherit` を仕様とした。ルーティング表は契約から生成する（ADR-0055）。
+- **旧文言3スイート:** p0-hardening は同じ要件の v2 文言へ移した。retrospective-loop は回顧・WFI テンプレート・監査役の v2 契約に書き直した。turn-first-workflow は v2 の並列実行規則へ移した。
+- **N2:** 現行ゲートは check-component-coverage を呼ばない。単独の v1 互換ツールとし、TEST-029.3 で検査する（所有者判断）。
+
+| スイート | 処置 | 主なコミット |
+|---|---|---|
+| current-byte-capture | 決定的出力を `generate-gate-capabilities.py --check` へ。FilesOnly の期待値に状態表示用 MCP 本体と受領ファイルを追加（ADR-0052 C-4） | 63a9e720 |
+| generate-gate-capabilities | human-copy と旧 CI 候補の検査を退役。配布物のずれ検査を追加 | 63a9e720 |
+| check-component-coverage | TEST-029.2 を現行ゲートへ。TEST-029.3（N2）を追加 | 63a9e720・83c32034 |
+| host-review-preflight / boundary-reference | 旧呼び出し元・旧台帳の検査を退役。N3 を追加。Copilot 評価者の境界の欠落を修正 | c5f81657 |
+| loop-escalation / retrospective-loop / turn-first-workflow / p0-hardening | 上記のとおり | e525b156 |
+| model-policy-installed | v1 の呼び出し元 fence を前提とする25件を退役。Q15 の拒否試験に置き換え | ea5a63a8 |
+| render-agent-frontmatter | Q15 の製品変更と32通りの拒否試験 | ea5a63a8 |
+| N1・N4・F1・F2 | 形式ゲートの入力パス、ゲート実行記録（ロック拒否を FAIL に数えない修正を含む）、状態の対応検査、通常 FAIL のトレース再生 | cd4b9911 |
+| bootstrap 3スイート | Q03・Q16 | d2d14e63 |
+| design-system-contract | Q04。Q08 の3項目を記録。v2 の文言は共有フィクスチャで両 twin が検査 | 14a982a6 |
+| design-sync-scan / standing-consent | Q07・Q08。挙動は design-sync-policy の実行試験で裏付け | 14a982a6 以降 |
+| compatibility-byte-identical / PLUGIN-CONTRACTS | Q09。公開契約を v2 の標準フロー（Risk 判定）に揃えた | 8ddcc8ce |
+| resolve-project-context-caller-contract | 退役（台帳登録の後に削除） | 8ddcc8ce・503fe4e6 |
+| component-path-ownership-parity | Q11 | ffbcac64 |
+| structural-compatibility | 退役した interviewer・sdd-lite を v1.26.0 から読む（A9 昇格と skip 監査が依存するため維持） | f9bcbb3f |
+
+Q02 は既に release-loop-gate TEST-007 で移行済みだった。
