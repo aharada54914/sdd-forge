@@ -1273,7 +1273,7 @@ try {
     if (Test-Path (Join-Path $mcpValidInstall "mcp/ci-mcp")) {
         throw "-Mcp sdd-forge-mcp (v): ci-mcp was placed despite not being selected"
     }
-    Write-Host "ok: -Mcp sdd-forge-mcp installs only the selected MCP"
+    Write-Host "ok: -Mcp sdd-forge-mcp installs only sdd-forge-mcp"
 }
 finally {
     if (Test-Path $mcpValidRoot) { Remove-Item -Path $mcpValidRoot -Recurse -Force }
@@ -1292,7 +1292,7 @@ try {
     if (-not (Test-Path (Join-Path $mcpLeInstall "mcp/sdd-forge-mcp/dist/index.js"))) {
         throw "-Mcp local-env-mcp (v-le): always-placed sdd-forge-mcp runtime missing"
     }
-    Write-Host "ok: -Mcp local-env-mcp installs only the selected MCP"
+    Write-Host "ok: -Mcp local-env-mcp installs the selected MCP plus the always-placed sdd-forge-mcp runtime"
 }
 finally {
     if (Test-Path $mcpLeRoot) { Remove-Item -Path $mcpLeRoot -Recurse -Force }
@@ -1320,7 +1320,7 @@ try {
     if ($mcpCiOut -notmatch "CI_MCP_GITHUB_TOKEN") {
         throw "-Mcp ci-mcp (v-ci): missing token env var guidance even with -Target FilesOnly"
     }
-    Write-Host "ok: -Mcp ci-mcp installs only the selected MCP, with token guidance"
+    Write-Host "ok: -Mcp ci-mcp installs the selected MCP plus the always-placed sdd-forge-mcp runtime, with token guidance"
 }
 finally {
     if (Test-Path $mcpCiRoot) { Remove-Item -Path $mcpCiRoot -Recurse -Force }
