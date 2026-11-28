@@ -52,29 +52,12 @@ function Invoke-FixedCapture([string]$Fixture, [string]$Destination) {
     if ($LASTEXITCODE -ne 0) { throw 'current capture failed' }
 }
 
+# Q09 (owner decision 2026-11-28): one shared resolver for both runtimes; see
+# tests/lib/track-contract.py and the bash twin.
 function Resolve-ContractTrack([string]$Document, [string]$Fixture, [string]$Flag) {
-    if (-not (Test-Path -LiteralPath $Document -PathType Leaf)) {
-        throw "missing live product contract: $Document"
-    }
-    $text = Get-Content -Raw -LiteralPath $Document
-    $heading = [regex]::Match($text, '(?m)^#{3,4} Compatibility fallback \(no Project Context\)\s*$')
-    if (-not $heading.Success) { throw "missing compatibility fallback section: $Document" }
-    $tail = $text.Substring($heading.Index + $heading.Length)
-    $nextHeading = [regex]::Match($tail, '(?m)^#{1,4} \S')
-    $section = if ($nextHeading.Success) { $tail.Substring(0, $nextHeading.Index) } else { $tail }
-    $rows = @{}
-    foreach ($match in [regex]::Matches($section, '(?m)^\s*([1-4])\.\s+(.+?)\s*$')) {
-        $rows[[int]$match.Groups[1].Value] = $match.Groups[2].Value
-    }
-    if ($rows.Count -ne 4) { throw "incomplete compatibility fallback rows: $Document" }
-
-    $agents = Join-Path $Fixture 'AGENTS.md'
-    $markerPresent = (Test-Path -LiteralPath $agents -PathType Leaf) -and
-        ((Get-Content -LiteralPath $agents) -ccontains 'spec_profile: lite')
-    $row = if ($Flag -ceq '--full') { 1 } elseif ($Flag -ceq '--lite') { 2 } elseif ($markerPresent) { 3 } else { 4 }
-    $track = [regex]::Match($rows[$row], '(?<![A-Za-z])(FULL|LITE)(?![A-Za-z])')
-    if (-not $track.Success) { throw "fallback row $row has no track resolution: $Document" }
-    return $track.Value
+    $out = & python3 (Join-Path $Root 'tests/lib/track-contract.py') $Document $Fixture $Flag 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "contract resolution failed: $out" }
+    return ([string]$out).Trim()
 }
 
 try {
@@ -125,7 +108,7 @@ try {
             $first = Resolve-ContractTrack (Join-Path $ProductRoot 'plugins/sdd-ship/skills/ship/SKILL.md') $fixture $flag
             $second = Resolve-ContractTrack (Join-Path $ProductRoot 'plugins/sdd-ship/skills/ship/SKILL.md') $fixture $flag
             $expected = Resolve-ContractTrack (Join-Path $ProductRoot 'PLUGIN-CONTRACTS.md') $fixture $flag
-            $oracle = if ($flag -ceq '--lite' -or ($flag -ceq 'none' -and $marker -ceq 'present')) { 'LITE' } else { 'FULL' }
+            $oracle = 'STANDARD_BY_RISK'
             if (($first -ceq $second) -and ($first -ceq $expected) -and ($first -ceq $oracle)) {
                 Add-Pass "CLI cell $cell resolves identically from both live product contracts"
             } else { Add-Fail "CLI cell $cell is inconsistent across live product contracts" }

@@ -253,13 +253,18 @@ class CurrentCaptureTests(unittest.TestCase):
         self.assertIn('FAIL: F2 exit-code', result.stdout)
 
     def test_matching_wrong_cli_documents_cannot_define_expected_behavior(self):
-        for name in ('plugins/sdd-ship/skills/ship/SKILL.md', 'PLUGIN-CONTRACTS.md'):
-            text = (self.product / name).read_text(encoding='utf-8')
-            self.edit(name, text.replace('FULL', 'LITE'))
+        # Q09: both documents agreeing on a non-v2 resolution must still fail the oracle.
+        contract = (self.product / 'PLUGIN-CONTRACTS.md').read_text(encoding='utf-8')
+        self.assertIn('| `--full` | present | `STANDARD_BY_RISK` |', contract)
+        self.edit('PLUGIN-CONTRACTS.md', contract.replace('| `--full` | present | `STANDARD_BY_RISK` |', '| `--full` | present | `FULL` |'))
         result = self.run_suite({})
         self.assertNotEqual(0, result.returncode, result.stdout + result.stderr)
-        self.assertIn('FAIL: CLI cell none|absent', result.stdout)
         self.assertIn('FAIL: CLI cell --full|present', result.stdout)
+        self.assertNotIn('FAIL: CLI cell none|absent', result.stdout)
+        ship = (self.product / 'plugins/sdd-ship/skills/ship/SKILL.md').read_text(encoding='utf-8')
+        self.edit('plugins/sdd-ship/skills/ship/SKILL.md', ship.replace('停止せず単一の標準フロー', 'LITE トラック'))
+        result = self.run_suite({})
+        self.assertIn('FAIL: CLI cell none|absent', result.stdout)
 
 
 if __name__ == '__main__':

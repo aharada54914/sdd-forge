@@ -131,17 +131,17 @@ rather than proceeding with an incomplete implementation set.
 ## sdd-ship → internal plugins (v0.15.0+)
 
 **Source**: `plugins/sdd-ship/skills/ship/SKILL.md`
-**Targets**: sdd-implementation (implement-tasks), sdd-quality-loop (quality-gate, lite-gate via sdd-lite), sdd-bootstrap (sdd-adopt preflight)
+**Targets**: sdd-implementation (implement-tasks, implement-task), sdd-quality-loop (sdd-gate, workflow-retrospective), sdd-bootstrap (adopt preflight)
 
 ### Orchestration Contract
 
 sdd-ship is a thin orchestrator. It does not re-implement logic from its dependencies:
 
-1. **Implementation**: delegates entirely to `/sdd-implementation:implement-tasks` (full track) or `/sdd-implementation:implement-task` in document order (lite track).
-2. **Quality gate (full)**: delegates to `/sdd-quality-loop:quality-gate` per task. BLOCKED verdict halts the batch immediately.
-3. **Quality gate (lite)**: delegates to `/sdd-lite:lite-gate` per task. FAIL verdict halts the batch.
-4. **Cross-model verify**: delegates to `/sdd-quality-loop:cross-model-verify` only when `--verify` flag is present AND the task has `Cross-Model: enabled`.
-5. **Retrospective**: delegates to `/sdd-quality-loop:workflow-retrospective` when `--retro` is passed or all tasks reach Done for the first time in the session.
+1. **Implementation**: delegates to `/sdd-implementation:implement-tasks` for several tasks (dependency order, disjoint `### Scope` sets in parallel) or `/sdd-implementation:implement-task` for one `#T-NNN`.
+2. **Quality gate**: delegates to `/sdd-quality-loop:sdd-gate` per task; `run-sdd-gate.mjs` runs the deterministic checks and the independent review decides `Done`. A `FAIL` stops that task.
+3. **Retrospective**: delegates to `/sdd-quality-loop:workflow-retrospective` when `--retro` is passed after every task is `Done`.
+
+The v1 full/lite split (`quality-gate`, `sdd-lite:lite-gate`) and `cross-model-verify` were retired in v2 ([ADR-0051](docs/adr/0051-lightweight-guardrails-and-sdd-core.md)).
 
 ### Security Invariants
 
@@ -152,65 +152,32 @@ sdd-ship is a thin orchestrator. It does not re-implement logic from its depende
 - sdd-ship must never modify files under `plugins/sdd-quality-loop/hooks/` or any `sdd-hook-guard.*` script.
 - sdd-ship must never push to remote or create pull requests without explicit user instruction.
 
-### Track Detection (ADR-0023)
+### Track Detection (v2: one standard flow)
 
-Track selection resolves in three ordered steps, and the order is itself the
-contract. Collapsing steps 1 and 2 into a single "is there a usable Project
-Context?" test is the track-selection fail-open ADR-0023 exists to close: an
-attacker who can induce a validation failure against an existing Project
-Context (sidecar tampering, replay, a key-rotation window) would thereby
-regain the permissive flag-first behaviour.
+v2 has a single standard flow ([ADR-0051](docs/adr/0051-lightweight-guardrails-and-sdd-core.md)).
+`ship` never selects a track: each task's `Risk:` decides what the gate checks.
+`--full` and `--lite` are accepted as compatibility aliases and never stop the
+run; neither `sdd/project-context.yaml` nor a `spec_profile: lite` marker in
+`AGENTS.md` changes the flow (owner decision Q09, 2026-11-28).
 
-1. **Physical presence** — is `sdd/project-context.yaml` present on disk?
-   This is a filesystem test alone. A validator outcome never answers it.
-2. **Approval validity** — when the file IS present,
-   `validate-approval-sidecar` (REQ-005) must PASS before any of its content
-   is trusted.
-3. **Precedence** — only a present-AND-valid Project Context reaches the
-   ADR-0023 rule: once a Project Context exists, a CLI flag may move
-   selection in the stricter direction only.
+<!-- sdd:track-selection-contract v2 -->
 
-<!-- sdd:track-selection-contract v1 -->
-
-| Case | Project Context | Flag | Resolution |
-|---|---|---|---|
-| C1 | physically absent | `--full`, `--lite`, or none | `COMPATIBILITY_FALLBACK` |
-| C2 | physically present, REQ-005 validation fails | `--full`, `--lite`, or none | `PROJECT_CONTEXT_INVALID` |
-| C3 | physically present and valid, `spec_profile: lite` | `--full` | `PROMOTE_FULL` |
-| C4 | physically present and valid, `spec_profile: lite` | `--lite` | `NO_OP_LITE` |
-| C5 | physically present and valid, `spec_profile: full` | `--lite` | `ERROR_STOP` |
-| C6 | physically present and valid, `spec_profile: full` | `--full` | `NO_OP_FULL` |
+| Flag | `spec_profile: lite` in AGENTS.md | Resolution |
+|---|---|---|
+| none | present | `STANDARD_BY_RISK` |
+| none | absent | `STANDARD_BY_RISK` |
+| `--full` | present | `STANDARD_BY_RISK` |
+| `--full` | absent | `STANDARD_BY_RISK` |
+| `--lite` | present | `STANDARD_BY_RISK` |
+| `--lite` | absent | `STANDARD_BY_RISK` |
 
 <!-- /sdd:track-selection-contract -->
 
-Resolutions:
+- `STANDARD_BY_RISK` — run the standard flow; the gate applies each task's
+  `Risk: low | standard | high` rules. No `FULL`/`LITE` track exists to resolve.
 
-- `COMPATIBILITY_FALLBACK` — apply the pre-ADR-0023 priority order below,
-  unchanged. **C1 is the only case that reaches it.**
-- `PROJECT_CONTEXT_INVALID` — stop, and report that name. The Project Context
-  exists but its approval could not be verified, for any REQ-005 reason
-  (missing sidecar, content-schema violation, hash mismatch, HMAC mismatch,
-  unregistered or duplicate approver identity, a not-yet-reached
-  `effective_at`). C2 is **never** treated as C1: a present-but-invalid
-  Project Context must not silently inherit the fallback's permissive
-  behaviour, and must not proceed under an implicit `full` or `lite`
-  selection either.
-- `PROMOTE_FULL` — the flag is stricter than the declared profile; execute as
-  `full`, no error.
-- `NO_OP_LITE` / `NO_OP_FULL` — the flag already matches the declared
-  profile; proceed on that profile.
-- `ERROR_STOP` — `--lite` against a `full` profile would loosen the declared
-  profile. Stop with an explicit message. It is never silently ignored and
-  never silently honoured.
-
-#### Compatibility fallback (no Project Context)
-
-Reached only from case C1, and unchanged from the pre-ADR-0023 contract:
-
-1. `--full` flag → FULL (verifies acceptance-tests.md + traceability.md exist)
-2. `--lite` flag → LITE
-3. `spec_profile: lite` in AGENTS.md → LITE
-4. Default → FULL
+The v1 contract (ADR-0023 cases C1–C6 and its compatibility fallback) is kept
+for reference in the v1.26.0 release.
 
 ### Hook-activation handshake wiring
 

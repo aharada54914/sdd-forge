@@ -265,6 +265,38 @@
       "successors": "tests/v2-real-flows-e2e.test.mjs",
       "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md)",
       "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/resolve-project-context-caller-contract.tests.sh",
+      "git_blob_sha": "8503666a924cb1f021c6d92e00bb68d780156d1a",
+      "reason": "ADR-0051 決定2: 退役した sdd-bootstrap-interviewer の Capability Interview 呼び出し元の固定。v2 のスキルは resolve-project-context を呼ばない",
+      "successors": "tests/compatibility-byte-identical.tests.{sh,ps1}（Q09: Project Context の有無と CLI フラグの6通りを v2 の Risk 判定で検証）; tests/lib/track-contract.py",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md の Q09 / R)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/resolve-project-context-caller-contract.tests.ps1",
+      "git_blob_sha": "b9e4ada77f2a7a85e4523989722e1a83985be570",
+      "reason": "ADR-0051 決定2: 退役した sdd-bootstrap-interviewer の Capability Interview 呼び出し元の固定。v2 のスキルは resolve-project-context を呼ばない",
+      "successors": "tests/compatibility-byte-identical.tests.{sh,ps1}（Q09: Project Context の有無と CLI フラグの6通りを v2 の Risk 判定で検証）; tests/lib/track-contract.py",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md の Q09 / R)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/resolve-project-context-caller-contract-check.py",
+      "git_blob_sha": "1375ab32a4eca38205b8470022454d359a1e8f2c",
+      "reason": "ADR-0051 決定2: 退役した sdd-bootstrap-interviewer の Capability Interview 呼び出し元の固定。v2 のスキルは resolve-project-context を呼ばない",
+      "successors": "tests/compatibility-byte-identical.tests.{sh,ps1}（Q09: Project Context の有無と CLI フラグの6通りを v2 の Risk 判定で検証）; tests/lib/track-contract.py",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md の Q09 / R)",
+      "approved_at": "2026-11-28"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/caller-contract-baseline.json",
+      "git_blob_sha": "8396471097b61817a68603e47326cd95b5667463",
+      "reason": "ADR-0051 決定2: 退役した sdd-bootstrap-interviewer の Capability Interview 呼び出し元の固定。v2 のスキルは resolve-project-context を呼ばない",
+      "successors": "tests/compatibility-byte-identical.tests.{sh,ps1}（Q09: Project Context の有無と CLI フラグの6通りを v2 の Risk 判定で検証）; tests/lib/track-contract.py",
+      "approved_by": "aharada54914 (2026-11-28 所有者承認。T-010 失敗スイート処置計画 suite-disposition-plan.md の Q09 / R)",
+      "approved_at": "2026-11-28"
     }
   ]
 }
