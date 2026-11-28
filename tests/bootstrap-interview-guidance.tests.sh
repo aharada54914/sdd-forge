@@ -103,15 +103,30 @@ fi
 for output in requirements.md design.md; do
   assert_contains "$CORE" "specs/<feature>/$output" "TEST-009 declares Core output $output"
 done
-for output in acceptance-tests.md ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
-  assert_contains "$INTERVIEWER" "specs/<feature>/$output" "TEST-009 declares Phase 1 output $output"
+# Q03 (owner decision 2026-11-28): the v1 Phase 1 outputs (acceptance-tests.md,
+# four layer specs, layer-local unknowns, create-only layer files and the LITE
+# zero-layer rule) retired with the interviewer (ADR-0051 decision 2). The
+# same guarantees are now checked on the three Core documents: each is
+# generated from its template, acceptance criteria live in requirements.md,
+# and no retired output is declared.
+CORE_TEMPLATES="$ROOT/plugins/sdd-bootstrap/skills/sdd-core-spec/templates"
+for doc in requirements design tasks; do
+  assert_contains "$CORE" "templates/$doc.md\` → \`specs/<feature>/$doc.md" "TEST-009 Core generates $doc.md from its template"
+  [ -f "$CORE_TEMPLATES/$doc.md" ] && pass "TEST-009 template $doc.md ships" || fail "TEST-009 template $doc.md ships"
 done
-assert_contains "$INTERVIEWER" 'layer-local unknown|Layer-local unknown' "TEST-009 records layer-local unknowns"
-assert_contains "$INTERVIEWER" 'MUST NOT overwrite|must not overwrite' "TEST-009 existing-layer-files create-only rule"
-assert_contains "$INTERVIEWER" 'preserv(e|ed).*SHA-256|SHA-256.*preserv' "TEST-009 existing-layer-files preserved hashes"
+assert_contains "$CORE" '^3\. \*\*3 ファイル生成' "TEST-009 Core declares exactly three generated documents"
+assert_contains "$CORE" 'requirements.md.*全 `REQ-NNN` に観測・テスト可能な `AC-NNN`|全 `REQ-NNN` に観測・テスト可能な `AC-NNN` を紐付け' "TEST-009 acceptance criteria are generated in requirements.md"
+assert_contains "$CORE_TEMPLATES/requirements.md" '^- \*\*AC-001\*\* \(REQ-001\): Given .*When .*Then ' "TEST-009 requirements template carries Given/When/Then AC rows bound to a REQ"
+assert_contains "$CORE" '`### Done When`（対応 `AC-NNN` 参照）' "TEST-009 tasks reference their AC in Done When"
+assert_contains "$RUN" 'specs/<feature>/\{requirements,design,tasks\}\.md' "TEST-009 bootstrap hands off the three Core documents"
+for retired in acceptance-tests.md ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+  if grep -Fq "specs/<feature>/$retired" "$CORE" "$RUN"; then
+    fail "TEST-009 retired output $retired is still declared"
+  else
+    pass "TEST-009 retired output $retired is not declared"
+  fi
+done
 assert_contains "$GUIDE" 'No mockup provided — optional visualization skipped' "TEST-018 no-mockup clean skip"
-assert_contains "$RUN" 'ux-spec\.md.*frontend-spec\.md.*infra-spec\.md.*security-spec\.md' "TEST-009 run skill knows layer outputs"
-assert_contains "$RUN" 'LITE.*zero layer outputs|zero layer outputs.*LITE' "TEST-009 LITE produces zero layer outputs"
 
 if [ -f "$GUIDE" ] && [ "$(wc -l < "$GUIDE" | tr -d ' ')" -lt 200 ]; then
   pass "TEST-010 Claude Design guide is under 200 lines"

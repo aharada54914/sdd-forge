@@ -2,9 +2,7 @@
 set -u
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-TEMPLATES="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates"
 CORE_TEMPLATES="$ROOT/plugins/sdd-bootstrap/skills/sdd-core-spec/templates"
-TRACEABILITY="$TEMPLATES/traceability.template.md"
 PASS=0
 FAIL=0
 
@@ -32,40 +30,12 @@ assert_contains "$CORE_TEMPLATES/requirements.md" '^## Open Questions' "TEST-007
 assert_contains "$CORE_TEMPLATES/design.md" '^## 影響範囲・リスク考慮$' "TEST-007 retains risks"
 assert_absent "$CORE_TEMPLATES/design.md" '^## (Frontend|Backend) Plan$' "TEST-007 removes legacy inline plan placeholders"
 
-assert_contains "$TRACEABILITY" 'Requirement.*Layer Spec.*Test ID' "TEST-008 Layer Spec traceability column"
-trace_header=$(grep -m 1 '^| Requirement |' "$TRACEABILITY")
-if [ "$trace_header" = '| Requirement | Investigation | Design | Layer Spec | Code Target | Test ID | Status |' ]; then
-  pass "TEST-008 traceability retains investigation provenance"
-else
-  fail "TEST-008 traceability retains investigation provenance"
-fi
-assert_contains "$TRACEABILITY" '^## Layer Coverage$' "TEST-008 layer coverage summary"
-assert_contains "$TRACEABILITY" 'ux-spec\.md#[a-z0-9-]+' "TEST-008 canonical UX anchor example"
-assert_contains "$TRACEABILITY" 'frontend-spec\.md#[a-z0-9-]+' "TEST-008 canonical frontend anchor example"
-assert_contains "$TRACEABILITY" 'infra-spec\.md#[a-z0-9-]+' "TEST-008 canonical infrastructure anchor example"
-assert_contains "$TRACEABILITY" 'security-spec\.md#[a-z0-9-]+' "TEST-008 canonical security anchor example"
-assert_contains "$TRACEABILITY" 'N/A — cross-layer only: [^|]+' "TEST-008 reasoned cross-layer example"
-
-if ! awk -F '|' '
-  /^\| Requirement / {
-    for (i = 2; i < NF; i++) {
-      name = $i
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", name)
-      if (name == "Layer Spec") layer_spec = i
-    }
-  }
-  /^\| REQ-/ {
-    rows++
-    value = $layer_spec
-    gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-    if (value == "" || value == "N/A") invalid = 1
-  }
-  END { exit (!layer_spec || !rows || invalid) ? 1 : 0 }
-' "$TRACEABILITY"; then
-  fail "TEST-008 no blank or bare N/A Layer Spec examples"
-else
-  pass "TEST-008 no blank or bare N/A Layer Spec examples"
-fi
+# Q16 (owner decision 2026-11-28): the ten checks on the retired interviewer's
+# traceability template (its Layer Spec column, provenance, coverage summary,
+# canonical anchor and N/A examples, and the template passing the validator)
+# retired with the template (ADR-0051 decision 2). The public validators still
+# ship; Q16 below proves both reject a missing requirement, a malformed
+# reference and an N/A without a reason. TEST-007 above is separate.
 
 TMP_WORK=$(mktemp -d)
 trap 'rm -rf "$TMP_WORK"' EXIT
@@ -94,11 +64,45 @@ cat > "$TMP_WORK/requirements.md" <<'EOF'
 - REQ-005
 - REQ-006
 EOF
-if python3 "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" "$TRACEABILITY" "$TMP_WORK/requirements.md"; then
-  pass "TEST-008 shipped layer table template passes the validator"
-else
-  fail "TEST-008 shipped layer table template passes the validator"
-fi
+# Q16: the Python and PowerShell validators accept a complete table and reject
+# each defect with its own diagnostic, identically.
+q16_case() {
+  name=$1 expected=$2 diagnostic=$3
+  shift 3
+  { printf '| Requirement | Layer Spec |\n|---|---|\n'; for row in "$@"; do printf '%s\n' "$row"; done; } > "$TMP_WORK/q16-$name.md"
+  python3 "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" "$TMP_WORK/q16-$name.md" "$TMP_WORK/q16-requirements.md" 2> "$TMP_WORK/q16-py.log"
+  py=$?
+  if [ "$py" -eq "$expected" ] && { [ -z "$diagnostic" ] || grep -F "$diagnostic" "$TMP_WORK/q16-py.log" >/dev/null; }; then
+    pass "Q16 Python validator $name (exit $expected)"
+  else
+    fail "Q16 Python validator $name: exit $py, $(cat "$TMP_WORK/q16-py.log")"
+  fi
+  if command -v pwsh >/dev/null 2>&1; then
+    pwsh -NoProfile -File "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1" \
+      -Path "$TMP_WORK/q16-$name.md" -RequirementsPath "$TMP_WORK/q16-requirements.md" > "$TMP_WORK/q16-ps.log" 2>&1
+    ps=$?
+    if { [ "$expected" -eq 0 ] && [ "$ps" -eq 0 ]; } || { [ "$expected" -ne 0 ] && [ "$ps" -ne 0 ] && grep -F "$diagnostic" "$TMP_WORK/q16-ps.log" >/dev/null; }; then
+      pass "Q16 PowerShell validator $name"
+    else
+      fail "Q16 PowerShell validator $name: exit $ps, $(cat "$TMP_WORK/q16-ps.log")"
+    fi
+  else
+    printf 'SKIP: Q16 PowerShell validator %s (pwsh unavailable)\n' "$name"
+  fi
+}
+printf '# Requirements\n\n- REQ-001\n- REQ-002\n- REQ-003\n' > "$TMP_WORK/q16-requirements.md"
+q16_case complete 0 '' '| REQ-001 | ux-spec.md#journey |' '| REQ-002 | frontend-spec.md#state; security-spec.md#authz |' \
+  '| REQ-003 | N/A — cross-layer only: shared logging helper |'
+q16_case missing-requirement 1 'requirements missing Layer Spec coverage: REQ-003' '| REQ-001 | ux-spec.md#journey |' \
+  '| REQ-002 | infra-spec.md#deploy |'
+for bad in 'api-spec.md#journey' 'ux-spec.md' 'UX-spec.md#journey' 'ux-spec.md#Journey' 'ux-spec.md#journey, infra-spec.md#deploy'; do
+  q16_case "reference-$(printf '%s' "$bad" | tr -c 'a-zA-Z0-9' '-')" 1 "invalid Layer Spec for REQ-002: $bad" \
+    '| REQ-001 | ux-spec.md#journey |' "| REQ-002 | $bad |" '| REQ-003 | infra-spec.md#deploy |'
+done
+for bad in 'N/A' 'N/A — cross-layer only:' 'n/a — cross-layer only: helper'; do
+  q16_case "na-$(printf '%s' "$bad" | tr -c 'a-zA-Z0-9' '-')" 1 "invalid Layer Spec for REQ-003: $bad" \
+    '| REQ-001 | ux-spec.md#journey |' '| REQ-002 | infra-spec.md#deploy |' "| REQ-003 | $bad |"
+done
 # Existing projects can pass layer tables directly to the public validator.
 {
   printf '| Requirement | Layer Spec |\n|---|---|\n'
