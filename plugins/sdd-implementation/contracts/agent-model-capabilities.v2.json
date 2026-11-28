@@ -51,7 +51,7 @@
         "xhigh",
         "max"
       ],
-      "default_effort": "high",
+      "default_effort": "medium",
       "effort_control": {
         "claude-code": "frontmatter",
         "codex-cli": "none"
@@ -63,9 +63,11 @@
       "supported_efforts": [
         "low",
         "medium",
-        "high"
+        "high",
+        "xhigh",
+        "max"
       ],
-      "default_effort": "medium",
+      "default_effort": "high",
       "effort_control": {
         "claude-code": "frontmatter",
         "codex-cli": "none"
@@ -206,6 +208,189 @@
         "claude-code": "none",
         "codex-cli": "flag"
       }
+    },
+    {
+      "name": "anthropic/haiku-5-5",
+      "canonical_tier": "lightweight",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "default_effort": "medium",
+      "effort_control": {
+        "claude-code": "frontmatter",
+        "codex-cli": "none"
+      }
+    },
+    {
+      "name": "anthropic/fable-5-2",
+      "canonical_tier": "strong",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "default_effort": "high",
+      "effort_control": {
+        "claude-code": "frontmatter",
+        "codex-cli": "none"
+      }
+    },
+    {
+      "name": "gpt-6-luna",
+      "canonical_tier": "lightweight",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "default_effort": "high",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "flag"
+      }
+    },
+    {
+      "name": "gpt-6.1-terra",
+      "canonical_tier": "lightweight",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra"
+      ],
+      "default_effort": "medium",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "flag"
+      }
+    },
+    {
+      "name": "gpt-6.1-sol",
+      "canonical_tier": "standard",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra"
+      ],
+      "default_effort": "medium",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "flag"
+      }
+    },
+    {
+      "name": "gpt-6.2-sol",
+      "canonical_tier": "standard",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra"
+      ],
+      "default_effort": "medium",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "flag"
+      }
+    },
+    {
+      "name": "gpt-6.2-astra",
+      "canonical_tier": "strong",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra"
+      ],
+      "default_effort": "low",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "flag"
+      }
+    },
+    {
+      "name": "google/gemini-3.5-flash-lite",
+      "canonical_tier": "lightweight",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default_effort": "low",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "none",
+        "gemini-cli": "none",
+        "antigravity-cli": "none"
+      }
+    },
+    {
+      "name": "google/gemini-4-argon",
+      "canonical_tier": "standard",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "default_effort": "medium",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "none",
+        "gemini-cli": "none",
+        "antigravity-cli": "none"
+      }
+    },
+    {
+      "name": "google/gemini-4-hydrogen",
+      "canonical_tier": "standard",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "default_effort": "medium",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "none",
+        "gemini-cli": "none",
+        "antigravity-cli": "none"
+      }
+    },
+    {
+      "name": "google/gemini-4-carbon",
+      "canonical_tier": "strong",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "default_effort": "high",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "none",
+        "gemini-cli": "none",
+        "antigravity-cli": "none"
+      }
     }
   ],
   "risk_effort_matrix": {
@@ -218,11 +403,7 @@
   "role_defaults": {
     "sdd-evaluator": {
       "minimum_tier": "strong",
-      "default_effort": "high",
-      "claude_frontmatter": {
-        "minimum_tier": "standard",
-        "default_effort": "medium"
-      }
+      "default_effort": "high"
     },
     "sdd-investigator": {
       "minimum_tier": "lightweight",

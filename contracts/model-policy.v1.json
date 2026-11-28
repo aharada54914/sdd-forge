@@ -1,6 +1,6 @@
 {
   "schema": "model-policy/v1",
-  "source_date": "2026-10-21T12:57:21.574569Z",
+  "source_date": "2026-11-28T00:00:00Z",
   "observation_max_age_seconds": 300,
   "default_policy": "latest-compatible",
   "roles": {
@@ -8,40 +8,72 @@
       "capability_role": null,
       "model_env": "SDD_MODEL_IMPLEMENTER",
       "preferences": [
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon",
+        "anthropic/sonnet-5-5",
+        "gpt-6.2-sol",
+        "gpt-6.1-sol",
+        "google/gemini-4-hydrogen",
+        "google/gemini-4-argon"
       ]
     },
     "investigator": {
       "capability_role": "sdd-investigator",
       "model_env": "SDD_MODEL_INVESTIGATOR",
       "preferences": [
+        "anthropic/haiku-5-5",
+        "gpt-6-luna",
+        "gpt-6.1-terra",
+        "google/gemini-3.5-flash-lite",
+        "anthropic/sonnet-5-5",
+        "gpt-6.2-sol",
+        "gpt-6.1-sol",
+        "google/gemini-4-hydrogen",
+        "google/gemini-4-argon",
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon"
       ]
     },
     "spec-reviewer-a": {
       "capability_role": "spec-reviewer",
       "model_env": "SDD_MODEL_SPEC_REVIEWER_A",
       "preferences": [
+        "anthropic/sonnet-5-5",
+        "gpt-6.2-sol",
+        "gpt-6.1-sol",
+        "google/gemini-4-hydrogen",
+        "google/gemini-4-argon",
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon"
       ]
     },
     "spec-reviewer-b": {
       "capability_role": "spec-reviewer",
       "model_env": "SDD_MODEL_SPEC_REVIEWER_B",
       "preferences": [
+        "anthropic/sonnet-5-5",
+        "gpt-6.2-sol",
+        "gpt-6.1-sol",
+        "google/gemini-4-hydrogen",
+        "google/gemini-4-argon",
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon"
       ]
     },
     "impl-reviewer-a": {
@@ -88,70 +120,114 @@
       "capability_role": "sdd-evaluator",
       "model_env": "SDD_MODEL_EVALUATOR",
       "preferences": [
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon"
       ]
     },
     "domain-reviewer-a": {
       "capability_role": "domain-reviewer",
       "model_env": "SDD_MODEL_DOMAIN_REVIEWER_A",
       "preferences": [
+        "anthropic/sonnet-5-5",
+        "gpt-6.2-sol",
+        "gpt-6.1-sol",
+        "google/gemini-4-hydrogen",
+        "google/gemini-4-argon",
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon"
       ]
     },
     "domain-reviewer-b": {
       "capability_role": "domain-reviewer",
       "model_env": "SDD_MODEL_DOMAIN_REVIEWER_B",
       "preferences": [
+        "anthropic/sonnet-5-5",
+        "gpt-6.2-sol",
+        "gpt-6.1-sol",
+        "google/gemini-4-hydrogen",
+        "google/gemini-4-argon",
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon"
       ]
     },
     "workflow-auditor-a": {
       "capability_role": "workflow-auditor",
       "model_env": "SDD_MODEL_WORKFLOW_AUDITOR_A",
       "preferences": [
+        "anthropic/sonnet-5-5",
+        "gpt-6.2-sol",
+        "gpt-6.1-sol",
+        "google/gemini-4-hydrogen",
+        "google/gemini-4-argon",
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon"
       ]
     },
     "workflow-auditor-b": {
       "capability_role": "workflow-auditor",
       "model_env": "SDD_MODEL_WORKFLOW_AUDITOR_B",
       "preferences": [
+        "anthropic/sonnet-5-5",
+        "gpt-6.2-sol",
+        "gpt-6.1-sol",
+        "google/gemini-4-hydrogen",
+        "google/gemini-4-argon",
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon"
       ]
     },
     "diagnosis": {
       "capability_role": "diagnosis",
       "model_env": "SDD_MODEL_DIAGNOSIS",
       "preferences": [
+        "anthropic/sonnet-5-5",
+        "gpt-6.2-sol",
+        "gpt-6.1-sol",
+        "google/gemini-4-hydrogen",
+        "google/gemini-4-argon",
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon"
       ]
     },
     "self-improvement": {
       "capability_role": "self-improvement",
       "model_env": "SDD_MODEL_SELF_IMPROVEMENT",
       "preferences": [
+        "anthropic/sonnet-5-5",
+        "gpt-6.2-sol",
+        "gpt-6.1-sol",
+        "google/gemini-4-hydrogen",
+        "google/gemini-4-argon",
+        "anthropic/opus-5-5",
+        "anthropic/fable-5-2",
+        "gpt-6.2-astra",
         "gpt-6-astra",
-        "anthropic/opus",
-        "anthropic/sonnet",
-        "anthropic/haiku"
+        "google/gemini-4-carbon",
+        "google/gemini-4-neon"
       ]
     },
     "panelist-gpt": {
@@ -293,7 +369,7 @@
       "id": "anthropic/opus-5-5",
       "lifecycle": "current",
       "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
-      "source_date": "2026-11-21T00:00:00Z",
+      "source_date": "2026-11-28T00:00:00Z",
       "successor_of": [
         "anthropic/opus"
       ],
@@ -306,7 +382,7 @@
       "id": "anthropic/sonnet-5-5",
       "lifecycle": "current",
       "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
-      "source_date": "2026-11-21T00:00:00Z",
+      "source_date": "2026-11-28T00:00:00Z",
       "successor_of": [
         "anthropic/sonnet"
       ],
@@ -317,24 +393,155 @@
     },
     {
       "id": "anthropic/fable",
-      "lifecycle": "current",
+      "lifecycle": "candidate",
       "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
       "source_date": "2026-11-21T00:00:00Z",
       "successor_of": [],
       "hosts": {
-        "claude-code": "claude-fable"
+        "claude-code": "fable"
       },
       "adoption": []
     },
     {
       "id": "google/gemini-4-neon",
       "lifecycle": "current",
-      "source_url": "https://ai.google.dev/gemini-api/docs/models",
-      "source_date": "2026-11-21T00:00:00Z",
+      "source_url": "https://aistudio.google.com/docs/models",
+      "source_date": "2026-11-28T00:00:00Z",
       "successor_of": [],
       "hosts": {
         "gemini-cli": "gemini-4-neon",
         "antigravity-cli": "gemini-4-neon"
+      },
+      "adoption": []
+    },
+    {
+      "id": "anthropic/haiku-5-5",
+      "lifecycle": "current",
+      "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [
+        "anthropic/haiku"
+      ],
+      "hosts": {
+        "claude-code": "claude-haiku-5-5"
+      },
+      "adoption": []
+    },
+    {
+      "id": "anthropic/fable-5-2",
+      "lifecycle": "current",
+      "source_url": "https://docs.anthropic.com/en/docs/about-claude/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [
+        "anthropic/fable"
+      ],
+      "hosts": {
+        "claude-code": "claude-fable-5-2"
+      },
+      "adoption": []
+    },
+    {
+      "id": "gpt-6-luna",
+      "lifecycle": "current",
+      "source_url": "https://learn.chatgpt.com/docs/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "codex-cli": "gpt-6-luna"
+      },
+      "adoption": []
+    },
+    {
+      "id": "gpt-6.1-terra",
+      "lifecycle": "current",
+      "source_url": "https://learn.chatgpt.com/docs/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "codex-cli": "gpt-6.1-terra"
+      },
+      "adoption": []
+    },
+    {
+      "id": "gpt-6.1-sol",
+      "lifecycle": "current",
+      "source_url": "https://learn.chatgpt.com/docs/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "codex-cli": "gpt-6.1-sol"
+      },
+      "adoption": []
+    },
+    {
+      "id": "gpt-6.2-sol",
+      "lifecycle": "current",
+      "source_url": "https://learn.chatgpt.com/docs/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "codex-cli": "gpt-6.2-sol"
+      },
+      "adoption": []
+    },
+    {
+      "id": "gpt-6.2-astra",
+      "lifecycle": "current",
+      "source_url": "https://learn.chatgpt.com/docs/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [
+        "gpt-6-astra"
+      ],
+      "hosts": {
+        "codex-cli": "gpt-6.2-astra"
+      },
+      "adoption": []
+    },
+    {
+      "id": "google/gemini-3.5-flash-lite",
+      "lifecycle": "current",
+      "source_url": "https://aistudio.google.com/docs/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "gemini-cli": "gemini-3.5-flash-lite",
+        "antigravity-cli": "gemini-3.5-flash-lite"
+      },
+      "adoption": []
+    },
+    {
+      "id": "google/gemini-4-argon",
+      "lifecycle": "current",
+      "source_url": "https://aistudio.google.com/docs/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "gemini-cli": "gemini-4-argon",
+        "antigravity-cli": "gemini-4-argon"
+      },
+      "adoption": []
+    },
+    {
+      "id": "google/gemini-4-hydrogen",
+      "lifecycle": "current",
+      "source_url": "https://aistudio.google.com/docs/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "gemini-cli": "gemini-4-hydrogen",
+        "antigravity-cli": "gemini-4-hydrogen"
+      },
+      "adoption": []
+    },
+    {
+      "id": "google/gemini-4-carbon",
+      "lifecycle": "current",
+      "source_url": "https://aistudio.google.com/docs/models",
+      "source_date": "2026-11-28T00:00:00Z",
+      "successor_of": [],
+      "hosts": {
+        "gemini-cli": "gemini-4-carbon",
+        "antigravity-cli": "gemini-4-carbon"
       },
       "adoption": []
     }

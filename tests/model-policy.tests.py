@@ -1067,11 +1067,13 @@ class PolicySelection(unittest.TestCase):
     def test_passing_unregistered_model_cannot_be_added_to_policy(self):
         helper = load_helper()
         registry, registered = helper._policy_registry(ROOT / 'contracts/agent-model-capabilities.v2.json')
-        self.assertNotIn('gpt-6.1-sol', registered)
+        # A fixture ID that no registry will carry (gpt-6.1-sol became a registered model on 2026-11-28).
+        unregistered = 'gpt-unregistered-fixture-0'
+        self.assertNotIn(unregistered, registered)
         policy = json.loads((ROOT / 'contracts/model-policy.v1.json').read_text())
         model = copy.deepcopy(next(x for x in policy['models'] if x['id'] == 'gpt-6-astra'))
-        model['id'] = 'gpt-6.1-sol'
-        model['hosts'] = {'codex-cli': 'gpt-6.1-sol'}
+        model['id'] = unregistered
+        model['hosts'] = {'codex-cli': unregistered}
         policy['models'].append(model)
         token = helper._SNAPSHOT_ROOT.set(ROOT)
         try:

@@ -101,43 +101,47 @@ assert_literal "$MATRIX" "canonical tier does not change" \
 assert_literal "$MATRIX" "high effort is the default" \
   "strong Codex routing must prefer high before xhigh"
 
-assert_literal "$MATRIX" "| lightweight | Anthropic | Haiku |" "lightweight Anthropic mapping must be Haiku"
-assert_literal "$MATRIX" "| standard | Anthropic | Sonnet |" "standard Anthropic mapping must be Sonnet"
-assert_literal "$MATRIX" "| strong | Anthropic | Opus |" "strong Anthropic mapping must be Opus"
-assert_literal "$MATRIX" '| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low |' \
-  "lightweight Codex mapping must name gpt-5.1-codex-mini"
-assert_literal "$MATRIX" '| standard | OpenAI/Codex | `gpt-5.1-codex` | medium |' \
-  "standard Codex mapping must name gpt-5.1-codex"
-assert_literal "$MATRIX" '| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies |' \
-  "strong Codex mapping must use the available registry and preserve the role floor"
-
-# v2 (2026-11-28 owner decision): the investigator inherits the calling session's model on every host.
-assert_literal "$MATRIX" '| sdd-investigator | inherited (v2, 2026-11-28 owner decision) | Claude: `model: inherit` (the calling session'"'"'s model) | OpenAI/Codex: no `model` key (inherits the session configuration) |' \
-  "investigator must inherit the calling session's model on every host"
-assert_literal "$MATRIX" '| spec-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' \
-  "spec reviewers must be at least standard/Sonnet"
-assert_literal "$MATRIX" '| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |' \
-  "evaluator must use Claude Sonnet and retain Codex strong high/xhigh"
-
-assert_contains "$INVESTIGATOR" '^model: inherit$' "Claude investigator must inherit the calling session's model"
-if grep -Eq '^model[[:space:]]*=' "$ROOT/.codex/agents/sdd-investigator.toml"; then
-  fail "Codex investigator must not pin a model (inherits the session configuration)"
-fi
-printf 'ok: Codex investigator pins no model\n'
-assert_literal "$COPILOT_INVESTIGATOR" "Model tier: lightweight" "Copilot investigator must document lightweight tier"
-assert_contains "$EVALUATOR" '^model: sonnet$' "Claude evaluator must use approved Sonnet"
-
-# RT-20260821-009 cycle-2 (seq 836): reviewer floor pins. The standard-minimum
-# reviewer floor was matrix-prose-only - downgrading any reviewer declaration
-# to Haiku shipped green (measured on 4/4 tested files by the cycle-2
-# evaluator). Pin all six declarations at sonnet-or-stronger.
-for reviewer_decl in \
-  plugins/sdd-review-loop/agents/spec-reviewer-a.md \
-  plugins/sdd-review-loop/agents/spec-reviewer-b.md; do
-  grep -Eq '^model: (sonnet|opus)$' "$ROOT/$reviewer_decl" ||
-    fail "reviewer declaration below the standard floor (model must be sonnet or opus): $reviewer_decl"
-  printf 'ok: reviewer declaration meets the standard floor: %s\n' "$reviewer_decl"
+# 2026-11-28 owner decision: the tier mapping, role floors and historical-model
+# tables are generated from the registry and policy; a hand edit or a stale
+# block fails here instead of drifting (scripts/render-model-routing-docs.py).
+python3 "$ROOT/scripts/render-model-routing-docs.py" --root "$ROOT" --check ||
+  fail "generated model routing tables are stale; run scripts/render-model-routing-docs.py"
+printf 'ok: generated model routing tables match the registry and policy\n'
+for block in model-tier-mapping model-role-floors model-historical; do
+  assert_literal "$MATRIX" "<!-- BEGIN GENERATED: ${block} -->" "matrix must carry the generated ${block} block"
 done
+
+# Agents inherit the calling session's model on every host (v2, 2026-11-28).
+for decl in "$INVESTIGATOR" "$EVALUATOR" \
+  "$ROOT/plugins/sdd-review-loop/agents/spec-reviewer-a.md" \
+  "$ROOT/plugins/sdd-review-loop/agents/spec-reviewer-b.md"; do
+  assert_contains "$decl" '^model: inherit$' "${decl#$ROOT/} must inherit the calling session's model"
+done
+for toml in "$ROOT/.codex/agents/sdd-investigator.toml" "$ROOT/.codex/agents/sdd-evaluator.toml"; do
+  if grep -Eq '^model[[:space:]]*=' "$toml"; then
+    fail "${toml#$ROOT/} must not pin a model (inherits the session configuration)"
+  fi
+done
+printf 'ok: Codex investigator and evaluator pin no model\n'
+assert_literal "$COPILOT_INVESTIGATOR" "Model tier: lightweight" "Copilot investigator must document lightweight tier"
+
+# RT-20260821-009: a reviewer floor that lived only in prose let a Haiku
+# downgrade ship green. With inherited definitions the floor is enforced from
+# the registry (2026-11-28): investigator lightweight/low, reviewers
+# standard/medium, and the Done evaluator strong/high on every host (no
+# Claude-only standard override).
+python3 - "$REGISTRY_V2" <<'PY' || fail "registry role floors diverge from the 2026-11-28 decision"
+import json, sys
+defaults = json.load(open(sys.argv[1], encoding='utf-8'))['role_defaults']
+expected = {'sdd-investigator': ('lightweight', 'low'), 'spec-reviewer': ('standard', 'medium'),
+            'sdd-evaluator': ('strong', 'high'), 'domain-reviewer': ('standard', 'medium'),
+            'workflow-auditor': ('standard', 'medium')}
+for role, (tier, effort) in expected.items():
+    profile = defaults[role]
+    assert (profile['minimum_tier'], profile['default_effort']) == (tier, effort), role
+assert 'claude_frontmatter' not in defaults['sdd-evaluator'], 'evaluator floor must not have a Claude-only override'
+PY
+printf 'ok: registry role floors match the 2026-11-28 decision\n'
 
 assert_literal "$ADR" "Turn-first routing optimizes expected iteration count before token price." \
   "ADR must record turn-first routing decision"

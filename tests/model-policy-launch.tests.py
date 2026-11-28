@@ -972,8 +972,10 @@ class LaunchControls(LaunchFixture):
             self.assert_validation(self.accepted(self.cli(sha=sha)), sha=sha, selection=selection)
 
         def floor(registry):
-            registry['role_defaults']['sdd-evaluator']['minimum_tier'] = 'lightweight'
-            registry['role_defaults']['sdd-evaluator']['claude_frontmatter']['minimum_tier'] = 'lightweight'
+            profile = registry['role_defaults']['sdd-evaluator']
+            profile['minimum_tier'] = 'lightweight'
+            if 'claude_frontmatter' in profile:  # the Claude-only override was removed on 2026-11-28
+                profile['claude_frontmatter']['minimum_tier'] = 'lightweight'
 
         def by_name(registry, name):
             return next(item for item in registry['models'] if item['name'] == name)
@@ -1629,11 +1631,12 @@ class PairedClaudeLaunch(LaunchFixture):
         return {'events': events, 'native_calls': native_calls, 'error': error, 'output': output, 'data': data}
 
     def test_launcher_bad_controls_fail_before_reservation_or_native(self):
-        self.active_env = {'SDD_MODEL_EVALUATOR': 'anthropic/sonnet'}
+        self.active_env = {'SDD_MODEL_EVALUATOR': 'anthropic/opus'}
         self.run_id = self.session_id
         self.request = self.fresh_request('evaluator', 'medium')
         selection = self.select('evaluator', risk='medium', env=self.active_env)
-        self.assertEqual(selection['resolved']['native_id'], 'sonnet')
+        # The Done evaluator's floor is strong on every host (2026-11-28 owner decision).
+        self.assertEqual(selection['resolved']['native_id'], 'opus')
         good = self.controls()
         self.accepted(self.cli(sha=good, env=self.active_env))
         good_raw = (self.root / 'controls.json').read_bytes()
@@ -1664,9 +1667,9 @@ class PairedClaudeLaunch(LaunchFixture):
         self.assertLess(events.index('reserved.txt'), events.index('wrapper.json'))
         self.assertEqual(len(result['native_calls']), 1)
         command = result['native_calls'][0]
-        self.assertEqual(command[command.index('--model') + 1], 'sonnet')
+        self.assertEqual(command[command.index('--model') + 1], 'opus')
         self.assertEqual(command[command.index('--effort') + 1], 'medium')
-        self.assertEqual(json.loads(command[command.index('--agents') + 1])['sdd-evaluator']['model'], 'sonnet')
+        self.assertEqual(json.loads(command[command.index('--agents') + 1])['sdd-evaluator']['model'], 'opus')
         self.assertEqual(command[command.index('--permission-mode') + 1], 'dontAsk')
         output = result['output']
         launch_sha = sha_file(output / 'model-launch.json')
@@ -1691,7 +1694,7 @@ class PairedClaudeLaunch(LaunchFixture):
 
 
     def test_selected_quality_initial_output_ancestor_alias_has_no_side_effects(self):
-        self.active_env = {'SDD_MODEL_EVALUATOR': 'anthropic/sonnet'}
+        self.active_env = {'SDD_MODEL_EVALUATOR': 'anthropic/opus'}
         self.run_id = self.session_id
         self.request = self.fresh_request('evaluator', 'medium')
         self.select('evaluator', risk='medium', env=self.active_env)
@@ -2386,7 +2389,7 @@ class ModelRunRecords(unittest.TestCase):
     def test_protected_controller_publishes_generated_delivery_links_after_bound_execution(self):
         f = self.fixture
         f.run_id = f.session_id
-        _, controls_sha = f.bind('evaluator', risk='medium', env={'SDD_MODEL_EVALUATOR': 'anthropic/sonnet'})
+        _, controls_sha = f.bind('evaluator', risk='medium', env={'SDD_MODEL_EVALUATOR': 'anthropic/opus'})
         result = f.exercise_bound_quality_launch(controls_sha=controls_sha, complete=True)
         self.assertIsNone(result['error'], str(result['error']))
         self.assertEqual(len(result['native_calls']), 1)
